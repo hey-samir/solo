@@ -1,4 +1,12 @@
 /* Custom styles to complement Bootstrap */
+:root {
+    --font-family-sans-serif: 'Poppins', system-ui, -apple-system, sans-serif;
+}
+
+body {
+    font-family: var(--font-family-sans-serif);
+}
+
 .card-img {
     height: 200px;
     object-fit: cover;
@@ -21,11 +29,6 @@
 .btn-check:checked + .btn-outline-secondary {
     background-color: var(--bs-primary);
     border-color: var(--bs-primary);
-}
-
-:root {
-    --color-pink: #FF69B4;
-    --color-bright-blue: #00B0FF;
 }
 
 .bg-purple {
@@ -107,11 +110,11 @@
 }
 
 /* Plus button styling */
-.plus-button {
-    position: relative;
-    top: -1.5rem;
-    font-size: 2.5rem !important;
-    background: var(--bs-purple);
-    border-radius: 50%;
-    padding: 0.5rem;
+.navbar-nav .nav-link.active.bg-purple {
+    background-color: var(--bs-purple) !important;
+    color: var(--bs-white);
+}
+
+.navbar-nav .nav-link.active.bg-purple .nav-icon {
+    font-size: 2rem;
 }
