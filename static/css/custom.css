@@ -1,6 +1,7 @@
 /* Custom styles to complement Bootstrap */
 :root {
     --font-family-sans-serif: 'Samsung Sans', system-ui, -apple-system, sans-serif;
+    --solo-purple: #8c52ff;
 }
 
 body {
@@ -27,12 +28,12 @@ body {
 }
 
 .btn-check:checked + .btn-outline-secondary {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
+    background-color: var(--solo-purple);
+    border-color: var(--solo-purple);
 }
 
-.bg-purple {
-    background-color: var(--bs-purple);
+.bg-solo-purple {
+    background-color: var(--solo-purple);
 }
 
 /* Color selection buttons */
@@ -48,7 +49,7 @@ body {
 }
 
 .color-radio:checked + .color-btn {
-    border: 3px solid var(--bs-primary);
+    border: 3px solid var(--solo-purple);
     transform: scale(1.1);
 }
 
@@ -59,7 +60,7 @@ body {
 }
 
 .rating-btn.active {
-    background-color: var(--bs-primary) !important;
+    background-color: var(--solo-purple) !important;
     border-color: var(--bs-white) !important;
     color: var(--bs-white) !important;
 }
@@ -110,12 +111,12 @@ body {
 }
 
 /* Plus button styling */
-.navbar-nav .nav-link.active.bg-purple {
-    background-color: var(--bs-purple) !important;
+.navbar-nav .nav-link.active.bg-solo-purple {
+    background-color: var(--solo-purple) !important;
     color: var(--bs-white);
 }
 
-.navbar-nav .nav-link.active.bg-purple .nav-icon {
+.navbar-nav .nav-link.active.bg-solo-purple .nav-icon {
     font-size: 2rem;
 }
 

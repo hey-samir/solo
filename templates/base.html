@@ -11,13 +11,13 @@
 </head>
 <body class="pb-5">
     <!-- Header -->
-    <header class="bg-purple mb-4">
+    <header class="bg-solo-purple mb-4">
         <div class="container py-3 text-center">
             <a href="{{ url_for('generate_app_logo') }}" class="d-inline-block mb-2">
                 <img src="{{ url_for('static', filename=get_logo_path()) }}" 
                      alt="Solo Logo" 
                      class="logo-img"
-                     height="50">
+                     height="80">
             </a>
             <h1 class="text-white mb-0 d-none">solo</h1>
         </div>
@@ -48,7 +48,7 @@
                     </a>
                 </li>
                 <li class="nav-item flex-fill text-center">
-                    <a class="nav-link active bg-purple" href="/">
+                    <a class="nav-link active bg-solo-purple" href="/">
                         <i class="bi bi-plus-lg nav-icon"></i>
                     </a>
                 </li>
