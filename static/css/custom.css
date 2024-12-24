@@ -55,6 +55,12 @@
     padding: 1rem !important;
 }
 
+.rating-btn.active {
+    background-color: var(--bs-primary) !important;
+    border-color: var(--bs-primary) !important;
+    color: var(--bs-white) !important;
+}
+
 /* Required field indicator */
 .required-field::after {
     content: "*";
@@ -65,14 +71,33 @@
 /* Bottom navigation styling */
 .navbar-nav .nav-link {
     transition: color 0.2s;
+    font-size: 1.2rem;
 }
 
 .navbar-nav .nav-link.active {
     color: var(--bs-primary);
 }
 
-/* Mountain rating buttons */
-.btn-check:checked + .btn-outline-secondary {
-    background-color: var(--bs-primary);
-    border-color: var(--bs-primary);
+/* Plus button styling */
+.plus-button {
+    position: relative;
+    top: -1.5rem;
+    font-size: 2.5rem !important;
+    background: var(--bs-body-bg);
+    border-radius: 50%;
+    padding: 0.5rem;
+}
+
+/* Color grid layout */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.color-grid:last-child {
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: center;
+    padding: 0 2.5rem;
 }

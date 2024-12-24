@@ -10,6 +10,25 @@ function filterClimbs(status) {
     });
 }
 
+// Rating button behavior
+document.addEventListener('DOMContentLoaded', function() {
+    const ratingInputs = document.querySelectorAll('input[name="rating"]');
+    const ratingLabels = document.querySelectorAll('.rating-btn');
+
+    ratingInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            const selectedValue = parseInt(this.value);
+            ratingLabels.forEach((label, index) => {
+                if (index < selectedValue) {
+                    label.classList.add('active');
+                } else {
+                    label.classList.remove('active');
+                }
+            });
+        });
+    });
+});
+
 // Form validation
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('climbForm');

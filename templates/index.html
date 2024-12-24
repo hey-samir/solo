@@ -6,28 +6,37 @@
         <div class="card">
             <div class="card-body p-4">
                 <form action="{{ url_for('add_climb') }}" method="POST" id="ascentForm">
-                    <div class="mb-4">
-                        <label class="form-label required-field">Hold Color</label>
-                        <div class="d-flex flex-wrap justify-content-between">
-                            {% for color, hex in [
-                                ('White', '#FFFFFF'),
-                                ('Pink', '#FF69B4'),
-                                ('Bright Blue', '#00B0FF'),
-                                ('Black', '#000000'),
-                                ('Orange', '#FFA500'),
-                                ('Purple', '#800080'),
-                                ('Green', '#008000'),
-                                ('Red', '#FF0000'),
-                                ('Yellow', '#FFFF00')
-                            ] %}
-                            <div class="color-option">
-                                <input type="radio" name="color" value="{{ color }}" 
-                                       class="color-radio d-none" id="color_{{ color }}" required>
-                                <label class="color-btn" for="color_{{ color }}" 
-                                       style="background-color: {{ hex }}"></label>
-                            </div>
-                            {% endfor %}
+                    <!-- Color Selection -->
+                    <div class="color-grid">
+                        {% for color, hex in [
+                            ('White', '#FFFFFF'),
+                            ('Pink', '#FF69B4'),
+                            ('Bright Blue', '#00B0FF'),
+                            ('Black', '#000000'),
+                            ('Orange', '#FFA500')
+                        ] %}
+                        <div class="color-option">
+                            <input type="radio" name="color" value="{{ color }}" 
+                                   class="color-radio d-none" id="color_{{ color }}" required>
+                            <label class="color-btn" for="color_{{ color }}" 
+                                   style="background-color: {{ hex }}"></label>
                         </div>
+                        {% endfor %}
+                    </div>
+                    <div class="color-grid">
+                        {% for color, hex in [
+                            ('Purple', '#800080'),
+                            ('Green', '#008000'),
+                            ('Red', '#FF0000'),
+                            ('Yellow', '#FFFF00')
+                        ] %}
+                        <div class="color-option">
+                            <input type="radio" name="color" value="{{ color }}" 
+                                   class="color-radio d-none" id="color_{{ color }}" required>
+                            <label class="color-btn" for="color_{{ color }}" 
+                                   style="background-color: {{ hex }}"></label>
+                        </div>
+                        {% endfor %}
                     </div>
 
                     <div class="mb-4">
@@ -74,8 +83,8 @@
                     <div class="mb-4">
                         <label class="form-label required-field">Status</label>
                         <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="status" id="attempted" value="Attempted" checked>
-                            <label class="btn btn-outline-secondary rating-btn" for="attempted">Attempted</label>
+                            <input type="radio" class="btn-check" name="status" id="attempted" value="Tried" checked>
+                            <label class="btn btn-outline-secondary rating-btn" for="attempted">Tried</label>
                             <input type="radio" class="btn-check" name="status" id="sent" value="Sent">
                             <label class="btn btn-outline-secondary rating-btn" for="sent">Sent</label>
                         </div>
