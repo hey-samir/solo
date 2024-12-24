@@ -1,10 +1,16 @@
-from flask import render_template, request, redirect, url_for, flash
+from flask import render_template, request, redirect, url_for, flash, send_from_directory
 from app import app, db
 from models import Climb
+from utils.logo_generator import generate_logo, get_logo_path
+import os
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    # Generate logo on first request if it doesn't exist
+    logo_path = os.path.join(app.static_folder, 'images', 'logo.svg')
+    if not os.path.exists(logo_path):
+        generate_logo()
+    return render_template('index.html', get_logo_path=get_logo_path)
 
 @app.route('/add_climb', methods=['POST'])
 def add_climb():
@@ -36,11 +42,19 @@ def add_climb():
 
 @app.route('/profile')
 def profile():
-    return render_template('index.html')  # Placeholder
+    return render_template('index.html', get_logo_path=get_logo_path)
 
 @app.route('/trends')
 def trends():
-    return render_template('index.html')  # Placeholder
+    return render_template('index.html', get_logo_path=get_logo_path)
+
+@app.route('/generate-logo')
+def generate_app_logo():
+    """Generate and serve the Solo app logo."""
+    logo_path = generate_logo()
+    directory = os.path.join(app.static_folder, 'images')
+    os.makedirs(directory, exist_ok=True)
+    return send_from_directory(directory, os.path.basename(logo_path))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
