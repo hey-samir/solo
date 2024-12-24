@@ -34,11 +34,10 @@
 
 /* Color selection buttons */
 .color-btn {
-    width: 3rem;
-    height: 3rem;
-    border: 2px solid transparent;
-    border-radius: 0.5rem;
-    margin: 0.25rem;
+    width: 4rem;
+    height: 4rem;
+    border: none;
+    margin: 0;
 }
 
 .color-btn:hover {
@@ -46,18 +45,19 @@
 }
 
 .color-radio:checked + .color-btn {
-    border-color: var(--bs-primary);
+    border: 3px solid var(--bs-primary);
     transform: scale(1.1);
 }
 
 /* Rating buttons */
 .rating-btn {
     padding: 1rem !important;
+    border: 2px solid var(--bs-white) !important;
 }
 
 .rating-btn.active {
     background-color: var(--bs-primary) !important;
-    border-color: var(--bs-primary) !important;
+    border-color: var(--bs-white) !important;
     color: var(--bs-white) !important;
 }
 
@@ -74,8 +74,36 @@
     font-size: 1.2rem;
 }
 
-.navbar-nav .nav-link.active {
-    color: var(--bs-primary);
+.navbar-nav .nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--bs-white);
+    padding: 0.5rem 0;
+}
+
+.navbar-nav .nav-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Color grid layout */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin-bottom: 0;
+}
+
+.color-grid:last-child {
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: center;
+}
+
+/* Bottom navigation background */
+.navbar.fixed-bottom {
+    background-color: var(--bs-dark) !important;
+    padding: 0;
 }
 
 /* Plus button styling */
@@ -86,18 +114,4 @@
     background: var(--bs-body-bg);
     border-radius: 50%;
     padding: 0.5rem;
-}
-
-/* Color grid layout */
-.color-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.color-grid:last-child {
-    grid-template-columns: repeat(4, 1fr);
-    justify-content: center;
-    padding: 0 2.5rem;
 }
