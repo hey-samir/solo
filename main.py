@@ -7,8 +7,8 @@ import os
 @app.route('/')
 def index():
     # Generate logo on first request if it doesn't exist
-    logo_path = os.path.join(app.static_folder, 'images', 'logo.svg')
-    if not os.path.exists(logo_path):
+    static_image_path = os.path.join(app.static_folder, 'images', 'logo.png')
+    if not os.path.exists(static_image_path):
         generate_logo()
     return render_template('index.html', get_logo_path=get_logo_path)
 
@@ -55,6 +55,12 @@ def generate_app_logo():
     directory = os.path.join(app.static_folder, 'images')
     os.makedirs(directory, exist_ok=True)
     return send_from_directory(directory, os.path.basename(logo_path))
+
+# Ensure the logo is generated when the application starts
+with app.app_context():
+    static_image_path = os.path.join(app.static_folder, 'images', 'logo.png')
+    if not os.path.exists(static_image_path):
+        generate_logo()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
