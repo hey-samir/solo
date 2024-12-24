@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row g-4">
+    <!-- Hero Section -->
+    <div class="col-12">
+        <div class="card bg-dark text-white">
+            <img src="https://images.unsplash.com/photo-1531685250784-7569952593d2" class="card-img opacity-50" alt="Climbing Wall">
+            <div class="card-img-overlay">
+                <h1 class="card-title">Track Your Climbs</h1>
+                <p class="card-text">Log and monitor your climbing progress</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Climb Form -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Add New Climb</h2>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('add_climb') }}" method="POST" id="climbForm">
+                    <div class="mb-3">
+                        <label for="color" class="form-label">Hold Color</label>
+                        <select class="form-select" name="color" required>
+                            <option value="Red">Red</option>
+                            <option value="Blue">Blue</option>
+                            <option value="Green">Green</option>
+                            <option value="Yellow">Yellow</option>
+                            <option value="Black">Black</option>
+                            <option value="White">White</option>
+                            <option value="Purple">Purple</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="difficulty" class="form-label">Difficulty</label>
+                        <input type="text" class="form-control" name="difficulty" 
+                               placeholder="e.g., 5.10a" pattern="5\.(1[0-5]|[1-9])[abcd]?" required>
+                        <div class="form-text">Format: 5.X or 5.XXa/b/c/d (e.g., 5.10a)</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <div class="btn-group w-100" role="group">
+                            <input type="radio" class="btn-check" name="status" id="attempted" value="Attempted" checked>
+                            <label class="btn btn-outline-secondary" for="attempted">Attempted</label>
+                            <input type="radio" class="btn-check" name="status" id="sent" value="Sent">
+                            <label class="btn btn-outline-secondary" for="sent">Sent</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" name="notes" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Log Climb</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Climbs List -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Recent Climbs</h2>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="filterClimbs('all')">All</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="filterClimbs('sent')">Sent</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="filterClimbs('attempted')">Attempted</button>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for climb in climbs %}
+                <div class="list-group-item climb-item" data-status="{{ climb.status.lower() }}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ climb.color }} - {{ climb.difficulty }}</h6>
+                            <span class="badge {% if climb.status == 'Sent' %}bg-success{% else %}bg-warning{% endif %}">
+                                {{ climb.status }}
+                            </span>
+                        </div>
+                        <small class="text-muted">{{ climb.created_at.strftime('%Y-%m-%d') }}</small>
+                    </div>
+                    {% if climb.notes %}
+                    <p class="mb-1 mt-2 small">{{ climb.notes }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,24 @@
+/* Custom styles to complement Bootstrap */
+.card-img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.climb-item {
+    transition: background-color 0.2s;
+}
+
+.climb-item:hover {
+    background-color: var(--bs-dark);
+}
+
+@media (max-width: 768px) {
+    .card-img {
+        height: 150px;
+    }
+}
+
+.btn-check:checked + .btn-outline-secondary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
