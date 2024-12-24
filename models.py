@@ -9,3 +9,6 @@ class Climb(db.Model):
     status = db.Column(db.String(20), nullable=False)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<Climb {self.color} {self.difficulty}>'

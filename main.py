@@ -13,10 +13,19 @@ def add_climb():
     difficulty_letter = request.form.get('difficulty_letter', '')
     difficulty = f"5.{difficulty_grade}{difficulty_letter}"
 
+    # Validate rating
+    try:
+        rating = int(request.form.get('rating'))
+        if rating not in [1, 2, 3]:
+            raise ValueError("Invalid rating value")
+    except (TypeError, ValueError):
+        flash('Please select a valid rating', 'error')
+        return redirect(url_for('index'))
+
     climb = Climb(
         color=request.form.get('color'),
         difficulty=difficulty,
-        rating=request.form.get('rating', type=int),
+        rating=rating,
         status=request.form.get('status'),
         notes=request.form.get('notes')
     )
