@@ -1,31 +1,37 @@
 from flask import render_template, request, redirect, url_for, flash
 from app import app, db
 from models import Climb
-import re
 
 @app.route('/')
 def index():
-    climbs = Climb.query.order_by(Climb.created_at.desc()).all()
-    return render_template('index.html', climbs=climbs)
+    return render_template('index.html')
 
 @app.route('/add_climb', methods=['POST'])
 def add_climb():
-    # Validate difficulty format
-    difficulty = request.form.get('difficulty')
-    if not re.match(r'^5\.(1[0-5]|[1-9])[abcd]?$', difficulty):
-        flash('Invalid difficulty format. Use format 5.X or 5.XXa/b/c/d', 'error')
-        return redirect(url_for('index'))
+    # Combine difficulty components
+    difficulty_grade = request.form.get('difficulty_grade')
+    difficulty_letter = request.form.get('difficulty_letter', '')
+    difficulty = f"5.{difficulty_grade}{difficulty_letter}"
 
     climb = Climb(
         color=request.form.get('color'),
         difficulty=difficulty,
+        rating=request.form.get('rating', type=int),
         status=request.form.get('status'),
         notes=request.form.get('notes')
     )
     db.session.add(climb)
     db.session.commit()
-    flash('Climb added successfully!', 'success')
+    flash('Ascent recorded successfully!', 'success')
     return redirect(url_for('index'))
+
+@app.route('/profile')
+def profile():
+    return render_template('index.html')  # Placeholder
+
+@app.route('/trends')
+def trends():
+    return render_template('index.html')  # Placeholder
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
