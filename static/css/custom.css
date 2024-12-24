@@ -22,3 +22,57 @@
     background-color: var(--bs-primary);
     border-color: var(--bs-primary);
 }
+
+:root {
+    --color-pink: #FF69B4;
+    --color-bright-blue: #00B0FF;
+}
+
+.bg-purple {
+    background-color: var(--bs-purple);
+}
+
+/* Color selection buttons */
+.color-btn {
+    width: 3rem;
+    height: 3rem;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    margin: 0.25rem;
+}
+
+.color-btn:hover {
+    transform: scale(1.1);
+}
+
+.color-radio:checked + .color-btn {
+    border-color: var(--bs-primary);
+    transform: scale(1.1);
+}
+
+/* Rating buttons */
+.rating-btn {
+    padding: 1rem !important;
+}
+
+/* Required field indicator */
+.required-field::after {
+    content: "*";
+    color: var(--bs-danger);
+    margin-left: 0.25rem;
+}
+
+/* Bottom navigation styling */
+.navbar-nav .nav-link {
+    transition: color 0.2s;
+}
+
+.navbar-nav .nav-link.active {
+    color: var(--bs-primary);
+}
+
+/* Mountain rating buttons */
+.btn-check:checked + .btn-outline-secondary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}

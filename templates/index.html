@@ -7,21 +7,31 @@
             <div class="card-body p-4">
                 <form action="{{ url_for('add_climb') }}" method="POST" id="ascentForm">
                     <div class="mb-4">
-                        <label for="color" class="form-label">Hold Color</label>
-                        <select class="form-select form-select-lg" name="color" required>
-                            <option value="" selected disabled>Select color</option>
-                            <option value="Red">Red</option>
-                            <option value="Blue">Blue</option>
-                            <option value="Green">Green</option>
-                            <option value="Yellow">Yellow</option>
-                            <option value="Black">Black</option>
-                            <option value="White">White</option>
-                            <option value="Purple">Purple</option>
-                        </select>
+                        <label class="form-label required-field">Hold Color</label>
+                        <div class="d-flex flex-wrap justify-content-between">
+                            {% for color, hex in [
+                                ('White', '#FFFFFF'),
+                                ('Pink', '#FF69B4'),
+                                ('Bright Blue', '#00B0FF'),
+                                ('Black', '#000000'),
+                                ('Orange', '#FFA500'),
+                                ('Purple', '#800080'),
+                                ('Green', '#008000'),
+                                ('Red', '#FF0000'),
+                                ('Yellow', '#FFFF00')
+                            ] %}
+                            <div class="color-option">
+                                <input type="radio" name="color" value="{{ color }}" 
+                                       class="color-radio d-none" id="color_{{ color }}" required>
+                                <label class="color-btn" for="color_{{ color }}" 
+                                       style="background-color: {{ hex }}"></label>
+                            </div>
+                            {% endfor %}
+                        </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label">Difficulty</label>
+                        <label class="form-label required-field">Difficulty</label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text">5.</span>
                             <select class="form-select" name="difficulty_grade" required>
@@ -41,19 +51,19 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label">Rating</label>
+                        <label class="form-label required-field">Rating</label>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="rating" id="rating1" value="1" required>
-                            <label class="btn btn-outline-secondary" for="rating1">
+                            <label class="btn btn-outline-secondary rating-btn" for="rating1">
                                 <i class="bi bi-mountain"></i>
                             </label>
                             <input type="radio" class="btn-check" name="rating" id="rating2" value="2">
-                            <label class="btn btn-outline-secondary" for="rating2">
+                            <label class="btn btn-outline-secondary rating-btn" for="rating2">
                                 <i class="bi bi-mountain"></i>
                                 <i class="bi bi-mountain"></i>
                             </label>
                             <input type="radio" class="btn-check" name="rating" id="rating3" value="3">
-                            <label class="btn btn-outline-secondary" for="rating3">
+                            <label class="btn btn-outline-secondary rating-btn" for="rating3">
                                 <i class="bi bi-mountain"></i>
                                 <i class="bi bi-mountain"></i>
                                 <i class="bi bi-mountain"></i>
@@ -62,18 +72,19 @@
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label">Status</label>
+                        <label class="form-label required-field">Status</label>
                         <div class="btn-group w-100" role="group">
                             <input type="radio" class="btn-check" name="status" id="attempted" value="Attempted" checked>
-                            <label class="btn btn-outline-secondary" for="attempted">Attempted</label>
+                            <label class="btn btn-outline-secondary rating-btn" for="attempted">Attempted</label>
                             <input type="radio" class="btn-check" name="status" id="sent" value="Sent">
-                            <label class="btn btn-outline-secondary" for="sent">Sent</label>
+                            <label class="btn btn-outline-secondary rating-btn" for="sent">Sent</label>
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label for="notes" class="form-label">Notes</label>
-                        <textarea class="form-control form-control-lg" name="notes" rows="3" placeholder="Optional: Add any notes about your ascent"></textarea>
+                        <textarea class="form-control form-control-lg" name="notes" rows="3" 
+                                  placeholder="Optional: Add any notes about your ascent"></textarea>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-lg w-100">Send</button>
@@ -82,36 +93,4 @@
         </div>
     </div>
 </div>
-
-    <!-- Climbs List -->
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h2 class="h5 mb-0">Recent Climbs</h2>
-                <div class="btn-group">
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="filterClimbs('all')">All</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="filterClimbs('sent')">Sent</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="filterClimbs('attempted')">Attempted</button>
-                </div>
-            </div>
-            <div class="list-group list-group-flush">
-                {% for climb in climbs %}
-                <div class="list-group-item climb-item" data-status="{{ climb.status.lower() }}">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="mb-1">{{ climb.color }} - {{ climb.difficulty }}</h6>
-                            <span class="badge {% if climb.status == 'Sent' %}bg-success{% else %}bg-warning{% endif %}">
-                                {{ climb.status }}
-                            </span>
-                        </div>
-                        <small class="text-muted">{{ climb.created_at.strftime('%Y-%m-%d') }}</small>
-                    </div>
-                    {% if climb.notes %}
-                    <p class="mb-1 mt-2 small">{{ climb.notes }}</p>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
 {% endblock %}

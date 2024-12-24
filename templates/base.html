@@ -8,34 +8,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
-<body>
-    <nav class="navbar navbar-expand bg-body-tertiary">
-        <div class="container">
-            <a class="navbar-brand" href="/">Solo</a>
-            <ul class="navbar-nav mx-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile">
-                        <i class="bi bi-person-circle"></i>
-                        <span class="d-none d-sm-inline">Profile</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="/" style="font-size: 1.5em;">
-                        <i class="bi bi-plus-circle-fill"></i>
-                        <span class="d-none d-sm-inline">Track</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/trends">
-                        <i class="bi bi-graph-up"></i>
-                        <span class="d-none d-sm-inline">Trends</span>
-                    </a>
-                </li>
-            </ul>
+<body class="pb-5">
+    <!-- Header -->
+    <header class="bg-purple mb-4">
+        <div class="container py-3">
+            <h1 class="text-center text-white mb-0">solo</h1>
         </div>
-    </nav>
+    </header>
 
-    <div class="container mt-4">
+    <div class="container mb-5 pb-5">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -48,6 +29,26 @@
 
         {% block content %}{% endblock %}
     </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="navbar navbar-expand fixed-bottom bg-body-tertiary">
+        <div class="container-fluid">
+            <ul class="navbar-nav w-100 justify-content-between">
+                <li class="nav-item flex-fill text-center">
+                    <a class="nav-link py-3" href="/profile">Profile</a>
+                </li>
+                <li class="nav-item flex-fill text-center">
+                    <a class="nav-link py-2 active" href="/">
+                        <i class="bi bi-plus-circle-fill d-block" style="font-size: 1.5em;"></i>
+                        Track
+                    </a>
+                </li>
+                <li class="nav-item flex-fill text-center">
+                    <a class="nav-link py-3" href="/trends">Trends</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
