@@ -1,8 +1,8 @@
 /* Custom styles to complement Bootstrap */
 :root {
-    --font-family-sans-serif: 'Real Head Medium', system-ui, -apple-system, sans-serif;
+    --font-family-sans-serif: 'One UI Sans', system-ui, -apple-system, sans-serif;
     --solo-purple: #8c52ff;
-    --teal: #008080; /* Added teal color */
+    --teal: #008080;
 }
 
 body {
@@ -35,13 +35,13 @@ body {
 }
 
 .bg-solo-purple {
-    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%);
+    background-color: var(--solo-purple);
 }
 
 /* Color selection buttons */
 .color-btn {
-    width: 3.5rem;
-    height: 3.5rem;
+    width: 2.5rem;
+    height: 2rem;
     border: 2px solid var(--bs-white);
     margin: 0;
 }
@@ -57,7 +57,7 @@ body {
 
 /* Rating buttons */
 .rating-btn {
-    padding: 0.75rem !important;
+    padding: 0.95rem !important;
     border: 2px solid var(--bs-white) !important;
 }
 
@@ -79,6 +79,7 @@ body {
     transition: color 0.2s;
     font-size: 1rem;
     padding: 0.25rem 0;
+    font-weight: 700;
 }
 
 .navbar-nav .nav-link {
@@ -114,7 +115,7 @@ body {
 
 /* Plus button styling */
 .navbar-nav .nav-link.active.bg-solo-purple {
-    background-color: var(--solo-purple) !important;
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
     color: var(--bs-white);
 }
 
@@ -141,4 +142,19 @@ body {
 /* Status buttons */
 .btn-check:checked + .btn-outline-secondary.rating-btn {
     color: var(--bs-white);
+}
+
+/* Form labels */
+.form-label {
+    font-weight: 700;
+}
+
+/* Form container width */
+.form-container {
+    max-width: 100%;
+}
+
+/* Consistent width for form elements */
+.form-control, .btn-group, .input-group {
+    width: 100% !important;
 }

@@ -7,37 +7,40 @@
             <div class="card-body p-4">
                 <form action="{{ url_for('add_climb') }}" method="POST" id="ascentForm">
                     <!-- Color Selection -->
-                    <div class="color-grid">
-                        {% for color, hex in [
-                            ('White', '#FFFFFF'),
-                            ('Pink', '#FF69B4'),
-                            ('Bright Blue', '#00B0FF'),
-                            ('Black', '#000000'),
-                            ('Orange', '#FFA500')
-                        ] %}
-                        <div class="color-option">
-                            <input type="radio" name="color" value="{{ color }}" 
-                                   class="color-radio d-none" id="color_{{ color }}" required>
-                            <label class="color-btn" for="color_{{ color }}" 
-                                   style="background-color: {{ hex }}"></label>
+                    <div class="mb-4">
+                        <label class="form-label required-field">Color</label>
+                        <div class="color-grid">
+                            {% for color, hex in [
+                                ('White', '#FFFFFF'),
+                                ('Pink', '#FF69B4'),
+                                ('Bright Blue', '#00B0FF'),
+                                ('Black', '#000000'),
+                                ('Orange', '#FFA500')
+                            ] %}
+                            <div class="color-option">
+                                <input type="radio" name="color" value="{{ color }}" 
+                                       class="color-radio d-none" id="color_{{ color }}" required>
+                                <label class="color-btn" for="color_{{ color }}" 
+                                       style="background-color: {{ hex }}"></label>
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
-                    </div>
-                    <div class="color-grid">
-                        {% for color, hex in [
-                            ('Purple', '#800080'),
-                            ('Green', '#008000'),
-                            ('Red', '#FF0000'),
-                            ('Yellow', '#FFFF00'),
-                            ('Teal', '#008080')
-                        ] %}
-                        <div class="color-option">
-                            <input type="radio" name="color" value="{{ color }}" 
-                                   class="color-radio d-none" id="color_{{ color }}" required>
-                            <label class="color-btn" for="color_{{ color }}" 
-                                   style="background-color: {{ hex }}"></label>
+                        <div class="color-grid">
+                            {% for color, hex in [
+                                ('Purple', '#800080'),
+                                ('Green', '#008000'),
+                                ('Red', '#FF0000'),
+                                ('Yellow', '#FFFF00'),
+                                ('Teal', '#008080')
+                            ] %}
+                            <div class="color-option">
+                                <input type="radio" name="color" value="{{ color }}" 
+                                       class="color-radio d-none" id="color_{{ color }}" required>
+                                <label class="color-btn" for="color_{{ color }}" 
+                                       style="background-color: {{ hex }}"></label>
+                            </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
 
                     <div class="mb-4">
