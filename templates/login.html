@@ -9,15 +9,18 @@
                     {{ form.csrf_token }}
                     <div class="mb-3">
                         <label class="form-label">Username</label>
-                        <input type="text" name="username" class="form-control form-control-lg" required 
-                               pattern="[A-Za-z0-9]{1,10}" title="Username must be 1-10 characters, letters and numbers only">
+                        <div class="input-group">
+                            <span class="input-group-text">@</span>
+                            <input type="text" name="username" class="form-control form-control-lg" required 
+                                   pattern="[A-Za-z0-9]{1,10}" title="Username must be 1-10 characters, letters and numbers only">
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Password</label>
                         <input type="password" name="password" class="form-control form-control-lg" required>
                     </div>
                     <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Login</button>
-                    {% if request.args.get('next') and request.args.get('next') != url_for('index') %}
+                    {% if request.args.get('next') and request.args.get('next') != url_for('index') and request.args.get('next') != url_for('sends') %}
                     <div class="auth-banner mt-3">
                         Please log in to access this page
                     </div>

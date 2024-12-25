@@ -314,9 +314,15 @@ body {
 }
 
 /* Input group styling for username */
+.input-group .input-group-text {
+    width: auto;
+    min-width: 42px;
+    justify-content: center;
+}
+
 .input-group .form-control[name="username"] {
-    flex: 0.85 1 auto;
-    width: 85%;
+    flex: 1 1 calc(100% - 42px);
+    width: calc(100% - 42px);
 }
 
 /* Make sure input groups have full width */
