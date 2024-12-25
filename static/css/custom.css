@@ -1,6 +1,6 @@
 /* Custom styles to complement Bootstrap */
 :root {
-    --font-family-sans-serif: 'One UI Sans', 'CashMarket', system-ui, -apple-system, sans-serif;
+    --font-family-sans-serif: 'One UI Sans', 'SF Pro Display', 'CashMarket', system-ui, -apple-system, sans-serif;
     --solo-purple: #8c52ff;
     --teal: #008080;
 }
