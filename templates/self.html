@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4 position-relative">
+                        <div class="profile-photo-container">
+                            <img src="{{ url_for('static', filename='images/profiles/' + current_user.profile_photo) }}" 
+                                 alt="Profile Photo" 
+                                 class="rounded-circle profile-photo">
+                            <label for="photo-upload" class="edit-photo-icon">
+                                <i class="bi bi-camera"></i>
+                            </label>
+                        </div>
+                        <form id="photo-form" class="d-none" method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data">
+                            <input type="file" id="photo-upload" name="photo" accept="image/*" class="d-none">
+                        </form>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input type="text" class="form-control form-control-lg" name="name" 
+                                   value="{{ current_user.name }}" readonly data-editable>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control form-control-lg" 
+                                   value="{{ current_user.username }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Gym</label>
+                            <input type="text" class="form-control form-control-lg" name="gym" 
+                                   value="{{ current_user.gym }}" readonly data-editable>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Member Since</label>
+                            <input type="text" class="form-control form-control-lg" 
+                                   value="{{ current_user.member_since.strftime('%B %Y') }}" readonly>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Total Ascents</label>
+                            <input type="text" class="form-control form-control-lg" 
+                                   value="{{ current_user.climbs|length }}" readonly>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-lg edit-toggle">Edit Profile</button>
+                            <button type="submit" class="btn btn-primary btn-lg d-none save-profile">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

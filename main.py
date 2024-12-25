@@ -1,23 +1,88 @@
-from flask import render_template, request, redirect, url_for, flash, send_from_directory
+from flask import render_template, request, redirect, url_for, flash, send_from_directory, current_app
+from flask_login import login_required, current_user, login_user, logout_user
+from werkzeug.utils import secure_filename
 from app import app, db
-from models import Climb
+from models import Climb, User
 from utils.logo_generator import generate_logo, get_logo_path
+from flask_wtf.csrf import CSRFProtect
+from forms import LoginForm, RegistrationForm # Added import statement
 import os
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
     """Redirect root to /sends"""
     return redirect(url_for('sends'))
 
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('sends'))
+
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user)
+            next_page = request.args.get('next')
+            return redirect(next_page if next_page else url_for('sends'))
+        flash('Invalid username or password', 'error')
+    return render_template('login.html', form=form)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('sends'))
+
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        email = form.email.data
+
+        if not username.isalnum():
+            flash('Username must contain only letters and numbers', 'error')
+            return render_template('register.html', form=form)
+
+        if User.query.filter_by(username=username).first():
+            flash('Username already taken', 'error')
+            return render_template('register.html', form=form)
+
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered', 'error')
+            return render_template('register.html', form=form)
+
+        user = User(username=username, email=email)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+
+        flash('Registration successful! Please login.', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', form=form)
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login'))
+
 @app.route('/sends')
+@login_required
 def sends():
     # Generate logo on first request if it doesn't exist
     static_image_path = os.path.join(app.static_folder, 'images', 'logo.png')
     if not os.path.exists(static_image_path):
         generate_logo()
-    return render_template('index.html', get_logo_path=get_logo_path)
+    return render_template('index.html')
 
 @app.route('/add_climb', methods=['POST'])
+@login_required
 def add_climb():
     # Combine difficulty components
     difficulty_grade = request.form.get('difficulty_grade')
@@ -38,7 +103,8 @@ def add_climb():
         difficulty=difficulty,
         rating=rating,
         status=request.form.get('status'),
-        notes=request.form.get('notes')
+        notes=request.form.get('notes'),
+        user_id=current_user.id  # Link climb to current user
     )
     db.session.add(climb)
     db.session.commit()
@@ -46,12 +112,61 @@ def add_climb():
     return redirect(url_for('sends'))
 
 @app.route('/self')
+@login_required
 def self():
-    return render_template('index.html', get_logo_path=get_logo_path)
+    """User profile page."""
+    return render_template('self.html')
+
+@app.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    """Update user profile information."""
+    name = request.form.get('name')
+    gym = request.form.get('gym')
+
+    if name:
+        current_user.name = name
+    if gym:
+        current_user.gym = gym
+
+    db.session.commit()
+    flash('Profile updated successfully!', 'success')
+    return redirect(url_for('self'))
+
+@app.route('/upload_photo', methods=['POST'])
+@login_required
+def upload_photo():
+    """Handle profile photo upload."""
+    if 'photo' not in request.files:
+        flash('No file uploaded', 'error')
+        return redirect(url_for('self'))
+
+    file = request.files['photo']
+    if file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(url_for('self'))
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(f"profile_{current_user.id}_{file.filename}")
+        upload_folder = os.path.join(app.static_folder, 'images', 'profiles')
+        os.makedirs(upload_folder, exist_ok=True)
+
+        file_path = os.path.join(upload_folder, filename)
+        file.save(file_path)
+
+        current_user.profile_photo = f"profiles/{filename}"
+        db.session.commit()
+
+        flash('Profile photo updated successfully!', 'success')
+    else:
+        flash('Invalid file type. Please upload a PNG or JPEG image.', 'error')
+
+    return redirect(url_for('self'))
 
 @app.route('/stats')
+@login_required
 def stats():
-    return render_template('index.html', get_logo_path=get_logo_path)
+    return render_template('stats.html')
 
 @app.route('/generate-logo')
 def generate_app_logo():

@@ -160,3 +160,38 @@ body {
 .form-control, .btn-group, .input-group {
     width: 100% !important;
 }
+
+/* Profile photo styling */
+.profile-photo-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.profile-photo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 3px solid var(--solo-purple);
+}
+
+.edit-photo-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--solo-purple);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.profile-photo-container:hover .edit-photo-icon {
+    opacity: 1;
+}
