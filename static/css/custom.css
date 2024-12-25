@@ -315,8 +315,8 @@ body {
 
 /* Input group styling for username */
 .input-group .form-control[name="username"] {
-    flex: 1 1 auto;
-    width: 100%;
+    flex: 0.85 1 auto;
+    width: 85%;
 }
 
 /* Make sure input groups have full width */

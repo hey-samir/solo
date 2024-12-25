@@ -17,7 +17,7 @@
                         <input type="password" name="password" class="form-control form-control-lg" required>
                     </div>
                     <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Login</button>
-                    {% if request.args.get('next') %}
+                    {% if request.args.get('next') and request.args.get('next') != url_for('index') %}
                     <div class="auth-banner mt-3">
                         Please log in to access this page
                     </div>
