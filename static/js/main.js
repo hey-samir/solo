@@ -53,7 +53,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (editToggle) {
         editToggle.addEventListener('click', function() {
-            editableFields.forEach(field => field.classList.add('editing'));
+            editableFields.forEach(field => {
+                field.classList.add('editing');
+                const input = field.querySelector('input');
+                if (input) {
+                    input.value = input.defaultValue; // Restore original value
+                }
+            });
             editModeButtons.classList.add('d-none');
             saveModeButtons.classList.remove('d-none');
         });
@@ -65,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 field.classList.remove('editing');
                 const input = field.querySelector('input');
                 if (input) {
-                    input.value = input.defaultValue;
+                    input.value = input.defaultValue; // Reset to original value
                 }
             });
             editModeButtons.classList.remove('d-none');
@@ -76,12 +82,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Photo upload handling
     const photoUpload = document.getElementById('photo-upload');
     const photoForm = document.getElementById('photo-form');
+    const csrfToken = document.getElementById('csrf-token').dataset.token;
 
-    if (photoUpload) {
+    if (photoUpload && photoForm) {
         photoUpload.addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 const file = this.files[0];
                 if (file.type.match('image.*')) {
+                    // Update CSRF token before submission
+                    const tokenInput = photoForm.querySelector('input[name="csrf_token"]');
+                    if (tokenInput) {
+                        tokenInput.value = csrfToken;
+                    }
                     photoForm.submit();
                 } else {
                     alert('Please select an image file');

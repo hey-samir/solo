@@ -6,7 +6,10 @@
         <div class="col-md-8 col-lg-6">
             <div class="card">
                 <div class="card-body p-4">
-                    <div class="text-center mb-4 position-relative">
+                    <!-- Hidden CSRF token div -->
+                    <div id="csrf-token" data-token="{{ form.csrf_token._value() }}"></div>
+
+                    <div class="text-center mb-4">
                         <div class="profile-photo-container">
                             {% if current_user.profile_photo and current_user.profile_photo != 'default_profile.png' %}
                                 <img src="{{ url_for('static', filename='images/' + current_user.profile_photo) }}" 
@@ -22,54 +25,57 @@
                             </label>
                         </div>
                         <form id="photo-form" method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data">
-                            {{ form.csrf_token }}
+                            <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
                             <input type="file" id="photo-upload" name="photo" accept="image/*" class="d-none">
                         </form>
                     </div>
 
                     <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
-                        {{ form.csrf_token }}
-                        <div class="mb-4">
+                        <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
+
+                        <div class="profile-fields">
                             <div class="profile-field" data-editable>
                                 <label class="form-label">Name</label>
-                                <span class="profile-text">{{ current_user.name }}</span>
-                                {{ form.name(class_="form-control form-control-lg d-none") }}
+                                <div class="field-content">
+                                    <span class="profile-text">{{ current_user.name }}</span>
+                                    {{ form.name(class_="form-control form-control-lg d-none", value=current_user.name) }}
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-4">
                             <div class="profile-field" data-editable>
                                 <label class="form-label">Username</label>
-                                <span class="profile-text">@{{ current_user.username }}</span>
-                                {{ form.username(class_="form-control form-control-lg d-none") }}
+                                <div class="field-content">
+                                    <span class="profile-text">@{{ current_user.username }}</span>
+                                    {{ form.username(class_="form-control form-control-lg d-none", value=current_user.username) }}
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-4">
                             <div class="profile-field" data-editable>
                                 <label class="form-label">Gym</label>
-                                <span class="profile-text">{{ current_user.gym or 'Not set' }}</span>
-                                {{ form.gym(class_="form-control form-control-lg d-none") }}
+                                <div class="field-content">
+                                    <span class="profile-text">{{ current_user.gym or 'Not set' }}</span>
+                                    {{ form.gym(class_="form-control form-control-lg d-none", value=current_user.gym) }}
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-4">
                             <div class="profile-field">
                                 <label class="form-label">Member Since</label>
-                                <span class="profile-text">{{ current_user.member_since.strftime('%B %Y') }}</span>
+                                <div class="field-content">
+                                    <span class="profile-text">{{ current_user.member_since.strftime('%B %Y') }}</span>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="mb-4">
                             <div class="profile-field">
                                 <label class="form-label">Total Ascents</label>
-                                <span class="profile-text">{{ current_user.climbs|length }}</span>
+                                <div class="field-content">
+                                    <span class="profile-text">{{ current_user.climbs|length }}</span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2">
+                        <div class="d-grid gap-2 mt-4">
                             <div class="edit-mode-buttons">
-                                <button type="button" class="btn btn-lg edit-toggle nav-link active bg-solo-purple w-100">
+                                <button type="button" class="btn btn-lg nav-link active bg-solo-purple w-100 edit-toggle">
                                     Edit Profile
                                 </button>
                             </div>
@@ -79,7 +85,7 @@
                                         <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Save</button>
                                     </div>
                                     <div class="col">
-                                        <button type="button" class="btn btn-lg btn-outline-secondary cancel-edit w-100">Back</button>
+                                        <button type="button" class="btn btn-lg nav-link active bg-solo-purple w-100 cancel-edit">Back</button>
                                     </div>
                                 </div>
                             </div>

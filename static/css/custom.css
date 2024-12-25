@@ -50,11 +50,11 @@ body {
     height: 120px;
     border: 3px solid var(--solo-purple);
     transition: all 0.3s ease;
+    border-radius: 50%; /* Moved here for consistency */
 }
 
 .profile-photo {
     object-fit: cover;
-    border-radius: 50%;
 }
 
 .profile-photo-placeholder {
@@ -62,7 +62,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
 }
 
 .profile-photo-placeholder i {
@@ -93,16 +92,28 @@ body {
 }
 
 /* Profile field styling */
+.profile-fields {
+    display: table;
+    width: 100%;
+    border-spacing: 0 1rem;
+}
+
 .profile-field {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem; /* Added margin-bottom */
+    display: table-row;
 }
 
 .form-label {
-    min-width: 120px;
-    margin-bottom: 0;
-    margin-right: 1rem;
+    display: table-cell;
+    padding-right: 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.field-content {
+    display: table-cell;
+    width: 100%;
+    vertical-align: middle;
 }
 
 .profile-text {
@@ -110,7 +121,7 @@ body {
     color: var(--bs-white);
     padding: 0.5rem;
     border-radius: 0.5rem;
-    flex-grow: 1;
+    display: block;
 }
 
 .profile-field[data-editable] .profile-text {
@@ -119,7 +130,7 @@ body {
 
 .profile-field[data-editable] input {
     display: none;
-    flex-grow: 1;
+    width: 100%;
 }
 
 .profile-field[data-editable].editing .profile-text {
@@ -138,7 +149,9 @@ body {
     background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
     border: none;
     transition: all 0.3s ease;
-    padding: 0.95rem !important; /* Added padding */
+    padding: 0.95rem !important;
+    font-size: 1rem;
+    font-weight: 600;
 }
 
 .btn.nav-link.active.bg-solo-purple:hover {
