@@ -13,7 +13,7 @@
     <!-- Header -->
     <header class="bg-solo-purple">
         <div class="header-container">
-            <a href="{{ url_for('generate_app_logo') }}" class="d-inline-block">
+            <a href="{{ url_for('sends') }}" class="d-inline-block">
                 <img src="{{ url_for('static', filename=get_logo_path()) }}" 
                      alt="Solo Logo" 
                      class="logo-img"
@@ -41,18 +41,18 @@
         <div class="container-fluid">
             <ul class="navbar-nav w-100 justify-content-between">
                 <li class="nav-item flex-fill text-center">
-                    <a class="nav-link" href="/self">
+                    <a class="nav-link" href="{{ url_for('self') }}">
                         <i class="bi bi-person-circle nav-icon"></i>
                         Self
                     </a>
                 </li>
                 <li class="nav-item flex-fill text-center">
-                    <a class="nav-link active bg-solo-purple" href="/sends">
+                    <a class="nav-link active bg-solo-purple" href="{{ url_for('sends') }}">
                         <i class="bi bi-plus-lg nav-icon"></i>
                     </a>
                 </li>
                 <li class="nav-item flex-fill text-center">
-                    <a class="nav-link" href="/stats">
+                    <a class="nav-link" href="{{ url_for('stats') }}">
                         <i class="bi bi-bar-chart nav-icon"></i>
                         Stats
                     </a>

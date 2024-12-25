@@ -5,6 +5,57 @@
     --teal: #008080;
 }
 
+/* Logo styling */
+.logo-img {
+    height: 120px;
+    width: auto;
+}
+
+/* Header styling */
+.header-container {
+    width: fit-content;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Bottom navigation styling */
+.navbar.fixed-bottom {
+    background-color: var(--bs-dark) !important;
+    padding: 0;
+    z-index: 1030;
+}
+
+.navbar-nav {
+    width: 100%;
+}
+
+.navbar-nav .nav-link {
+    transition: color 0.2s;
+    font-size: 1rem;
+    padding: 0.75rem 0;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--bs-white);
+}
+
+.navbar-nav .nav-icon {
+    font-size: 1.25rem;
+    margin-bottom: 0.15rem;
+}
+
+/* Plus button styling */
+.navbar-nav .nav-link.active.bg-solo-purple {
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
+    color: var(--bs-white);
+}
+
+.navbar-nav .nav-link.active.bg-solo-purple .nav-icon {
+    font-size: 1.75rem;
+}
+
+/* Custom styles to complement Bootstrap */
 body {
     font-family: var(--font-family-sans-serif);
 }
@@ -210,26 +261,6 @@ body {
     margin-left: 0.25rem;
 }
 
-/* Bottom navigation styling */
-.navbar-nav .nav-link {
-    transition: color 0.2s;
-    font-size: 1rem;
-    padding: 0.25rem 0;
-    font-weight: 700;
-}
-
-.navbar-nav .nav-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: var(--bs-white);
-}
-
-.navbar-nav .nav-icon {
-    font-size: 1.25rem;
-    margin-bottom: 0.15rem;
-}
-
 /* Color grid layout */
 .color-grid {
     display: grid;
@@ -243,37 +274,6 @@ body {
     justify-content: center;
 }
 
-/* Bottom navigation background */
-.navbar.fixed-bottom {
-    background-color: var(--bs-dark) !important;
-    padding: 0;
-}
-
-/* Plus button styling */
-.navbar-nav .nav-link.active.bg-solo-purple {
-    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
-    color: var(--bs-white);
-}
-
-.navbar-nav .nav-link.active.bg-solo-purple .nav-icon {
-    font-size: 1.75rem;
-}
-
-/* Logo styling */
-.logo-img {
-    transition: transform 0.2s;
-}
-
-.logo-img:hover {
-    transform: scale(1.1);
-}
-
-/* Header styling */
-.header-container {
-    width: fit-content;
-    margin: 0 auto;
-    padding: 1rem;
-}
 
 /* Status buttons */
 .btn-check:checked + .btn-outline-secondary.rating-btn {
