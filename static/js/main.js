@@ -10,8 +10,8 @@ function filterClimbs(status) {
     });
 }
 
-// Rating button behavior
 document.addEventListener('DOMContentLoaded', function() {
+    // Rating button behavior
     const ratingInputs = document.querySelectorAll('input[name="rating"]');
     const ratingLabels = document.querySelectorAll('.rating-btn');
 
@@ -27,22 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-});
-
-// Form validation
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('climbForm');
-    if (form) {
-        form.addEventListener('submit', function(event) {
-            const difficultyInput = form.querySelector('input[name="difficulty"]');
-            const difficultyPattern = /^5\.(1[0-5]|[1-9])[abcd]?$/;
-
-            if (!difficultyPattern.test(difficultyInput.value)) {
-                event.preventDefault();
-                alert('Please enter a valid difficulty format (e.g., 5.10a)');
-            }
-        });
-    }
 
     // Profile edit functionality
     const editToggle = document.querySelector('.edit-toggle');
@@ -56,8 +40,10 @@ document.addEventListener('DOMContentLoaded', function() {
             editableFields.forEach(field => {
                 field.classList.add('editing');
                 const input = field.querySelector('input');
-                if (input) {
-                    input.value = input.defaultValue; // Restore original value
+                const text = field.querySelector('.profile-text');
+                if (input && text) {
+                    // Store current text value in input
+                    input.value = text.textContent.replace('@', '');
                 }
             });
             editModeButtons.classList.add('d-none');
@@ -82,22 +68,36 @@ document.addEventListener('DOMContentLoaded', function() {
     // Photo upload handling
     const photoUpload = document.getElementById('photo-upload');
     const photoForm = document.getElementById('photo-form');
-    const csrfToken = document.getElementById('csrf-token').dataset.token;
+    const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
 
-    if (photoUpload && photoForm) {
+    if (photoUpload && photoForm && csrfToken) {
         photoUpload.addEventListener('change', function() {
             if (this.files && this.files[0]) {
                 const file = this.files[0];
                 if (file.type.match('image.*')) {
-                    // Update CSRF token before submission
-                    const tokenInput = photoForm.querySelector('input[name="csrf_token"]');
-                    if (tokenInput) {
-                        tokenInput.value = csrfToken;
+                    // Ensure form has current CSRF token
+                    const formToken = photoForm.querySelector('input[name="csrf_token"]');
+                    if (formToken) {
+                        formToken.value = csrfToken;
                     }
                     photoForm.submit();
                 } else {
                     alert('Please select an image file');
                 }
+            }
+        });
+    }
+
+    // Form validation
+    const form = document.getElementById('climbForm');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            const difficultyInput = form.querySelector('input[name="difficulty"]');
+            const difficultyPattern = /^5\.(1[0-5]|[1-9])[abcd]?$/;
+
+            if (!difficultyPattern.test(difficultyInput.value)) {
+                event.preventDefault();
+                alert('Please enter a valid difficulty format (e.g., 5.10a)');
             }
         });
     }

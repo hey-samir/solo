@@ -108,6 +108,7 @@ body {
     font-weight: 700;
     white-space: nowrap;
     vertical-align: middle;
+    width: 140px; /* Fixed width for labels */
 }
 
 .field-content {
@@ -130,7 +131,6 @@ body {
 
 .profile-field[data-editable] input {
     display: none;
-    width: 100%;
 }
 
 .profile-field[data-editable].editing .profile-text {
@@ -140,8 +140,11 @@ body {
 .profile-field[data-editable].editing input {
     display: block;
     background-color: var(--bs-dark);
-    border: 2px solid var(--bs-white);
+    border: 2px solid var(--solo-purple);
     color: var(--bs-white);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    width: 100%;
 }
 
 /* Button styling */
@@ -154,11 +157,6 @@ body {
     font-weight: 600;
 }
 
-.btn.nav-link.active.bg-solo-purple:hover {
-    transform: translateY(-1px);
-    opacity: 0.95;
-}
-
 /* Save/Back buttons container */
 .save-mode-buttons .row {
     margin: 0 -0.5rem;
@@ -166,6 +164,14 @@ body {
 
 .save-mode-buttons .col {
     padding: 0 0.5rem;
+}
+
+/* Make all buttons in save mode the same height */
+.save-mode-buttons .btn {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Color selection buttons */

@@ -164,23 +164,17 @@ def update_profile():
 @login_required
 def upload_photo():
     """Handle profile photo upload."""
-    form = ProfileForm()  # Use ProfileForm for CSRF validation
-    if not form.validate_on_submit():
-        app.logger.error("CSRF validation failed")
-        flash('Security validation failed', 'error')
-        return redirect(url_for('self'))
+    try:
+        if 'photo' not in request.files:
+            flash('No file uploaded', 'error')
+            return redirect(url_for('self'))
 
-    if 'photo' not in request.files:
-        flash('No file uploaded', 'error')
-        return redirect(url_for('self'))
+        file = request.files['photo']
+        if file.filename == '':
+            flash('No file selected', 'error')
+            return redirect(url_for('self'))
 
-    file = request.files['photo']
-    if file.filename == '':
-        flash('No file selected', 'error')
-        return redirect(url_for('self'))
-
-    if file and allowed_file(file.filename):
-        try:
+        if file and allowed_file(file.filename):
             from PIL import Image
 
             # Read and process the image
@@ -207,18 +201,20 @@ def upload_photo():
             upload_folder = os.path.join(app.static_folder, 'images', 'profiles')
             os.makedirs(upload_folder, exist_ok=True)
 
-            image.save(os.path.join(upload_folder, filename), 'JPEG', quality=85)
+            save_path = os.path.join(upload_folder, filename)
+            image.save(save_path, 'JPEG', quality=85)
 
             # Update user's profile photo field
             current_user.profile_photo = f"profiles/{filename}"
             db.session.commit()
 
             flash('Profile photo updated successfully!', 'success')
-        except Exception as e:
-            app.logger.error(f"Error processing photo: {str(e)}")
-            flash('Error processing photo. Please try again.', 'error')
-    else:
-        flash('Invalid file type. Please upload a PNG or JPEG image.', 'error')
+        else:
+            flash('Invalid file type. Please upload a PNG or JPEG image.', 'error')
+    except Exception as e:
+        app.logger.error(f"Error processing photo: {str(e)}")
+        flash('Error processing photo. Please try again.', 'error')
+        db.session.rollback()
 
     return redirect(url_for('self'))
 
