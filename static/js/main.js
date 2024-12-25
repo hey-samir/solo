@@ -66,8 +66,10 @@ document.addEventListener('DOMContentLoaded', function() {
             editableFields.forEach(field => {
                 field.classList.remove('editing');
                 const input = field.querySelector('input');
-                if (input) {
-                    input.value = input.defaultValue; // Reset to original value
+                const text = field.querySelector('.profile-text');
+                if (input && text) {
+                    input.classList.add('d-none');
+                    text.style.display = 'block';
                 }
             });
             editModeButtons.classList.remove('d-none');

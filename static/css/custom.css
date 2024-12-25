@@ -227,7 +227,24 @@ body {
 
 .btn.nav-link.active.bg-solo-purple.cancel-edit,
 .btn.nav-link.active.bg-solo-purple[href="/logout"] {
-    background: #6b3cc7 !important;
+    background: #4a2b8c !important;
+    border: 1px solid var(--bs-white) !important;
+}
+
+.input-group .input-group-text {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--bs-dark);
+    border: 1px solid var(--bs-white);
+}
+
+.form-control[type="number"] {
+    border: 1px solid var(--bs-white) !important;
+}
+
+.btn-send {
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
 }
 
 /* Color selection buttons */
