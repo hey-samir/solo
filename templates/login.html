@@ -26,7 +26,7 @@
                     <a href="{{ url_for('sign_up') }}" class="text-decoration-none">Sign up</a>
                 </div>
                 {% if request.args.get('next') and request.args.get('next') != url_for('index') %}
-                <div class="auth-banner mt-3">
+                <div class="alert alert-info mt-3 text-center">
                     Please log in to access this page
                 </div>
                 {% endif %}
