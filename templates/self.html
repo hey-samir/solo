@@ -28,12 +28,12 @@
                     </div>
 
                     <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
+                        {{ form.csrf_token }}
                         <div class="mb-4">
                             <label class="form-label">Name</label>
                             <div class="profile-field" data-editable>
                                 <span class="profile-text">{{ current_user.name }}</span>
-                                <input type="text" class="form-control form-control-lg d-none" name="name" 
-                                       value="{{ current_user.name }}">
+                                {{ form.name(class_="form-control form-control-lg d-none") }}
                             </div>
                         </div>
 
@@ -41,10 +41,7 @@
                             <label class="form-label">Username</label>
                             <div class="profile-field" data-editable>
                                 <span class="profile-text">@{{ current_user.username }}</span>
-                                <input type="text" class="form-control form-control-lg d-none" name="username" 
-                                       value="{{ current_user.username }}"
-                                       pattern="[A-Za-z0-9]{1,9}"
-                                       title="Username must be 1-9 characters, letters and numbers only">
+                                {{ form.username(class_="form-control form-control-lg d-none", pattern="[A-Za-z0-9]{1,9}", title="Username must be 1-9 characters, letters and numbers only") }}
                             </div>
                         </div>
 
@@ -52,8 +49,7 @@
                             <label class="form-label">Gym</label>
                             <div class="profile-field" data-editable>
                                 <span class="profile-text">{{ current_user.gym or 'Not set' }}</span>
-                                <input type="text" class="form-control form-control-lg d-none" name="gym" 
-                                       value="{{ current_user.gym }}">
+                                {{ form.gym(class_="form-control form-control-lg d-none") }}
                             </div>
                         </div>
 

@@ -6,7 +6,7 @@ from app import app, db
 from models import Climb, User
 from utils.logo_generator import generate_logo, get_logo_path
 from flask_wtf.csrf import CSRFProtect
-from forms import LoginForm, RegistrationForm, FlaskForm # Added FlaskForm import
+from forms import LoginForm, RegistrationForm, ProfileForm
 from migrations import migrate  # Import the migration setup
 
 # Initialize CSRF protection
@@ -119,38 +119,44 @@ def add_climb():
 @login_required
 def self():
     """User profile page."""
-    form = FlaskForm()  # Create a form instance for CSRF token
+    form = ProfileForm(obj=current_user)  # Pre-fill form with current user data
     return render_template('self.html', form=form)
 
 @app.route('/update_profile', methods=['POST'])
 @login_required
 def update_profile():
     """Update user profile information."""
-    name = request.form.get('name')
-    gym = request.form.get('gym')
-    username = request.form.get('username')
+    form = ProfileForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        name = form.name.data
+        gym = form.gym.data
 
-    if username and username != current_user.username:
-        if not username.isalnum():
-            flash('Username must contain only letters and numbers', 'error')
-            return redirect(url_for('self'))
-        if User.query.filter_by(username=username).first():
-            flash('Username already taken', 'error')
-            return redirect(url_for('self'))
-        current_user.username = username
+        if username and username != current_user.username:
+            if not username.isalnum():
+                flash('Username must contain only letters and numbers', 'error')
+                return redirect(url_for('self'))
+            if User.query.filter_by(username=username).first():
+                flash('Username already taken', 'error')
+                return redirect(url_for('self'))
+            current_user.username = username
 
-    if name:
-        current_user.name = name
-    if gym is not None:  # Allow empty string to clear gym
-        current_user.gym = gym
+        if name:
+            current_user.name = name
+        if gym is not None:  # Allow empty string to clear gym
+            current_user.gym = gym
 
-    try:
-        db.session.commit()
-        flash('Profile updated successfully!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        app.logger.error(f"Error updating profile: {str(e)}")
-        flash('Error updating profile. Please try again.', 'error')
+        try:
+            db.session.commit()
+            flash('Profile updated successfully!', 'success')
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error updating profile: {str(e)}")
+            flash('Error updating profile. Please try again.', 'error')
+    else:
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'{field}: {error}', 'error')
 
     return redirect(url_for('self'))
 
@@ -158,9 +164,10 @@ def update_profile():
 @login_required
 def upload_photo():
     """Handle profile photo upload."""
-    form = FlaskForm()
+    form = ProfileForm()  # Use ProfileForm for CSRF validation
     if not form.validate_on_submit():
-        flash('CSRF validation failed', 'error')
+        app.logger.error("CSRF validation failed")
+        flash('Security validation failed', 'error')
         return redirect(url_for('self'))
 
     if 'photo' not in request.files:
@@ -175,7 +182,6 @@ def upload_photo():
     if file and allowed_file(file.filename):
         try:
             from PIL import Image
-            import io
 
             # Read and process the image
             image = Image.open(file)
@@ -195,7 +201,6 @@ def upload_photo():
 
             # Resize to standard size
             image = image.resize((400, 400), Image.Resampling.LANCZOS)
-
 
             # Prepare filename and save
             filename = secure_filename(f"profile_{current_user.id}.jpg")
