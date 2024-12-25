@@ -38,8 +38,12 @@
 
                         <div class="mb-3">
                             <label class="form-label">Username</label>
-                            <div class="profile-field">
+                            <div class="profile-field" data-editable>
                                 <span class="profile-text">@{{ current_user.username }}</span>
+                                <input type="text" class="form-control form-control-lg d-none" name="username" 
+                                       value="{{ current_user.username }}"
+                                       pattern="[A-Za-z0-9]{1,9}"
+                                       title="Username must be 1-9 characters, letters and numbers only">
                             </div>
                         </div>
 
@@ -67,15 +71,22 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="button" class="btn btn-lg edit-toggle bg-solo-purple text-white">
-                                Edit Profile
-                            </button>
-                            <button type="submit" class="btn btn-primary btn-lg d-none save-profile">
-                                Save Changes
-                            </button>
-                            <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary btn-lg">
-                                Log Out
-                            </a>
+                            <div class="edit-mode-buttons">
+                                <button type="button" class="btn btn-lg edit-toggle bg-solo-purple text-white w-100">
+                                    Edit Profile
+                                </button>
+                            </div>
+                            <div class="save-mode-buttons d-none">
+                                <div class="row g-2">
+                                    <div class="col">
+                                        <button type="submit" class="btn btn-lg bg-solo-purple text-white w-100">Save</button>
+                                    </div>
+                                    <div class="col">
+                                        <button type="button" class="btn btn-lg btn-outline-secondary cancel-edit w-100">Back</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('logout') }}" class="btn btn-lg bg-solo-purple text-white w-100">Log Out</a>
                         </div>
                     </form>
                 </div>

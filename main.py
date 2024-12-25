@@ -127,14 +127,30 @@ def update_profile():
     """Update user profile information."""
     name = request.form.get('name')
     gym = request.form.get('gym')
+    username = request.form.get('username')
+
+    if username and username != current_user.username:
+        if not username.isalnum():
+            flash('Username must contain only letters and numbers', 'error')
+            return redirect(url_for('self'))
+        if User.query.filter_by(username=username).first():
+            flash('Username already taken', 'error')
+            return redirect(url_for('self'))
+        current_user.username = username
 
     if name:
         current_user.name = name
-    if gym:
+    if gym is not None:  # Allow empty string to clear gym
         current_user.gym = gym
 
-    db.session.commit()
-    flash('Profile updated successfully!', 'success')
+    try:
+        db.session.commit()
+        flash('Profile updated successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error updating profile: {str(e)}")
+        flash('Error updating profile. Please try again.', 'error')
+
     return redirect(url_for('self'))
 
 @app.route('/upload_photo', methods=['POST'])
@@ -151,17 +167,49 @@ def upload_photo():
         return redirect(url_for('self'))
 
     if file and allowed_file(file.filename):
-        filename = secure_filename(f"profile_{current_user.id}_{file.filename}")
-        upload_folder = os.path.join(app.static_folder, 'images', 'profiles')
-        os.makedirs(upload_folder, exist_ok=True)
+        try:
+            from PIL import Image
+            import io
 
-        file_path = os.path.join(upload_folder, filename)
-        file.save(file_path)
+            # Read and process the image
+            image = Image.open(file)
 
-        current_user.profile_photo = f"profiles/{filename}"
-        db.session.commit()
+            # Convert to RGB if needed
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
 
-        flash('Profile photo updated successfully!', 'success')
+            # Create a square crop
+            width, height = image.size
+            size = min(width, height)
+            left = (width - size) // 2
+            top = (height - size) // 2
+            right = left + size
+            bottom = top + size
+            image = image.crop((left, top, right, bottom))
+
+            # Resize to standard size
+            image = image.resize((400, 400), Image.Resampling.LANCZOS)
+
+            # Save to memory first
+            img_io = io.BytesIO()
+            image.save(img_io, 'JPEG', quality=85)
+            img_io.seek(0)
+
+            # Prepare filename and save
+            filename = secure_filename(f"profile_{current_user.id}.jpg")
+            upload_folder = os.path.join(app.static_folder, 'images', 'profiles')
+            os.makedirs(upload_folder, exist_ok=True)
+
+            image.save(os.path.join(upload_folder, filename), 'JPEG', quality=85)
+
+            # Update user's profile photo field
+            current_user.profile_photo = f"profiles/{filename}"
+            db.session.commit()
+
+            flash('Profile photo updated successfully!', 'success')
+        except Exception as e:
+            app.logger.error(f"Error processing photo: {str(e)}")
+            flash('Error processing photo. Please try again.', 'error')
     else:
         flash('Invalid file type. Please upload a PNG or JPEG image.', 'error')
 

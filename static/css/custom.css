@@ -38,6 +38,122 @@ body {
     background-color: var(--solo-purple) !important;
 }
 
+/* Profile styling */
+.profile-photo-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.profile-photo, .profile-photo-placeholder {
+    width: 120px;
+    height: 120px;
+    border: 3px solid var(--solo-purple);
+    transition: all 0.3s ease;
+}
+
+.profile-photo {
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.profile-photo-placeholder {
+    background-color: var(--bs-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.profile-photo-placeholder i {
+    font-size: 48px;
+    color: var(--bs-white);
+}
+
+.edit-photo-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--solo-purple);
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+}
+
+.profile-photo-container:hover .edit-photo-icon {
+    opacity: 1;
+}
+
+/* Profile field styling */
+.profile-field {
+    padding: 0.5rem 0;
+}
+
+.profile-text {
+    font-size: 1.1rem;
+    color: var(--bs-white);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.profile-field[data-editable] .profile-text {
+    display: block;
+}
+
+.profile-field[data-editable] input {
+    display: none;
+}
+
+.profile-field[data-editable].editing .profile-text {
+    display: none;
+}
+
+.profile-field[data-editable].editing input {
+    display: block;
+    background-color: var(--bs-dark);
+    border: 2px solid var(--bs-white);
+    color: var(--bs-white);
+}
+
+/* Button styling */
+.btn.bg-solo-purple {
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn.bg-solo-purple:hover {
+    background-color: #9d6bff !important;
+    transform: translateY(-1px);
+}
+
+.btn.btn-outline-secondary {
+    border-color: var(--bs-white);
+    color: var(--bs-white);
+}
+
+.btn.btn-outline-secondary:hover {
+    background-color: var(--bs-white);
+    color: var(--bs-dark);
+}
+
+/* Save/Back buttons container */
+.save-mode-buttons .row {
+    margin: 0 -0.5rem;
+}
+
+.save-mode-buttons .col {
+    padding: 0 0.5rem;
+}
+
 /* Color selection buttons */
 .color-btn {
     width: 100%;
@@ -159,82 +275,4 @@ body {
 /* Consistent width for form elements */
 .form-control, .btn-group, .input-group {
     width: 100% !important;
-}
-
-/* Profile photo styling */
-.profile-photo-container {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 1.5rem;
-}
-
-.profile-photo {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border: 3px solid var(--solo-purple);
-}
-
-.edit-photo-icon {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    background: var(--solo-purple);
-    color: white;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.2s;
-    z-index: 2;
-}
-
-.profile-photo-container:hover .edit-photo-icon {
-    opacity: 1;
-}
-
-
-/* Profile page styling */
-.profile-photo-placeholder {
-    width: 120px;
-    height: 120px;
-    background-color: var(--bs-dark);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid var(--solo-purple);
-}
-
-.profile-photo-placeholder i {
-    font-size: 48px;
-    color: var(--bs-white);
-}
-
-.profile-field {
-    padding: 0.5rem 0;
-}
-
-.profile-text {
-    font-size: 1.1rem;
-    color: var(--bs-white);
-}
-
-.profile-field[data-editable] .profile-text {
-    display: block;
-}
-
-.profile-field[data-editable] input {
-    display: none;
-}
-
-.profile-field[data-editable].editing .profile-text {
-    display: none;
-}
-
-.profile-field[data-editable].editing input {
-    display: block;
 }
