@@ -9,11 +9,11 @@
                     <div class="text-center mb-4 position-relative">
                         <div class="profile-photo-container">
                             {% if current_user.profile_photo and current_user.profile_photo != 'default_profile.png' %}
-                                <img src="{{ url_for('static', filename='images/profiles/' + current_user.profile_photo) }}" 
+                                <img src="{{ url_for('static', filename='images/' + current_user.profile_photo) }}" 
                                      alt="Profile Photo" 
-                                     class="rounded-circle profile-photo">
+                                     class="profile-photo">
                             {% else %}
-                                <div class="rounded-circle profile-photo-placeholder">
+                                <div class="profile-photo-placeholder">
                                     <i class="bi bi-person"></i>
                                 </div>
                             {% endif %}
@@ -21,7 +21,7 @@
                                 <i class="bi bi-camera"></i>
                             </label>
                         </div>
-                        <form id="photo-form" class="d-none" method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data">
+                        <form id="photo-form" method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data">
                             {{ form.csrf_token }}
                             <input type="file" id="photo-upload" name="photo" accept="image/*" class="d-none">
                         </form>
@@ -30,39 +30,39 @@
                     <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
                         {{ form.csrf_token }}
                         <div class="mb-4">
-                            <label class="form-label">Name</label>
                             <div class="profile-field" data-editable>
+                                <label class="form-label">Name</label>
                                 <span class="profile-text">{{ current_user.name }}</span>
                                 {{ form.name(class_="form-control form-control-lg d-none") }}
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Username</label>
                             <div class="profile-field" data-editable>
+                                <label class="form-label">Username</label>
                                 <span class="profile-text">@{{ current_user.username }}</span>
-                                {{ form.username(class_="form-control form-control-lg d-none", pattern="[A-Za-z0-9]{1,9}", title="Username must be 1-9 characters, letters and numbers only") }}
+                                {{ form.username(class_="form-control form-control-lg d-none") }}
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Gym</label>
                             <div class="profile-field" data-editable>
+                                <label class="form-label">Gym</label>
                                 <span class="profile-text">{{ current_user.gym or 'Not set' }}</span>
                                 {{ form.gym(class_="form-control form-control-lg d-none") }}
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Member Since</label>
                             <div class="profile-field">
+                                <label class="form-label">Member Since</label>
                                 <span class="profile-text">{{ current_user.member_since.strftime('%B %Y') }}</span>
                             </div>
                         </div>
 
                         <div class="mb-4">
-                            <label class="form-label">Total Ascents</label>
                             <div class="profile-field">
+                                <label class="form-label">Total Ascents</label>
                                 <span class="profile-text">{{ current_user.climbs|length }}</span>
                             </div>
                         </div>

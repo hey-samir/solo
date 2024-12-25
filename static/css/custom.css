@@ -96,6 +96,7 @@ body {
 .profile-field {
     display: flex;
     align-items: center;
+    margin-bottom: 1rem; /* Added margin-bottom */
 }
 
 .form-label {
@@ -137,21 +138,12 @@ body {
     background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
     border: none;
     transition: all 0.3s ease;
+    padding: 0.95rem !important; /* Added padding */
 }
 
 .btn.nav-link.active.bg-solo-purple:hover {
     transform: translateY(-1px);
     opacity: 0.95;
-}
-
-.btn.btn-outline-secondary {
-    border-color: var(--bs-white);
-    color: var(--bs-white);
-}
-
-.btn.btn-outline-secondary:hover {
-    background-color: var(--bs-white);
-    color: var(--bs-dark);
 }
 
 /* Save/Back buttons container */
