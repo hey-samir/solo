@@ -47,8 +47,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 const input = field.querySelector('input');
                 const text = field.querySelector('.profile-text');
                 if (input && text) {
-                    // Store current text value in input
-                    input.value = text.textContent.replace('@', '');
+                    let value = text.textContent;
+                    if (input.name === 'username') {
+                        value = value.replace('@', '');
+                    }
+                    input.classList.remove('d-none');
+                    input.value = value;
+                    text.style.display = 'none';
                 }
             });
             editModeButtons.classList.add('d-none');

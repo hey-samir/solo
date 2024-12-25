@@ -225,6 +225,11 @@ body {
     justify-content: center;
 }
 
+.btn.nav-link.active.bg-solo-purple.cancel-edit,
+.btn.nav-link.active.bg-solo-purple[href="/logout"] {
+    background: #6b3cc7 !important;
+}
+
 /* Color selection buttons */
 .color-btn {
     width: 100%;
