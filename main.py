@@ -6,6 +6,11 @@ import os
 
 @app.route('/')
 def index():
+    """Redirect root to /sends"""
+    return redirect(url_for('sends'))
+
+@app.route('/sends')
+def sends():
     # Generate logo on first request if it doesn't exist
     static_image_path = os.path.join(app.static_folder, 'images', 'logo.png')
     if not os.path.exists(static_image_path):
@@ -26,7 +31,7 @@ def add_climb():
             raise ValueError("Invalid rating value")
     except (TypeError, ValueError):
         flash('Please select a valid rating', 'error')
-        return redirect(url_for('index'))
+        return redirect(url_for('sends'))
 
     climb = Climb(
         color=request.form.get('color'),
@@ -38,14 +43,14 @@ def add_climb():
     db.session.add(climb)
     db.session.commit()
     flash('Ascent recorded successfully!', 'success')
-    return redirect(url_for('index'))
+    return redirect(url_for('sends'))
 
-@app.route('/profile')
-def profile():
+@app.route('/self')
+def self():
     return render_template('index.html', get_logo_path=get_logo_path)
 
-@app.route('/trends')
-def trends():
+@app.route('/stats')
+def stats():
     return render_template('index.html', get_logo_path=get_logo_path)
 
 @app.route('/generate-logo')

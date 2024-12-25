@@ -7,19 +7,18 @@
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Samsung+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Samsung+One+UI:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body class="pb-5">
     <!-- Header -->
-    <header class="bg-solo-purple mb-4">
-        <div class="container py-3 text-center">
-            <a href="{{ url_for('generate_app_logo') }}" class="d-inline-block mb-2">
+    <header class="bg-solo-purple">
+        <div class="header-container">
+            <a href="{{ url_for('generate_app_logo') }}" class="d-inline-block">
                 <img src="{{ url_for('static', filename=get_logo_path()) }}" 
                      alt="Solo Logo" 
                      class="logo-img"
                      height="120">
             </a>
-            <h1 class="text-white mb-0 d-none">solo</h1>
         </div>
     </header>
 
@@ -42,20 +41,20 @@
         <div class="container-fluid">
             <ul class="navbar-nav w-100 justify-content-between">
                 <li class="nav-item flex-fill text-center">
-                    <a class="nav-link" href="/profile">
+                    <a class="nav-link" href="/self">
                         <i class="bi bi-person-circle nav-icon"></i>
-                        Profile
+                        Self
                     </a>
                 </li>
                 <li class="nav-item flex-fill text-center">
-                    <a class="nav-link active bg-solo-purple" href="/">
+                    <a class="nav-link active bg-solo-purple" href="/sends">
                         <i class="bi bi-plus-lg nav-icon"></i>
                     </a>
                 </li>
                 <li class="nav-item flex-fill text-center">
-                    <a class="nav-link" href="/trends">
-                        <i class="bi bi-graph-up nav-icon"></i>
-                        Trends
+                    <a class="nav-link" href="/stats">
+                        <i class="bi bi-bar-chart nav-icon"></i>
+                        Stats
                     </a>
                 </li>
             </ul>

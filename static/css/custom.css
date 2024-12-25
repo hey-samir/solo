@@ -1,7 +1,8 @@
 /* Custom styles to complement Bootstrap */
 :root {
-    --font-family-sans-serif: 'Samsung Sans', system-ui, -apple-system, sans-serif;
+    --font-family-sans-serif: 'Samsung One UI', system-ui, -apple-system, sans-serif;
     --solo-purple: #8c52ff;
+    --teal: #008080; /* Added teal color */
 }
 
 body {
@@ -30,16 +31,17 @@ body {
 .btn-check:checked + .btn-outline-secondary {
     background-color: var(--solo-purple);
     border-color: var(--solo-purple);
+    color: var(--bs-white);
 }
 
 .bg-solo-purple {
-    background-color: var(--solo-purple);
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%);
 }
 
 /* Color selection buttons */
 .color-btn {
-    width: 4rem;
-    height: 4rem;
+    width: 3.5rem;
+    height: 3.5rem;
     border: 2px solid var(--bs-white);
     margin: 0;
 }
@@ -55,7 +57,7 @@ body {
 
 /* Rating buttons */
 .rating-btn {
-    padding: 1rem !important;
+    padding: 0.75rem !important;
     border: 2px solid var(--bs-white) !important;
 }
 
@@ -68,14 +70,15 @@ body {
 /* Required field indicator */
 .required-field::after {
     content: "*";
-    color: var(--bs-danger);
+    color: var(--bs-white);
     margin-left: 0.25rem;
 }
 
 /* Bottom navigation styling */
 .navbar-nav .nav-link {
     transition: color 0.2s;
-    font-size: 1.2rem;
+    font-size: 1rem;
+    padding: 0.25rem 0;
 }
 
 .navbar-nav .nav-link {
@@ -83,12 +86,11 @@ body {
     flex-direction: column;
     align-items: center;
     color: var(--bs-white);
-    padding: 0.5rem 0;
 }
 
 .navbar-nav .nav-icon {
-    font-size: 1.5rem;
-    margin-bottom: 0.25rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.15rem;
 }
 
 /* Color grid layout */
@@ -100,7 +102,7 @@ body {
 }
 
 .color-grid:last-child {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     justify-content: center;
 }
 
@@ -117,7 +119,7 @@ body {
 }
 
 .navbar-nav .nav-link.active.bg-solo-purple .nav-icon {
-    font-size: 2rem;
+    font-size: 1.75rem;
 }
 
 /* Logo styling */
@@ -127,4 +129,16 @@ body {
 
 .logo-img:hover {
     transform: scale(1.1);
+}
+
+/* Header styling */
+.header-container {
+    width: fit-content;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+/* Status buttons */
+.btn-check:checked + .btn-outline-secondary.rating-btn {
+    color: var(--bs-white);
 }
