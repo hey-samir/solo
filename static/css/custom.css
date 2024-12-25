@@ -301,9 +301,10 @@ body {
     background-color: var(--bs-gray-700);
     color: var(--bs-white);
     padding: 1rem;
-    border-radius: 0.5rem;
     text-align: center;
     font-weight: 500;
+    font-size: 1.1rem;
+    margin: 1rem -1.5rem -1rem;
 }
 
 /* Form control with placeholder styling */
