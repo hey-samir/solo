@@ -13,4 +13,7 @@ dependencies = [
     "sqlalchemy>=2.0.36",
     "svgwrite>=1.4.3",
     "flask-wtf>=1.2.2",
+    "wtforms>=3.2.1",
+    "flask-migrate>=4.0.7",
+    "werkzeug>=3.1.3",
 ]

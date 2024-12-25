@@ -1,3 +1,4 @@
+import os
 from flask import render_template, request, redirect, url_for, flash, send_from_directory, current_app
 from flask_login import login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
@@ -5,8 +6,8 @@ from app import app, db
 from models import Climb, User
 from utils.logo_generator import generate_logo, get_logo_path
 from flask_wtf.csrf import CSRFProtect
-from forms import LoginForm, RegistrationForm # Added import statement
-import os
+from forms import LoginForm, RegistrationForm
+from migrations import migrate  # Import the migration setup
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
