@@ -19,6 +19,11 @@
                     </div>
                     <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Login</button>
                 </form>
+                {% if request.args.get('next') %}
+                <div class="auth-banner mt-3">
+                    Please log in to access this page
+                </div>
+                {% endif %}
                 <div class="text-center mt-3">
                     <a href="{{ url_for('register') }}" class="text-decoration-none">Need an account? Register</a>
                 </div>

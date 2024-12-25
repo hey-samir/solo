@@ -5,35 +5,40 @@
     <div class="col-md-8 col-lg-6">
         <div class="card">
             <div class="card-body p-4">
-                <h2 class="text-center mb-4">Register</h2>
+                <h2 class="text-center mb-4">Join Solo</h2>
                 <form method="POST" action="{{ url_for('register') }}">
                     {{ form.csrf_token }}
                     <div class="mb-3">
                         <label class="form-label required-field">Name</label>
                         <input type="text" name="name" class="form-control form-control-lg" required>
+                        <small class="form-text text-muted"><i>e.g. Samir</i></small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label required-field">Email</label>
                         <input type="email" name="email" class="form-control form-control-lg" required>
+                        <small class="form-text text-muted"><i>e.g. name@email.com</i></small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label required-field">Username</label>
-                        <div class="input-group">
+                        <div class="input-group input-group-lg">
                             <span class="input-group-text">@</span>
-                            <input type="text" name="username" class="form-control form-control-lg" required 
+                            <input type="text" name="username" class="form-control" required 
                                    pattern="[A-Za-z0-9]{1,9}" 
                                    title="Username must be 1-9 characters, letters and numbers only">
                         </div>
+                        <small class="form-text text-muted"><i>e.g. heysamir</i></small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label required-field">Password</label>
                         <input type="password" name="password" class="form-control form-control-lg" required>
+                        <small class="form-text text-muted">8-12 characters, letters, numbers, symbols allowed</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Gym</label>
                         <input type="text" name="gym" class="form-control form-control-lg">
+                        <small class="form-text text-muted"><i>e.g. Movement Gowanus</i></small>
                     </div>
-                    <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Register</button>
+                    <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Join</button>
                 </form>
                 <div class="text-center mt-3">
                     <a href="{{ url_for('login') }}" class="text-decoration-none">Already have an account? Login</a>

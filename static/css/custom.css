@@ -296,3 +296,13 @@ body {
 .form-control, .btn-group, .input-group {
     width: 100% !important;
 }
+
+/* Auth banner styling */
+.auth-banner {
+    background: linear-gradient(135deg, #6b40cc 0%, #8952ff 100%);
+    color: var(--bs-white);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    font-weight: 500;
+}
