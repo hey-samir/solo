@@ -22,12 +22,13 @@
                             </label>
                         </div>
                         <form id="photo-form" class="d-none" method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data">
+                            {{ form.csrf_token }}
                             <input type="file" id="photo-upload" name="photo" accept="image/*" class="d-none">
                         </form>
                     </div>
 
                     <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label">Name</label>
                             <div class="profile-field" data-editable>
                                 <span class="profile-text">{{ current_user.name }}</span>
@@ -36,7 +37,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label">Username</label>
                             <div class="profile-field" data-editable>
                                 <span class="profile-text">@{{ current_user.username }}</span>
@@ -47,7 +48,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label">Gym</label>
                             <div class="profile-field" data-editable>
                                 <span class="profile-text">{{ current_user.gym or 'Not set' }}</span>
@@ -56,7 +57,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label class="form-label">Member Since</label>
                             <div class="profile-field">
                                 <span class="profile-text">{{ current_user.member_since.strftime('%B %Y') }}</span>
@@ -72,21 +73,21 @@
 
                         <div class="d-grid gap-2">
                             <div class="edit-mode-buttons">
-                                <button type="button" class="btn btn-lg edit-toggle bg-solo-purple text-white w-100">
+                                <button type="button" class="btn btn-lg edit-toggle nav-link active bg-solo-purple w-100">
                                     Edit Profile
                                 </button>
                             </div>
                             <div class="save-mode-buttons d-none">
                                 <div class="row g-2">
                                     <div class="col">
-                                        <button type="submit" class="btn btn-lg bg-solo-purple text-white w-100">Save</button>
+                                        <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Save</button>
                                     </div>
                                     <div class="col">
                                         <button type="button" class="btn btn-lg btn-outline-secondary cancel-edit w-100">Back</button>
                                     </div>
                                 </div>
                             </div>
-                            <a href="{{ url_for('logout') }}" class="btn btn-lg bg-solo-purple text-white w-100">Log Out</a>
+                            <a href="{{ url_for('logout') }}" class="btn btn-lg nav-link active bg-solo-purple w-100">Log Out</a>
                         </div>
                     </form>
                 </div>

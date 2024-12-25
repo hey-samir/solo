@@ -94,7 +94,14 @@ body {
 
 /* Profile field styling */
 .profile-field {
-    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+}
+
+.form-label {
+    min-width: 120px;
+    margin-bottom: 0;
+    margin-right: 1rem;
 }
 
 .profile-text {
@@ -102,7 +109,7 @@ body {
     color: var(--bs-white);
     padding: 0.5rem;
     border-radius: 0.5rem;
-    transition: all 0.3s ease;
+    flex-grow: 1;
 }
 
 .profile-field[data-editable] .profile-text {
@@ -111,6 +118,7 @@ body {
 
 .profile-field[data-editable] input {
     display: none;
+    flex-grow: 1;
 }
 
 .profile-field[data-editable].editing .profile-text {
@@ -125,14 +133,15 @@ body {
 }
 
 /* Button styling */
-.btn.bg-solo-purple {
+.btn.nav-link.active.bg-solo-purple {
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
     border: none;
     transition: all 0.3s ease;
 }
 
-.btn.bg-solo-purple:hover {
-    background-color: #9d6bff !important;
+.btn.nav-link.active.bg-solo-purple:hover {
     transform: translateY(-1px);
+    opacity: 0.95;
 }
 
 .btn.btn-outline-secondary {

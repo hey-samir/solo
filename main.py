@@ -6,7 +6,7 @@ from app import app, db
 from models import Climb, User
 from utils.logo_generator import generate_logo, get_logo_path
 from flask_wtf.csrf import CSRFProtect
-from forms import LoginForm, RegistrationForm
+from forms import LoginForm, RegistrationForm, FlaskForm # Added FlaskForm import
 from migrations import migrate  # Import the migration setup
 
 # Initialize CSRF protection
@@ -119,7 +119,8 @@ def add_climb():
 @login_required
 def self():
     """User profile page."""
-    return render_template('self.html')
+    form = FlaskForm()  # Create a form instance for CSRF token
+    return render_template('self.html', form=form)
 
 @app.route('/update_profile', methods=['POST'])
 @login_required
@@ -157,6 +158,11 @@ def update_profile():
 @login_required
 def upload_photo():
     """Handle profile photo upload."""
+    form = FlaskForm()
+    if not form.validate_on_submit():
+        flash('CSRF validation failed', 'error')
+        return redirect(url_for('self'))
+
     if 'photo' not in request.files:
         flash('No file uploaded', 'error')
         return redirect(url_for('self'))
@@ -190,10 +196,6 @@ def upload_photo():
             # Resize to standard size
             image = image.resize((400, 400), Image.Resampling.LANCZOS)
 
-            # Save to memory first
-            img_io = io.BytesIO()
-            image.save(img_io, 'JPEG', quality=85)
-            img_io.seek(0)
 
             # Prepare filename and save
             filename = secure_filename(f"profile_{current_user.id}.jpg")
