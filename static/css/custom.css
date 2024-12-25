@@ -35,7 +35,7 @@ body {
 }
 
 .bg-solo-purple {
-    background-color: var(--solo-purple);
+    background-color: var(--solo-purple) !important;
 }
 
 /* Color selection buttons */
@@ -190,8 +190,51 @@ body {
     cursor: pointer;
     opacity: 0;
     transition: opacity 0.2s;
+    z-index: 2;
 }
 
 .profile-photo-container:hover .edit-photo-icon {
     opacity: 1;
+}
+
+
+/* Profile page styling */
+.profile-photo-placeholder {
+    width: 120px;
+    height: 120px;
+    background-color: var(--bs-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--solo-purple);
+}
+
+.profile-photo-placeholder i {
+    font-size: 48px;
+    color: var(--bs-white);
+}
+
+.profile-field {
+    padding: 0.5rem 0;
+}
+
+.profile-text {
+    font-size: 1.1rem;
+    color: var(--bs-white);
+}
+
+.profile-field[data-editable] .profile-text {
+    display: block;
+}
+
+.profile-field[data-editable] input {
+    display: none;
+}
+
+.profile-field[data-editable].editing .profile-text {
+    display: none;
+}
+
+.profile-field[data-editable].editing input {
+    display: block;
 }

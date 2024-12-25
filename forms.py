@@ -7,6 +7,11 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
 
 class RegistrationForm(FlaskForm):
-    username = StringField('Username', validators=[DataRequired(), Length(min=1, max=10)])
+    username = StringField('Username', validators=[
+        DataRequired(), 
+        Length(min=1, max=9, message="Username must be 1-9 characters (@ will be added automatically)")
+    ])
+    name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
+    gym = StringField('Gym (Optional)', validators=[Length(max=100)])

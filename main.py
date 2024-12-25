@@ -45,6 +45,8 @@ def register():
     if form.validate_on_submit():
         username = form.username.data
         email = form.email.data
+        name = form.name.data
+        gym = form.gym.data
 
         if not username.isalnum():
             flash('Username must contain only letters and numbers', 'error')
@@ -58,13 +60,14 @@ def register():
             flash('Email already registered', 'error')
             return render_template('register.html', form=form)
 
-        user = User(username=username, email=email)
+        user = User(username=username, email=email, name=name, gym=gym)
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
 
-        flash('Registration successful! Please login.', 'success')
-        return redirect(url_for('login'))
+        # Log the user in after registration
+        login_user(user)
+        return redirect(url_for('self'))
     return render_template('register.html', form=form)
 
 @app.route('/logout')

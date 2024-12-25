@@ -8,9 +8,15 @@
                 <div class="card-body p-4">
                     <div class="text-center mb-4 position-relative">
                         <div class="profile-photo-container">
-                            <img src="{{ url_for('static', filename='images/profiles/' + current_user.profile_photo) }}" 
-                                 alt="Profile Photo" 
-                                 class="rounded-circle profile-photo">
+                            {% if current_user.profile_photo and current_user.profile_photo != 'default_profile.png' %}
+                                <img src="{{ url_for('static', filename='images/profiles/' + current_user.profile_photo) }}" 
+                                     alt="Profile Photo" 
+                                     class="rounded-circle profile-photo">
+                            {% else %}
+                                <div class="rounded-circle profile-photo-placeholder">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                            {% endif %}
                             <label for="photo-upload" class="edit-photo-icon">
                                 <i class="bi bi-camera"></i>
                             </label>
@@ -23,37 +29,53 @@
                     <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
                         <div class="mb-3">
                             <label class="form-label">Name</label>
-                            <input type="text" class="form-control form-control-lg" name="name" 
-                                   value="{{ current_user.name }}" readonly data-editable>
+                            <div class="profile-field" data-editable>
+                                <span class="profile-text">{{ current_user.name }}</span>
+                                <input type="text" class="form-control form-control-lg d-none" name="name" 
+                                       value="{{ current_user.name }}">
+                            </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="form-label">Username</label>
-                            <input type="text" class="form-control form-control-lg" 
-                                   value="{{ current_user.username }}" readonly>
+                            <div class="profile-field">
+                                <span class="profile-text">@{{ current_user.username }}</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Gym</label>
-                            <input type="text" class="form-control form-control-lg" name="gym" 
-                                   value="{{ current_user.gym }}" readonly data-editable>
+                            <div class="profile-field" data-editable>
+                                <span class="profile-text">{{ current_user.gym or 'Not set' }}</span>
+                                <input type="text" class="form-control form-control-lg d-none" name="gym" 
+                                       value="{{ current_user.gym }}">
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Member Since</label>
-                            <input type="text" class="form-control form-control-lg" 
-                                   value="{{ current_user.member_since.strftime('%B %Y') }}" readonly>
+                            <div class="profile-field">
+                                <span class="profile-text">{{ current_user.member_since.strftime('%B %Y') }}</span>
+                            </div>
                         </div>
 
                         <div class="mb-4">
                             <label class="form-label">Total Ascents</label>
-                            <input type="text" class="form-control form-control-lg" 
-                                   value="{{ current_user.climbs|length }}" readonly>
+                            <div class="profile-field">
+                                <span class="profile-text">{{ current_user.climbs|length }}</span>
+                            </div>
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-lg edit-toggle">Edit Profile</button>
-                            <button type="submit" class="btn btn-primary btn-lg d-none save-profile">Save Changes</button>
+                            <button type="button" class="btn btn-lg edit-toggle bg-solo-purple text-white">
+                                Edit Profile
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-lg d-none save-profile">
+                                Save Changes
+                            </button>
+                            <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary btn-lg">
+                                Log Out
+                            </a>
                         </div>
                     </form>
                 </div>
