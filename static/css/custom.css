@@ -432,3 +432,24 @@ textarea.form-control:focus {
 .mb-4 {
     margin-bottom: 1rem !important;
 }
+
+.btn-primary {
+    background-color: var(--solo-purple);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(140, 82, 255, 0.3);
+}
+
+.btn-primary:hover {
+    background-color: #7442d6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(140, 82, 255, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(140, 82, 255, 0.3);
+}
