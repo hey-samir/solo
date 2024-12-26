@@ -1,8 +1,60 @@
 /* Custom styles to complement Bootstrap */
 :root {
     --font-family-sans-serif: 'One UI Sans', 'SF Pro Display', 'CashMarket', system-ui, -apple-system, sans-serif;
-    --solo-purple: #8c52ff;
+    --solo-purple: #410f70;
     --teal: #008080;
+    --section-header: #e8e8e8;
+}
+
+/* Bottom navigation styling */
+.navbar.fixed-bottom {
+    background-color: white;
+    padding: 0;
+    z-index: 1030;
+    border-radius: 25px;
+    margin: 1rem;
+    width: calc(100% - 2rem);
+    height: 60px;
+    display: flex;
+    align-items: center;
+    bottom: 10px;
+}
+
+.navbar-nav {
+    align-items: center;
+}
+
+.navbar-nav .nav-link {
+    color: transparent !important;
+    padding: 0.75rem;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    -webkit-background-clip: text;
+    transition: transform 0.2s;
+}
+
+.navbar-nav .nav-link:hover {
+    transform: scale(1.1);
+}
+
+.navbar-nav .nav-link.active.bg-solo-purple {
+    background: var(--solo-purple) !important;
+    -webkit-background-clip: unset;
+    color: white !important;
+    border-radius: 12px;
+}
+
+.navbar-nav .nav-link.active.bg-solo-purple i {
+    font-size: 1.75rem;
+}
+
+.navbar-nav .nav-link span {
+    display: none;
+}
+
+/* Update section header color */
+.form-label {
+    color: var(--section-header);
 }
 
 /* Logo styling */
