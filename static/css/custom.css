@@ -276,27 +276,27 @@ body {
 .form-select,
 textarea.form-control {
     background-color: var(--bs-dark) !important;
-    border: 2px solid var(--solo-purple) !important;
+    border: 2px solid var(--bs-white) !important;
     color: var(--bs-white) !important;
     padding: 1rem;
     font-size: 1.2rem;
-    border-radius: 16px;
+    border-radius: 4px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .input-group .form-select:first-of-type {
-    border-radius: 12px 0 0 12px;
+    border-radius: 4px 0 0 4px;
 }
 
 .input-group .form-select:last-of-type {
-    border-radius: 0 12px 12px 0;
+    border-radius: 0 4px 4px 0;
 }
 
 .input-group-text {
-    border-radius: 12px 0 0 12px;
-    background: var(--bs-dark);
-    border: 2px solid var(--solo-purple);
+    border-radius: 4px 0 0 4px;
+    background: #1a1a1a;
+    border: 2px solid var(--bs-white);
     border-right: none;
     padding: 0.75rem 1.25rem;
     font-size: 1.1rem;
