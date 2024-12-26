@@ -218,11 +218,6 @@ def upload_photo():
 
     return redirect(url_for('self'))
 
-@app.route('/stats')
-@login_required
-def stats():
-    return render_template('stats.html')
-
 @app.route('/generate-logo')
 def generate_app_logo():
     """Generate and serve the Solo app logo."""
