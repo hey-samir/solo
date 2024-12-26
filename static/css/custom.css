@@ -227,7 +227,7 @@ body {
 
 .btn.nav-link.active.bg-solo-purple.cancel-edit,
 .btn.nav-link.active.bg-solo-purple[href="/logout"] {
-    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
+    background: #343a40 !important;
     border: none !important;
 }
 
