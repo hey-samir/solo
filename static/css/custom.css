@@ -240,6 +240,10 @@ body {
     color: var(--bs-white);
 }
 
+.input-group-text:first-child {
+    border: 1px solid var(--bs-white);
+}
+
 .form-control[type="number"] {
     border: 1px solid var(--bs-white) !important;
 }
@@ -282,7 +286,7 @@ body {
 .required-field::after {
     content: "*";
     color: var(--bs-white);
-    margin-left: 0.25rem;
+    margin-left: 0;
 }
 
 /* Color grid layout */
@@ -290,7 +294,7 @@ body {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 0;
-    margin-bottom: 0;
+    margin-bottom: -1px;
 }
 
 .color-grid:last-child {
