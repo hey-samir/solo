@@ -21,13 +21,27 @@
 
 /* Bottom navigation styling */
 .navbar.fixed-bottom {
-    background-color: var(--bs-dark) !important;
+    background-color: var(--bs-white) !important;
     padding: 0;
     z-index: 1030;
-    border-radius: 25px 25px 0 0;
-    margin: 0 0.5rem;
+    border-radius: 25px;
+    margin: 0.5rem;
     width: calc(100% - 1rem);
-    height: 60px;
+    height: 45px;
+}
+
+.navbar-nav .nav-link {
+    color: var(--bs-dark) !important;
+    padding: 0.5rem 0;
+    font-size: 1.5rem;
+}
+
+.navbar-nav .nav-icon {
+    margin: 0;
+}
+
+.navbar-nav .nav-link span {
+    display: none;
 }
 
 .navbar-nav .nav-link {
@@ -364,7 +378,11 @@ textarea.form-control:focus {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 0;
-    margin-bottom: -1px;
+    margin: 0;
+}
+
+.form-label {
+    color: #767676;
 }
 
 .color-grid:last-child {
@@ -441,7 +459,7 @@ textarea.form-control:focus {
     border: none;
     padding: 0.6rem 1rem;
     font-size: 1.1rem;
-    border-radius: 12px;
+    border-radius: 0;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(140, 82, 255, 0.3);
 }
