@@ -53,7 +53,7 @@ with app.app_context():
 # Error handlers
 @app.errorhandler(404)
 def not_found_error(error):
-    return "Page not found", 404
+    return render_template('404.html'), 404
 
 @app.errorhandler(500)
 def internal_error(error):
