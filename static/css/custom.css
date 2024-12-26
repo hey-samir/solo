@@ -216,8 +216,13 @@ body {
 }
 
 /* Save/Back buttons container */
+.save-mode-buttons, .edit-mode-buttons {
+    min-height: 48px;
+}
+
 .save-mode-buttons .row {
     margin: 0 -0.5rem;
+    height: 100%;
 }
 
 .save-mode-buttons .col {
