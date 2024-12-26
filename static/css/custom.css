@@ -176,9 +176,9 @@ body {
 }
 
 .profile-text {
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--bs-white);
-    padding: 0.5rem;
+    padding: 0.375rem;
     border-radius: 0.5rem;
     display: block;
 }
