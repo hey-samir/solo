@@ -8,7 +8,7 @@
 
 /* Bottom navigation styling */
 .navbar.fixed-bottom {
-    background-color: white;
+    background-color: var(--bs-dark);
     padding: 0;
     z-index: 1030;
     border-radius: 25px;
@@ -34,13 +34,13 @@
     height: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 .navbar-nav .nav-link.active.bg-solo-purple {
-    background: var(--solo-purple) !important;
+    background: transparent !important;
     -webkit-background-clip: unset;
-    color: white !important;
-    border-radius: 12px;
+    color: var(--solo-purple) !important;
     width: 80px;
     font-weight: bold;
 }
