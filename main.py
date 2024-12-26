@@ -124,7 +124,7 @@ def sessions():
 
 @app.route('/solo')
 @login_required
-def self():
+def solo():
     """User profile page."""
     form = ProfileForm(obj=current_user)  # Pre-fill form with current user data
     return render_template('self.html', form=form)
