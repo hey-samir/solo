@@ -93,6 +93,13 @@ def add_climb():
     difficulty_letter = request.form.get('difficulty_letter', '')
     difficulty = f"5.{difficulty_grade}{difficulty_letter}"
 
+
+@app.route('/sessions')
+@login_required
+def sessions():
+    """Temporary sessions page."""
+    return render_template('404.html'), 404
+
     # Validate rating
     try:
         rating = int(request.form.get('rating'))
