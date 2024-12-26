@@ -23,6 +23,13 @@
     background-color: var(--bs-dark) !important;
     padding: 0;
     z-index: 1030;
+    border-radius: 25px 25px 0 0;
+    margin: 0 0.5rem;
+    width: calc(100% - 1rem);
+}
+
+.navbar-nav .nav-link {
+    padding: 0.5rem 0;
 }
 
 .navbar-nav {
