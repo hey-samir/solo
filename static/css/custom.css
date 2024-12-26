@@ -178,9 +178,17 @@ body {
 .profile-text {
     font-size: 1rem;
     color: var(--bs-white);
-    padding: 0.375rem;
+    padding: 0.5rem;
     border-radius: 0.5rem;
     display: block;
+    min-height: 40px;
+    line-height: 1.5;
+}
+
+.profile-field[data-editable].editing input {
+    height: 40px;
+    padding: 0.5rem;
+    line-height: 1.5;
 }
 
 .profile-field[data-editable] .profile-text {
