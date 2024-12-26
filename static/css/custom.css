@@ -212,6 +212,13 @@ body {
     padding: 0.5rem;
     border-radius: 0.5rem;
     width: 100%;
+    font-size: 1.2rem;
+}
+
+.profile-field[data-editable].editing input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.3);
+    background-color: var(--bs-dark);
 }
 
 /* Button styling */
