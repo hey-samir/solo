@@ -278,10 +278,11 @@ textarea.form-control {
     background-color: var(--bs-dark) !important;
     border: 2px solid var(--solo-purple) !important;
     color: var(--bs-white) !important;
-    padding: 0.75rem;
-    font-size: 1.1rem;
-    border-radius: 12px;
-    transition: all 0.2s ease;
+    padding: 1rem;
+    font-size: 1.2rem;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .input-group .form-select:first-of-type {
