@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
@@ -59,3 +59,7 @@ def not_found_error(error):
 def internal_error(error):
     db.session.rollback()
     return "Internal server error", 500
+
+@app.route('/stats')
+def stats():
+    return render_template('404.html'), 404
