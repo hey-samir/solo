@@ -26,15 +26,19 @@
 }
 
 .navbar-nav .nav-link {
-    color: transparent !important;
+    color: #ffffff !important;
     padding: 0.75rem;
-    font-size: 2rem;
-    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
-    -webkit-background-clip: text;
+    font-size: 1.5rem;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    opacity: 0.6;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    opacity: 1;
 }
 
 .navbar-nav .nav-link.active.bg-solo-purple {
