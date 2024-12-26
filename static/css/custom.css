@@ -38,7 +38,7 @@
 }
 
 .navbar-nav .nav-link.active.bg-solo-purple {
-    background: transparent !important;
+    background: none !important;
     -webkit-background-clip: unset;
     color: var(--solo-purple) !important;
     width: 80px;
@@ -46,7 +46,7 @@
 }
 
 [data-bs-theme="dark"] {
-    --bs-body-bg: #2a2a2a;
+    --bs-body-bg: #1c2332;
 }
 
 .navbar-nav .nav-link span {
