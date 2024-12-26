@@ -4,7 +4,6 @@ from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
-from utils.logo_generator import get_logo_path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO if not os.environ.get("FLASK_DEBUG") else logging.DEBUG)
@@ -33,9 +32,6 @@ login_manager.login_view = 'login'
 
 # Initialize the database
 db.init_app(app)
-
-# Add get_logo_path to Jinja2 globals
-app.jinja_env.globals.update(get_logo_path=get_logo_path)
 
 @login_manager.user_loader
 def load_user(id):
