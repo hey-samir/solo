@@ -262,7 +262,7 @@ body {
 
 /* Button styling */
 .btn.nav-link.active.bg-solo-purple {
-    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
+    background: var(--solo-purple) !important;
     border: none;
     transition: all 0.3s ease;
     padding: 0.95rem !important;
@@ -301,14 +301,18 @@ body {
 .input-group .input-group-text {
     display: flex;
     align-items: center;
-    padding: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
     background-color: transparent;
-    border: 1px solid var(--bs-white);
+    border: 2px solid var(--bs-white);
     color: var(--bs-white);
 }
 
 .input-group-text:first-child {
-    border: 1px solid var(--bs-white);
+    border: 2px solid var(--bs-white);
+}
+
+.profile-field[data-editable].editing input {
+    padding: 0.75rem 1rem;
 }
 
 .color-grid {
@@ -412,7 +416,7 @@ textarea.form-control:focus {
 }
 
 .form-label {
-    color: #F1F2F3;
+    color: #eaeaea;
 }
 
 .color-grid:last-child {

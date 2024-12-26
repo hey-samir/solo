@@ -122,7 +122,7 @@ def sessions():
     flash('Ascent recorded successfully!', 'success')
     return redirect(url_for('sends'))
 
-@app.route('/self')
+@app.route('/solo')
 @login_required
 def self():
     """User profile page."""
