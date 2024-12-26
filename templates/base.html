@@ -6,7 +6,7 @@
     <title>Solo - Track Your Sends</title>
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    <link href="https://unpkg.com/@glyphs/core@0.10.2/styles/core.css" rel="stylesheet">
+    <link href="https://unpkg.com/@glyphs/core@0.10.2/styles/duo.css" rel="stylesheet">
     <link href="https://fonts.cdnfonts.com/css/cashmarket" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Real+Head:wght@500&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -44,31 +44,31 @@
             <ul class="navbar-nav w-100 d-flex flex-row justify-content-between">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('self') }}">
-                        <i class="glyph-user-circle-duo"></i>
+                        <i class="gi gi-user-circle-duo"></i>
                         <span>Solo</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('stats') }}">
-                        <i class="glyph-users-duo"></i>
+                        <i class="gi gi-users-duo"></i>
                         <span>Squad</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active bg-solo-purple" href="{{ url_for('sends') }}">
-                        <i class="glyph-arrow-solid-duo"></i>
+                        <i class="gi gi-arrow-solid-duo"></i>
                         <span>Sends</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('sessions') }}">
-                        <i class="glyph-calendar-duo"></i>
+                        <i class="gi gi-calendar-duo"></i>
                         <span>Sessions</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('stats') }}">
-                        <i class="glyph-analytics-duo"></i>
+                        <i class="gi gi-analytics-duo"></i>
                         <span>Stats</span>
                     </a>
                 </li>

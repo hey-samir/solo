@@ -1,3 +1,16 @@
+
+.gi {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.nav-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: white;
+}
+
 /* Custom styles to complement Bootstrap */
 :root {
     --font-family-sans-serif: 'One UI Sans', 'SF Pro Display', 'CashMarket', system-ui, -apple-system, sans-serif;
