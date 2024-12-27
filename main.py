@@ -94,10 +94,10 @@ def sends():
 @app.route('/add_climb', methods=['POST'])
 @login_required
 def add_climb():
-    # Combine difficulty components
-    difficulty_grade = request.form.get('difficulty_grade')
-    difficulty_letter = request.form.get('difficulty_letter', '')
-    difficulty = f"5.{difficulty_grade}{difficulty_letter}"
+    # Combine caliber components
+    caliber_grade = request.form.get('difficulty_grade')
+    caliber_letter = request.form.get('difficulty_letter', '')
+    caliber = f"5.{caliber_grade}{caliber_letter}"
 
 
     # Validate rating
@@ -111,7 +111,7 @@ def add_climb():
 
     climb = Climb(
         color=request.form.get('color'),
-        difficulty=difficulty,
+        caliber=caliber,
         rating=rating,
         status=request.form.get('status'),
         notes=request.form.get('notes'),
