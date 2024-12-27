@@ -263,5 +263,11 @@ def upload_photo():
 def stats():
     return render_template('stats.html') # Placeholder for now
 
+@app.route('/squads')
+@login_required
+def squads():
+    """Placeholder for squads feature"""
+    return render_template('404.html')
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
