@@ -130,29 +130,34 @@
     content: "\F127" !important;  /* Bootstrap icon for down arrow */
 }
 
+/* Only change the arrow color, not the background */
 .sortable.sort-asc i,
 .sortable.sort-desc i {
     opacity: 1;
     color: var(--solo-purple);
 }
 
-/* Add hover effect to sortable headers */
+/* Only show hover effect on the text area */
 .table thead th.sortable:hover {
     background-color: rgba(65, 15, 112, 0.1);
 }
 
-/* Remove background color change when sorting is active */
+/* Remove any background color changes when sorting is active */
 .table thead th.sortable.sort-asc,
 .table thead th.sortable.sort-desc {
-    background-color: transparent;
+    background-color: transparent !important;
+    color: var(--bs-white);  /* Keep text color consistent */
 }
 
-/* Table styling */
+/* Table header styling */
 .table thead th {
     white-space: nowrap;  /* Prevent text wrapping in headers */
     position: relative;
+    background-color: var(--bs-dark) !important;  /* Keep dark background */
+    border-bottom: 2px solid var(--solo-purple);
+    padding: 1rem;
+    font-weight: 600;
 }
-
 
 /* Table styling */
 .table {
@@ -765,7 +770,6 @@ textarea.form-control:focus {
 .input-group .input-group-text {
     background-color: #343a40;
 }
-
 
 /* Sessions styling */
 .session-date {
