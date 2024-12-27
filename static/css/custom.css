@@ -321,8 +321,8 @@ body {
 .profile-fields {
     display: table;
     width: 100%;
-    border-spacing: 0 1rem;
-    gap: 0.5rem; /* Added gap for better spacing */
+    border-spacing: 0 0.5rem;
+    gap: 0.25rem;
 }
 
 .profile-field {
@@ -347,11 +347,11 @@ body {
 .profile-text {
     font-size: 1.2rem;
     color: var(--bs-white);
-    padding: 0.5rem;
+    padding: 0.25rem;
     border-radius: 0.5rem;
     display: block;
-    min-height: 40px;
-    line-height: 1.5;
+    min-height: 36px;
+    line-height: 1.4;
     border: 2px solid transparent;
 }
 
