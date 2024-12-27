@@ -2,23 +2,13 @@ Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Fetch initial data with 'week' as default
-    updateAllCharts('week');
-
-    // Handle time range changes
-    document.querySelectorAll('input[name="timeRange"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            updateAllCharts(this.value);
-        });
-    });
+    // Initialize all charts
+    updateCharts();
 });
 
-function updateAllCharts(timeRange) {
-    // Add loading state
-    console.log('Updating charts for time range:', timeRange);
-
-    // Fetch new data based on time range
-    fetch(`/api/stats?timeRange=${timeRange}`)
+function updateCharts() {
+    // Fetch data for all charts
+    fetch('/api/stats')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -26,17 +16,15 @@ function updateAllCharts(timeRange) {
             return response.json();
         })
         .then(data => {
-            console.log('Received data:', data);
-            updateGradeProgressionChart(data.progression);
-            updateSessionFrequencyChart(data.frequency);
-            updateSuccessRateChart(data.successRate);
-            updateGradeDistributionChart(data.distribution);
+            updateAscentsByDifficultyChart(data.ascentsByDifficulty);
+            updateSendsByDateChart(data.sendsByDate);
+            updateMetricsOverTimeChart(data.metricsOverTime);
         })
         .catch(error => console.error('Error updating charts:', error));
 }
 
-function updateGradeProgressionChart(data) {
-    const ctx = document.getElementById('gradeProgressionChart');
+function updateAscentsByDifficultyChart(data) {
+    const ctx = document.getElementById('ascentsByDifficultyChart');
     if (!ctx) return;
 
     let chart = Chart.getChart(ctx);
@@ -45,31 +33,78 @@ function updateGradeProgressionChart(data) {
     }
 
     new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: data.labels,
             datasets: [{
-                label: 'Highest Grade',
+                label: 'Number of Ascents',
                 data: data.data,
+                backgroundColor: '#410f70',
                 borderColor: '#410f70',
-                tension: 0.4,
-                fill: false
+                borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
-            },
             scales: {
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Grade'
+                        text: 'Number of Ascents'
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Difficulty Grade'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateSendsByDateChart(data) {
+    const ctx = document.getElementById('sendsByDateChart');
+    if (!ctx) return;
+
+    let chart = Chart.getChart(ctx);
+    if (chart) {
+        chart.destroy();
+    }
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Sends',
+                    data: data.sends,
+                    backgroundColor: '#410f70',
+                    borderColor: '#410f70',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Attempts',
+                    data: data.attempts,
+                    backgroundColor: '#6c757d',
+                    borderColor: '#6c757d',
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Number of Climbs'
                     }
                 },
                 x: {
@@ -83,8 +118,8 @@ function updateGradeProgressionChart(data) {
     });
 }
 
-function updateSessionFrequencyChart(data) {
-    const ctx = document.getElementById('sessionFrequencyChart');
+function updateMetricsOverTimeChart(data) {
+    const ctx = document.getElementById('metricsOverTimeChart');
     if (!ctx) return;
 
     let chart = Chart.getChart(ctx);
@@ -93,14 +128,16 @@ function updateSessionFrequencyChart(data) {
     }
 
     new Chart(ctx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: data.labels,
-            datasets: [{
-                label: 'Sessions',
-                data: data.data,
-                backgroundColor: '#410f70',
-            }]
+            datasets: data.metrics.map(metric => ({
+                label: metric.name,
+                data: metric.data,
+                borderColor: metric.color,
+                tension: 0.4,
+                fill: false
+            }))
         },
         options: {
             responsive: true,
@@ -110,78 +147,13 @@ function updateSessionFrequencyChart(data) {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Number of Sessions'
+                        text: 'Value'
                     }
-                }
-            }
-        }
-    });
-}
-
-function updateSuccessRateChart(data) {
-    const ctx = document.getElementById('successRateChart');
-    if (!ctx) return;
-
-    let chart = Chart.getChart(ctx);
-    if (chart) {
-        chart.destroy();
-    }
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: 'Success Rate',
-                data: data.data,
-                backgroundColor: '#410f70',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
+                },
+                x: {
                     title: {
                         display: true,
-                        text: 'Success Rate (%)'
-                    }
-                }
-            }
-        }
-    });
-}
-
-function updateGradeDistributionChart(data) {
-    const ctx = document.getElementById('gradeDistributionChart');
-    if (!ctx) return;
-
-    let chart = Chart.getChart(ctx);
-    if (chart) {
-        chart.destroy();
-    }
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.labels,
-            datasets: [{
-                label: 'Attempts',
-                data: data.data,
-                backgroundColor: '#410f70',
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Attempts'
+                        text: 'Date'
                     }
                 }
             }

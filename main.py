@@ -265,116 +265,134 @@ def upload_photo():
 @login_required
 def stats():
     """Display climbing statistics and visualizations."""
-    # Calculate basic statistics
-    total_sends = Climb.query.filter_by(user_id=current_user.id, status='Sent').count()
-    total_attempts = Climb.query.filter_by(user_id=current_user.id).count()
-    success_rate = round((total_sends / total_attempts * 100) if total_attempts > 0 else 0)
+    # Calculate basic metrics
+    user_climbs = Climb.query.filter_by(user_id=current_user.id).all()
+    sends = [c for c in user_climbs if c.status == 'Sent']
+
+    total_sends = len(sends)
+    total_climbs = len(user_climbs)
+    success_rate = round((total_sends / total_climbs * 100) if total_climbs > 0 else 0)
 
     # Get highest grade
-    highest_grade_climb = Climb.query.filter_by(user_id=current_user.id).order_by(
-        Climb.caliber.desc()
-    ).first()
+    highest_grade_climb = Climb.query.filter_by(
+        user_id=current_user.id,
+        status='Sent'
+    ).order_by(Climb.caliber.desc()).first()
     highest_grade = highest_grade_climb.caliber if highest_grade_climb else '--'
 
-    # Calculate average grade
-    climbs = Climb.query.filter_by(user_id=current_user.id).all()
-    if climbs:
-        grades = []
-        for climb in climbs:
-            grade_parts = climb.caliber.split('.')
-            if len(grade_parts) == 2:
-                grade_num = grade_parts[1]
-                if grade_num.isdigit():
-                    grades.append(int(grade_num))
-        avg_grade = f"5.{round(sum(grades) / len(grades))}" if grades else '--'
-    else:
-        avg_grade = '--'
+    # Calculate average grade for sent climbs
+    sent_grades = []
+    for climb in sends:
+        grade_parts = climb.caliber.split('.')
+        if len(grade_parts) == 2:
+            grade_num = grade_parts[1].rstrip('abcd')  # Remove letter grades
+            if grade_num.isdigit():
+                sent_grades.append(int(grade_num))
+    avg_grade = f"5.{round(sum(sent_grades) / len(sent_grades))}" if sent_grades else '--'
+
+    # Calculate total points
+    total_points = sum(climb.rating * (10 if climb.status == 'Sent' else 5) for climb in user_climbs)
+
+    # Calculate climbs per session
+    sessions = db.session.query(
+        func.date(Climb.created_at),
+        func.count(Climb.id)
+    ).filter_by(
+        user_id=current_user.id
+    ).group_by(
+        func.date(Climb.created_at)
+    ).all()
+
+    climbs_per_session = round(total_climbs / len(sessions)) if sessions else 0
 
     return render_template('stats.html',
                          total_sends=total_sends,
                          highest_grade=highest_grade,
                          avg_grade=avg_grade,
-                         success_rate=success_rate)
+                         total_points=total_points,
+                         success_rate=success_rate,
+                         climbs_per_session=climbs_per_session)
 
 @app.route('/api/stats')
 @login_required
 def get_stats():
     """API endpoint for chart data."""
-    time_range = request.args.get('timeRange', 'week')
+    user_climbs = Climb.query.filter_by(user_id=current_user.id).order_by(Climb.created_at).all()
 
-    # Calculate date range
-    end_date = datetime.utcnow()
-    if time_range == 'week':
-        start_date = end_date - timedelta(days=7)
-    elif time_range == 'month':
-        start_date = end_date - timedelta(days=30)
-    elif time_range == 'year':
-        start_date = end_date - timedelta(days=365)
-    else:  # all time
-        start_date = datetime.min
+    # Prepare ascents by difficulty data
+    difficulty_counts = {}
+    for climb in user_climbs:
+        difficulty_counts[climb.caliber] = difficulty_counts.get(climb.caliber, 0) + 1
 
-    # Get climbs within date range
-    climbs = Climb.query.filter(
-        Climb.user_id == current_user.id,
-        Climb.created_at >= start_date,
-        Climb.created_at <= end_date
-    ).order_by(Climb.created_at).all()
-
-    # Prepare progression data
-    progression_data = {
-        'labels': [],
-        'data': []
+    ascents_by_difficulty = {
+        'labels': sorted(difficulty_counts.keys()),
+        'data': [difficulty_counts[grade] for grade in sorted(difficulty_counts.keys())]
     }
-    current_max = 0
-    for climb in climbs:
-        date_str = climb.created_at.strftime('%Y-%m-%d')
-        grade_num = int(climb.caliber.split('.')[1]) if '.' in climb.caliber else 0
-        if grade_num > current_max:
-            current_max = grade_num
-            progression_data['labels'].append(date_str)
-            progression_data['data'].append(grade_num)
 
-    # Prepare frequency data
-    frequency_data = {
-        'labels': [],
-        'data': []
+    # Prepare sends by date data
+    dates = sorted(set(climb.created_at.date() for climb in user_climbs))
+    sends_by_date = {
+        'labels': [date.strftime('%Y-%m-%d') for date in dates],
+        'sends': [],
+        'attempts': []
     }
-    session_dates = db.session.query(
-        func.date(Climb.created_at),
-        func.count(Climb.id)
-    ).filter(
-        Climb.user_id == current_user.id,
-        Climb.created_at >= start_date
-    ).group_by(func.date(Climb.created_at)).all()
 
-    for date, count in session_dates:
-        frequency_data['labels'].append(date.strftime('%Y-%m-%d'))
-        frequency_data['data'].append(count)
+    for date in dates:
+        day_climbs = [c for c in user_climbs if c.created_at.date() == date]
+        sends_by_date['sends'].append(len([c for c in day_climbs if c.status == 'Sent']))
+        sends_by_date['attempts'].append(len([c for c in day_climbs if c.status != 'Sent']))
 
-    # Prepare success rate data
-    success_rate_data = {
-        'labels': [],
-        'data': []
+    # Prepare metrics over time data
+    metrics_over_time = {
+        'labels': [date.strftime('%Y-%m-%d') for date in dates],
+        'metrics': [
+            {
+                'name': 'Success Rate',
+                'data': [],
+                'color': '#410f70'
+            },
+            {
+                'name': 'Average Grade',
+                'data': [],
+                'color': '#28a745'
+            },
+            {
+                'name': 'Points',
+                'data': [],
+                'color': '#ffc107'
+            }
+        ]
     }
-    grades = sorted(set(climb.caliber for climb in climbs))
-    for grade in grades:
-        attempts = sum(1 for climb in climbs if climb.caliber == grade)
-        sends = sum(1 for climb in climbs if climb.caliber == grade and climb.status == 'Sent')
-        success_rate = (sends / attempts * 100) if attempts > 0 else 0
-        success_rate_data['labels'].append(grade)
-        success_rate_data['data'].append(round(success_rate))
 
-    # Prepare distribution data
-    distribution_data = {
-        'labels': grades,
-        'data': [sum(1 for climb in climbs if climb.caliber == grade) for grade in grades]
-    }
+    for date in dates:
+        # Calculate cumulative metrics up to this date
+        climbs_to_date = [c for c in user_climbs if c.created_at.date() <= date]
+
+        # Success rate
+        sends = len([c for c in climbs_to_date if c.status == 'Sent'])
+        total = len(climbs_to_date)
+        success_rate = (sends / total * 100) if total > 0 else 0
+        metrics_over_time['metrics'][0]['data'].append(round(success_rate))
+
+        # Average grade
+        sent_grades = []
+        for climb in [c for c in climbs_to_date if c.status == 'Sent']:
+            grade_parts = climb.caliber.split('.')
+            if len(grade_parts) == 2:
+                grade_num = grade_parts[1].rstrip('abcd')
+                if grade_num.isdigit():
+                    sent_grades.append(int(grade_num))
+        avg_grade = round(sum(sent_grades) / len(sent_grades)) if sent_grades else 0
+        metrics_over_time['metrics'][1]['data'].append(avg_grade)
+
+        # Points
+        points = sum(c.rating * (10 if c.status == 'Sent' else 5) for c in climbs_to_date)
+        metrics_over_time['metrics'][2]['data'].append(points)
 
     return jsonify({
-        'progression': progression_data,
-        'frequency': frequency_data,
-        'successRate': success_rate_data,
-        'distribution': distribution_data
+        'ascentsByDifficulty': ascents_by_difficulty,
+        'sendsByDate': sends_by_date,
+        'metricsOverTime': metrics_over_time
     })
 
 @app.route('/squads')

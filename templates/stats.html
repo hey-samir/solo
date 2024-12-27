@@ -19,106 +19,96 @@
         </div>
     </div>
 
-    <!-- Key Metrics -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="metric-card">
-                <div class="metric-value">{{ total_sends }}</div>
-                <div class="metric-label">Total Sends</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card">
-                <div class="metric-value">{{ highest_grade }}</div>
-                <div class="metric-label">Highest Grade</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card">
-                <div class="metric-value">{{ avg_grade }}</div>
-                <div class="metric-label">Average Grade</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="metric-card">
-                <div class="metric-value">{{ success_rate }}%</div>
-                <div class="metric-label">Success Rate</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Content Tabs -->
     <ul class="nav nav-tabs mb-3" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#progression" type="button" role="tab">
-                Progression
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#metrics" type="button" role="tab">
+                Metrics
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#analysis" type="button" role="tab">
-                Analysis
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#distribution" type="button" role="tab">
-                Distribution
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#trends" type="button" role="tab">
+                Trends
             </button>
         </li>
     </ul>
 
     <div class="tab-content">
-        <!-- Progression Tab -->
-        <div class="tab-pane fade show active" id="progression" role="tabpanel">
+        <!-- Metrics Tab -->
+        <div class="tab-pane fade show active" id="metrics" role="tabpanel">
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ total_sends }}</div>
+                        <div class="metric-label">Total Sends</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ highest_grade }}</div>
+                        <div class="metric-label">Highest Grade</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ avg_grade }}</div>
+                        <div class="metric-label">Average Grade</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ total_points }}</div>
+                        <div class="metric-label">Total Points</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ success_rate }}%</div>
+                        <div class="metric-label">Success Rate</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value">{{ climbs_per_session }}</div>
+                        <div class="metric-label">Climbs per Session</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trends Tab -->
+        <div class="tab-pane fade" id="trends" role="tabpanel">
+            <!-- Ascents by Difficulty -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Grade Progression</h5>
+                    <h5 class="card-title mb-0">Ascents by Difficulty</h5>
                 </div>
                 <div class="card-body">
-                    <div id="gradeProgressionChart" style="height: 300px;">
+                    <div id="ascentsByDifficultyChart" style="height: 300px;">
                         <!-- Chart will be rendered here -->
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Analysis Tab -->
-        <div class="tab-pane fade" id="analysis" role="tabpanel">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Session Frequency</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="sessionFrequencyChart" style="height: 250px;">
-                                <!-- Chart will be rendered here -->
-                            </div>
-                        </div>
-                    </div>
+            <!-- Sends by Date -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Sends by Date</h5>
                 </div>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Success Rate by Grade</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="successRateChart" style="height: 250px;">
-                                <!-- Chart will be rendered here -->
-                            </div>
-                        </div>
+                <div class="card-body">
+                    <div id="sendsByDateChart" style="height: 300px;">
+                        <!-- Chart will be rendered here -->
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Distribution Tab -->
-        <div class="tab-pane fade" id="distribution" role="tabpanel">
+            <!-- Metrics Over Time -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Grade Distribution</h5>
+                    <h5 class="card-title mb-0">Metrics Over Time</h5>
                 </div>
                 <div class="card-body">
-                    <div id="gradeDistributionChart" style="height: 300px;">
+                    <div id="metricsOverTimeChart" style="height: 300px;">
                         <!-- Chart will be rendered here -->
                     </div>
                 </div>
