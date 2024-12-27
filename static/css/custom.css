@@ -91,7 +91,7 @@
 
 /* Header logo styling */
 .header-logo {
-    height: 40px;
+    height: 50px;
     width: auto;
     display: block;
     filter: brightness(0) invert(1);  /* Make the logo white */
