@@ -56,6 +56,4 @@ def internal_error(error):
     db.session.rollback()
     return "Internal server error", 500
 
-@app.route('/stats')
-def stats():
-    return render_template('404.html'), 404
+# Stats route moved to main.py
