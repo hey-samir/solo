@@ -26,6 +26,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
+@login_required
 def index():
     """Redirect root to /sends"""
     return redirect(url_for('sends'))
@@ -256,6 +257,11 @@ def upload_photo():
         db.session.rollback()
 
     return redirect(url_for('self'))
+
+@app.route('/stats')
+@login_required
+def stats():
+    return render_template('stats.html') # Placeholder for now
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
