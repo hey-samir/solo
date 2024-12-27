@@ -57,7 +57,7 @@
                             <span class="sort-indicator"></span>
                         </th>
                         <th class="sortable" data-sort="difficulty">
-                            Difficulty <i class="bi bi-arrow-down-up"></i>
+                            Caliber <i class="bi bi-arrow-down-up"></i>
                             <span class="sort-indicator"></span>
                         </th>
                         <th class="sortable" data-sort="status">
@@ -76,7 +76,7 @@
                         data-difficulty="{{ climb.rating }}"
                         data-status="{{ climb.status }}"
                         data-points="{{ (climb.rating * (10 if climb.status == 'Sent' else 5)) }}">
-                        <td>
+                        <td class="color-cell">
                             <span class="color-dot" style="background-color: 
                                 {% if climb.color == 'White' %}#FFFFFF
                                 {% elif climb.color == 'Pink' %}#FF69B4
@@ -89,7 +89,6 @@
                                 {% elif climb.color == 'Yellow' %}#FFFF00
                                 {% elif climb.color == 'Teal' %}#008080
                                 {% endif %}"></span>
-                            {{ climb.color }}
                         </td>
                         <td>{{ climb.difficulty }}</td>
                         <td>{{ "●" * climb.rating }}</td>
