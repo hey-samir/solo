@@ -62,12 +62,13 @@
     font-weight: bold;
 }
 
-[data-bs-theme="dark"] {
-    --bs-body-bg: #1c2332;
+/* Update spacing to account for fixed navbar */
+body {
+    padding-bottom: 80px; /* Add padding to prevent content from being hidden behind navbar */
 }
 
-.navbar-nav .nav-link span {
-    display: none;
+.container {
+    margin-bottom: 80px; /* Add margin to prevent content from being hidden */
 }
 
 /* Update section header color */
