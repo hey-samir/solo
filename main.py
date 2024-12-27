@@ -4,7 +4,6 @@ from flask_login import login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
 from app import app, db
 from models import Climb, User
-from utils.logo_generator import generate_logo, get_logo_path
 from flask_wtf.csrf import CSRFProtect
 from forms import LoginForm, RegistrationForm, ProfileForm
 from migrations import migrate  # Import the migration setup
@@ -79,10 +78,6 @@ def logout():
 @app.route('/sends')
 @login_required
 def sends():
-    # Generate logo on first request if it doesn't exist
-    static_image_path = os.path.join(app.static_folder, 'images', 'logo.png')
-    if not os.path.exists(static_image_path):
-        generate_logo()
     return render_template('index.html')
 
 @app.route('/add_climb', methods=['POST'])
@@ -251,20 +246,6 @@ def upload_photo():
         db.session.rollback()
 
     return redirect(url_for('self'))
-
-@app.route('/generate-logo')
-def generate_app_logo():
-    """Generate and serve the Solo app logo."""
-    logo_path = generate_logo()
-    directory = os.path.join(app.static_folder, 'images')
-    os.makedirs(directory, exist_ok=True)
-    return send_from_directory(directory, os.path.basename(logo_path))
-
-# Ensure the logo is generated when the application starts
-with app.app_context():
-    static_image_path = os.path.join(app.static_folder, 'images', 'logo.png')
-    if not os.path.exists(static_image_path):
-        generate_logo()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
