@@ -601,6 +601,18 @@ textarea.form-control:focus {
     opacity: 0.8;
 }
 
+textarea.form-control {
+    min-height: 38px;
+    height: 38px;
+    resize: vertical;
+    overflow: hidden;
+    transition: height 0.2s ease;
+}
+
+textarea.form-control:focus {
+    height: auto;
+}
+
 /* Input group styling for username */
 .input-group {
     width: 100% !important;

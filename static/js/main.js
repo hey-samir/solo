@@ -224,3 +224,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+// Auto-expand textarea
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('textarea[name="notes"]');
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = '38px';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+});
