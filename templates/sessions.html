@@ -45,13 +45,13 @@
     <div class="session-group mb-4">
         <h3 class="session-date mb-3">{{ date.strftime('%B %d, %Y') }}</h3>
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" data-session-date="{{ date.strftime('%Y-%m-%d') }}">
                 <thead>
                     <tr>
-                        <th>Color</th>
-                        <th>Grade</th>
-                        <th>Difficulty</th>
-                        <th>Status</th>
+                        <th class="sortable" data-sort="color">Color <i class="bi bi-arrow-down-up"></i></th>
+                        <th class="sortable" data-sort="grade">Grade <i class="bi bi-arrow-down-up"></i></th>
+                        <th class="sortable" data-sort="difficulty">Difficulty <i class="bi bi-arrow-down-up"></i></th>
+                        <th class="sortable" data-sort="status">Status <i class="bi bi-arrow-down-up"></i></th>
                         <th>Points</th>
                     </tr>
                 </thead>

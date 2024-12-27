@@ -13,6 +13,43 @@ function filterClimbs(status) {
     });
 }
 
+// Sort table rows
+function sortTable(table, column, direction = 'asc') {
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+    // Sort the array of rows
+    rows.sort((a, b) => {
+        const aCol = a.children[column].textContent.trim();
+        const bCol = b.children[column].textContent.trim();
+
+        // Handle grade sorting (e.g., "5.10a" vs "5.9")
+        if (column === 1) { // Grade column
+            const aGrade = parseFloat(aCol.split('.')[1]);
+            const bGrade = parseFloat(bCol.split('.')[1]);
+            return direction === 'asc' ? aGrade - bGrade : bGrade - aGrade;
+        }
+
+        // Handle difficulty sorting (dots)
+        if (column === 2) { // Difficulty column
+            return direction === 'asc' 
+                ? aCol.length - bCol.length 
+                : bCol.length - aCol.length;
+        }
+
+        // Default string comparison
+        return direction === 'asc' 
+            ? aCol.localeCompare(bCol) 
+            : bCol.localeCompare(aCol);
+    });
+
+    // Remove existing rows
+    rows.forEach(row => tbody.removeChild(row));
+
+    // Add sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Rating button behavior
     const ratingInputs = document.querySelectorAll('input[name="rating"]');
@@ -32,6 +69,30 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Table sorting
+    document.querySelectorAll('.sortable').forEach(header => {
+        header.addEventListener('click', function() {
+            const table = this.closest('table');
+            const column = Array.from(this.parentElement.children).indexOf(this);
+
+            // Toggle sort direction
+            const currentDirection = this.dataset.direction || 'asc';
+            const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+
+            // Update header state
+            document.querySelectorAll('.sortable').forEach(h => {
+                h.dataset.direction = '';
+                h.classList.remove('sorted-asc', 'sorted-desc');
+            });
+
+            this.dataset.direction = newDirection;
+            this.classList.add(`sorted-${newDirection}`);
+
+            // Sort the table
+            sortTable(table, column, newDirection);
+        });
+    });
 
     // Profile edit functionality
     const editToggle = document.querySelector('.edit-toggle');
@@ -99,7 +160,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
     // Form validation
     const form = document.getElementById('climbForm');
     if (form) {

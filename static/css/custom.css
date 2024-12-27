@@ -91,6 +91,39 @@
 
 /* Navigation styles will be added here */
 
+/* Sortable table headers */
+.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-right: 1.5rem !important;
+}
+
+.sortable i {
+    font-size: 0.875rem;
+    opacity: 0.5;
+    margin-left: 0.25rem;
+    transition: opacity 0.2s;
+}
+
+.sortable:hover i {
+    opacity: 1;
+}
+
+.sortable.sorted-asc i:before {
+    content: "\F12C" !important;
+}
+
+.sortable.sorted-desc i:before {
+    content: "\F127" !important;
+}
+
+.sortable.sorted-asc i,
+.sortable.sorted-desc i {
+    opacity: 1;
+    color: var(--solo-purple);
+}
+
+
 /* KPI Metric Cards */
 .metric-card {
     background-color: var(--bs-dark);
