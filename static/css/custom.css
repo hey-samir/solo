@@ -89,6 +89,14 @@
     max-width: 80%;
 }
 
+/* Header logo styling */
+.header-logo {
+    height: 40px;
+    width: auto;
+    display: block;
+    filter: brightness(0) invert(1);  /* Make the logo white */
+}
+
 /* Navigation styles will be added here */
 
 /* Sortable table headers */

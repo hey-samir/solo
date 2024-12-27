@@ -7,9 +7,19 @@ from models import Climb, User
 from flask_wtf.csrf import CSRFProtect
 from forms import LoginForm, RegistrationForm, ProfileForm
 from migrations import migrate  # Import the migration setup
+import shutil
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
+
+# Create static/images directory if it doesn't exist
+os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
+
+# Copy solo-clear.png to static/images
+source_logo = os.path.join('attached_assets', 'solo-clear.png')
+dest_logo = os.path.join(app.static_folder, 'images', 'solo-clear.png')
+if os.path.exists(source_logo) and not os.path.exists(dest_logo):
+    shutil.copy2(source_logo, dest_logo)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 def allowed_file(filename):
