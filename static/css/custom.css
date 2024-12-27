@@ -103,45 +103,7 @@
 .sortable {
     cursor: pointer;
     position: relative;
-    padding-right: 1.5rem !important;
-    user-select: none;
-}
-
-.sortable i {
-    font-size: 0.875rem;
-    opacity: 0.5;
-    margin-left: 0.25rem;
-    transition: opacity 0.2s;
-}
-
-.sortable:hover i {
-    opacity: 1;
-}
-
-.sortable.sort-asc i:before {
-    content: "\F12C" !important;
-}
-
-.sortable.sort-desc i:before {
-    content: "\F127" !important;
-}
-
-.sortable.sort-asc i,
-.sortable.sort-desc i {
-    opacity: 1;
-    color: var(--solo-purple);
-}
-
-/* Add hover effect to sortable headers */
-.table thead th.sortable:hover {
-    background-color: rgba(65, 15, 112, 0.1);
-}
-
-/* Add these styles after the existing sortable styles */
-.sortable {
-    cursor: pointer;
-    position: relative;
-    padding-right: 1.5rem !important;
+    padding-right: 2rem !important;  /* Increased padding to prevent overlap */
     user-select: none;
 }
 
@@ -161,11 +123,11 @@
 }
 
 .sortable.sort-asc i:before {
-    content: "\F12C" !important;
+    content: "\F12C" !important;  /* Bootstrap icon for up arrow */
 }
 
 .sortable.sort-desc i:before {
-    content: "\F127" !important;
+    content: "\F127" !important;  /* Bootstrap icon for down arrow */
 }
 
 .sortable.sort-asc i,
@@ -173,6 +135,18 @@
     opacity: 1;
     color: var(--solo-purple);
 }
+
+/* Add hover effect to sortable headers */
+.table thead th.sortable:hover {
+    background-color: rgba(65, 15, 112, 0.1);
+}
+
+/* Table styling */
+.table thead th {
+    white-space: nowrap;  /* Prevent text wrapping in headers */
+    position: relative;
+}
+
 
 /* Table styling */
 .table {

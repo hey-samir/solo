@@ -86,13 +86,16 @@ function sortTable(table, column, direction = 'asc') {
     // Update sort indicators
     const headers = table.querySelectorAll('th.sortable');
     headers.forEach((header, index) => {
-        if (index === column) {
-            header.classList.add(`sort-${direction}`);
-            header.classList.remove(`sort-${direction === 'asc' ? 'desc' : 'asc'}`);
-        } else {
+        // Remove sort classes from all headers except the current one
+        if (index !== column) {
             header.classList.remove('sort-asc', 'sort-desc');
         }
     });
+
+    // Update the current header's sort direction
+    const currentHeader = headers[column];
+    currentHeader.classList.remove('sort-asc', 'sort-desc');
+    currentHeader.classList.add(`sort-${direction}`);
 }
 
 // Update total points
@@ -117,30 +120,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const table = this.closest('table');
             const column = Array.from(this.parentElement.children).indexOf(this);
 
-            // Remove active sort from all headers in the same table
-            table.querySelectorAll('.sortable').forEach(h => {
-                h.classList.remove('sort-asc', 'sort-desc');
-            });
-
-            // Toggle sort direction
-            const currentDirection = this.classList.contains('sort-asc') ? 'desc' : 'asc';
-
-            // Update header state
-            this.classList.add(`sort-${currentDirection}`);
+            // Determine sort direction
+            let currentDirection = 'asc';
+            if (this.classList.contains('sort-asc')) {
+                currentDirection = 'desc';
+            } else if (this.classList.contains('sort-desc')) {
+                currentDirection = 'asc';
+            }
 
             // Sort the table
             sortTable(table, column, currentDirection);
         });
-    });
-
-    // Initial sort by date (newest first) if date column exists
-    const tables = document.querySelectorAll('table');
-    tables.forEach(table => {
-        const dateHeader = table.querySelector('th[data-sort="date"]');
-        if (dateHeader) {
-            const column = Array.from(dateHeader.parentElement.children).indexOf(dateHeader);
-            sortTable(table, column, 'desc');
-        }
     });
 });
 
