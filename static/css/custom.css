@@ -242,6 +242,10 @@ footer {
     margin-bottom: 1rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     min-width: 120px;
+    height: 100px;  /* Fixed height for consistency */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     flex: 1;
 }
 
@@ -723,14 +727,16 @@ textarea.form-control:focus {
     font-style: italic;
     opacity: 0.8;
     line-height: 24px;
+    text-align: center;  /* Center the placeholder text */
 }
 
 textarea.form-control {
-    min-height: 38px;
-    height: 38px;
+    min-height: 48px;  /* Increased from 38px */
+    height: 48px;  /* Increased from 38px */
     resize: vertical;
     overflow: hidden;
     transition: height 0.2s ease;
+    font-size: 1.1rem;  /* Slightly larger font size */
 }
 
 textarea.form-control:focus {
