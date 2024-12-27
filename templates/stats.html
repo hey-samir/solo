@@ -2,23 +2,6 @@
 
 {% block content %}
 <div class="container">
-    <!-- Date Range Filter -->
-    <div class="mb-4">
-        <div class="btn-group" role="group">
-            <input type="radio" class="btn-check" name="timeRange" id="week" value="week" checked>
-            <label class="btn btn-outline-secondary" for="week">Week</label>
-
-            <input type="radio" class="btn-check" name="timeRange" id="month" value="month">
-            <label class="btn btn-outline-secondary" for="month">Month</label>
-
-            <input type="radio" class="btn-check" name="timeRange" id="year" value="year">
-            <label class="btn btn-outline-secondary" for="year">Year</label>
-
-            <input type="radio" class="btn-check" name="timeRange" id="all" value="all">
-            <label class="btn btn-outline-secondary" for="all">All Time</label>
-        </div>
-    </div>
-
     <!-- Main Content Tabs -->
     <ul class="nav nav-tabs mb-3" role="tablist">
         <li class="nav-item" role="presentation">
@@ -116,7 +99,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
