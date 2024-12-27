@@ -104,6 +104,7 @@
     cursor: pointer;
     position: relative;
     padding-right: 1.5rem !important;
+    user-select: none;
 }
 
 .sortable i {
@@ -117,20 +118,72 @@
     opacity: 1;
 }
 
-.sortable.sorted-asc i:before {
+.sortable.sort-asc i:before {
     content: "\F12C" !important;
 }
 
-.sortable.sorted-desc i:before {
+.sortable.sort-desc i:before {
     content: "\F127" !important;
 }
 
-.sortable.sorted-asc i,
-.sortable.sorted-desc i {
+.sortable.sort-asc i,
+.sortable.sort-desc i {
     opacity: 1;
     color: var(--solo-purple);
 }
 
+/* Table styling */
+.table {
+    margin-bottom: 0;
+    background: var(--bs-dark);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: var(--bs-dark);
+    color: var(--bs-white);
+    font-weight: 600;
+    border-bottom: 2px solid var(--solo-purple);
+    padding: 1rem;
+    transition: background-color 0.2s;
+}
+
+.table thead th:hover {
+    background-color: rgba(65, 15, 112, 0.1);
+}
+
+.table tbody td {
+    padding: 1rem;
+    color: var(--bs-white);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(65, 15, 112, 0.1);
+}
+
+/* Color dot styling */
+.color-dot {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    border: 1px solid var(--bs-white);
+    vertical-align: middle;
+}
+
+/* Points column highlighting */
+.climb-points {
+    font-weight: 600;
+    color: var(--bs-white);
+}
 
 /* KPI Metric Cards */
 .metric-card {
@@ -626,6 +679,11 @@ textarea.form-control:focus {
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
     padding: 1rem;
+    transition: background-color 0.2s;
+}
+
+.table thead th:hover {
+    background-color: rgba(65, 15, 112, 0.1);
 }
 
 .table tbody td {

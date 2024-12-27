@@ -13,6 +13,26 @@ function filterClimbs(status) {
     });
 }
 
+// Compare grades for sorting
+function compareGrades(a, b) {
+    // Extract numeric part and letter modifier
+    const aMatch = a.match(/(\d+)([a-d])?/);
+    const bMatch = b.match(/(\d+)([a-d])?/);
+
+    if (!aMatch || !bMatch) return 0;
+
+    const aNum = parseInt(aMatch[1]);
+    const bNum = parseInt(bMatch[1]);
+
+    if (aNum !== bNum) return aNum - bNum;
+
+    // If numbers are equal, compare letters
+    const aLetter = aMatch[2] || 'z';  // Use 'z' if no letter
+    const bLetter = bMatch[2] || 'z';
+
+    return aLetter.localeCompare(bLetter);
+}
+
 // Sort table rows
 function sortTable(table, column, direction = 'asc') {
     const tbody = table.querySelector('tbody');
@@ -20,27 +40,39 @@ function sortTable(table, column, direction = 'asc') {
 
     // Sort the array of rows
     rows.sort((a, b) => {
-        const aCol = a.children[column].textContent.trim();
-        const bCol = b.children[column].textContent.trim();
+        let comparison = 0;
+        const aData = a.children[column];
+        const bData = b.children[column];
 
-        // Handle grade sorting (e.g., "5.10a" vs "5.9")
-        if (column === 1) { // Grade column
-            const aGrade = parseFloat(aCol.split('.')[1]);
-            const bGrade = parseFloat(bCol.split('.')[1]);
-            return direction === 'asc' ? aGrade - bGrade : bGrade - aGrade;
+        switch(column) {
+            case 1: // Grade column
+                const aGrade = a.dataset.grade;
+                const bGrade = b.dataset.grade;
+                comparison = compareGrades(aGrade, bGrade);
+                break;
+
+            case 2: // Difficulty column
+                const aDiff = parseInt(a.dataset.difficulty);
+                const bDiff = parseInt(b.dataset.difficulty);
+                comparison = aDiff - bDiff;
+                break;
+
+            case 3: // Status column
+                // Sort "Sent" above "Tried"
+                comparison = (bData.textContent === "Sent") - (aData.textContent === "Sent");
+                break;
+
+            case 4: // Points column
+                const aPoints = parseInt(a.dataset.points);
+                const bPoints = parseInt(b.dataset.points);
+                comparison = aPoints - bPoints;
+                break;
+
+            default: // Color or default case
+                comparison = aData.textContent.trim().localeCompare(bData.textContent.trim());
         }
 
-        // Handle difficulty sorting (dots)
-        if (column === 2) { // Difficulty column
-            return direction === 'asc' 
-                ? aCol.length - bCol.length 
-                : bCol.length - aCol.length;
-        }
-
-        // Default string comparison
-        return direction === 'asc' 
-            ? aCol.localeCompare(bCol) 
-            : bCol.localeCompare(aCol);
+        return direction === 'asc' ? comparison : -comparison;
     });
 
     // Remove existing rows
@@ -48,9 +80,27 @@ function sortTable(table, column, direction = 'asc') {
 
     // Add sorted rows
     rows.forEach(row => tbody.appendChild(row));
+
+    // Update total points after sorting
+    updateTotalPoints();
+}
+
+// Update total points
+function updateTotalPoints() {
+    const points = Array.from(document.querySelectorAll('.climb-points'))
+        .map(td => parseInt(td.textContent))
+        .reduce((sum, points) => sum + points, 0);
+
+    const totalPointsElement = document.getElementById('totalPoints');
+    if (totalPointsElement) {
+        totalPointsElement.textContent = points;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize total points
+    updateTotalPoints();
+
     // Rating button behavior
     const ratingInputs = document.querySelectorAll('input[name="rating"]');
     const ratingLabels = document.querySelectorAll('.rating-btn');
@@ -76,24 +126,23 @@ document.addEventListener('DOMContentLoaded', function() {
             const table = this.closest('table');
             const column = Array.from(this.parentElement.children).indexOf(this);
 
+            // Remove active sort from all headers in the same table
+            table.querySelectorAll('.sortable').forEach(h => {
+                h.classList.remove('sort-asc', 'sort-desc');
+            });
+
             // Toggle sort direction
             const currentDirection = this.dataset.direction || 'asc';
             const newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
 
             // Update header state
-            document.querySelectorAll('.sortable').forEach(h => {
-                h.dataset.direction = '';
-                h.classList.remove('sorted-asc', 'sorted-desc');
-            });
-
             this.dataset.direction = newDirection;
-            this.classList.add(`sorted-${newDirection}`);
+            this.classList.add(`sort-${newDirection}`);
 
             // Sort the table
             sortTable(table, column, newDirection);
         });
     });
-
     // Profile edit functionality
     const editToggle = document.querySelector('.edit-toggle');
     const cancelEdit = document.querySelector('.cancel-edit');

@@ -35,7 +35,7 @@
         </div>
         <div class="col-md-4">
             <div class="metric-card">
-                <div class="metric-value">--</div>
+                <div class="metric-value" id="totalPoints">--</div>
                 <div class="metric-label">Total Points</div>
             </div>
         </div>
@@ -48,16 +48,34 @@
             <table class="table table-hover" data-session-date="{{ date.strftime('%Y-%m-%d') }}">
                 <thead>
                     <tr>
-                        <th class="sortable" data-sort="color">Color <i class="bi bi-arrow-down-up"></i></th>
-                        <th class="sortable" data-sort="grade">Grade <i class="bi bi-arrow-down-up"></i></th>
-                        <th class="sortable" data-sort="difficulty">Difficulty <i class="bi bi-arrow-down-up"></i></th>
-                        <th class="sortable" data-sort="status">Status <i class="bi bi-arrow-down-up"></i></th>
-                        <th>Points</th>
+                        <th class="sortable" data-sort="color">
+                            Color <i class="bi bi-arrow-down-up"></i>
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable" data-sort="grade">
+                            Grade <i class="bi bi-arrow-down-up"></i>
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable" data-sort="difficulty">
+                            Difficulty <i class="bi bi-arrow-down-up"></i>
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable" data-sort="status">
+                            Status <i class="bi bi-arrow-down-up"></i>
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable" data-sort="points">
+                            Points <i class="bi bi-arrow-down-up"></i>
+                            <span class="sort-indicator"></span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for climb in climbs %}
-                    <tr>
+                    <tr data-grade="{{ climb.difficulty.split('.')[-1] }}"
+                        data-difficulty="{{ climb.rating }}"
+                        data-status="{{ climb.status }}"
+                        data-points="{{ (climb.rating * (10 if climb.status == 'Sent' else 5)) }}">
                         <td>
                             <span class="color-dot" style="background-color: 
                                 {% if climb.color == 'White' %}#FFFFFF
@@ -76,7 +94,7 @@
                         <td>{{ climb.difficulty }}</td>
                         <td>{{ "●" * climb.rating }}</td>
                         <td>{{ climb.status }}</td>
-                        <td>--</td>
+                        <td class="climb-points">{{ (climb.rating * (10 if climb.status == 'Sent' else 5)) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
