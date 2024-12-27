@@ -141,6 +141,12 @@
     background-color: rgba(65, 15, 112, 0.1);
 }
 
+/* Remove background color change when sorting is active */
+.table thead th.sortable.sort-asc,
+.table thead th.sortable.sort-desc {
+    background-color: transparent;
+}
+
 /* Table styling */
 .table thead th {
     white-space: nowrap;  /* Prevent text wrapping in headers */
@@ -626,10 +632,6 @@ textarea.form-control:focus {
     line-height: 0;
     margin: 0;
     padding: 0;
-}
-
-.form-label {
-    color: #eaeaea;
 }
 
 .color-grid:last-child {
