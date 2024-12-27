@@ -103,7 +103,7 @@
 .sortable {
     cursor: pointer;
     position: relative;
-    padding-right: 2rem !important;  /* Increased padding to prevent overlap */
+    padding-right: 2.5rem !important;  /* Increased padding to prevent overlap */
     user-select: none;
 }
 
@@ -113,7 +113,7 @@
     margin-left: 0.25rem;
     transition: opacity 0.2s;
     position: absolute;
-    right: 0.5rem;
+    right: 0.75rem;  /* Increased right spacing */
     top: 50%;
     transform: translateY(-50%);
 }
@@ -153,10 +153,11 @@
 .table thead th {
     white-space: nowrap;  /* Prevent text wrapping in headers */
     position: relative;
-    background-color: var(--bs-dark) !important;  /* Keep dark background */
+    background-color: var(--bs-dark) !important;
     border-bottom: 2px solid var(--solo-purple);
     padding: 1rem;
     font-weight: 600;
+    min-width: 80px;  /* Ensure minimum width for columns */
 }
 
 /* Table styling */
