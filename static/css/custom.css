@@ -1,4 +1,4 @@
-
+/*
 .bi {
     font-size: 1.5rem;
     color: white;
@@ -514,4 +514,72 @@ textarea.form-control:focus {
     font-size: 1.1rem;
     height: auto;
     padding: 0.4rem 0.75rem;
+}
+
+
+/* Sessions styling */
+.session-date {
+    color: var(--bs-white);
+    font-weight: 600;
+    font-size: 1.5rem;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    border: 1px solid var(--bs-white);
+    vertical-align: middle;
+}
+
+/* Table styling */
+.table {
+    margin-bottom: 0;
+    background: var(--bs-dark);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: var(--bs-dark);
+    color: var(--bs-white);
+    font-weight: 600;
+    border-bottom: 2px solid var(--solo-purple);
+    padding: 1rem;
+}
+
+.table tbody td {
+    padding: 1rem;
+    color: var(--bs-white);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(65, 15, 112, 0.1);
+}
+
+/* Responsive table */
+.table-responsive {
+    border-radius: 8px;
+    background: var(--bs-dark);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .session-date {
+        font-size: 1.25rem;
+    }
+
+    .table td, .table th {
+        padding: 0.75rem;
+    }
 }

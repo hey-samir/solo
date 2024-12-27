@@ -94,12 +94,6 @@ def add_climb():
     difficulty = f"5.{difficulty_grade}{difficulty_letter}"
 
 
-@app.route('/sessions')
-@login_required
-def sessions():
-    """Temporary sessions page."""
-    return render_template('404.html'), 404
-
     # Validate rating
     try:
         rating = int(request.form.get('rating'))
@@ -121,6 +115,29 @@ def sessions():
     db.session.commit()
     flash('Ascent recorded successfully!', 'success')
     return redirect(url_for('sends'))
+
+@app.route('/sessions')
+@login_required
+def sessions():
+    """Display user's climbing sessions grouped by date."""
+    # Get all climbs for the current user, ordered by date
+    climbs = Climb.query.filter_by(user_id=current_user.id)\
+        .order_by(Climb.created_at.desc())\
+        .all()
+
+    # Group climbs by date
+    from itertools import groupby
+    from datetime import datetime
+
+    def get_date(climb):
+        return climb.created_at.date()
+
+    # Sort climbs by date and group them
+    climbs_by_date = {}
+    for date, group in groupby(sorted(climbs, key=get_date, reverse=True), key=get_date):
+        climbs_by_date[date] = list(group)
+
+    return render_template('sessions.html', climbs_by_date=climbs_by_date)
 
 @app.route('/solo')
 @login_required

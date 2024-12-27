@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    {% for date, climbs in climbs_by_date.items() %}
+    <div class="session-group mb-4">
+        <h3 class="session-date mb-3">{{ date.strftime('%B %d, %Y') }}</h3>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Color</th>
+                        <th>Grade</th>
+                        <th>Difficulty</th>
+                        <th>Status</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for climb in climbs %}
+                    <tr>
+                        <td>
+                            <span class="color-dot" style="background-color: 
+                                {% if climb.color == 'White' %}#FFFFFF
+                                {% elif climb.color == 'Pink' %}#FF69B4
+                                {% elif climb.color == 'Bright Blue' %}#00B0FF
+                                {% elif climb.color == 'Black' %}#000000
+                                {% elif climb.color == 'Orange' %}#FFA500
+                                {% elif climb.color == 'Purple' %}#800080
+                                {% elif climb.color == 'Green' %}#008000
+                                {% elif climb.color == 'Red' %}#FF0000
+                                {% elif climb.color == 'Yellow' %}#FFFF00
+                                {% elif climb.color == 'Teal' %}#008080
+                                {% endif %}"></span>
+                            {{ climb.color }}
+                        </td>
+                        <td>{{ climb.difficulty }}</td>
+                        <td>
+                            {% for i in range(climb.rating) %}
+                            <i class="bi bi-mountain"></i>
+                            {% endfor %}
+                        </td>
+                        <td>{{ climb.status }}</td>
+                        <td>--</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
