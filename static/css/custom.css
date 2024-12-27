@@ -583,7 +583,7 @@ textarea.form-control:focus {
 .form-label {
     font-weight: 700;
     font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 /* Form container width */
