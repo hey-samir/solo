@@ -738,6 +738,6 @@ textarea.form-control:focus {
 }
 
 .container {
-    padding-right: var(--bs-gutter-x, 0.75rem);
-    padding-left: var(--bs-gutter-x, 0.75rem);
+    padding-right: var(--bs-gutter-x, 0.5rem);
+    padding-left: var(--bs-gutter-x, 0.5rem);
 }
