@@ -625,7 +625,7 @@ textarea.form-control:focus {
     align-items: center;
     padding: 0.5rem 1rem;
     background-color: var(--bs-dark);
-    border-color: var(--solo-purple);
+    border-color: var(--bs-white);
 }
 
 .input-group .form-control[name="username"] {
