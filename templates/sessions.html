@@ -4,13 +4,13 @@
 <div class="container">
     <!-- KPI Metrics Section -->
     <div class="row mb-4">
-        <div class="col-md-4">
+        <div class="col-4">
             <div class="metric-card">
                 <div class="metric-value">{{ climbs_by_date.values()|map('list')|map('length')|sum }}</div>
                 <div class="metric-label">Total Ascents</div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-4">
             <div class="metric-card">
                 <div class="metric-value">
                     {% set grades = [] %}
@@ -33,7 +33,7 @@
                 <div class="metric-label">Highest Grade</div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-4">
             <div class="metric-card">
                 <div class="metric-value" id="totalPoints">--</div>
                 <div class="metric-label">Total Points</div>
@@ -72,10 +72,7 @@
                 </thead>
                 <tbody>
                     {% for climb in climbs %}
-                    <tr data-grade="{{ climb.caliber.split('.')[-1] }}"
-                        data-difficulty="{{ climb.rating }}"
-                        data-status="{{ climb.status }}"
-                        data-points="{{ (climb.rating * (10 if climb.status == 'Sent' else 5)) }}">
+                    <tr>
                         <td class="color-cell">
                             <span class="color-dot" style="background-color: 
                                 {% if climb.color == 'White' %}#FFFFFF

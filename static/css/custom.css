@@ -258,6 +258,17 @@ footer {
     font-weight: 500;
 }
 
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .metric-value {
+        font-size: 1.5rem;
+    }
+
+    .metric-label {
+        font-size: 0.875rem;
+    }
+}
+
 /* Table styling */
 .table {
     width: 100%;
