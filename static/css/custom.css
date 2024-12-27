@@ -549,6 +549,13 @@ textarea.form-control:focus {
     grid-template-columns: repeat(5, 1fr);
     gap: 0;
     margin: 0;
+    line-height: 0;
+}
+
+.color-grid label {
+    line-height: 0;
+    margin: 0;
+    padding: 0;
 }
 
 .form-label {
