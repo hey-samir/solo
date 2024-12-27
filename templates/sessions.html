@@ -2,6 +2,45 @@
 
 {% block content %}
 <div class="container">
+    <!-- KPI Metrics Section -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="metric-value">{{ climbs_by_date.values()|sum(attribute='__len__') }}</div>
+                <div class="metric-label">Total Ascents</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="metric-value">
+                    {% set grades = [] %}
+                    {% for climbs in climbs_by_date.values() %}
+                        {% for climb in climbs %}
+                            {% if climb.difficulty and '.' in climb.difficulty %}
+                                {% set grade = climb.difficulty.split('.')[1] %}
+                                {% if grade.isdigit() %}
+                                    {{ grades.append(grade|int) or "" }}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                    {% if grades %}
+                        5.{{ grades|max }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </div>
+                <div class="metric-label">Highest Grade</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="metric-card">
+                <div class="metric-value">--</div>
+                <div class="metric-label">Total Points</div>
+            </div>
+        </div>
+    </div>
+
     {% for date, climbs in climbs_by_date.items() %}
     <div class="session-group mb-4">
         <h3 class="session-date mb-3">{{ date.strftime('%B %d, %Y') }}</h3>
@@ -35,11 +74,7 @@
                             {{ climb.color }}
                         </td>
                         <td>{{ climb.difficulty }}</td>
-                        <td>
-                            {% for i in range(climb.rating) %}
-                            <i class="bi bi-mountain"></i>
-                            {% endfor %}
-                        </td>
+                        <td>{{ "●" * climb.rating }}</td>
                         <td>{{ climb.status }}</td>
                         <td>--</td>
                     </tr>

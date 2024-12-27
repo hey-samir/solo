@@ -120,10 +120,10 @@ def add_climb():
 @login_required
 def sessions():
     """Display user's climbing sessions grouped by date."""
-    app.logger.info(f"Fetching sessions for user {current_user.id}")
-
-    # Get all climbs for the current user, ordered by date
     try:
+        app.logger.info(f"Fetching sessions for user {current_user.id}")
+
+        # Get all climbs for the current user, ordered by date
         climbs = Climb.query.filter_by(user_id=current_user.id)\
             .order_by(Climb.created_at.desc())\
             .all()
@@ -146,6 +146,7 @@ def sessions():
 
     except Exception as e:
         app.logger.error(f"Error in sessions route: {str(e)}")
+        db.session.rollback()  # Rollback any failed transaction
         return render_template('sessions.html', climbs_by_date={})
 
 @app.route('/solo')
