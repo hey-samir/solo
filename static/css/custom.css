@@ -132,6 +132,48 @@
     color: var(--solo-purple);
 }
 
+/* Add hover effect to sortable headers */
+.table thead th.sortable:hover {
+    background-color: rgba(65, 15, 112, 0.1);
+}
+
+/* Add these styles after the existing sortable styles */
+.sortable {
+    cursor: pointer;
+    position: relative;
+    padding-right: 1.5rem !important;
+    user-select: none;
+}
+
+.sortable i {
+    font-size: 0.875rem;
+    opacity: 0.5;
+    margin-left: 0.25rem;
+    transition: opacity 0.2s;
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.sortable:hover i {
+    opacity: 1;
+}
+
+.sortable.sort-asc i:before {
+    content: "\F12C" !important;
+}
+
+.sortable.sort-desc i:before {
+    content: "\F127" !important;
+}
+
+.sortable.sort-asc i,
+.sortable.sort-desc i {
+    opacity: 1;
+    color: var(--solo-purple);
+}
+
 /* Table styling */
 .table {
     margin-bottom: 0;
