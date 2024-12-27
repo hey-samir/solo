@@ -460,16 +460,16 @@ textarea.form-control {
     background-color: var(--bs-dark) !important;
     border: 2px solid var(--bs-white) !important;
     color: var(--bs-white) !important;
-    padding: 1rem;
-    font-size: 1.2rem;
+    padding: 0.75rem;
+    font-size: 1rem;
     border-radius: 4px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     min-height: 38px;
     height: 38px;
     resize: vertical;
     overflow: hidden;
-
+    margin-bottom: 0.5rem;
 }
 
 .input-group .form-select:first-of-type {
