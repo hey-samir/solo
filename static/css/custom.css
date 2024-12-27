@@ -657,11 +657,15 @@ textarea.form-control:focus {
     box-shadow: 0 1px 2px rgba(140, 82, 255, 0.3);
 }
 
-.input-group-lg > .form-select,
-.input-group-lg > .input-group-text {
+.input-group .input-group-text,
+.input-group .form-control {
+    height: 48px;
     font-size: 1.1rem;
-    height: auto;
     padding: 0.4rem 0.75rem;
+}
+
+.input-group .input-group-text {
+    background-color: #343a40;
 }
 
 
