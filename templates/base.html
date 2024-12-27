@@ -24,6 +24,7 @@
         </div>
     </header>
 
+    <!-- Content container -->
     <div class="container mb-5 pb-5">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -38,11 +39,12 @@
         {% block content %}{% endblock %}
     </div>
 
-    <!-- Bottom Navigation -->
-    <footer class="text-center mb-4 fixed-bottom" style="bottom: 70px;">
+    <!-- Footer -->
+    <footer class="text-center mb-4">
         <small class="text-muted">&copy; Interspace Labs 2024</small>
     </footer>
-    
+
+    <!-- Bottom Navigation -->
     <nav class="navbar fixed-bottom">
         <div class="container-fluid">
             <ul class="navbar-nav w-100 d-flex flex-row justify-content-between">

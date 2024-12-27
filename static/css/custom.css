@@ -77,7 +77,17 @@ body {
 }
 
 .container {
-    margin-bottom: 60px; /* navbar height */
+    padding-bottom: 80px; /* Increased padding to accommodate footer + navbar */
+}
+
+/* Footer styling */
+footer {
+    position: fixed;
+    bottom: 60px; /* Position right above navbar */
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--bs-dark);
+    z-index: 1029; /* Below navbar z-index */
 }
 
 /* Update section header color */
