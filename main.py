@@ -120,24 +120,33 @@ def add_climb():
 @login_required
 def sessions():
     """Display user's climbing sessions grouped by date."""
+    app.logger.info(f"Fetching sessions for user {current_user.id}")
+
     # Get all climbs for the current user, ordered by date
-    climbs = Climb.query.filter_by(user_id=current_user.id)\
-        .order_by(Climb.created_at.desc())\
-        .all()
+    try:
+        climbs = Climb.query.filter_by(user_id=current_user.id)\
+            .order_by(Climb.created_at.desc())\
+            .all()
+        app.logger.info(f"Found {len(climbs)} climbs for user")
 
-    # Group climbs by date
-    from itertools import groupby
-    from datetime import datetime
+        # Group climbs by date
+        from itertools import groupby
+        from datetime import datetime
 
-    def get_date(climb):
-        return climb.created_at.date()
+        def get_date(climb):
+            return climb.created_at.date()
 
-    # Sort climbs by date and group them
-    climbs_by_date = {}
-    for date, group in groupby(sorted(climbs, key=get_date, reverse=True), key=get_date):
-        climbs_by_date[date] = list(group)
+        # Sort climbs by date and group them
+        climbs_by_date = {}
+        for date, group in groupby(sorted(climbs, key=get_date, reverse=True), key=get_date):
+            climbs_by_date[date] = list(group)
 
-    return render_template('sessions.html', climbs_by_date=climbs_by_date)
+        app.logger.info(f"Grouped climbs into {len(climbs_by_date)} sessions")
+        return render_template('sessions.html', climbs_by_date=climbs_by_date)
+
+    except Exception as e:
+        app.logger.error(f"Error in sessions route: {str(e)}")
+        return render_template('sessions.html', climbs_by_date={})
 
 @app.route('/solo')
 @login_required
