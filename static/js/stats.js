@@ -1,13 +1,9 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Setup Chart.js defaults for dark theme
-    Chart.defaults.color = '#ffffff';
-    Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+Chart.defaults.color = '#ffffff';
+Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
-    // Initialize charts if their containers exist
-    initGradeProgressionChart();
-    initSessionFrequencyChart();
-    initSuccessRateChart();
-    initGradeDistributionChart();
+document.addEventListener('DOMContentLoaded', function() {
+    // Fetch initial data with 'week' as default
+    updateAllCharts('week');
 
     // Handle time range changes
     document.querySelectorAll('input[name="timeRange"]').forEach(radio => {
@@ -17,17 +13,44 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function initGradeProgressionChart() {
+function updateAllCharts(timeRange) {
+    // Add loading state
+    console.log('Updating charts for time range:', timeRange);
+
+    // Fetch new data based on time range
+    fetch(`/api/stats?timeRange=${timeRange}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Received data:', data);
+            updateGradeProgressionChart(data.progression);
+            updateSessionFrequencyChart(data.frequency);
+            updateSuccessRateChart(data.successRate);
+            updateGradeDistributionChart(data.distribution);
+        })
+        .catch(error => console.error('Error updating charts:', error));
+}
+
+function updateGradeProgressionChart(data) {
     const ctx = document.getElementById('gradeProgressionChart');
     if (!ctx) return;
+
+    let chart = Chart.getChart(ctx);
+    if (chart) {
+        chart.destroy();
+    }
 
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: [], // Will be populated with dates
+            labels: data.labels,
             datasets: [{
                 label: 'Highest Grade',
-                data: [], // Will be populated with grades
+                data: data.data,
                 borderColor: '#410f70',
                 tension: 0.4,
                 fill: false
@@ -60,17 +83,22 @@ function initGradeProgressionChart() {
     });
 }
 
-function initSessionFrequencyChart() {
+function updateSessionFrequencyChart(data) {
     const ctx = document.getElementById('sessionFrequencyChart');
     if (!ctx) return;
+
+    let chart = Chart.getChart(ctx);
+    if (chart) {
+        chart.destroy();
+    }
 
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: [], // Will be populated with days/weeks
+            labels: data.labels,
             datasets: [{
                 label: 'Sessions',
-                data: [], // Will be populated with session counts
+                data: data.data,
                 backgroundColor: '#410f70',
             }]
         },
@@ -90,17 +118,22 @@ function initSessionFrequencyChart() {
     });
 }
 
-function initSuccessRateChart() {
+function updateSuccessRateChart(data) {
     const ctx = document.getElementById('successRateChart');
     if (!ctx) return;
+
+    let chart = Chart.getChart(ctx);
+    if (chart) {
+        chart.destroy();
+    }
 
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: [], // Will be populated with grades
+            labels: data.labels,
             datasets: [{
                 label: 'Success Rate',
-                data: [], // Will be populated with success rates
+                data: data.data,
                 backgroundColor: '#410f70',
             }]
         },
@@ -121,17 +154,22 @@ function initSuccessRateChart() {
     });
 }
 
-function initGradeDistributionChart() {
+function updateGradeDistributionChart(data) {
     const ctx = document.getElementById('gradeDistributionChart');
     if (!ctx) return;
+
+    let chart = Chart.getChart(ctx);
+    if (chart) {
+        chart.destroy();
+    }
 
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: [], // Will be populated with grades
+            labels: data.labels,
             datasets: [{
                 label: 'Attempts',
-                data: [], // Will be populated with attempt counts
+                data: data.data,
                 backgroundColor: '#410f70',
             }]
         },
@@ -149,26 +187,4 @@ function initGradeDistributionChart() {
             }
         }
     });
-}
-
-function updateAllCharts(timeRange) {
-    // Fetch new data based on time range
-    fetch(`/api/stats?timeRange=${timeRange}`)
-        .then(response => response.json())
-        .then(data => {
-            updateChartData('gradeProgressionChart', data.progression);
-            updateChartData('sessionFrequencyChart', data.frequency);
-            updateChartData('successRateChart', data.successRate);
-            updateChartData('gradeDistributionChart', data.distribution);
-        })
-        .catch(error => console.error('Error updating charts:', error));
-}
-
-function updateChartData(chartId, newData) {
-    const chart = Chart.getChart(chartId);
-    if (!chart) return;
-
-    chart.data.labels = newData.labels;
-    chart.data.datasets[0].data = newData.data;
-    chart.update();
 }
