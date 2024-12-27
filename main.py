@@ -6,8 +6,11 @@ from app import app, db
 from models import Climb, User
 from flask_wtf.csrf import CSRFProtect
 from forms import LoginForm, RegistrationForm, ProfileForm
-from migrations import migrate  # Import the migration setup
+from migrations import migrate
 import shutil
+from datetime import datetime, timedelta
+from sqlalchemy import func
+from flask import jsonify
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
@@ -261,7 +264,118 @@ def upload_photo():
 @app.route('/stats')
 @login_required
 def stats():
-    return render_template('stats.html') # Placeholder for now
+    """Display climbing statistics and visualizations."""
+    # Calculate basic statistics
+    total_sends = Climb.query.filter_by(user_id=current_user.id, status='Sent').count()
+    total_attempts = Climb.query.filter_by(user_id=current_user.id).count()
+    success_rate = round((total_sends / total_attempts * 100) if total_attempts > 0 else 0)
+
+    # Get highest grade
+    highest_grade_climb = Climb.query.filter_by(user_id=current_user.id).order_by(
+        Climb.caliber.desc()
+    ).first()
+    highest_grade = highest_grade_climb.caliber if highest_grade_climb else '--'
+
+    # Calculate average grade
+    climbs = Climb.query.filter_by(user_id=current_user.id).all()
+    if climbs:
+        grades = []
+        for climb in climbs:
+            grade_parts = climb.caliber.split('.')
+            if len(grade_parts) == 2:
+                grade_num = grade_parts[1]
+                if grade_num.isdigit():
+                    grades.append(int(grade_num))
+        avg_grade = f"5.{round(sum(grades) / len(grades))}" if grades else '--'
+    else:
+        avg_grade = '--'
+
+    return render_template('stats.html',
+                         total_sends=total_sends,
+                         highest_grade=highest_grade,
+                         avg_grade=avg_grade,
+                         success_rate=success_rate)
+
+@app.route('/api/stats')
+@login_required
+def get_stats():
+    """API endpoint for chart data."""
+    time_range = request.args.get('timeRange', 'week')
+
+    # Calculate date range
+    end_date = datetime.utcnow()
+    if time_range == 'week':
+        start_date = end_date - timedelta(days=7)
+    elif time_range == 'month':
+        start_date = end_date - timedelta(days=30)
+    elif time_range == 'year':
+        start_date = end_date - timedelta(days=365)
+    else:  # all time
+        start_date = datetime.min
+
+    # Get climbs within date range
+    climbs = Climb.query.filter(
+        Climb.user_id == current_user.id,
+        Climb.created_at >= start_date,
+        Climb.created_at <= end_date
+    ).order_by(Climb.created_at).all()
+
+    # Prepare progression data
+    progression_data = {
+        'labels': [],
+        'data': []
+    }
+    current_max = 0
+    for climb in climbs:
+        date_str = climb.created_at.strftime('%Y-%m-%d')
+        grade_num = int(climb.caliber.split('.')[1]) if '.' in climb.caliber else 0
+        if grade_num > current_max:
+            current_max = grade_num
+            progression_data['labels'].append(date_str)
+            progression_data['data'].append(grade_num)
+
+    # Prepare frequency data
+    frequency_data = {
+        'labels': [],
+        'data': []
+    }
+    session_dates = db.session.query(
+        func.date(Climb.created_at),
+        func.count(Climb.id)
+    ).filter(
+        Climb.user_id == current_user.id,
+        Climb.created_at >= start_date
+    ).group_by(func.date(Climb.created_at)).all()
+
+    for date, count in session_dates:
+        frequency_data['labels'].append(date.strftime('%Y-%m-%d'))
+        frequency_data['data'].append(count)
+
+    # Prepare success rate data
+    success_rate_data = {
+        'labels': [],
+        'data': []
+    }
+    grades = sorted(set(climb.caliber for climb in climbs))
+    for grade in grades:
+        attempts = sum(1 for climb in climbs if climb.caliber == grade)
+        sends = sum(1 for climb in climbs if climb.caliber == grade and climb.status == 'Sent')
+        success_rate = (sends / attempts * 100) if attempts > 0 else 0
+        success_rate_data['labels'].append(grade)
+        success_rate_data['data'].append(round(success_rate))
+
+    # Prepare distribution data
+    distribution_data = {
+        'labels': grades,
+        'data': [sum(1 for climb in climbs if climb.caliber == grade) for grade in grades]
+    }
+
+    return jsonify({
+        'progression': progression_data,
+        'frequency': frequency_data,
+        'successRate': success_rate_data,
+        'distribution': distribution_data
+    })
 
 @app.route('/squads')
 @login_required

@@ -1,23 +1,135 @@
-
 {% extends "base.html" %}
 
 {% block content %}
 <div class="container">
+    <!-- Date Range Filter -->
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="timeRange" id="week" value="week" checked>
+            <label class="btn btn-outline-secondary" for="week">Week</label>
+
+            <input type="radio" class="btn-check" name="timeRange" id="month" value="month">
+            <label class="btn btn-outline-secondary" for="month">Month</label>
+
+            <input type="radio" class="btn-check" name="timeRange" id="year" value="year">
+            <label class="btn btn-outline-secondary" for="year">Year</label>
+
+            <input type="radio" class="btn-check" name="timeRange" id="all" value="all">
+            <label class="btn btn-outline-secondary" for="all">All Time</label>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ total_sends }}</div>
+                <div class="metric-label">Total Sends</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ highest_grade }}</div>
+                <div class="metric-label">Highest Grade</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ avg_grade }}</div>
+                <div class="metric-label">Average Grade</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="metric-card">
+                <div class="metric-value">{{ success_rate }}%</div>
+                <div class="metric-label">Success Rate</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Tabs -->
     <ul class="nav nav-tabs mb-3" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#metrics" type="button" role="tab">Metrics</button>
+            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#progression" type="button" role="tab">
+                Progression
+            </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#trends" type="button" role="tab">Trends</button>
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#analysis" type="button" role="tab">
+                Analysis
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#distribution" type="button" role="tab">
+                Distribution
+            </button>
         </li>
     </ul>
+
     <div class="tab-content">
-        <div class="tab-pane fade show active" id="metrics" role="tabpanel">
-            <p class="text-muted">Coming soon</p>
+        <!-- Progression Tab -->
+        <div class="tab-pane fade show active" id="progression" role="tabpanel">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Grade Progression</h5>
+                </div>
+                <div class="card-body">
+                    <div id="gradeProgressionChart" style="height: 300px;">
+                        <!-- Chart will be rendered here -->
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="tab-pane fade" id="trends" role="tabpanel">
-            <p class="text-muted">Coming soon</p>
+
+        <!-- Analysis Tab -->
+        <div class="tab-pane fade" id="analysis" role="tabpanel">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Session Frequency</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="sessionFrequencyChart" style="height: 250px;">
+                                <!-- Chart will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Success Rate by Grade</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="successRateChart" style="height: 250px;">
+                                <!-- Chart will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Distribution Tab -->
+        <div class="tab-pane fade" id="distribution" role="tabpanel">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Grade Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div id="gradeDistributionChart" style="height: 300px;">
+                        <!-- Chart will be rendered here -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Custom stats JavaScript -->
+<script src="{{ url_for('static', filename='js/stats.js') }}"></script>
 {% endblock %}
