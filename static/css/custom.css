@@ -570,6 +570,13 @@ textarea.form-control:focus {
 /* Status buttons */
 .btn-check:checked + .btn-outline-secondary.rating-btn {
     color: var(--bs-white);
+    background-color: var(--solo-purple);
+    border-color: var(--solo-purple);
+}
+
+.btn-outline-secondary.rating-btn:hover {
+    background-color: rgba(65, 15, 112, 0.1);
+    border-color: var(--bs-white);
 }
 
 /* Form labels */
