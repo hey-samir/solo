@@ -667,6 +667,7 @@ textarea.form-control:focus {
     color: var(--bs-gray-600);
     font-style: italic;
     opacity: 0.8;
+    line-height: 24px;
 }
 
 textarea.form-control {
