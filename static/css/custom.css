@@ -30,7 +30,7 @@
     height: 60px;
     display: flex;
     align-items: center;
-    bottom: 10px;
+    bottom: 0;
 }
 
 .navbar-nav {
