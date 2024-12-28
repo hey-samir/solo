@@ -883,7 +883,7 @@ textarea.form-control:focus {
 }
 
 .container {
-    padding-right: var(--bs-gutter-x, 1rem);
-    padding-left: var(--bs-gutter-x, 1rem);
+    padding-right: var(--bs-gutter-x, 0.5rem);
+    padding-left: var(--bs-gutter-x, 0.5rem);
     max-width: 100%;
 }
