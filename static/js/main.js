@@ -67,7 +67,13 @@ function sortTable(table, column, direction = 'asc') {
                 comparison = aPoints - bPoints;
                 break;
 
-            default: // Color or default case
+            case 0: // Color column - custom sorting order
+                const colorOrder = ['White', 'Pink', 'Bright Blue', 'Black', 'Orange', 'Purple', 'Green', 'Red', 'Yellow', 'Teal'];
+                const aIndex = colorOrder.indexOf(aData);
+                const bIndex = colorOrder.indexOf(bData);
+                comparison = aIndex - bIndex;
+                break;
+            default:
                 comparison = aData.localeCompare(bData);
         }
 
