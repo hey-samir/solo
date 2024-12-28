@@ -63,11 +63,24 @@
 }
 
 .navbar-nav .nav-link.active.bg-solo-purple {
-    background: none !important;
-    -webkit-background-clip: unset;
-    color: var(--solo-purple) !important;
-    width: 80px;
-    font-weight: bold;
+    position: absolute;
+    top: -50px;
+    right: 15px;
+    background: var(--solo-purple) !important;
+    color: var(--bs-white) !important;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.navbar-nav .nav-link.active.bg-solo-purple i {
+    font-size: 1.5rem;
+    margin: 0;
 }
 
 /* Update spacing to account for fixed navbar */
