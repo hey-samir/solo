@@ -48,13 +48,13 @@
                         <label class="form-label required-field">Grade</label>
                         <div class="input-group input-group-lg">
                             <span class="input-group-text">5.</span>
-                            <select class="form-select" name="difficulty_grade" required>
+                            <select class="form-select" name="caliber_grade" required>
                                 <option value="" selected disabled>Grade</option>
                                 {% for i in range(1, 16) %}
                                 <option value="{{ i }}">{{ i }}</option>
                                 {% endfor %}
                             </select>
-                            <select class="form-select" name="difficulty_letter">
+                            <select class="form-select" name="caliber_letter">
                                 <option value="">-</option>
                                 <option value="a">a</option>
                                 <option value="b">b</option>

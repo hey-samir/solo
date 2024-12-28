@@ -98,8 +98,8 @@ def sends():
 @login_required
 def add_climb():
     # Combine caliber components
-    caliber_grade = request.form.get('difficulty_grade')
-    caliber_letter = request.form.get('difficulty_letter', '')
+    caliber_grade = request.form.get('caliber_grade')
+    caliber_letter = request.form.get('caliber_letter', '')
     caliber = f"5.{caliber_grade}{caliber_letter}"
 
 
