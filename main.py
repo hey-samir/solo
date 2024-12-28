@@ -132,9 +132,9 @@ def sessions():
     try:
         app.logger.info(f"Fetching sessions for user {current_user.id}")
 
-        # Get all climbs for the current user, ordered by date
+        # Get all climbs for the current user, ordered by date and color
         climbs = Climb.query.filter_by(user_id=current_user.id)\
-            .order_by(Climb.created_at.desc())\
+            .order_by(Climb.created_at.desc(), Climb.color.asc())\
             .all()
         app.logger.info(f"Found {len(climbs)} climbs for user")
 
