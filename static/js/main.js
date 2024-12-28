@@ -144,28 +144,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-function sortTable(header, columnIndex) {
-    const table = header.closest('table');
-    const tbody = table.querySelector('tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    const isAscending = header.classList.contains('asc');
-    
-    // Clear all sort indicators
-    table.querySelectorAll('th').forEach(th => {
-        th.classList.remove('asc', 'desc');
-    });
-    
-    // Set new sort direction
-    header.classList.toggle(isAscending ? 'desc' : 'asc');
-    
-    rows.sort((a, b) => {
-        let aValue = a.cells[columnIndex].textContent.trim();
-        let bValue = b.cells[columnIndex].textContent.trim();
-        
-        return isAscending ? 
-            bValue.localeCompare(aValue) : 
-            aValue.localeCompare(bValue);
-    });
-    
-    rows.forEach(row => tbody.appendChild(row));
-}
+// This function definition is removed since we already have a more complete sortTable function above
