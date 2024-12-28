@@ -14,12 +14,15 @@
 <body class="pb-5">
     <!-- Header -->
     <header class="bg-solo-purple">
-        <div class="header-container">
+        <div class="header-container d-flex justify-content-between align-items-center">
             <a href="{{ url_for('sends') }}" class="d-inline-block">
                 <img src="{{ url_for('static', filename='images/solo-clear.png') }}" 
                      alt="Solo Logo" 
                      class="header-logo"
                      height="50">
+            </a>
+            <a href="{{ url_for('solo') }}" class="nav-link active bg-solo-purple profile-button">
+                <i class="bi bi-person-circle"></i>
             </a>
         </div>
     </header>
@@ -49,19 +52,13 @@
         <div class="container-fluid">
             <ul class="navbar-nav w-100 d-flex flex-row justify-content-between">
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('solo') }}">
-                        <i class="bi bi-person-circle"></i>
-                        <span>Solo</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('squads') }}">
                         <i class="bi bi-people-fill"></i>
                         <span>Squad</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active bg-solo-purple" href="{{ url_for('sends') }}">
+                    <a class="nav-link" href="{{ url_for('sends') }}">
                         <i class="bi bi-file-arrow-up-fill"></i>
                         <span>Sends</span>
                     </a>
