@@ -264,8 +264,8 @@ def upload_photo():
 @app.route('/standings')
 @login_required
 def standings():
-    """Display user standings page."""
-    return render_template('standings.html')
+    """Display standings 404 page."""
+    return render_template('404.html')
 
 @app.route('/stats')
 @login_required
