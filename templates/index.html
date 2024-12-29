@@ -85,9 +85,18 @@
                         </div>
                     </div>
 
+                    <!-- Attempts Input -->
+                    <div class="mb-4">
+                        <label class="form-label required-field">Attempts</label>
+                        <div class="input-group">
+                            <input type="number" name="attempts" class="form-control" value="1" min="1" required>
+                        </div>
+                    </div>
+
+                    <!-- Status Selection -->
                     <div class="mb-4">
                         <label class="form-label required-field">Status</label>
-                        <div class="btn-group w-100" role="group">
+                        <div class="input-group">
                             <input type="radio" class="btn-check" name="status" id="attempted" value="Tried" checked>
                             <label class="btn btn-outline-secondary rating-btn" for="attempted">Tried</label>
                             <input type="radio" class="btn-check" name="status" id="sent" value="Sent">

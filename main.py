@@ -117,6 +117,7 @@ def add_climb():
         caliber=caliber,
         rating=rating,
         status=request.form.get('status'),
+        attempts=int(request.form.get('attempts', 1)),
         notes=request.form.get('notes'),
         user_id=current_user.id  # Link climb to current user
     )

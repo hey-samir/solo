@@ -31,6 +31,7 @@ class Climb(db.Model):
     caliber = db.Column(db.String(10), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(20), nullable=False)
+    attempts = db.Column(db.Integer, default=1, nullable=False)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     # Add user relationship
