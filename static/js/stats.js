@@ -127,44 +127,34 @@ function updateSendsByDateChart(data) {
                 },
                 datalabels: {
                     color: '#ffffff',
-                    anchor: 'end',
-                    align: 'top',
+                    anchor: 'center',
+                    align: 'center',
                     formatter: (value, ctx) => {
-                        const datasetIndex = ctx.datasetIndex;
-                        const dataIndex = ctx.dataIndex;
-                        
-                        if (datasetIndex === 0 || datasetIndex === 1) {
-                            return value > 0 ? value : '';
-                        }
+                        if (value > 0) return value;
                         return '';
                     },
                     font: {
                         weight: 'normal'
                     },
                     display: true
-                },
-                totalLabels: {
-                    id: 'totalLabels',
-                    afterDatasetsDraw(chart, args, pluginOptions) {
-                        const { ctx, data, scales } = chart;
-                        for (let i = 0; i < data.labels.length; i++) {
-                            const send = data.datasets[0].data[i];
-                            const attempt = data.datasets[1].data[i];
-                            const total = send + attempt;
-                            
-                            if (total > 0) {
-                                const x = scales.x.getPixelForValue(i);
-                                const y = scales.y.getPixelForValue(total);
-                                
-                                ctx.save();
-                                ctx.fillStyle = '#ffffff';
-                                ctx.font = 'bold 12px Arial';
-                                ctx.textAlign = 'center';
-                                ctx.fillText(total.toString(), x, y - 15);
-                                ctx.restore();
-                            }
+                }
+            },
+            plugins: {
+                beforeDraw: (chart) => {
+                    const { ctx, data, scales } = chart;
+                    data.labels.forEach((label, i) => {
+                        const total = data.datasets[0].data[i] + data.datasets[1].data[i];
+                        if (total > 0) {
+                            const x = scales.x.getPixelForValue(i);
+                            const y = scales.y.getPixelForValue(total);
+                            ctx.save();
+                            ctx.fillStyle = '#ffffff';
+                            ctx.font = 'bold 12px Arial';
+                            ctx.textAlign = 'center';
+                            ctx.fillText(total, x, y - 10);
+                            ctx.restore();
                         }
-                    }
+                    });
                 }
             },
             scales: {
