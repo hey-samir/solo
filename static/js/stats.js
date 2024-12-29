@@ -135,23 +135,29 @@ function updateSendsByDateChart(data) {
                     },
                     font: {
                         weight: 'normal'
-                    },
-                    display: true
+                    }
+                },
+                tooltip: {
+                    enabled: false
                 }
             },
-            plugins: {
-                beforeDraw: (chart) => {
-                    const { ctx, data, scales } = chart;
-                    data.labels.forEach((label, i) => {
-                        const total = data.datasets[0].data[i] + data.datasets[1].data[i];
+            animation: {
+                onComplete: function(animation) {
+                    const chart = animation.chart;
+                    const ctx = chart.ctx;
+                    const datasets = chart.data.datasets;
+                    
+                    chart.data.labels.forEach((label, i) => {
+                        const total = datasets[0].data[i] + datasets[1].data[i];
                         if (total > 0) {
-                            const x = scales.x.getPixelForValue(i);
-                            const y = scales.y.getPixelForValue(total);
+                            const meta = chart.getDatasetMeta(1);
+                            const x = meta.data[i].x;
+                            const y = meta.data[i].y;
                             ctx.save();
                             ctx.fillStyle = '#ffffff';
                             ctx.font = 'bold 12px Arial';
                             ctx.textAlign = 'center';
-                            ctx.fillText(total, x, y - 10);
+                            ctx.fillText(total, x, y - 15);
                             ctx.restore();
                         }
                     });
