@@ -981,6 +981,20 @@ input[type="password"].form-control-lg {
     max-width: 100%;
 }
 
+/* Standings styling */
+.table {
+    color: var(--bs-white);
+}
+
+.table thead th {
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--bs-gray-400);
+}
+
+.table td {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
 /* Stats styling */
 .stats-pills {
     margin-top: 1rem;

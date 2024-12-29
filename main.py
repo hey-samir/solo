@@ -425,6 +425,42 @@ def get_stats():
         'metricsOverTime': metrics_over_time
     })
 
+@app.route('/standings')
+@login_required
+def standings():
+    # Get all users and their climbs
+    users = User.query.all()
+    leaderboard = []
+    
+    for user in users:
+        sends = [c for c in user.climbs if c.status is True]
+        total_sends = len(sends)
+        
+        # Calculate average grade
+        sent_grades = []
+        for climb in sends:
+            grade_parts = climb.caliber.split('.')
+            if len(grade_parts) == 2:
+                grade_num = grade_parts[1].rstrip('abcd')
+                if grade_num.isdigit():
+                    sent_grades.append(int(grade_num))
+        avg_grade = f"5.{round(sum(sent_grades) / len(sent_grades))}" if sent_grades else '--'
+        
+        # Calculate total points
+        total_points = sum(climb.rating * (10 if climb.status else 5) for climb in user.climbs)
+        
+        leaderboard.append({
+            'username': user.username,
+            'total_sends': total_sends,
+            'avg_grade': avg_grade,
+            'total_points': total_points
+        })
+    
+    # Sort by total points
+    leaderboard = sorted(leaderboard, key=lambda x: x['total_points'], reverse=True)
+    
+    return render_template('standings.html', leaderboard=leaderboard)
+
 @app.route('/squads')
 @login_required
 def squads():
