@@ -105,8 +105,8 @@ def add_climb():
             caliber_letter = request.form.get('caliber_letter', '')
             caliber = f"5.{caliber_grade}{caliber_letter}"
 
-        # Get status as boolean from toggle
-        status = True if request.form.get('status') == 'on' else False
+        # Get status as boolean from toggle switch
+        status = request.form.get('status') == 'on'
 
         # Validate rating (now 1-5)
         try:
