@@ -1,3 +1,4 @@
+
 from app import db
 from datetime import datetime
 from flask_login import UserMixin
@@ -31,10 +32,9 @@ class Climb(db.Model):
     caliber = db.Column(db.String(10), nullable=True)
     rating = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Boolean, nullable=False, default=False)
-    attempts = db.Column(db.Integer, default=1, nullable=False)
+    attempts = db.Column(db.Integer, nullable=False, default=1)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    # Add user relationship
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
