@@ -975,3 +975,30 @@ input[type="password"].form-control-lg {
     padding-left: var(--bs-gutter-x, 0.5rem);
     max-width: 100%;
 }
+
+/* Stats styling */
+.stats-pills {
+    margin-top: 2rem;
+    border-radius: 8px;
+    padding: 0.5rem;
+    background: #343a40;
+}
+
+.stats-pills .nav-link {
+    color: var(--bs-white);
+    border-radius: 6px;
+    padding: 0.5rem 1.5rem;
+    margin: 0 0.25rem;
+    opacity: 0.7;
+}
+
+.stats-pills .nav-link:hover {
+    opacity: 1;
+    color: var(--bs-white);
+}
+
+.stats-pills .nav-link.active {
+    background: var(--solo-purple);
+    color: var(--bs-white);
+    opacity: 1;
+}
