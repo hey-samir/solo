@@ -147,6 +147,42 @@ def add_climb():
         db.session.rollback()
         flash('Error recording ascent. Please try again.', 'error')
         return redirect(url_for('sends'))
+
+@app.route('/api/stats')
+@login_required
+def api_stats():
+    user = current_user
+    sends = [c for c in user.climbs if c.status is True]
+    attempts = [c for c in user.climbs if not c.status]
+
+    # Prepare data for charts
+    difficulty_data = {}
+    for climb in sends:
+        difficulty_data[climb.caliber] = difficulty_data.get(climb.caliber, 0) + 1
+
+    # Format data for front-end
+    return jsonify({
+        'ascentsByDifficulty': {
+            'labels': list(difficulty_data.keys()),
+            'data': list(difficulty_data.values())
+        },
+        'sendsByDate': {
+            'labels': ['Last 7 Days', 'Last 30 Days', 'All Time'],
+            'sends': [len(sends), len(sends), len(sends)],
+            'attempts': [len(attempts), len(attempts), len(attempts)]
+        },
+        'metricsOverTime': {
+            'labels': ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            'metrics': [
+                {
+                    'name': 'Success Rate',
+                    'data': [75, 80, 85, 90],
+                    'color': '#410f70'
+                }
+            ]
+        }
+    })
+
     return redirect(url_for('sends'))
 
 @app.route('/sessions')
