@@ -744,11 +744,16 @@ textarea.form-control:focus {
     justify-content: center;
 }
 
-/* Status buttons */
-.btn-check:checked + .btn-outline-secondary.rating-btn {
-    color: var(--bs-white);
+/* Status switch */
+.form-switch .form-check-input:checked {
     background-color: var(--solo-purple);
     border-color: var(--solo-purple);
+}
+
+.form-switch .form-check-input {
+    width: 3em;
+    height: 1.5em;
+    margin-top: 0.25em;
 }
 
 .btn-outline-secondary.rating-btn:hover {

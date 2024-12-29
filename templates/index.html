@@ -75,11 +75,9 @@
                     <!-- Status Selection -->
                     <div class="mb-4">
                         <label class="form-label required-field">Status</label>
-                        <div class="input-group">
-                            <input type="radio" class="btn-check" name="status" id="attempted" value="Tried" checked>
-                            <label class="btn btn-outline-secondary rating-btn" for="attempted">Tried</label>
-                            <input type="radio" class="btn-check" name="status" id="sent" value="Sent">
-                            <label class="btn btn-outline-secondary rating-btn" for="sent">Sent</label>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="statusToggle" name="status">
+                            <label class="form-check-label" for="statusToggle">Sent</label>
                         </div>
                     </div>
 
