@@ -331,27 +331,44 @@ def stats():
     # Calculate metrics
     total_sends = len([c for c in climbs if c.status])
     
-    # Calculate highest grade
+    def grade_to_points(grade):
+        grade_points = {
+            '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
+            '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
+            '5.10a': 200, '5.10b': 250, '5.10c': 300, '5.10d': 350,
+            '5.11a': 400, '5.11b': 500, '5.11c': 600, '5.11d': 700,
+            '5.12a': 800, '5.12b': 900, '5.12c': 1000, '5.12d': 1100,
+            '5.13a': 1250, '5.13b': 1400, '5.13c': 1550, '5.13d': 1700,
+            '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
+            '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
+        }
+        return grade_points.get(grade, 0)
+
+    # Calculate highest grade (most difficult)
     highest_grade = '--'
     grades = []
     for climb in climbs:
-        if climb.caliber and '.' in climb.caliber:
-            grade_parts = climb.caliber.split('.')
-            if len(grade_parts) == 2:
-                grade_num = grade_parts[1].rstrip('abcd')
-                if grade_num.isdigit():
-                    grades.append(int(grade_num))
+        if climb.caliber and climb.status:  # Only count sent climbs
+            grades.append((climb.caliber, grade_to_points(climb.caliber)))
     if grades:
-        highest_grade = f"5.{max(grades)}"
+        highest_grade = max(grades, key=lambda x: x[1])[0]
     
     # Calculate average grade
-    avg_grade = f"5.{round(sum(grades) / len(grades))}" if grades else '--'
+    sent_grades = [g[0] for g in grades]
+    avg_grade_points = sum(grade_to_points(g) for g in sent_grades) / len(sent_grades) if sent_grades else 0
+    
+    # Find closest grade for average
+    if avg_grade_points > 0:
+        grade_points_list = sorted([(g, p) for g, p in grade_to_points.items()], key=lambda x: x[1])
+        avg_grade = min(grade_points_list, key=lambda x: abs(x[1] - avg_grade_points))[0]
+    else:
+        avg_grade = '--'
     
     # Calculate success rate
     success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
     
-    # Calculate total points
-    total_points = sum(climb.rating * (10 if climb.status else 5) for climb in climbs)
+    # Calculate total points using new system
+    total_points = sum(grade_to_points(climb.caliber) for climb in climbs if climb.status)
     
     return render_template('stats.html',
                          total_sends=total_sends,
