@@ -982,6 +982,8 @@ input[type="password"].form-control-lg {
     border-radius: 8px;
     padding: 0.5rem;
     background: #343a40;
+    display: flex;
+    justify-content: center;
 }
 
 .stats-pills .nav-link {
