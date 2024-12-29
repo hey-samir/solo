@@ -825,8 +825,10 @@ textarea.form-control:focus {
 
 .input-group .input-group-text,
 .input-group .form-control,
-.input-group .form-select {
-    height: 48px;
+.input-group .form-select,
+.form-control-lg,
+input[type="password"].form-control-lg {
+    height: 48px !important;
     font-size: 1.1rem;
     padding: 0.4rem 0.75rem;
     line-height: 1.5;
