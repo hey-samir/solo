@@ -3,7 +3,7 @@ from alembic import op
 import sqlalchemy as sa
 
 def upgrade():
-    # Drop and recreate the table with the new column
+    # Drop and recreate the table with all columns
     op.drop_table('climb')
     op.create_table('climb',
         sa.Column('id', sa.Integer(), nullable=False),
