@@ -406,13 +406,20 @@ def stats():
     # Calculate total points using new system
     total_points = sum(grade_to_points(climb.caliber) for climb in climbs if climb.status)
     
+    # Calculate climbs per session
+    sessions = {}
+    for climb in climbs:
+        date = climb.date.date()
+        sessions[date] = sessions.get(date, 0) + 1
+    climbs_per_session = round(sum(sessions.values()) / len(sessions)) if sessions else 0
+    
     return render_template('stats.html',
                          total_sends=total_sends,
                          highest_grade=highest_grade,
                          avg_grade=avg_grade,
                          success_rate=success_rate,
                          total_points=total_points,
-                         climbs_per_session='--')
+                         climbs_per_session=climbs_per_session)
 
 @app.route('/squads')
 @login_required

@@ -228,12 +228,15 @@ function updateMetricsOverTimeChart(data) {
 
 function updateClimbsPerSessionChart(data) {
     const ctx = document.getElementById('climbsPerSessionCanvas');
-    if (!ctx) return;
+    if (!ctx || !data || !data.data) return;
 
     let chart = Chart.getChart(ctx);
     if (chart) {
         chart.destroy();
     }
+
+    const maxValue = Math.max(...data.data);
+    const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
 
     new Chart(ctx, {
         type: 'line',
