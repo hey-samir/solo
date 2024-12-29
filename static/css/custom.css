@@ -49,6 +49,11 @@
     opacity: 0.6;
 }
 
+.navbar-nav .nav-link[href="/sends"] i {
+    color: var(--solo-purple) !important;
+    opacity: 1;
+}
+
 .navbar-nav .nav-link i {
     font-size: 1.75rem;  /* Increased from 1.25rem */
 }
