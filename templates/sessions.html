@@ -2,44 +2,7 @@
 
 {% block content %}
 <div class="container sessions-container">
-    <!-- KPI Metrics Section -->
-    <div class="row mb-4">
-        <div class="col-4">
-            <div class="metric-card">
-                <div class="metric-value">{{ climbs_by_date.values()|map('list')|map('length')|sum }}</div>
-                <div class="metric-label">Total Ascents</div>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="metric-card">
-                <div class="metric-value">
-                    {% set grades = [] %}
-                    {% for climbs in climbs_by_date.values() %}
-                        {% for climb in climbs %}
-                            {% if climb.caliber and '.' in climb.caliber %}
-                                {% set grade = climb.caliber.split('.')[1] %}
-                                {% if grade.isdigit() %}
-                                    {{ grades.append(grade|int) or "" }}
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    {% endfor %}
-                    {% if grades %}
-                        5.{{ grades|max }}
-                    {% else %}
-                        --
-                    {% endif %}
-                </div>
-                <div class="metric-label">Highest Grade</div>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="metric-card">
-                <div class="metric-value" id="totalPoints">--</div>
-                <div class="metric-label">Total Points</div>
-            </div>
-        </div>
-    </div>
+    
 
     {% for date, climbs in climbs_by_date.items() %}
     <div class="session-group mb-4">
