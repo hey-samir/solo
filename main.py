@@ -409,7 +409,7 @@ def stats():
     # Calculate climbs per session
     sessions = {}
     for climb in climbs:
-        date = climb.date.date()
+        date = climb.created_at.date()
         sessions[date] = sessions.get(date, 0) + 1
     climbs_per_session = round(sum(sessions.values()) / len(sessions)) if sessions else 0
     
