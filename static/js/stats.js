@@ -1,6 +1,7 @@
 
 Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
+Chart.register(ChartDataLabels);
 
 document.addEventListener('DOMContentLoaded', function() {
     const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
@@ -43,7 +44,13 @@ function updateAscentsByDifficultyChart(data) {
             labels: data.labels,
             datasets: [{
                 data: data.data,
-                backgroundColor: Array(data.labels.length).fill('#7442d6'),
+                backgroundColor: data.labels.map(label => {
+                    // Extract grade number from label (e.g. "5.10" -> 10)
+                    const grade = parseFloat(label.split('.')[1]);
+                    // Calculate opacity based on grade (0.3 to 0.9)
+                    const opacity = 0.3 + (Math.min(Math.max(grade - 4, 0), 10) / 10) * 0.6;
+                    return `rgba(116, 66, 214, ${opacity})`;
+                }),
                 borderColor: '#7442d6',
                 borderWidth: 1
             }]
@@ -54,6 +61,15 @@ function updateAscentsByDifficultyChart(data) {
             plugins: {
                 legend: {
                     position: 'right'
+                },
+                datalabels: {
+                    color: '#ffffff',
+                    formatter: (value, ctx) => {
+                        return value > 0 ? value : '';
+                    },
+                    font: {
+                        weight: 'bold'
+                    }
                 }
             }
         }

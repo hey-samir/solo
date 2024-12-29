@@ -75,7 +75,7 @@
 
             <!-- Sends by Date -->
             <div class="card mb-4">
-                <div class="card-header">
+                <div class="card-header bg-transparent">
                     <h5 class="card-title mb-0">Sends by Date</h5>
                 </div>
                 <div class="card-body">
@@ -87,7 +87,7 @@
 
             <!-- Metrics Over Time -->
             <div class="card mb-4">
-                <div class="card-header">
+                <div class="card-header bg-transparent">
                     <h5 class="card-title mb-0">Metrics Over Time</h5>
                 </div>
                 <div class="card-body">
@@ -104,6 +104,7 @@
 {% block scripts %}
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <!-- Custom stats JavaScript -->
 <script src="{{ url_for('static', filename='js/stats.js') }}"></script>
