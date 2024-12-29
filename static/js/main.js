@@ -144,10 +144,13 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     const textarea = document.querySelector('textarea[name="notes"]');
     if (textarea) {
-        textarea.addEventListener('input', function() {
-            this.style.height = '38px';
-            this.style.height = (this.scrollHeight) + 'px';
-        });
+        function adjustHeight() {
+            textarea.style.height = '38px';
+            textarea.style.height = (textarea.scrollHeight) + 'px';
+        }
+        textarea.addEventListener('input', adjustHeight);
+        // Initial adjustment in case there's existing content
+        adjustHeight();
     }
 });
 // This function definition is removed since we already have a more complete sortTable function above
