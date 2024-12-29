@@ -754,6 +754,12 @@ textarea.form-control:focus {
 }
 
 /* Status switch */
+.form-switch {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .form-switch .form-check-input:checked {
     background-color: var(--solo-purple);
     border-color: var(--solo-purple);
@@ -762,7 +768,11 @@ textarea.form-control:focus {
 .form-switch .form-check-input {
     width: 3em;
     height: 1.5em;
-    margin-top: 0.25em;
+    margin-top: 0;
+}
+
+.form-check-label {
+    margin-top: 1px;
 }
 
 .btn-outline-secondary.rating-btn:hover {
