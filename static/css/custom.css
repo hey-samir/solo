@@ -667,17 +667,49 @@ textarea.form-control:focus {
     transform: scale(1.1);
 }
 
-/* Rating buttons */
-.rating-btn {
-    padding: 0.95rem !important;
-    border: 2px solid var(--bs-white) !important;
+/* Rating circles */
+.rating-container {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
 }
 
-.rating-btn.active {
-    background-color: var(--solo-purple) !important;
-    border-color: var(--bs-white) !important;
-    color: var(--bs-white) !important;
+.rating-input {
+    display: none;
 }
+
+.rating-label {
+    display: flex;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.rating-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--bs-white);
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.rating-input:checked + .rating-label .rating-circle {
+    background-color: var(--bs-white);
+}
+
+.rating-label:hover .rating-circle,
+.rating-input:checked + .rating-label ~ .rating-label .rating-circle {
+    background-color: transparent;
+}
+
+.rating-label:hover ~ .rating-label .rating-circle {
+    background-color: transparent;
+}
+
+{% for i in range(1, 6) %}
+#rating{{ i }}:checked + .rating-label .rating-circle:nth-child(-n+{{ i }}) {
+    background-color: var(--bs-white);
+}
+{% endfor %}
 
 /* Required field indicator */
 .required-field::after {
