@@ -96,7 +96,8 @@ function updateSendsByDateChart(data) {
         chart.destroy();
     }
 
-    const maxValue = Math.max(...data.sends, ...data.attempts);
+    const totalData = data.sends.map((send, i) => send + data.attempts[i]);
+    const maxValue = Math.max(...totalData);
     const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
 
     new Chart(ctx, {
@@ -115,14 +116,6 @@ function updateSendsByDateChart(data) {
                     data: data.attempts,
                     backgroundColor: '#6c757d',
                     stack: 'combined'
-                },
-                {
-                    label: 'Total Climbs',
-                    data: data.sends.map((send, i) => send + data.attempts[i]),
-                    type: 'line',
-                    borderColor: '#ffffff',
-                    tension: 0.4,
-                    fill: false
                 }
             ]
         },
@@ -138,10 +131,15 @@ function updateSendsByDateChart(data) {
                     anchor: 'end',
                     align: 'top',
                     formatter: (value, ctx) => {
-                        const dataset = ctx.dataset;
-                        if (dataset.type === 'line') {
-                            return value > 0 ? 'Total: ' + value : '';
+                        const datasetIndex = ctx.datasetIndex;
+                        const dataIndex = ctx.dataIndex;
+                        const total = data.sends[dataIndex] + data.attempts[dataIndex];
+                        
+                        // Show total on top of the stack
+                        if (datasetIndex === 1) { // Attempts dataset (top of stack)
+                            return `Total: ${total}`;
                         }
+                        // Show individual values for each segment
                         return value > 0 ? value : '';
                     },
                     display: true
@@ -150,7 +148,7 @@ function updateSendsByDateChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    suggestedMax: 10,
+                    suggestedMax: suggestedMax,
                     ticks: {
                         display: false
                     },
