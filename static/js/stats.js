@@ -141,9 +141,9 @@ function updateSendsByDateChart(data) {
                     enabled: false
                 }
             },
-            animation: {
-                onComplete: function(animation) {
-                    const chart = animation.chart;
+            animation: false,
+            plugins: {
+                afterDraw: (chart) => {
                     const ctx = chart.ctx;
                     const datasets = chart.data.datasets;
                     
