@@ -1,4 +1,3 @@
-
 Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 Chart.register(ChartDataLabels);
@@ -133,30 +132,30 @@ function updateSendsByDateChart(data) {
                     formatter: (value, ctx) => {
                         const datasetIndex = ctx.datasetIndex;
                         const dataIndex = ctx.dataIndex;
-                        const total = data.sends[dataIndex] + data.attempts[dataIndex];
                         
-                        if (datasetIndex === 1) { // Attempts dataset
-                            return value > 0 ? `${value}` : '';
+                        if (datasetIndex === 0 || datasetIndex === 1) {
+                            return value > 0 ? value : '';
                         }
-                        return value > 0 ? `${value}` : '';
+                        return '';
                     },
                     font: {
-                        weight: (ctx) => {
-                            return 'normal';
-                        }
+                        weight: 'normal'
                     },
                     display: true
                 },
-                // Add a separate plugin for total
-                {
-                    id: 'totalLabel',
-                    afterDatasetsDraw: (chart, args, options) => {
-                        const {ctx, data, scales} = chart;
+                totalLabels: {
+                    id: 'totalLabels',
+                    afterDatasetsDraw(chart, args, pluginOptions) {
+                        const { ctx, data, scales } = chart;
                         for (let i = 0; i < data.labels.length; i++) {
-                            const total = data.datasets[0].data[i] + data.datasets[1].data[i];
+                            const send = data.datasets[0].data[i];
+                            const attempt = data.datasets[1].data[i];
+                            const total = send + attempt;
+                            
                             if (total > 0) {
                                 const x = scales.x.getPixelForValue(i);
                                 const y = scales.y.getPixelForValue(total);
+                                
                                 ctx.save();
                                 ctx.fillStyle = '#ffffff';
                                 ctx.font = 'bold 12px Arial';
