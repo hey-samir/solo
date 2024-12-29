@@ -6,8 +6,9 @@
     <title>Solo - Quantify your climb</title>
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@glyphs/core@0.10.2/styles/core.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@glyphs/wc/dist/glyphs.min.js">
+    <link rel="stylesheet" href="https://unpkg.com/@glyphs/brands/styles/brands.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@glyphs/core/styles/styles.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="pb-5">
@@ -21,7 +22,7 @@
                      height="50">
             </a>
             <a href="{{ url_for('solo') }}" class="nav-link active bg-solo-purple profile-button">
-                <i class="gi-laugh-bold"></i>
+                <i class="gi-laugh-bold gi-2x"></i>
             </a>
         </div>
     </header>
@@ -52,31 +53,31 @@
             <ul class="navbar-nav w-100 d-flex flex-row justify-content-between">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('squads') }}">
-                        <i class="gi-users-bold"></i>
+                        <i class="gi-users-bold gi-xl"></i>
                         <span>Squad</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('standings') }}">
-                        <i class="gi-trophy-bold"></i>
+                        <i class="gi-trophy-bold gi-xl"></i>
                         <span>Standings</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('sends') }}">
-                        <i class="gi-arrow-circle-bold"></i>
+                        <i class="gi-arrow-circle-bold gi-xl"></i>
                         <span>Sends</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('sessions') }}">
-                        <i class="gi-calendar-bold"></i>
+                        <i class="gi-calendar-bold gi-xl"></i>
                         <span>Sessions</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('stats') }}">
-                        <i class="gi-analytics-bold"></i>
+                        <i class="gi-analytics-bold gi-xl"></i>
                         <span>Stats</span>
                     </a>
                 </li>
