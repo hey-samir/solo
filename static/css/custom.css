@@ -717,21 +717,32 @@ textarea.form-control:focus {
 }
 
 .rating-circles:hover .circle {
-    background-color: var(--bs-white);
-}
-
-.rating-input:checked ~ .circle,
-.rating-input:checked ~ .circle ~ .circle {
     background-color: transparent;
 }
 
-.rating-input:checked + .circle,
-.rating-input:checked + .circle ~ .circle {
+.rating-circles .circle:hover,
+.rating-circles .circle:hover ~ .circle {
+    background-color: transparent;
+}
+
+.rating-circles .circle:hover ~ .circle {
+    background-color: transparent;
+}
+
+.rating-circles:hover .circle {
     background-color: var(--bs-white);
 }
 
-.rating-input:checked + .circle ~ .rating-input + .circle {
+.rating-circles:hover .circle ~ .circle {
     background-color: transparent;
+}
+
+#rating1:checked ~ .circle:nth-child(-n+2),
+#rating2:checked ~ .circle:nth-child(-n+4),
+#rating3:checked ~ .circle:nth-child(-n+6),
+#rating4:checked ~ .circle:nth-child(-n+8),
+#rating5:checked ~ .circle:nth-child(-n+10) {
+    background-color: var(--bs-white);
 }
 
 /* Required field indicator */
