@@ -97,33 +97,52 @@ def sends():
 @app.route('/add_climb', methods=['POST'])
 @login_required
 def add_climb():
-    # Combine caliber components
-    caliber_grade = request.form.get('caliber_grade')
-    caliber_letter = request.form.get('caliber_letter', '')
-    caliber = f"5.{caliber_grade}{caliber_letter}"
-
-
-    # Validate rating
     try:
-        rating = int(request.form.get('rating'))
-        if rating not in [1, 2, 3]:
-            raise ValueError("Invalid rating value")
-    except (TypeError, ValueError):
-        flash('Please select a valid rating', 'error')
-        return redirect(url_for('sends'))
+        # Make caliber optional
+        caliber = None
+        caliber_grade = request.form.get('caliber_grade')
+        if caliber_grade:
+            caliber_letter = request.form.get('caliber_letter', '')
+            caliber = f"5.{caliber_grade}{caliber_letter}"
 
-    climb = Climb(
-        color=request.form.get('color'),
-        caliber=caliber,
-        rating=rating,
-        status=request.form.get('status'),
-        attempts=int(request.form.get('attempts', 1)),
-        notes=request.form.get('notes'),
-        user_id=current_user.id  # Link climb to current user
-    )
-    db.session.add(climb)
-    db.session.commit()
-    flash('Ascent recorded successfully!', 'success')
+        # Get status from toggle
+        status = 'Sent' if request.form.get('status') == 'on' else 'Attempted'
+
+        # Validate rating (now 1-5)
+        try:
+            rating = int(request.form.get('rating', 1))
+            if rating not in range(1, 6):
+                rating = 1
+        except (TypeError, ValueError):
+            rating = 1
+
+        # Validate attempts
+        try:
+            attempts = int(request.form.get('attempts', 1))
+            if attempts < 1:
+                attempts = 1
+        except (TypeError, ValueError):
+            attempts = 1
+
+        climb = Climb(
+            color=request.form.get('color'),
+            caliber=caliber,
+            rating=rating,
+            status=status,
+            attempts=attempts,
+            notes=request.form.get('notes'),
+            user_id=current_user.id
+        )
+        
+        db.session.add(climb)
+        db.session.commit()
+        flash('Ascent recorded successfully!', 'success')
+        return redirect(url_for('sends'))
+    
+    except Exception as e:
+        db.session.rollback()
+        flash('Error recording ascent. Please try again.', 'error')
+        return redirect(url_for('sends'))
     return redirect(url_for('sends'))
 
 @app.route('/sessions')
