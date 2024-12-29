@@ -122,7 +122,12 @@ function updateSendsByDateChart(data) {
                     type: 'line',
                     borderColor: '#ffffff',
                     tension: 0.4,
-                    fill: false
+                    fill: false,
+                    datalabels: {
+                        color: '#ffffff',
+                        anchor: 'end',
+                        align: 'top'
+                    }
                 }
             ]
         },
@@ -193,16 +198,24 @@ function updateMetricsOverTimeChart(data) {
             maintainAspectRatio: false,
             plugins: {
                 title: {
-                    display: true,
-                    text: 'Success Rate'
+                    display: false
+                },
+                datalabels: {
+                    color: '#ffffff',
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value) => {
+                        return value > 0 ? Math.round(value * 100) + '%' : '';
+                    }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    suggestedMax: 10,
+                    suggestedMax: 1,
                     ticks: {
-                        display: false
+                        display: false,
+                        stepSize: 0.2
                     },
                     grid: {
                         display: false
