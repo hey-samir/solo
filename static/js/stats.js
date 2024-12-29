@@ -2,10 +2,16 @@ Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Add small delay to ensure canvas elements are ready
-    setTimeout(() => {
-        updateCharts();
-    }, 100);
+    // Wait for Bootstrap tab events
+    const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
+    tabElements.forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function (event) {
+            updateCharts();
+        });
+    });
+    
+    // Initial chart load
+    updateCharts();
 });
 
 function updateCharts() {
