@@ -321,6 +321,46 @@ def standings():
 
     return render_template('standings.html', leaderboard=leaderboard)
 
+@app.route('/stats')
+@login_required
+def stats():
+    """Stats page showing user metrics and trends"""
+    # Get user's climbs
+    climbs = current_user.climbs
+    
+    # Calculate metrics
+    total_sends = len([c for c in climbs if c.status])
+    
+    # Calculate highest grade
+    highest_grade = '--'
+    grades = []
+    for climb in climbs:
+        if climb.caliber and '.' in climb.caliber:
+            grade_parts = climb.caliber.split('.')
+            if len(grade_parts) == 2:
+                grade_num = grade_parts[1].rstrip('abcd')
+                if grade_num.isdigit():
+                    grades.append(int(grade_num))
+    if grades:
+        highest_grade = f"5.{max(grades)}"
+    
+    # Calculate average grade
+    avg_grade = f"5.{round(sum(grades) / len(grades))}" if grades else '--'
+    
+    # Calculate success rate
+    success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
+    
+    # Calculate total points
+    total_points = sum(climb.rating * (10 if climb.status else 5) for climb in climbs)
+    
+    return render_template('stats.html',
+                         total_sends=total_sends,
+                         highest_grade=highest_grade,
+                         avg_grade=avg_grade,
+                         success_rate=success_rate,
+                         total_points=total_points,
+                         climbs_per_session='--')
+
 @app.route('/squads')
 @login_required
 def squads():
