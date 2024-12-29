@@ -50,7 +50,7 @@
 }
 
 .navbar-nav .nav-link[href="/sends"] i {
-    color: var(--solo-purple) !important;
+    color: #7442d6 !important;
     opacity: 1;
 }
 
