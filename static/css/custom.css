@@ -95,12 +95,10 @@ body {
 
 /* Footer styling */
 footer {
-    position: fixed;
-    bottom: 60px; /* Position right above navbar */
     width: 100%;
     padding: 1rem;
-    background-color: var(--bs-dark);
-    z-index: 1029; /* Below navbar z-index */
+    margin-top: auto;
+    text-align: center;
 }
 
 /* Update section header color */
