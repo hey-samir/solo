@@ -98,15 +98,18 @@ def sends():
 @login_required
 def add_climb():
     try:
+        app.logger.info("Starting add_climb with form data: %s", request.form)
+        
         # Make caliber optional
         caliber = None
         caliber_grade = request.form.get('caliber_grade')
         if caliber_grade:
             caliber_letter = request.form.get('caliber_letter', '')
             caliber = f"5.{caliber_grade}{caliber_letter}"
-
-        # Get status as boolean from toggle switch
-        status = bool(request.form.get('status'))
+        
+        # Get status directly from form
+        status = request.form.get('status') == 'on'
+        app.logger.info("Status value: %s", status)
 
         # Validate rating (now 1-5)
         try:
@@ -140,6 +143,7 @@ def add_climb():
         return redirect(url_for('sends'))
     
     except Exception as e:
+        app.logger.error("Error in add_climb: %s", str(e))
         db.session.rollback()
         flash('Error recording ascent. Please try again.', 'error')
         return redirect(url_for('sends'))
