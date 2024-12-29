@@ -2,8 +2,10 @@ Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize all charts
-    updateCharts();
+    // Add small delay to ensure canvas elements are ready
+    setTimeout(() => {
+        updateCharts();
+    }, 100);
 });
 
 function updateCharts() {
