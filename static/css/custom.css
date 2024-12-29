@@ -694,56 +694,28 @@ textarea.form-control:focus {
     cursor: pointer;
 }
 
-.rating-circles:hover .circle {
+.rating-circles .circle {
     background-color: transparent;
 }
 
-.rating-circles .circle:hover,
-.rating-circles .circle:hover ~ .circle {
-    background-color: transparent;
-}
-
-.rating-circles:hover .circle:not(:hover) ~ .circle {
-    background-color: transparent;
-}
-
-.rating-circles:hover .circle:hover,
-.rating-circles:hover .circle:hover ~ .circle {
-    background-color: transparent;
-}
-
-.rating-circles:hover .circle:hover ~ .circle {
-    background-color: transparent;
-}
-
-.rating-circles:hover .circle {
-    background-color: transparent;
-}
-
-.rating-circles .circle:hover,
-.rating-circles .circle:hover ~ .circle {
-    background-color: transparent;
-}
-
-.rating-circles .circle:hover ~ .circle {
-    background-color: transparent;
-}
-
-.rating-circles:hover .circle {
+#rating1:checked + .circle,
+#rating2:checked + .circle,
+#rating2:checked + .circle + input + .circle,
+#rating3:checked + .circle,
+#rating3:checked + .circle + input + .circle,
+#rating3:checked + .circle + input + .circle + input + .circle,
+#rating4:checked + .circle,
+#rating4:checked + .circle + input + .circle,
+#rating4:checked + .circle + input + .circle + input + .circle,
+#rating4:checked + .circle + input + .circle + input + .circle + input + .circle,
+#rating5:checked + .circle,
+#rating5:checked + .circle + input + .circle,
+#rating5:checked + .circle + input + .circle + input + .circle,
+#rating5:checked + .circle + input + .circle + input + .circle + input + .circle,
+#rating5:checked + .circle + input + .circle + input + .circle + input + .circle + input + .circle {
     background-color: var(--bs-white);
 }
 
-.rating-circles:hover .circle ~ .circle {
-    background-color: transparent;
-}
-
-#rating1:checked ~ .circle:nth-child(-n+2),
-#rating2:checked ~ .circle:nth-child(-n+4),
-#rating3:checked ~ .circle:nth-child(-n+6),
-#rating4:checked ~ .circle:nth-child(-n+8),
-#rating5:checked ~ .circle:nth-child(-n+10) {
-    background-color: var(--bs-white);
-}
 
 /* Required field indicator */
 .required-field::after {
