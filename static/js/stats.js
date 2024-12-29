@@ -135,14 +135,38 @@ function updateSendsByDateChart(data) {
                         const dataIndex = ctx.dataIndex;
                         const total = data.sends[dataIndex] + data.attempts[dataIndex];
                         
-                        // Show total on top of the stack
-                        if (datasetIndex === 1) { // Attempts dataset (top of stack)
-                            return `Total: ${total}`;
+                        if (datasetIndex === 1) { // Attempts dataset
+                            return value > 0 ? `${value}` : '';
                         }
-                        // Show individual values for each segment
-                        return value > 0 ? value : '';
+                        return value > 0 ? `${value}` : '';
+                    },
+                    font: {
+                        weight: (ctx) => {
+                            return 'normal';
+                        }
                     },
                     display: true
+                },
+                // Add a separate plugin for total
+                {
+                    id: 'totalLabel',
+                    afterDatasetsDraw: (chart, args, options) => {
+                        const {ctx, data, scales} = chart;
+                        for (let i = 0; i < data.labels.length; i++) {
+                            const total = data.datasets[0].data[i] + data.datasets[1].data[i];
+                            if (total > 0) {
+                                const x = scales.x.getPixelForValue(i);
+                                const y = scales.y.getPixelForValue(total);
+                                ctx.save();
+                                ctx.fillStyle = '#ffffff';
+                                ctx.font = 'bold 12px Arial';
+                                ctx.textAlign = 'center';
+                                ctx.fillText(total.toString(), x, y - 15);
+                                ctx.restore();
+                            }
+                        }
+                    }
+                }
                 }
             },
             scales: {
