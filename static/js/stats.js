@@ -46,9 +46,18 @@ function updateAscentsByDifficultyChart(data) {
             datasets: [{
                 data: data.data,
                 backgroundColor: data.labels.map(label => {
-                    const grade = parseFloat(label.split('.')[1]);
-                    const opacity = 0.3 + (Math.min(Math.max(grade - 4, 0), 10) / 10) * 0.6;
-                    return `rgba(116, 66, 214, ${opacity})`;
+                    const gradeColors = {
+                        '5.0': '#E9D8FD', '5.1': '#D6BCFA', '5.2': '#C084FC', '5.3': '#A855F7',
+                        '5.4': '#9333EA', '5.5': '#7E22CE', '5.6': '#6B21A8', '5.7': '#581C87',
+                        '5.8': '#4C1D95', '5.9': '#3B0764', '5.10a': '#350567', '5.10b': '#2F035E',
+                        '5.10c': '#290356', '5.10d': '#23034E', '5.11a': '#1D0345', '5.11b': '#18033C',
+                        '5.11c': '#130333', '5.11d': '#0E032B', '5.12a': '#090222', '5.12b': '#08021D',
+                        '5.12c': '#07021A', '5.12d': '#060216', '5.13a': '#050213', '5.13b': '#040210',
+                        '5.13c': '#03020D', '5.13d': '#02020A', '5.14a': '#010207', '5.14b': '#010106',
+                        '5.14c': '#010105', '5.14d': '#010104', '5.15a': '#010103', '5.15b': '#010102',
+                        '5.15c': '#010101', '5.15d': '#000000'
+                    };
+                    return gradeColors[label] || '#7442d6';
                 }),
                 borderColor: '#7442d6',
                 borderWidth: 1
@@ -122,11 +131,15 @@ function updateSendsByDateChart(data) {
             maintainAspectRatio: false,
             plugins: {
                 title: {
-                    display: true,
-                    text: 'Sends'
+                    display: false
                 },
                 datalabels: {
-                    display: false
+                    color: '#ffffff',
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value, ctx) => {
+                        return value > 0 ? value : '';
+                    }
                 }
             },
             scales: {
