@@ -83,13 +83,13 @@
 
                     <div class="mb-4">
                         <label class="form-label">Caliber</label>
-                        <div class="rating-group" id="rating-container">
-                            <div class="rating-circles">
-                                {% for i in range(5) %}
-                                <input type="radio" class="rating-input" name="rating" id="rating{{ i + 1 }}" value="{{ i + 1 }}">
-                                <label class="circle" for="rating{{ i + 1 }}" data-value="{{ i + 1 }}"></label>
-                                {% endfor %}
-                            </div>
+                        <div class="rating">
+                            {% for i in range(5) %}
+                            <input type="radio" class="rating-input" name="rating" id="rating{{ i + 1 }}" value="{{ i + 1 }}">
+                            <label class="rating-label" for="rating{{ i + 1 }}">
+                                <span class="rating-circle"></span>
+                            </label>
+                            {% endfor %}
                         </div>
                     </div>
 

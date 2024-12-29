@@ -677,52 +677,48 @@ textarea.form-control:focus {
 }
 
 /* Rating system */
-.rating-group {
-    width: 100%;
-    text-align: left;
+.rating {
+    display: inline-flex;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
 }
 
 .rating-input {
-    display: none;
+    position: absolute;
+    left: -9999px;
 }
 
-.rating-circles {
-    display: flex;
-    gap: 0.5rem;
+.rating-label {
     cursor: pointer;
-    width: 100%;
+    display: inline-flex;
+    position: relative;
 }
 
-.circle {
+.rating-circle {
     width: 20px;
     height: 20px;
     border: 2px solid var(--bs-white);
     border-radius: 50%;
-    display: inline-block;
     transition: background-color 0.2s;
-    cursor: pointer;
+    display: inline-block;
 }
 
-.rating-circles .circle {
+.rating-input:checked ~ .rating-label .rating-circle {
     background-color: transparent;
 }
 
-#rating1:checked + .circle,
-#rating2:checked + .circle,
-#rating2:checked + .circle + input + .circle,
-#rating3:checked + .circle,
-#rating3:checked + .circle + input + .circle,
-#rating3:checked + .circle + input + .circle + input + .circle,
-#rating4:checked + .circle,
-#rating4:checked + .circle + input + .circle,
-#rating4:checked + .circle + input + .circle + input + .circle,
-#rating4:checked + .circle + input + .circle + input + .circle + input + .circle,
-#rating5:checked + .circle,
-#rating5:checked + .circle + input + .circle,
-#rating5:checked + .circle + input + .circle + input + .circle,
-#rating5:checked + .circle + input + .circle + input + .circle + input + .circle,
-#rating5:checked + .circle + input + .circle + input + .circle + input + .circle + input + .circle {
+.rating-input:checked + .rating-label .rating-circle,
+.rating-input:checked + .rating-label ~ .rating-label .rating-circle {
     background-color: var(--bs-white);
+}
+
+.rating-label:hover .rating-circle,
+.rating-label:hover ~ .rating-label .rating-circle {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.rating-input:focus + .rating-label .rating-circle {
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 
