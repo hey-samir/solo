@@ -1,21 +1,18 @@
+
 Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait for Bootstrap tab events
     const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
     tabElements.forEach(tab => {
         tab.addEventListener('shown.bs.tab', function (event) {
             updateCharts();
         });
     });
-    
-    // Initial chart load
     updateCharts();
 });
 
 function updateCharts() {
-    // Fetch data for all charts
     fetch('/api/stats')
         .then(response => {
             if (!response.ok) {
@@ -41,33 +38,22 @@ function updateAscentsByDifficultyChart(data) {
     }
 
     new Chart(ctx, {
-        type: 'bar',
+        type: 'doughnut',
         data: {
             labels: data.labels,
             datasets: [{
-                label: 'Number of Ascents',
                 data: data.data,
-                backgroundColor: '#410f70',
-                borderColor: '#410f70',
+                backgroundColor: Array(data.labels.length).fill('#7442d6'),
+                borderColor: '#7442d6',
                 borderWidth: 1
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Ascents'
-                    }
-                },
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Difficulty Grade'
-                    }
+            plugins: {
+                legend: {
+                    position: 'right'
                 }
             }
         }
@@ -83,6 +69,9 @@ function updateSendsByDateChart(data) {
         chart.destroy();
     }
 
+    const maxValue = Math.max(...data.sends, ...data.attempts);
+    const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
+
     new Chart(ctx, {
         type: 'bar',
         data: {
@@ -91,8 +80,8 @@ function updateSendsByDateChart(data) {
                 {
                     label: 'Sends',
                     data: data.sends,
-                    backgroundColor: '#410f70',
-                    borderColor: '#410f70',
+                    backgroundColor: '#7442d6',
+                    borderColor: '#7442d6',
                     borderWidth: 1
                 },
                 {
@@ -110,15 +99,14 @@ function updateSendsByDateChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Climbs'
+                    suggestedMax: suggestedMax,
+                    grid: {
+                        display: false
                     }
                 },
                 x: {
-                    title: {
-                        display: true,
-                        text: 'Date'
+                    grid: {
+                        display: false
                     }
                 }
             }
@@ -135,17 +123,21 @@ function updateMetricsOverTimeChart(data) {
         chart.destroy();
     }
 
+    const maxValue = Math.max(...data.metrics[0].data);
+    const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
+
     new Chart(ctx, {
         type: 'line',
         data: {
             labels: data.labels,
-            datasets: data.metrics.map(metric => ({
-                label: metric.name,
-                data: metric.data,
-                borderColor: metric.color,
+            datasets: [{
+                label: 'Success Rate',
+                data: data.metrics[0].data,
+                borderColor: '#7442d6',
+                backgroundColor: 'rgba(116, 66, 214, 0.2)',
                 tension: 0.4,
-                fill: false
-            }))
+                fill: true
+            }]
         },
         options: {
             responsive: true,
@@ -153,15 +145,14 @@ function updateMetricsOverTimeChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Value'
+                    suggestedMax: suggestedMax,
+                    grid: {
+                        display: false
                     }
                 },
                 x: {
-                    title: {
-                        display: true,
-                        text: 'Date'
+                    grid: {
+                        display: false
                     }
                 }
             }
