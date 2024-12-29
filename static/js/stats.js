@@ -122,12 +122,7 @@ function updateSendsByDateChart(data) {
                     type: 'line',
                     borderColor: '#ffffff',
                     tension: 0.4,
-                    fill: false,
-                    datalabels: {
-                        color: '#ffffff',
-                        anchor: 'end',
-                        align: 'top'
-                    }
+                    fill: false
                 }
             ]
         },
@@ -232,7 +227,7 @@ function updateMetricsOverTimeChart(data) {
 }
 
 function updateClimbsPerSessionChart(data) {
-    const ctx = document.getElementById('climsPerSessionCanvas');
+    const ctx = document.getElementById('climbsPerSessionCanvas');
     if (!ctx) return;
 
     let chart = Chart.getChart(ctx);
@@ -258,8 +253,13 @@ function updateClimbsPerSessionChart(data) {
             maintainAspectRatio: false,
             plugins: {
                 title: {
-                    display: true,
-                    text: 'Climbs per Session'
+                    display: false
+                },
+                datalabels: {
+                    color: '#ffffff',
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value) => value > 0 ? value : ''
                 }
             },
             scales: {
