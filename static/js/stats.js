@@ -139,10 +139,7 @@ function updateSendsByDateChart(data) {
                 },
                 tooltip: {
                     enabled: false
-                }
-            },
-            animation: false,
-            plugins: {
+                },
                 afterDraw: (chart) => {
                     const ctx = chart.ctx;
                     const datasets = chart.data.datasets;
