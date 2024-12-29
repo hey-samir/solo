@@ -670,15 +670,15 @@ textarea.form-control:focus {
 /* Rating system */
 .rating-group {
     display: flex;
-    gap: 1rem;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
 }
 
 .rating-input {
     display: none;
 }
 
-.rating-label {
+.rating-circles {
     display: flex;
     gap: 0.5rem;
     cursor: pointer;
@@ -690,25 +690,31 @@ textarea.form-control:focus {
     border: 2px solid var(--bs-white);
     border-radius: 50%;
     display: inline-block;
+    transition: background-color 0.2s;
 }
 
-.rating-input:checked + .rating-label .circle:nth-child(-n+1) {
+.circle:hover ~ .circle {
+    background-color: transparent !important;
+}
+
+.rating-circles:hover .circle:hover,
+.rating-circles:hover .circle:hover ~ .circle {
+    background-color: transparent;
+}
+
+.rating-circles:hover .circle:not(:hover) {
     background-color: var(--bs-white);
 }
 
-#rating2:checked + .rating-label .circle:nth-child(-n+2) {
-    background-color: var(--bs-white);
+.rating-circles .circle:hover ~ .circle {
+    background-color: transparent !important;
 }
 
-#rating3:checked + .rating-label .circle:nth-child(-n+3) {
-    background-color: var(--bs-white);
-}
-
-#rating4:checked + .rating-label .circle:nth-child(-n+4) {
-    background-color: var(--bs-white);
-}
-
-#rating5:checked + .rating-label .circle:nth-child(-n+5) {
+#rating1:checked ~ .rating-circles .circle:nth-child(-n+1),
+#rating2:checked ~ .rating-circles .circle:nth-child(-n+2),
+#rating3:checked ~ .rating-circles .circle:nth-child(-n+3),
+#rating4:checked ~ .rating-circles .circle:nth-child(-n+4),
+#rating5:checked ~ .rating-circles .circle:nth-child(-n+5) {
     background-color: var(--bs-white);
 }
 
