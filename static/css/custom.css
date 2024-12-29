@@ -669,9 +669,8 @@ textarea.form-control:focus {
 
 /* Rating system */
 .rating-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 100%;
+    text-align: left;
 }
 
 .rating-input {
@@ -682,6 +681,7 @@ textarea.form-control:focus {
     display: flex;
     gap: 0.5rem;
     cursor: pointer;
+    width: 100%;
 }
 
 .circle {
@@ -691,10 +691,20 @@ textarea.form-control:focus {
     border-radius: 50%;
     display: inline-block;
     transition: background-color 0.2s;
+    cursor: pointer;
 }
 
-.circle:hover ~ .circle {
-    background-color: transparent !important;
+.rating-circles:hover .circle {
+    background-color: transparent;
+}
+
+.rating-circles .circle:hover,
+.rating-circles .circle:hover ~ .circle {
+    background-color: transparent;
+}
+
+.rating-circles:hover .circle:not(:hover) ~ .circle {
+    background-color: transparent;
 }
 
 .rating-circles:hover .circle:hover,
@@ -702,20 +712,26 @@ textarea.form-control:focus {
     background-color: transparent;
 }
 
-.rating-circles:hover .circle:not(:hover) {
+.rating-circles:hover .circle:hover ~ .circle {
+    background-color: transparent;
+}
+
+.rating-circles:hover .circle {
     background-color: var(--bs-white);
 }
 
-.rating-circles .circle:hover ~ .circle {
-    background-color: transparent !important;
+.rating-input:checked ~ .circle,
+.rating-input:checked ~ .circle ~ .circle {
+    background-color: transparent;
 }
 
-#rating1:checked ~ .rating-circles .circle:nth-child(-n+1),
-#rating2:checked ~ .rating-circles .circle:nth-child(-n+2),
-#rating3:checked ~ .rating-circles .circle:nth-child(-n+3),
-#rating4:checked ~ .rating-circles .circle:nth-child(-n+4),
-#rating5:checked ~ .rating-circles .circle:nth-child(-n+5) {
+.rating-input:checked + .circle,
+.rating-input:checked + .circle ~ .circle {
     background-color: var(--bs-white);
+}
+
+.rating-input:checked + .circle ~ .rating-input + .circle {
+    background-color: transparent;
 }
 
 /* Required field indicator */
