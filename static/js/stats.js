@@ -138,8 +138,13 @@ function updateSendsByDateChart(data) {
                     anchor: 'end',
                     align: 'top',
                     formatter: (value, ctx) => {
+                        const dataset = ctx.dataset;
+                        if (dataset.type === 'line') {
+                            return value > 0 ? 'Total: ' + value : '';
+                        }
                         return value > 0 ? value : '';
-                    }
+                    },
+                    display: true
                 }
             },
             scales: {

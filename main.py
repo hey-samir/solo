@@ -161,6 +161,15 @@ def api_stats():
         difficulty_data[climb.caliber] = difficulty_data.get(climb.caliber, 0) + 1
 
     # Format data for front-end
+    # Calculate climbs per session data
+    sessions = {}
+    for climb in current_user.climbs:
+        date = climb.created_at.date()
+        sessions[date] = sessions.get(date, 0) + 1
+    
+    session_dates = list(sessions.keys())
+    session_dates.sort()
+    
     return jsonify({
         'ascentsByDifficulty': {
             'labels': list(difficulty_data.keys()),
@@ -180,6 +189,10 @@ def api_stats():
                     'color': '#410f70'
                 }
             ]
+        },
+        'climbsPerSession': {
+            'labels': [d.strftime('%Y-%m-%d') for d in session_dates],
+            'data': [sessions[d] for d in session_dates]
         }
     })
 
