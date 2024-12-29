@@ -1041,3 +1041,31 @@ input[type="password"].form-control-lg {
     color: var(--bs-white);
     opacity: 1;
 }
+/* Metric cards grid layout */
+.metric-card {
+    background: var(--bs-dark);
+    border-radius: 8px;
+    padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.row-cols-md-2 > * {
+    flex: 0 0 auto;
+    width: 50%;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    font-size: 1rem;
+    color: var(--bs-gray-400);
+}
