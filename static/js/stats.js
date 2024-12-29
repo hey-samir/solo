@@ -59,8 +59,7 @@ function updateAscentsByDifficultyChart(data) {
             maintainAspectRatio: false,
             plugins: {
                 title: {
-                    display: true,
-                    text: 'Ascents'
+                    display: false
                 },
                 legend: {
                     position: 'right'
@@ -133,7 +132,10 @@ function updateSendsByDateChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    suggestedMax: suggestedMax,
+                    suggestedMax: 10,
+                    ticks: {
+                        display: false
+                    },
                     grid: {
                         display: false
                     }
@@ -185,7 +187,10 @@ function updateMetricsOverTimeChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
-                    suggestedMax: suggestedMax,
+                    suggestedMax: 10,
+                    ticks: {
+                        display: false
+                    },
                     grid: {
                         display: false
                     }
