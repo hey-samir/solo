@@ -1,11 +1,8 @@
 
-from flask_migrate import Migrate
-from app import app, db
-
-migrate = Migrate(app, db)
+from app import db
 
 def migrate():
-    print("Starting database migration...")
-    from migrations.versions.add_caliber_column import upgrade as recreate_table
-    recreate_table()
+    print("Recreating database tables...")
+    db.drop_all()
+    db.create_all()
     print("Database migration completed")
