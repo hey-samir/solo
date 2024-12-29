@@ -89,8 +89,8 @@
                         </td>
                         <td>{{ climb.caliber }}</td>
                         <td>{{ "●" * climb.rating }}</td>
-                        <td>{{ climb.status }}</td>
-                        <td class="climb-points">{{ (climb.rating * (10 if climb.status == 'Sent' else 5)) }}</td>
+                        <td>{{ 'Sent' if climb.status else 'Tried' }}</td>
+                        <td class="climb-points">{{ (climb.rating * (10 if climb.status else 5)) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
