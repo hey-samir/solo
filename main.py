@@ -80,7 +80,7 @@ def sign_up():
 
         # Log the user in after registration
         login_user(user)
-        return redirect(url_for('self'))
+        return redirect(url_for('solo'))
     return render_template('register.html', form=form)
 
 @app.route('/logout')
@@ -202,10 +202,10 @@ def update_profile():
         if username and username != current_user.username:
             if not username.isalnum():
                 flash('Username must contain only letters and numbers', 'error')
-                return redirect(url_for('self'))
+                return redirect(url_for('solo'))
             if User.query.filter_by(username=username).first():
                 flash('Username already taken', 'error')
-                return redirect(url_for('self'))
+                return redirect(url_for('solo'))
             current_user.username = username
 
         if name:
@@ -225,7 +225,7 @@ def update_profile():
             for error in errors:
                 flash(f'{field}: {error}', 'error')
 
-    return redirect(url_for('self'))
+    return redirect(url_for('solo'))
 
 @app.route('/upload_photo', methods=['POST'])
 @login_required
@@ -234,12 +234,12 @@ def upload_photo():
     try:
         if 'photo' not in request.files:
             flash('No file uploaded', 'error')
-            return redirect(url_for('self'))
+            return redirect(url_for('solo'))
 
         file = request.files['photo']
         if file.filename == '':
             flash('No file selected', 'error')
-            return redirect(url_for('self'))
+            return redirect(url_for('solo'))
 
         if file and allowed_file(file.filename):
             from PIL import Image
@@ -283,7 +283,7 @@ def upload_photo():
         flash('Error processing photo. Please try again.', 'error')
         db.session.rollback()
 
-    return redirect(url_for('self'))
+    return redirect(url_for('solo'))
 
 @app.route('/standings')
 @login_required
