@@ -13,7 +13,7 @@
 
 /* Custom styles to complement Bootstrap */
 :root {
-    --font-family-sans-serif: 'One UI Sans', 'SF Pro Display', 'CashMarket', system-ui, -apple-system, sans-serif;
+    --font-family-sans-serif: 'Lexend', system-ui, -apple-system, sans-serif;
     --solo-purple: #7442d6;
     --teal: #008080;
     --section-header: #e8e8e8;
