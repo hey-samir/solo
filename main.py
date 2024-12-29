@@ -293,7 +293,7 @@ def stats():
     """Display climbing statistics and visualizations."""
     # Calculate basic metrics
     user_climbs = Climb.query.filter_by(user_id=current_user.id).all()
-    sends = [c for c in user_climbs if c.status == 'Sent']
+    sends = [c for c in user_climbs if c.status is True]
 
     total_sends = len(sends)
     total_climbs = len(user_climbs)
@@ -302,7 +302,7 @@ def stats():
     # Get highest grade
     highest_grade_climb = Climb.query.filter_by(
         user_id=current_user.id,
-        status='Sent'
+        status=True
     ).order_by(Climb.caliber.desc()).first()
     highest_grade = highest_grade_climb.caliber if highest_grade_climb else '--'
 
