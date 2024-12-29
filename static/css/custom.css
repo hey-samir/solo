@@ -14,7 +14,7 @@
 /* Custom styles to complement Bootstrap */
 :root {
     --font-family-sans-serif: 'One UI Sans', 'SF Pro Display', 'CashMarket', system-ui, -apple-system, sans-serif;
-    --solo-purple: #410f70;
+    --solo-purple: #7442d6;
     --teal: #008080;
     --section-header: #e8e8e8;
 }
@@ -370,7 +370,7 @@ footer {
 
 /* Plus button styling */
 .navbar-nav .nav-link.active.bg-solo-purple {
-    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%) !important;
     color: var(--bs-white);
 }
 
@@ -651,7 +651,7 @@ textarea.form-control:focus {
 }
 
 .btn-send {
-    background: linear-gradient(135deg, var(--solo-purple) 0%, #a375ff 100%) !important;
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%) !important;
     border: none !important;
 }
 
