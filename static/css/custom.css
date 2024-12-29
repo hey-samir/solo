@@ -667,16 +667,49 @@ textarea.form-control:focus {
     transform: scale(1.1);
 }
 
-/* Rating buttons */
-.rating-btn {
-    padding: 0.95rem !important;
-    border: 2px solid var(--bs-white) !important;
+/* Rating system */
+.rating-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
 }
 
-.rating-btn.active {
-    background-color: var(--solo-purple) !important;
-    border-color: var(--bs-white) !important;
-    color: var(--bs-white) !important;
+.rating-input {
+    display: none;
+}
+
+.rating-label {
+    display: flex;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--bs-white);
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.rating-input:checked + .rating-label .circle:nth-child(-n+1) {
+    background-color: var(--bs-white);
+}
+
+#rating2:checked + .rating-label .circle:nth-child(-n+2) {
+    background-color: var(--bs-white);
+}
+
+#rating3:checked + .rating-label .circle:nth-child(-n+3) {
+    background-color: var(--bs-white);
+}
+
+#rating4:checked + .rating-label .circle:nth-child(-n+4) {
+    background-color: var(--bs-white);
+}
+
+#rating5:checked + .rating-label .circle:nth-child(-n+5) {
+    background-color: var(--bs-white);
 }
 
 /* Required field indicator */
