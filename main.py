@@ -261,6 +261,12 @@ def upload_photo():
 
     return redirect(url_for('self'))
 
+@app.route('/standings')
+@login_required
+def standings():
+    """Display user standings page."""
+    return render_template('standings.html')
+
 @app.route('/stats')
 @login_required
 def stats():
