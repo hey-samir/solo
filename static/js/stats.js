@@ -32,7 +32,7 @@ function updateCharts() {
 }
 
 function updateAscentsByDifficultyChart(data) {
-    const ctx = document.querySelector('#ascentsByDifficultyChart canvas');
+    const ctx = document.getElementById('difficultyCanvas');
     if (!ctx) return;
 
     let chart = Chart.getChart(ctx);
@@ -75,7 +75,7 @@ function updateAscentsByDifficultyChart(data) {
 }
 
 function updateSendsByDateChart(data) {
-    const ctx = document.querySelector('#sendsByDateChart canvas');
+    const ctx = document.getElementById('sendsCanvas');
     if (!ctx) return;
 
     let chart = Chart.getChart(ctx);
@@ -127,7 +127,7 @@ function updateSendsByDateChart(data) {
 }
 
 function updateMetricsOverTimeChart(data) {
-    const ctx = document.querySelector('#metricsOverTimeChart canvas');
+    const ctx = document.getElementById('metricsCanvas');
     if (!ctx) return;
 
     let chart = Chart.getChart(ctx);
