@@ -703,12 +703,13 @@ textarea.form-control:focus {
     display: inline-block;
 }
 
-.rating-input:checked + .rating-label .rating-circle {
-    background-color: var(--bs-white);
+.rating-input:checked ~ .rating-label .rating-circle {
+    background-color: transparent;
 }
 
-.rating-input:checked + .rating-label ~ .rating-label .rating-circle {
-    background-color: transparent;
+.rating-input:checked + .rating-label .rating-circle,
+.rating-input:checked + .rating-label ~ .rating-label:not(:nth-last-child(-n+0)) .rating-circle {
+    background-color: var(--bs-white);
 }
 
 .rating-label:hover .rating-circle,
