@@ -107,8 +107,8 @@ def add_climb():
             caliber_letter = request.form.get('caliber_letter', '')
             caliber = f"5.{caliber_grade}{caliber_letter}"
         
-        # Get status directly from form
-        status = request.form.get('status') == 'on'
+        # Convert status to boolean (True for 'Sent', False for 'Tried')
+        status = request.form.get('status') == 'on'  # Will be True if checked, False if unchecked
         app.logger.info("Status value: %s", status)
 
         # Validate rating (now 1-5)
