@@ -20,7 +20,7 @@
         <!-- Metrics Tab -->
         <div class="tab-pane fade show active" id="metrics" role="tabpanel">
             <div class="row mb-4">
-                <div class="col-md-4 mb-3">
+                <div class="col-md-6 mb-3">
                     <div class="metric-card">
                         <div class="metric-value">{{ total_sends }}</div>
                         <div class="metric-label">Total Sends</div>
@@ -93,6 +93,18 @@
                 <div class="card-body">
                     <div id="metricsOverTimeChart" style="height: 300px; width: 100%;">
                         <canvas id="metricsCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Climbs per Session -->
+            <div class="card mb-4">
+                <div class="card-header bg-transparent">
+                    <h5 class="card-title mb-0">Climbs per Session</h5>
+                </div>
+                <div class="card-body">
+                    <div id="climbsPerSessionChart" style="height: 300px; width: 100%;">
+                        <canvas id="climsPerSessionCanvas"></canvas>
                     </div>
                 </div>
             </div>
