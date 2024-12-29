@@ -167,7 +167,6 @@ function updateSendsByDateChart(data) {
                         }
                     }
                 }
-                }
             },
             scales: {
                 y: {
