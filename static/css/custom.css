@@ -55,7 +55,7 @@
     margin-bottom: 4px;
 }
 
-.navbar-nav .nav-link[href="/sends"] {
+.navbar-nav .send-button {
     position: relative;
     top: -20px;
     background: var(--solo-purple);

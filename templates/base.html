@@ -47,36 +47,31 @@
 
     <!-- Bottom Navigation -->
     <nav class="navbar fixed-bottom">
-        <div class="container-fluid">
-            <ul class="navbar-nav w-100 d-flex flex-row justify-content-between px-2">
+        <div class="container-fluid px-2">
+            <ul class="navbar-nav w-100 d-flex flex-row justify-content-evenly">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('squads') }}">
                         <i class="material-icons">groups</i>
-                        <span>Squad</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('standings') }}">
                         <i class="material-icons">social_leaderboard</i>
-                        <span>Standings</span>
                     </a>
                 </li>
-                <li class="nav-item position-relative">
-                    <a class="nav-link active bg-solo-purple" href="{{ url_for('sends') }}">
+                <li class="nav-item">
+                    <a class="nav-link send-button" href="{{ url_for('sends') }}">
                         <i class="material-icons">arrow_circle_up</i>
-                        <span>Sends</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('sessions') }}">
                         <i class="material-icons">calendar_today</i>
-                        <span>Sessions</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('stats') }}">
                         <i class="material-icons">stacked_line_chart</i>
-                        <span>Stats</span>
                     </a>
                 </li>
             </ul>
