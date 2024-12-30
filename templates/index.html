@@ -77,13 +77,12 @@
         <tr>
             <td class="form-label-cell"><label class="form-label">Caliber</label></td>
             <td class="form-input-cell">
-                <div class="rating">
-                    {% for i in range(5) %}
-                    <input type="radio" class="rating-input" name="rating" id="rating{{ i + 1 }}" value="{{ i + 1 }}">
-                    <label class="rating-label" for="rating{{ i + 1 }}">
-                        <span class="rating-circle"></span>
-                    </label>
-                    {% endfor %}
+                <div class="rating-stars" data-coreui-toggle="rating" data-coreui-value="3">
+                    <input type="radio" name="rating" value="1">
+                    <input type="radio" name="rating" value="2">
+                    <input type="radio" name="rating" value="3">
+                    <input type="radio" name="rating" value="4">
+                    <input type="radio" name="rating" value="5">
                 </div>
             </td>
         </tr>

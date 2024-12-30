@@ -683,54 +683,7 @@ textarea.form-control:focus {
     transform: scale(1.1);
 }
 
-/* Rating system */
-.rating {
-    display: inline-flex;
-    gap: 0.5rem;
-    padding: 0.5rem 0;
-}
-
-.rating-input {
-    position: absolute;
-    left: -9999px;
-}
-
-.rating-label {
-    cursor: pointer;
-    display: inline-flex;
-    position: relative;
-}
-
-.rating-circle {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--bs-white);
-    border-radius: 50%;
-    transition: background-color 0.2s;
-    display: inline-block;
-}
-
-.rating-input:checked ~ .rating-label .rating-circle {
-    background-color: transparent;
-}
-
-.rating-label:hover .rating-circle {
-    background-color: var(--bs-white);
-}
-
-.rating-label:hover ~ .rating-label .rating-circle {
-    background-color: transparent;
-}
-
-.rating-input:checked + .rating-label .rating-circle,
-.rating-input:checked + .rating-label ~ .rating-label:not(:nth-last-child(n+1)) .rating-circle {
-    background-color: var(--bs-white);
-}
-
-.rating-label:hover .rating-circle,
-.rating-label:hover ~ .rating-label .rating-circle {
-    background-color: rgba(255, 255, 255, 0.5);
-}
+/* Rating system styles removed in favor of CoreUI default styling */
 
 .rating-input:focus + .rating-label .rating-circle {
     box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
