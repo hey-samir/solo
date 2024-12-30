@@ -404,21 +404,22 @@ def stats():
     
     # Calculate average grade using simple ranking
     sent_grades = [climb.caliber for climb in climbs if climb.status and climb.caliber]
+    grade_rank = {
+        '5.0': 1, '5.1': 2, '5.2': 3, '5.3': 4, '5.4': 5,
+        '5.5': 6, '5.6': 7, '5.7': 8, '5.8': 9, '5.9': 10,
+        '5.10a': 11, '5.10b': 12, '5.10c': 13, '5.10d': 14,
+        '5.11a': 15, '5.11b': 16, '5.11c': 17, '5.11d': 18,
+        '5.12a': 19, '5.12b': 20, '5.12c': 21, '5.12d': 22,
+        '5.13a': 23, '5.13b': 24, '5.13c': 25, '5.13d': 26,
+        '5.14a': 27, '5.14b': 28, '5.14c': 29, '5.14d': 30,
+        '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
+    }
+    rank_to_grade = {v: k for k, v in grade_rank.items()}
+    
     if sent_grades:
-        grade_rank = {
-            '5.0': 1, '5.1': 2, '5.2': 3, '5.3': 4, '5.4': 5,
-            '5.5': 6, '5.6': 7, '5.7': 8, '5.8': 9, '5.9': 10,
-            '5.10a': 11, '5.10b': 12, '5.10c': 13, '5.10d': 14,
-            '5.11a': 15, '5.11b': 16, '5.11c': 17, '5.11d': 18,
-            '5.12a': 19, '5.12b': 20, '5.12c': 21, '5.12d': 22,
-            '5.13a': 23, '5.13b': 24, '5.13c': 25, '5.13d': 26,
-            '5.14a': 27, '5.14b': 28, '5.14c': 29, '5.14d': 30,
-            '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
-        }
-        valid_grades = [g for g in sent_grades if g in grade_rank]
-        if valid_grades:
-            avg_rank = round(sum(grade_rank[g] for g in valid_grades) / len(valid_grades))
-            rank_to_grade = {v: k for k, v in grade_rank.items()}
+        valid_ranks = [grade_rank.get(grade, 0) for grade in sent_grades if grade in grade_rank]
+        if valid_ranks:
+            avg_rank = round(sum(valid_ranks) / len(valid_ranks))
             avg_grade = rank_to_grade.get(avg_rank, '--')
         else:
             avg_grade = '--'
