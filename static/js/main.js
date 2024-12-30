@@ -32,7 +32,7 @@ function calculatePoints() {
     let points = 0;
     
     if (fullGrade && gradePoints[fullGrade]) {
-        points = gradePoints[fullGrade] * (rating / 5);
+        points = gradePoints[fullGrade];
         if (!status) {
             points = points / 2;
         }
