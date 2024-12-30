@@ -487,13 +487,50 @@ def stats():
         sessions[date] = sessions.get(date, 0) + 1
     climbs_per_session = round(sum(sessions.values()) / len(sessions)) if sessions else 0
     
+    # Calculate average grade for sends vs attempts
+    sent_grades = [climb.caliber for climb in climbs if climb.status and climb.caliber]
+    attempted_grades = [climb.caliber for climb in climbs if not climb.status and climb.caliber]
+    
+    def calculate_avg_grade(grades):
+        if not grades:
+            return 'N/A'
+        grade_values = []
+        for grade in grades:
+            parts = grade.split('.')
+            if len(parts) == 2:
+                base = parts[1].rstrip('abcd')
+                if base.isdigit():
+                    modifier = parts[1][len(base):] if len(parts[1]) > len(base) else ''
+                    value = float(base) + {'a': 0.0, 'b': 0.25, 'c': 0.5, 'd': 0.75}.get(modifier, 0)
+                    grade_values.append(value)
+        if grade_values:
+            avg = sum(grade_values) / len(grade_values)
+            base = int(avg)
+            modifier = ''
+            decimal = avg - base
+            if decimal >= 0.75:
+                modifier = 'd'
+            elif decimal >= 0.5:
+                modifier = 'c'
+            elif decimal >= 0.25:
+                modifier = 'b'
+            else:
+                modifier = 'a'
+            return f'5.{base}{modifier}'
+        return 'N/A'
+    
+    avg_sent_grade = calculate_avg_grade(sent_grades)
+    avg_attempted_grade = calculate_avg_grade(attempted_grades)
+
     return render_template('stats.html',
                          total_sends=total_sends,
                          highest_grade=highest_grade,
                          avg_grade=avg_grade,
                          success_rate=success_rate,
                          total_points=total_points,
-                         climbs_per_session=climbs_per_session)
+                         climbs_per_session=climbs_per_session,
+                         avg_sent_grade=avg_sent_grade,
+                         avg_attempted_grade=avg_attempted_grade)
 
 @app.route('/squads')
 @login_required
