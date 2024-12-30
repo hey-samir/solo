@@ -833,10 +833,9 @@ textarea.form-control:focus {
 /* Form control with placeholder styling */
 .form-control::placeholder {
     color: var(--bs-gray-600);
-    font-style: italic;
     opacity: 0.8;
     line-height: 24px;
-    text-align: left;  /* Changed from center to left */
+    text-align: left;
 }
 
 textarea.form-control {
