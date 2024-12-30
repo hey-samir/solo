@@ -23,9 +23,9 @@
                                 <div class="avatar-options">
                                     {% for color in ['white', 'black', 'gray', 'purple'] %}
                                     <label class="avatar-option">
-                                        <input type="radio" name="avatar" value="{{ color }}-solo.png" 
-                                               {% if current_user.profile_photo == color + '-solo.png' %}checked{% endif %}>
-                                        <img src="{{ url_for('static', filename='images/' + color + '-solo.png') }}" 
+                                        <input type="radio" name="avatar" value="{{ color }}-solo-av.png" 
+                                               {% if current_user.profile_photo == color + '-solo-av.png' %}checked{% endif %}>
+                                        <img src="{{ url_for('static', filename='images/' + color + '-solo-av.png') }}" 
                                              alt="{{ color }} solo">
                                     </label>
                                     {% endfor %}
