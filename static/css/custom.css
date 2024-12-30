@@ -97,7 +97,7 @@
 /* Update spacing to account for fixed navbar */
 body {
     padding-bottom: 60px; /* navbar height */
-    background-color: var(--bs-dark);
+    background-color: #141a25;
 }
 
 .container {
