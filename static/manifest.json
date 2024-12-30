@@ -1,0 +1,17 @@
+
+{
+  "name": "Solo - Quantify your climb",
+  "short_name": "Solo",
+  "description": "Track your climbing progress",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e2638",
+  "theme_color": "#7442d6",
+  "icons": [
+    {
+      "src": "/static/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
