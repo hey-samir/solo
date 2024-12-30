@@ -1139,5 +1139,19 @@ input[type="password"].form-control-lg {
 }
 
 .slider .tooltip {
+    background: transparent;
+    color: var(--bs-white);
+    opacity: 1;
+}
+
+.slider .tooltip-arrow {
+    display: none;
+}
+
+.slider-tick-label {
+    display: none;
+}
+
+.slider-tick {
     display: none;
 }

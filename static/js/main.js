@@ -119,8 +119,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize attempts slider
     var attemptsSlider = new Slider('input[name="attempts"]', {
         tooltip: 'always',
-        tooltip_position: 'bottom',
+        tooltip_position: 'top',
         max: 10,
+        ticks: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ticks_labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
         formatter: function(value) {
             return value;
         }
@@ -191,8 +193,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize attempts slider
     var attemptsSlider = new Slider('input[name="attempts"]', {
         tooltip: 'always',
-        tooltip_position: 'bottom',
+        tooltip_position: 'top',
         max: 10,
+        ticks: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ticks_labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
         formatter: function(value) {
             return value;
         }
@@ -216,8 +220,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize attempts slider
     var attemptsSlider = new Slider('input[name="attempts"]', {
         tooltip: 'always',
-        tooltip_position: 'bottom',
+        tooltip_position: 'top',
         max: 10,
+        ticks: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        ticks_labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
         formatter: function(value) {
             return value;
         }
