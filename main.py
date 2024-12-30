@@ -300,7 +300,7 @@ def update_avatar():
         if avatar:
             current_user.profile_photo = avatar
             db.session.commit()
-            flash('Avatar updated successfully!', 'success')
+            flash('Solo photo updated successfully!', 'success')
         return redirect(url_for('solo'))
     except Exception as e:
         app.logger.error(f"Error updating avatar: {str(e)}")
