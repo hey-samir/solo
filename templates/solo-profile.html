@@ -24,10 +24,10 @@
                                 <div class="avatar-options">
                                     {% for color in ['white', 'black', 'gray', 'purple'] %}
                                     <label class="avatar-option">
-                                        <input type="radio" name="avatar" value="{{ color }}-avatar.png" 
-                                               {% if current_user.profile_photo == 'avatars/' + color + '-avatar.png' %}checked{% endif %}>
-                                        <img src="{{ url_for('static', filename='images/avatars/' + color + '-avatar.png') }}" 
-                                             alt="{{ color }} avatar">
+                                        <input type="radio" name="avatar" value="{{ color }}-solo.png" 
+                                               {% if current_user.profile_photo == 'images/' + color + '-solo.png' %}checked{% endif %}>
+                                        <img src="{{ url_for('static', filename='images/' + color + '-solo.png') }}" 
+                                             alt="{{ color }} solo">
                                     </label>
                                     {% endfor %}
                                 </div>
