@@ -50,32 +50,7 @@
                                     </div>
                                 </td>
                             </tr>
-        <tr>
-            <td class="form-label-cell"><label class="form-label">Color</label></td>
-            <td class="form-input-cell">
-                <div class="color-grid">
-                    {% for color in colors %}
-                    <label>
-                        <input type="radio" name="color" value="{{ color }}" class="color-radio" required>
-                        <div class="color-btn" style="background-color: {{ color }}"></div>
-                    </label>
-                    {% endfor %}
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="form-label-cell"><label class="form-label">Grade</label></td>
-            <td class="form-input-cell">
-                <div class="input-group">
-                    <select class="form-select form-select-lg" name="grade" required>
-                        <option value="" disabled selected>Select grade</option>
-                        {% for grade in grades %}
-                        <option value="{{ grade }}">{{ grade }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </td>
-        </tr>
+        
         <tr>
             <td class="form-label-cell"><label class="form-label">Attempts</label></td>
             <td class="form-input-cell">
