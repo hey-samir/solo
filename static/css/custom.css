@@ -795,8 +795,31 @@ textarea.form-control:focus {
 .form-label {
     font-weight: 700;
     font-size: 1.25rem;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0;
     color: #b2b2b2;
+}
+
+.table-form {
+    background: transparent !important;
+}
+
+.table-form td {
+    border: none !important;
+    padding: 0.75rem 1rem !important;
+    vertical-align: middle !important;
+}
+
+.form-label-cell {
+    width: 120px;
+    white-space: nowrap;
+}
+
+.form-input-cell {
+    width: auto;
+}
+
+.table-form tr:hover {
+    background: transparent !important;
 }
 
 /* Form container width */

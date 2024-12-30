@@ -73,31 +73,71 @@
                     </div>
 
                     <!-- Status Selection -->
-                    <div class="mb-4">
-                        <label class="form-label required-field">Status</label>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" id="statusToggle" name="status" checked>
-                            <label class="form-check-label" for="statusToggle">Sent</label>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label">Caliber</label>
-                        <div class="rating">
-                            {% for i in range(5) %}
-                            <input type="radio" class="rating-input" name="rating" id="rating{{ i + 1 }}" value="{{ i + 1 }}">
-                            <label class="rating-label" for="rating{{ i + 1 }}">
-                                <span class="rating-circle"></span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="notes" class="form-label">Notes</label>
-                        <textarea class="form-control form-control-lg" name="notes" rows="3" 
-                                  placeholder="Notes about climb"></textarea>
-                    </div>
+                    <table class="table table-form">
+    <tbody>
+        <tr>
+            <td class="form-label-cell"><label class="form-label">Color</label></td>
+            <td class="form-input-cell">
+                <div class="color-grid">
+                    {% for color in colors %}
+                    <label>
+                        <input type="radio" name="color" value="{{ color }}" class="color-radio" required>
+                        <div class="color-btn" style="background-color: {{ color }}"></div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="form-label-cell"><label class="form-label">Grade</label></td>
+            <td class="form-input-cell">
+                <div class="input-group">
+                    <select class="form-select form-select-lg" name="grade" required>
+                        <option value="" disabled selected>Select grade</option>
+                        {% for grade in grades %}
+                        <option value="{{ grade }}">{{ grade }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="form-label-cell"><label class="form-label">Attempts</label></td>
+            <td class="form-input-cell">
+                <input type="number" class="form-control form-control-lg" name="attempts" min="1" value="1" required>
+            </td>
+        </tr>
+        <tr>
+            <td class="form-label-cell"><label class="form-label">Status</label></td>
+            <td class="form-input-cell">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="statusToggle" name="status" checked>
+                    <label class="form-check-label" for="statusToggle">Sent</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="form-label-cell"><label class="form-label">Caliber</label></td>
+            <td class="form-input-cell">
+                <div class="rating">
+                    {% for i in range(5) %}
+                    <input type="radio" class="rating-input" name="rating" id="rating{{ i + 1 }}" value="{{ i + 1 }}">
+                    <label class="rating-label" for="rating{{ i + 1 }}">
+                        <span class="rating-circle"></span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td class="form-label-cell"><label class="form-label">Notes</label></td>
+            <td class="form-input-cell">
+                <textarea class="form-control form-control-lg" name="notes" rows="3" 
+                          placeholder="Notes about climb"></textarea>
+            </td>
+        </tr>
+    </tbody>
+</table>
 
                     <div class="mb-4">
                         <p class="text-center h5">Points Earned: <span id="pointsPreview">0</span></p>
