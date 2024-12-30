@@ -8,72 +8,77 @@
                 <form action="{{ url_for('add_climb') }}" method="POST" id="ascentForm">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <!-- Color Selection -->
-                    <div class="mb-4">
-                        <label class="form-label required-field">Color</label>
-                        <div class="color-grid">
-                            {% for color, hex in [
-                                ('White', '#FFFFFF'),
-                                ('Pink', '#FF69B4'),
-                                ('Bright Blue', '#00B0FF'),
-                                ('Black', '#000000'),
-                                ('Orange', '#FFA500')
-                            ] %}
-                            <div class="color-option">
-                                <input type="radio" name="color" value="{{ color }}" 
-                                       class="color-radio d-none" id="color_{{ color }}" required>
-                                <label class="color-btn" for="color_{{ color }}" 
-                                       style="background-color: {{ hex }}"></label>
-                            </div>
-                            {% endfor %}
-                        </div>
-                        <div class="color-grid">
-                            {% for color, hex in [
-                                ('Purple', '#800080'),
-                                ('Green', '#008000'),
-                                ('Red', '#FF0000'),
-                                ('Yellow', '#FFFF00'),
-                                ('Teal', '#008080')
-                            ] %}
-                            <div class="color-option">
-                                <input type="radio" name="color" value="{{ color }}" 
-                                       class="color-radio d-none" id="color_{{ color }}" required>
-                                <label class="color-btn" for="color_{{ color }}" 
-                                       style="background-color: {{ hex }}"></label>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="form-label required-field">Grade</label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text">5.</span>
-                            <select class="form-select" name="caliber_grade" required>
-                                <option value="" selected disabled>Grade</option>
-                                {% for i in range(1, 16) %}
-                                <option value="{{ i }}">{{ i }}</option>
-                                {% endfor %}
-                            </select>
-                            <select class="form-select" name="caliber_letter">
-                                <option value="">-</option>
-                                <option value="a">a</option>
-                                <option value="b">b</option>
-                                <option value="c">c</option>
-                                <option value="d">d</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Attempts Input -->
-                    <div class="mb-4">
-                        <label class="form-label required-field">Attempts</label>
-                        <div class="input-group">
-                            <input type="number" name="attempts" class="form-control" value="1" min="1" required>
-                        </div>
-                    </div>
-
-                    <!-- Status Selection -->
+                    <!-- Form Table -->
                     <table class="table table-form">
+                        <tbody>
+                            <tr>
+                                <td class="form-label-cell"><label class="form-label required-field">Color</label></td>
+                                <td class="form-input-cell">
+                                    <div class="color-grid">
+                                        {% for color, hex in [
+                                            ('White', '#FFFFFF'),
+                                            ('Pink', '#FF69B4'),
+                                            ('Bright Blue', '#00B0FF')
+                                        ] %}
+                                        <div class="color-option">
+                                            <input type="radio" name="color" value="{{ color }}" 
+                                                   class="color-radio d-none" id="color_{{ color }}" required>
+                                            <label class="color-btn" for="color_{{ color }}" 
+                                                   style="background-color: {{ hex }}"></label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="color-grid">
+                                        {% for color, hex in [
+                                            ('Black', '#000000'),
+                                            ('Orange', '#FFA500'),
+                                            ('Purple', '#800080')
+                                        ] %}
+                                        <div class="color-option">
+                                            <input type="radio" name="color" value="{{ color }}" 
+                                                   class="color-radio d-none" id="color_{{ color }}" required>
+                                            <label class="color-btn" for="color_{{ color }}" 
+                                                   style="background-color: {{ hex }}"></label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="color-grid">
+                                        {% for color, hex in [
+                                            ('Green', '#008000'),
+                                            ('Red', '#FF0000'),
+                                            ('Yellow', '#FFFF00')
+                                        ] %}
+                                        <div class="color-option">
+                                            <input type="radio" name="color" value="{{ color }}" 
+                                                   class="color-radio d-none" id="color_{{ color }}" required>
+                                            <label class="color-btn" for="color_{{ color }}" 
+                                                   style="background-color: {{ hex }}"></label>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="form-label-cell"><label class="form-label required-field">Grade</label></td>
+                                <td class="form-input-cell">
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text">5.</span>
+                                        <select class="form-select" name="caliber_grade" required>
+                                            <option value="" selected disabled>Grade</option>
+                                            {% for i in range(1, 16) %}
+                                            <option value="{{ i }}">{{ i }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <select class="form-select" name="caliber_letter">
+                                            <option value="">-</option>
+                                            <option value="a">a</option>
+                                            <option value="b">b</option>
+                                            <option value="c">c</option>
+                                            <option value="d">d</option>
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
     <tbody>
         <tr>
             <td class="form-label-cell"><label class="form-label">Color</label></td>
