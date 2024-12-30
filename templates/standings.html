@@ -19,7 +19,13 @@
                     <tbody>
                         {% for user in leaderboard %}
                         <tr>
-                            <td><i class="material-icons">counter_{{ loop.index }}</i></td>
+                            <td>
+                                {% if loop.index <= 3 %}
+                                    <i class="material-icons">counter_{{ loop.index }}</i>
+                                {% else %}
+                                    {{ loop.index }}
+                                {% endif %}
+                            </td>
                             <td>{{ user.username }}</td>
                             <td>{{ user.total_sends }}</td>
                             <td>{{ user.avg_grade }}</td>
