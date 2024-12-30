@@ -55,19 +55,7 @@
     margin-bottom: 4px;
 }
 
-.navbar-nav .send-button {
-    position: relative;
-    top: -20px;
-    background: var(--solo-purple);
-    border-radius: 50%;
-    padding: 15px;
-    height: 60px;
-    width: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: -20px;
-}
+
 
 .navbar-nav .nav-link[href="/sends"] i {
     color: white;
