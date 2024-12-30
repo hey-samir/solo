@@ -10,24 +10,26 @@
                     <div id="csrf-token" data-token="{{ form.csrf_token._value() }}"></div>
 
                     <div class="text-center mb-4">
-                        <div class="profile-photo-container">
-                            {% if current_user.profile_photo and current_user.profile_photo != 'default_profile.png' %}
-                                <img src="{{ url_for('static', filename='images/' + current_user.profile_photo) }}" 
-                                     alt="Profile Photo" 
-                                     class="profile-photo">
-                            {% else %}
-                                <div class="profile-photo-placeholder">
-                                    <i class="bi bi-person"></i>
-                                </div>
-                            {% endif %}
-                            <label for="photo-upload" class="edit-photo-icon">
-                                <i class="bi bi-camera"></i>
-                            </label>
+                        <div class="profile-photo-container mb-3">
+                            <img src="{{ url_for('static', filename='images/' + current_user.profile_photo) }}" 
+                                 alt="Selected Avatar" 
+                                 class="profile-photo">
                         </div>
-                        <form id="photo-form" method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data">
-                            <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
-                            <input type="file" id="photo-upload" name="photo" accept="image/*" class="d-none">
-                        </form>
+                        <div class="avatar-selection">
+                            <form id="avatar-form" method="POST" action="{{ url_for('update_avatar') }}">
+                                <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
+                                <div class="avatar-options">
+                                    {% for color in ['white', 'black', 'gray', 'purple'] %}
+                                    <label class="avatar-option">
+                                        <input type="radio" name="avatar" value="{{ color }}-avatar.png" 
+                                               {% if current_user.profile_photo == 'avatars/' + color + '-avatar.png' %}checked{% endif %}>
+                                        <img src="{{ url_for('static', filename='images/avatars/' + color + '-avatar.png') }}" 
+                                             alt="{{ color }} avatar">
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </form>
+                        </div>
                     </div>
 
                     <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">

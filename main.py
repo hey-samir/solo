@@ -292,9 +292,20 @@ def update_profile():
 
     return redirect(url_for('solo'))
 
-@app.route('/upload_photo', methods=['POST'])
+@app.route('/update_avatar', methods=['POST'])
 @login_required
-def upload_photo():
+def update_avatar():
+    try:
+        avatar = request.form.get('avatar')
+        if avatar:
+            current_user.profile_photo = f'avatars/{avatar}'
+            db.session.commit()
+            flash('Avatar updated successfully!', 'success')
+        return redirect(url_for('solo'))
+    except Exception as e:
+        app.logger.error(f"Error updating avatar: {str(e)}")
+        flash('Error updating avatar. Please try again.', 'error')
+        return redirect(url_for('solo'))
     """Handle profile photo upload."""
     try:
         if 'photo' not in request.files:
