@@ -786,10 +786,14 @@ textarea.form-control:focus {
 .form-label-cell {
     width: 200px;
     white-space: nowrap;
+    vertical-align: middle !important;
+    padding: 1rem !important;
 }
 
 .form-input-cell {
     width: auto;
+    vertical-align: middle !important;
+    padding: 1rem !important;
 }
 
 .table-form tr:hover {
