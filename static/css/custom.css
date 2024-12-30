@@ -1070,6 +1070,11 @@ input[type="password"].form-control-lg {
     justify-content: center;
     align-items: center;
     text-align: center;
+    flex: 1;
+}
+
+.flex-1 {
+    flex: 1;
 }
 
 .row-cols-md-2 > * {
