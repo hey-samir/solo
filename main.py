@@ -415,9 +415,13 @@ def stats():
             '5.14a': 27, '5.14b': 28, '5.14c': 29, '5.14d': 30,
             '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
         }
-        rank_to_grade = {v: k for k, v in grade_rank.items()}
-        avg_rank = round(sum(grade_rank.get(g, 0) for g in sent_grades) / len(sent_grades))
-        avg_grade = rank_to_grade.get(avg_rank, '--')
+        valid_grades = [g for g in sent_grades if g in grade_rank]
+        if valid_grades:
+            avg_rank = round(sum(grade_rank[g] for g in valid_grades) / len(valid_grades))
+            rank_to_grade = {v: k for k, v in grade_rank.items()}
+            avg_grade = rank_to_grade.get(avg_rank, '--')
+        else:
+            avg_grade = '--'
     else:
         avg_grade = '--'
     
