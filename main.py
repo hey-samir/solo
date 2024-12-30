@@ -405,9 +405,19 @@ def stats():
     # Calculate average grade
     sent_grades = [climb.caliber for climb in climbs if climb.status and climb.caliber]
     if sent_grades:
-        avg_grade_points = sum(grade_to_points(g) for g in sent_grades) / len(sent_grades)
+        grade_points_dict = {
+            '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
+            '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
+            '5.10a': 200, '5.10b': 250, '5.10c': 300, '5.10d': 350,
+            '5.11a': 400, '5.11b': 500, '5.11c': 600, '5.11d': 700,
+            '5.12a': 800, '5.12b': 900, '5.12c': 1000, '5.12d': 1100,
+            '5.13a': 1250, '5.13b': 1400, '5.13c': 1550, '5.13d': 1700,
+            '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
+            '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
+        }
+        avg_grade_points = sum(grade_points_dict.get(g, 0) for g in sent_grades) / len(sent_grades)
         # Find closest grade
-        grade_points_list = sorted([(g, p) for g, p in grade_to_points().items()], key=lambda x: x[1])
+        grade_points_list = sorted([(g, p) for g, p in grade_points_dict.items()], key=lambda x: x[1])
         avg_grade = min(grade_points_list, key=lambda x: abs(x[1] - avg_grade_points))[0]
     else:
         avg_grade = '--'
