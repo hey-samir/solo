@@ -875,8 +875,8 @@ textarea.form-control:focus {
 }
 
 textarea.form-control {
-    min-height: 38px;
-    height: 38px;
+    min-height: 76px;
+    height: 76px;
     resize: vertical;
     overflow: hidden;
     transition: height 0.2s ease;
