@@ -442,10 +442,11 @@ def stats():
     
     total_points = 0
     for climb in climbs:
-        if climb.status and climb.caliber:
-            points = grade_points.get(climb.caliber, 0)
-            if points > 0:
-                total_points += points
+        if climb.caliber:  # Include all climbs with a grade
+            base_points = grade_points.get(climb.caliber, 0)
+            multiplier = 10 if climb.status else 5  # 10 points for sends, 5 for attempts
+            total_points += base_points * (climb.rating / 5)  # Scale by rating
+            total_points += multiplier * climb.rating  # Add status bonus
     
     # Calculate climbs per session
     sessions = {}
