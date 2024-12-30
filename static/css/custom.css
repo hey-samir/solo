@@ -1119,3 +1119,31 @@ input[type="password"].form-control-lg {
     border-radius: 50%;
     object-fit: cover;
 }
+.slider.slider-horizontal {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.slider-handle {
+    background: var(--solo-purple);
+    border: 2px solid var(--solo-purple);
+}
+
+.slider-selection {
+    background: var(--solo-purple);
+}
+
+.slider-track {
+    background: #343a40;
+    border: none;
+}
+
+.slider .tooltip.tooltip-main {
+    background: transparent;
+    color: var(--bs-white);
+    border: none;
+}
+
+.slider .tooltip.tooltip-main.top .tooltip-arrow::before {
+    border-top-color: transparent;
+}
