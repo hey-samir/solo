@@ -36,7 +36,7 @@
 
                     <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
                         <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
-                        <div class="profile-fields">
+                        <div class="profile-fields mb-4">
                             <div class="profile-field" data-editable>
                                 <label class="form-label">Name</label>
                                 <div class="field-content">
@@ -67,26 +67,25 @@
                                     <span class="profile-text">{{ current_user.member_since.strftime('%B %Y') }}</span>
                                 </div>
                             </div>
+                        </div>
 
-
-                            <div class="row g-3">
-                                <div class="col-4">
-                                    <div class="metric-card">
-                                        <div class="metric-value">{{ total_ascents }}</div>
-                                        <div class="metric-label">Total Ascents</div>
-                                    </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <div class="metric-card">
+                                    <div class="metric-value">{{ total_ascents }}</div>
+                                    <div class="metric-label">Total Ascents</div>
                                 </div>
-                                <div class="col-4">
-                                    <div class="metric-card">
-                                        <div class="metric-value">{{ avg_grade }}</div>
-                                        <div class="metric-label">Average Grade</div>
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card">
+                                    <div class="metric-value">{{ avg_grade }}</div>
+                                    <div class="metric-label">Average Grade</div>
                                 </div>
-                                <div class="col-4">
-                                    <div class="metric-card">
-                                        <div class="metric-value">{{ total_points }}</div>
-                                        <div class="metric-label">Total Points</div>
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="metric-card">
+                                    <div class="metric-value">{{ total_points }}</div>
+                                    <div class="metric-label">Total Points</div>
                                 </div>
                             </div>
                         </div>
