@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
             sortTable(table, column, currentDirection);
         });
     });
+});
 
 // Calculate points preview
 function calculatePoints() {
