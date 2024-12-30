@@ -789,6 +789,7 @@ textarea.form-control:focus {
     font-weight: 700;
     font-size: 1.25rem;
     margin-bottom: 0.25rem;
+    color: #b2b2b2;
 }
 
 /* Form container width */
