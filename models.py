@@ -5,17 +5,18 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 class User(UserMixin, db.Model):
+    __tablename__ = 'user'
+    
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(10), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(256))
+    username = db.Column(db.String(10), unique=True, nullable=False, index=True)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(256), nullable=False)
     name = db.Column(db.String(100))
     gym = db.Column(db.String(100))
-    member_since = db.Column(db.DateTime, default=datetime.utcnow)
+    member_since = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     profile_photo = db.Column(db.String(255), default='white-solo.png')
 
-    # Add relationship to climbs
-    climbs = db.relationship('Climb', backref='user', lazy=True)
+    climbs = db.relationship('Climb', backref='user', lazy='dynamic', cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

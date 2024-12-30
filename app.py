@@ -57,12 +57,10 @@ def load_user(id):
     return User.query.get(int(id))
 
 # Error handlers
-@app.errorhandler(404)
-def not_found_error(error):
-    from flask import render_template
-    return render_template('404.html'), 404
-
-@app.errorhandler(500)
-def internal_error(error):
+@app.errorhandler(Exception)
+def handle_error(error):
     db.session.rollback()
-    return "Internal server error", 500
+    if isinstance(error, NotFound):
+        return render_template('404.html'), 404
+    app.logger.error(f'Error: {str(error)}')
+    return render_template('404.html', error="Internal server error"), 500
