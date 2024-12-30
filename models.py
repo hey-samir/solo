@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100))
     gym = db.Column(db.String(100))
     member_since = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    profile_photo = db.Column(db.String(255), default='white-solo.png')
+    profile_photo = db.Column(db.String(255), default='white-solo-av.png')
 
     climbs = db.relationship('Climb', backref='user', lazy='dynamic', cascade='all, delete-orphan')
 
