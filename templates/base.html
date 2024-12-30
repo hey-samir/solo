@@ -48,7 +48,7 @@
     <!-- Bottom Navigation -->
     <nav class="navbar fixed-bottom">
         <div class="container-fluid">
-            <ul class="navbar-nav w-100 d-flex flex-row justify-content-between">
+            <ul class="navbar-nav w-100 d-flex flex-row justify-content-evenly">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('squads') }}">
                         <i class="material-icons">groups</i>
@@ -61,8 +61,8 @@
                         <span>Standings</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('sends') }}">
+                <li class="nav-item position-relative">
+                    <a class="nav-link active bg-solo-purple" href="{{ url_for('sends') }}">
                         <i class="material-icons">arrow_circle_up</i>
                         <span>Sends</span>
                     </a>
