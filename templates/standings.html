@@ -19,7 +19,7 @@
                     <tbody>
                         {% for user in leaderboard %}
                         <tr>
-                            <td>{{ loop.index }}</td>
+                            <td><i class="material-icons">counter_{{ loop.index }}</i></td>
                             <td>{{ user.username }}</td>
                             <td>{{ user.total_sends }}</td>
                             <td>{{ user.avg_grade }}</td>
