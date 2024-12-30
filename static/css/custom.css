@@ -97,7 +97,7 @@
 /* Update spacing to account for fixed navbar */
 body {
     padding-bottom: 60px; /* navbar height */
-    background-color: #141a25;
+    background-color: #1e2638;
 }
 
 .container {
@@ -226,7 +226,7 @@ footer {
 }
 
 .table thead th {
-    background-color: #303d59 !important;
+    background-color: #1e2638 !important;
     color: var(--bs-white) !important;
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
@@ -965,7 +965,7 @@ input[type="password"].form-control-lg {
 }
 
 .table thead th {
-    background-color: #303d59 !important;
+    background-color: #1e2638 !important;
     color: var(--bs-white) !important;
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
@@ -1061,7 +1061,7 @@ input[type="password"].form-control-lg {
 }
 /* Metric cards grid layout */
 .metric-card {
-    background: #303d59;
+    background: #1e2638;
     border-radius: 8px;
     padding: 1.5rem;
     height: 100%;
