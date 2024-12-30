@@ -18,32 +18,10 @@
                                         {% for color, hex in [
                                             ('White', '#FFFFFF'),
                                             ('Pink', '#FF69B4'),
-                                            ('Bright Blue', '#00B0FF')
-                                        ] %}
-                                        <div class="color-option">
-                                            <input type="radio" name="color" value="{{ color }}" 
-                                                   class="color-radio d-none" id="color_{{ color }}" required>
-                                            <label class="color-btn" for="color_{{ color }}" 
-                                                   style="background-color: {{ hex }}"></label>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="color-grid">
-                                        {% for color, hex in [
+                                            ('Bright Blue', '#00B0FF'),
                                             ('Black', '#000000'),
                                             ('Orange', '#FFA500'),
-                                            ('Purple', '#800080')
-                                        ] %}
-                                        <div class="color-option">
-                                            <input type="radio" name="color" value="{{ color }}" 
-                                                   class="color-radio d-none" id="color_{{ color }}" required>
-                                            <label class="color-btn" for="color_{{ color }}" 
-                                                   style="background-color: {{ hex }}"></label>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    <div class="color-grid">
-                                        {% for color, hex in [
+                                            ('Purple', '#800080'),
                                             ('Green', '#008000'),
                                             ('Red', '#FF0000'),
                                             ('Yellow', '#FFFF00')
@@ -63,23 +41,15 @@
                                 <td class="form-input-cell">
                                     <div class="input-group input-group-lg">
                                         <span class="input-group-text">5.</span>
-                                        <select class="form-select" name="caliber_grade" required>
+                                        <select class="form-select" name="grade" required>
                                             <option value="" selected disabled>Grade</option>
                                             {% for i in range(1, 16) %}
                                             <option value="{{ i }}">{{ i }}</option>
                                             {% endfor %}
                                         </select>
-                                        <select class="form-select" name="caliber_letter">
-                                            <option value="">-</option>
-                                            <option value="a">a</option>
-                                            <option value="b">b</option>
-                                            <option value="c">c</option>
-                                            <option value="d">d</option>
-                                        </select>
                                     </div>
                                 </td>
                             </tr>
-    <tbody>
         <tr>
             <td class="form-label-cell"><label class="form-label">Color</label></td>
             <td class="form-input-cell">
@@ -144,9 +114,13 @@
     </tbody>
 </table>
 
-                    <div class="mb-4">
-                        <p class="text-center h5">Points Earned: <span id="pointsPreview">0</span></p>
-                    </div>
+                    <table class="table table-form">
+                        <tr>
+                            <td colspan="2">
+                                <p class="text-center h5 mb-0">Points Earned: <span id="pointsPreview">0</span></p>
+                            </td>
+                        </tr>
+                    </table>
 
                     <button type="submit" class="btn btn-primary btn-lg w-100">Send</button>
                 </form>

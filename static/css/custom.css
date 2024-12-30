@@ -799,6 +799,27 @@ textarea.form-control:focus {
     color: #b2b2b2;
 }
 
+.form-label.required-field::after {
+    color: #b2b2b2;
+}
+
+.form-label-cell {
+    width: 150px;
+    white-space: nowrap;
+}
+
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.color-btn {
+    padding-bottom: 100%;
+    position: relative;
+}
+
 .table-form {
     background: transparent !important;
 }
