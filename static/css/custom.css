@@ -785,7 +785,10 @@ textarea.form-control:focus {
 
 /* Add more space for attempts slider */
 .table-form td .d-flex {
-    margin-top: 0.75rem;
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+    padding-left: 2rem;
 }
 
 .form-label-cell {
