@@ -48,8 +48,8 @@
 
     <!-- Bottom Navigation -->
     <nav class="navbar fixed-bottom">
-        <div class="container-fluid p-0">
-            <ul class="navbar-nav w-100 d-flex flex-row justify-content-between px-4">
+        <div class="container-fluid">
+            <ul class="navbar-nav w-100 d-flex flex-row justify-content-evenly">
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('squads') }}">
                         <i class="material-icons">groups</i>
@@ -57,7 +57,7 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('standings') }}">
-                        <i class="material-icons">social_leaderboard</i>
+                        <span class="material-symbols-outlined">social_leaderboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
