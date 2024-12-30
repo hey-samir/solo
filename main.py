@@ -434,13 +434,12 @@ def stats():
 
     # Calculate highest grade (most difficult)
     highest_grade = '--'
-    max_points = 0
+    max_grade_value = 0
     for climb in climbs:
-        if climb.caliber:
-            points = grade_points.get(climb.caliber, 0) * (climb.rating / 5)
-            points += (10 if climb.status else 5) * climb.rating
-            if points > max_points:
-                max_points = points
+        if climb.caliber and climb.status:  # Only consider sent climbs
+            grade_value = grade_points.get(climb.caliber, 0)
+            if grade_value > max_grade_value:
+                max_grade_value = grade_value
                 highest_grade = climb.caliber
 
     # Calculate average grade using simple ranking
@@ -476,9 +475,10 @@ def stats():
         if climb.caliber:  # Include all climbs with a grade
             base_points = grade_points.get(climb.caliber, 0)
             points = base_points * (climb.rating / 5)  # Scale by rating
-            if not climb.status:  # If not sent, halve the points
-                points = points / 2
+            if climb.status:  # Add bonus for sends
+                points *= 2
             total_points += points
+    total_points = int(total_points)  # Convert to integer
     
     # Calculate climbs per session
     sessions = {}
