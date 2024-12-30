@@ -474,9 +474,9 @@ def stats():
     for climb in climbs:
         if climb.caliber:  # Include all climbs with a grade
             base_points = grade_points.get(climb.caliber, 0)
-            points = base_points * (climb.rating / 5)  # Scale by rating
-            if climb.status:  # Add bonus for sends
-                points *= 2
+            points = base_points
+            if not climb.status:  # Halve points for unsuccessful attempts
+                points = points / 2
             total_points += points
     total_points = int(total_points)  # Convert to integer
     
