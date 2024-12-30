@@ -12,7 +12,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100))
     gym = db.Column(db.String(100))
     member_since = db.Column(db.DateTime, default=datetime.utcnow)
-    profile_photo = db.Column(db.String(255), default='images/white-solo.png')
+    profile_photo = db.Column(db.String(255), default='white-solo.png')
 
     # Add relationship to climbs
     climbs = db.relationship('Climb', backref='user', lazy=True)

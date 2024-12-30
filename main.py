@@ -298,7 +298,7 @@ def update_avatar():
     try:
         avatar = request.form.get('avatar')
         if avatar:
-            current_user.profile_photo = f'images/{avatar}'
+            current_user.profile_photo = avatar
             db.session.commit()
             flash('Avatar updated successfully!', 'success')
         return redirect(url_for('solo'))
