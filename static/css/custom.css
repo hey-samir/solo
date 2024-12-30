@@ -1120,8 +1120,8 @@ input[type="password"].form-control-lg {
     object-fit: cover;
 }
 .slider.slider-horizontal {
-    width: 100%;
-    margin: 10px 0;
+    width: 100% !important;
+    margin: 8px 0;
 }
 
 .slider-handle {
@@ -1138,12 +1138,6 @@ input[type="password"].form-control-lg {
     border: none;
 }
 
-.slider .tooltip.tooltip-main {
-    background: transparent;
-    color: var(--bs-white);
-    border: none;
-}
-
-.slider .tooltip.tooltip-main.top .tooltip-arrow::before {
-    border-top-color: transparent;
+.slider .tooltip {
+    display: none;
 }
