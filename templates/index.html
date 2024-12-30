@@ -62,7 +62,13 @@
         <tr>
             <td class="form-label-cell"><label class="form-label">Attempts</label></td>
             <td class="form-input-cell">
-                <input type="number" class="form-control form-control-lg" name="attempts" min="1" value="1" required>
+                <input type="text" class="form-control form-control-lg" name="attempts" 
+                    data-slider-id='attemptsSlider'
+                    data-slider-min="1"
+                    data-slider-max="10"
+                    data-slider-step="1"
+                    data-slider-value="1"/>
+                <div id="attempts-slider-value" class="mt-2 text-center"></div>
             </td>
         </tr>
         <tr>

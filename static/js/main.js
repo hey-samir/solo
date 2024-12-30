@@ -116,6 +116,14 @@ function updateTotalPoints() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize attempts slider
+    var attemptsSlider = new Slider('input[name="attempts"]', {
+        tooltip: 'always'
+    });
+    attemptsSlider.on('slide', function(value) {
+        document.getElementById('attempts-slider-value').textContent = value + ' attempts';
+    });
+    document.getElementById('attempts-slider-value').textContent = '1 attempt';
     // Initialize total points
     updateTotalPoints();
 
@@ -179,6 +187,14 @@ function calculatePoints() {
 
 // Add event listeners for point calculation
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize attempts slider
+    var attemptsSlider = new Slider('input[name="attempts"]', {
+        tooltip: 'always'
+    });
+    attemptsSlider.on('slide', function(value) {
+        document.getElementById('attempts-slider-value').textContent = value + ' attempts';
+    });
+    document.getElementById('attempts-slider-value').textContent = '1 attempt';
     ['caliber_grade', 'caliber_letter'].forEach(name => {
         document.querySelector(`select[name="${name}"]`)?.addEventListener('change', calculatePoints);
     });
@@ -195,6 +211,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Auto-expand textarea
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize attempts slider
+    var attemptsSlider = new Slider('input[name="attempts"]', {
+        tooltip: 'always'
+    });
+    attemptsSlider.on('slide', function(value) {
+        document.getElementById('attempts-slider-value').textContent = value + ' attempts';
+    });
+    document.getElementById('attempts-slider-value').textContent = '1 attempt';
     const textarea = document.querySelector('textarea[name="notes"]');
     if (textarea) {
         function adjustHeight() {
