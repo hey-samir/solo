@@ -402,23 +402,22 @@ def stats():
     if grades:
         highest_grade = max(grades, key=lambda x: x[1])[0]
     
-    # Calculate average grade
+    # Calculate average grade using simple ranking
     sent_grades = [climb.caliber for climb in climbs if climb.status and climb.caliber]
     if sent_grades:
-        grade_points_dict = {
-            '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
-            '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
-            '5.10a': 200, '5.10b': 250, '5.10c': 300, '5.10d': 350,
-            '5.11a': 400, '5.11b': 500, '5.11c': 600, '5.11d': 700,
-            '5.12a': 800, '5.12b': 900, '5.12c': 1000, '5.12d': 1100,
-            '5.13a': 1250, '5.13b': 1400, '5.13c': 1550, '5.13d': 1700,
-            '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
-            '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
+        grade_rank = {
+            '5.0': 1, '5.1': 2, '5.2': 3, '5.3': 4, '5.4': 5,
+            '5.5': 6, '5.6': 7, '5.7': 8, '5.8': 9, '5.9': 10,
+            '5.10a': 11, '5.10b': 12, '5.10c': 13, '5.10d': 14,
+            '5.11a': 15, '5.11b': 16, '5.11c': 17, '5.11d': 18,
+            '5.12a': 19, '5.12b': 20, '5.12c': 21, '5.12d': 22,
+            '5.13a': 23, '5.13b': 24, '5.13c': 25, '5.13d': 26,
+            '5.14a': 27, '5.14b': 28, '5.14c': 29, '5.14d': 30,
+            '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
         }
-        avg_grade_points = sum(grade_points_dict.get(g, 0) for g in sent_grades) / len(sent_grades)
-        # Find closest grade
-        grade_points_list = sorted([(g, p) for g, p in grade_points_dict.items()], key=lambda x: x[1])
-        avg_grade = min(grade_points_list, key=lambda x: abs(x[1] - avg_grade_points))[0]
+        rank_to_grade = {v: k for k, v in grade_rank.items()}
+        avg_rank = round(sum(grade_rank.get(g, 0) for g in sent_grades) / len(sent_grades))
+        avg_grade = rank_to_grade.get(avg_rank, '--')
     else:
         avg_grade = '--'
     
