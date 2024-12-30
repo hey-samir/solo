@@ -252,7 +252,7 @@ def sessions():
 def solo():
     """User profile page."""
     form = ProfileForm(obj=current_user)  # Pre-fill form with current user data
-    return render_template('self.html', form=form)
+    return render_template('solo-profile.html', form=form)
 
 @app.route('/update_profile', methods=['POST'])
 @login_required
