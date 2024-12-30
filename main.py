@@ -439,7 +439,13 @@ def stats():
         '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
         '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
     }
-    total_points = sum(grade_points.get(climb.caliber, 0) for climb in climbs if climb.status and climb.caliber)
+    
+    total_points = 0
+    for climb in climbs:
+        if climb.status and climb.caliber:
+            points = grade_points.get(climb.caliber, 0)
+            if points > 0:
+                total_points += points
     
     # Calculate climbs per session
     sessions = {}
