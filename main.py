@@ -403,12 +403,11 @@ def stats():
         highest_grade = max(grades, key=lambda x: x[1])[0]
     
     # Calculate average grade
-    sent_grades = [g[0] for g in grades]
-    avg_grade_points = sum(grade_to_points(g) for g in sent_grades) / len(sent_grades) if sent_grades else 0
-    
-    # Find closest grade for average
-    if avg_grade_points > 0:
-        grade_points_list = sorted([(g, p) for g, p in grade_to_points.items()], key=lambda x: x[1])
+    sent_grades = [climb.caliber for climb in climbs if climb.status and climb.caliber]
+    if sent_grades:
+        avg_grade_points = sum(grade_to_points(g) for g in sent_grades) / len(sent_grades)
+        # Find closest grade
+        grade_points_list = sorted([(g, p) for g, p in grade_to_points().items()], key=lambda x: x[1])
         avg_grade = min(grade_points_list, key=lambda x: abs(x[1] - avg_grade_points))[0]
     else:
         avg_grade = '--'
@@ -417,7 +416,7 @@ def stats():
     success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
     
     # Calculate total points using new system
-    total_points = sum(grade_to_points(climb.caliber) for climb in climbs if climb.status)
+    total_points = sum(grade_to_points(climb.caliber) for climb in climbs if climb.status and climb.caliber)
     
     # Calculate climbs per session
     sessions = {}
