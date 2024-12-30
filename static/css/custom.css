@@ -1128,12 +1128,12 @@ input[type="password"].form-control-lg {
     object-fit: cover;
 }
 .slider.slider-horizontal {
-    width: 230px !important;
+    width: 90% !important;
     margin: 12px 0;
 }
 
 .d-flex.align-items-center.gap-3 {
-    width: 250px;
+    width: 200px;
 }
 
 .slider-handle {
