@@ -322,7 +322,7 @@ footer {
 
 .table th:nth-child(1),
 .table td:nth-child(1) {
-    width: 15%;
+    width: 10%;
 }
 
 .table th:nth-child(2),
