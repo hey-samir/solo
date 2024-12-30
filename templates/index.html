@@ -62,12 +62,15 @@
         <tr>
             <td class="form-label-cell"><label class="form-label">Attempts</label></td>
             <td class="form-input-cell">
-                <input type="text" class="form-control form-control-lg" name="attempts" 
-                    data-slider-id='attemptsSlider'
-                    data-slider-min="1"
-                    data-slider-max="10"
-                    data-slider-step="1"
-                    data-slider-value="1"/>
+                <div class="d-flex align-items-center gap-3">
+                    <input type="text" class="form-control form-control-lg" name="attempts" 
+                        data-slider-id='attemptsSlider'
+                        data-slider-min="1"
+                        data-slider-max="10"
+                        data-slider-step="1"
+                        data-slider-value="1"/>
+                    <span id="attemptsCounter" class="text-white">1</span>
+                </div>
             </td>
         </tr>
         <tr>

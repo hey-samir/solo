@@ -117,16 +117,18 @@ function updateTotalPoints() {
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize attempts slider
-    var attemptsSlider = new Slider('input[name="attempts"]', {
-        tooltip: 'always',
-        tooltip_position: 'top',
-        max: 10,
-        ticks: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        ticks_labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-        formatter: function(value) {
-            return value;
-        }
-    });
+    var attemptsInput = document.querySelector('input[name="attempts"]');
+    if (attemptsInput) {
+        var attemptsSlider = new Slider(attemptsInput, {
+            tooltip: false,
+            max: 10
+        });
+        
+        var counter = document.getElementById('attemptsCounter');
+        attemptsSlider.on('slide', function(value) {
+            counter.textContent = value;
+        });
+    }
     // Initialize total points
     updateTotalPoints();
 
@@ -191,16 +193,18 @@ function calculatePoints() {
 // Add event listeners for point calculation
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize attempts slider
-    var attemptsSlider = new Slider('input[name="attempts"]', {
-        tooltip: 'always',
-        tooltip_position: 'top',
-        max: 10,
-        ticks: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        ticks_labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-        formatter: function(value) {
-            return value;
-        }
-    });
+    var attemptsInput = document.querySelector('input[name="attempts"]');
+    if (attemptsInput) {
+        var attemptsSlider = new Slider(attemptsInput, {
+            tooltip: false,
+            max: 10
+        });
+        
+        var counter = document.getElementById('attemptsCounter');
+        attemptsSlider.on('slide', function(value) {
+            counter.textContent = value;
+        });
+    }
     ['caliber_grade', 'caliber_letter'].forEach(name => {
         document.querySelector(`select[name="${name}"]`)?.addEventListener('change', calculatePoints);
     });
@@ -218,16 +222,18 @@ document.addEventListener('DOMContentLoaded', function() {
 // Auto-expand textarea
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize attempts slider
-    var attemptsSlider = new Slider('input[name="attempts"]', {
-        tooltip: 'always',
-        tooltip_position: 'top',
-        max: 10,
-        ticks: [1, 2, 3, 4, 5, 6, 7, 8, 9],
-        ticks_labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9'],
-        formatter: function(value) {
-            return value;
-        }
-    });
+    var attemptsInput = document.querySelector('input[name="attempts"]');
+    if (attemptsInput) {
+        var attemptsSlider = new Slider(attemptsInput, {
+            tooltip: false,
+            max: 10
+        });
+        
+        var counter = document.getElementById('attemptsCounter');
+        attemptsSlider.on('slide', function(value) {
+            counter.textContent = value;
+        });
+    }
     const textarea = document.querySelector('textarea[name="notes"]');
     if (textarea) {
         function adjustHeight() {

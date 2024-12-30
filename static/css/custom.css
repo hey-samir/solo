@@ -1138,20 +1138,13 @@ input[type="password"].form-control-lg {
     border: none;
 }
 
-.slider .tooltip {
-    background: transparent;
-    color: var(--bs-white);
-    opacity: 1;
+.slider {
+    width: 100% !important;
 }
 
-.slider .tooltip-arrow {
-    display: none;
-}
-
-.slider-tick-label {
-    display: none;
-}
-
+.slider .tooltip,
+.slider .tooltip-arrow,
+.slider-tick-label,
 .slider-tick {
     display: none;
 }
