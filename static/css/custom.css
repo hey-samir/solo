@@ -220,7 +220,7 @@ footer {
 }
 
 .table thead th {
-    background-color: var(--bs-dark);
+    background-color: #303d59;
     color: var(--bs-white);
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
@@ -949,7 +949,7 @@ input[type="password"].form-control-lg {
 }
 
 .table thead th {
-    background-color: var(--bs-dark);
+    background-color: #303d59;
     color: var(--bs-white);
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
@@ -1045,7 +1045,7 @@ input[type="password"].form-control-lg {
 }
 /* Metric cards grid layout */
 .metric-card {
-    background: var(--bs-dark);
+    background: #303d59;
     border-radius: 8px;
     padding: 1.5rem;
     height: 100%;
