@@ -133,7 +133,7 @@ def add_climb():
             caliber=caliber,
             rating=rating,
             status=status,
-            attempts=attempts,
+            tries=attempts,
             notes=request.form.get('notes'),
             user_id=current_user.id
         )
