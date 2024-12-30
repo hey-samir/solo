@@ -1,6 +1,10 @@
 
 // Calculate points preview
 function calculatePoints() {
+    // Only calculate points if we're on the sends page
+    const pointsPreview = document.getElementById('pointsPreview');
+    if (!pointsPreview) return;
+
     const gradePoints = {
         '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
         '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
