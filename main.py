@@ -402,7 +402,7 @@ def standings():
 def stats():
     """Stats page showing user metrics and trends"""
     # Get user's climbs
-    climbs = current_user.climbs
+    climbs = list(current_user.climbs)
     
     # Points system
     grade_points = {
