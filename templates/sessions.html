@@ -6,9 +6,9 @@
 
     {% for date, climbs in climbs_by_date.items() %}
     <div class="session-group mb-4">
-        <h3 class="session-date mb-3">{{ date.strftime('%B %d, %Y') }}</h3>
+        <h3 class="session-date mb-3">{{ date.strftime('%m/%d/%y') }}</h3>
         <div class="table-responsive">
-            <table class="table table-hover" data-session-date="{{ date.strftime('%Y-%m-%d') }}">
+            <table class="table table-hover" data-session-date="{{ date.strftime('%m/%d/%y') }}">
                 <thead style="background-color: #303d59;">
                     <tr>
                         <th class="sortable" data-sort="color">
