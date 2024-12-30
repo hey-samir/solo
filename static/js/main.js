@@ -155,13 +155,13 @@ function calculatePoints() {
     const gradeElement = document.querySelector('select[name="caliber_grade"]');
     const letterElement = document.querySelector('select[name="caliber_letter"]');
     const statusElement = document.getElementById('statusToggle');
-    const ratingElement = document.querySelector('.rating');
+    const ratingElements = document.querySelectorAll('input[name="rating"]');
     
-    if (!gradeElement || !letterElement || !statusElement || !ratingElement) return;
+    if (!gradeElement || !letterElement || !statusElement) return;
     
     const grade = gradeElement.value;
     const letter = letterElement.value;
-    const rating = parseInt(ratingElement.getAttribute('data-coreui-value') || 3);
+    const rating = Array.from(ratingElements).find(el => el.checked)?.value || 3;
     const status = statusElement.checked;
     
     const fullGrade = grade ? `5.${grade}${letter}` : null;
