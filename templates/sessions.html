@@ -2,7 +2,12 @@
 
 {% block content %}
 <div class="container sessions-container">
-    
+    {% if not climbs_by_date %}
+        <div class="text-center my-5">
+            <h4 class="mb-4">Enter your first climb to see Sessions</h4>
+            <a href="{{ url_for('sends') }}" class="btn btn-primary">Back to Sends</a>
+        </div>
+    {% endif %}
 
     {% for date, climbs in climbs_by_date.items() %}
     <div class="session-group mb-4">
