@@ -152,10 +152,17 @@ function calculatePoints() {
         '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
     };
 
-    const grade = document.querySelector('select[name="caliber_grade"]').value;
-    const letter = document.querySelector('select[name="caliber_letter"]').value;
-    const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value || 1);
-    const status = document.getElementById('statusToggle').checked;
+    const gradeElement = document.querySelector('select[name="caliber_grade"]');
+    const letterElement = document.querySelector('select[name="caliber_letter"]');
+    const statusElement = document.getElementById('statusToggle');
+    const ratingElement = document.querySelector('.rating');
+    
+    if (!gradeElement || !letterElement || !statusElement || !ratingElement) return;
+    
+    const grade = gradeElement.value;
+    const letter = letterElement.value;
+    const rating = parseInt(ratingElement.getAttribute('data-coreui-value') || 3);
+    const status = statusElement.checked;
     
     const fullGrade = grade ? `5.${grade}${letter}` : null;
     let points = 0;
