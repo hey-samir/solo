@@ -993,12 +993,12 @@ input[type="password"].form-control-lg {
     }
 }
 
-.container {
-    padding-right: var(--bs-gutter-x, 0.25rem);
-    padding-left: var(--bs-gutter-x, 0.25rem);
-    max-width: 100%;
-    width: 98%;
-    margin: 0 auto;
+.container, div.container {
+    padding-right: var(--bs-gutter-x, 0.25rem) !important;
+    padding-left: var(--bs-gutter-x, 0.25rem) !important;
+    max-width: 100% !important;
+    width: 95% !important;
+    margin: 0 auto !important;
 }
 
 /* Standings styling */
