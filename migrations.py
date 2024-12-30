@@ -2,12 +2,8 @@
 from app import app, db
 
 def migrate():
-    print("Recreating database tables...")
+    print("Running migrations...")
     with app.app_context():
-        # Drop everything
-        db.drop_all()
-        
-        # Create fresh tables
+        # Only create tables that don't exist
         db.create_all()
-        
         print("Database migration completed successfully")
