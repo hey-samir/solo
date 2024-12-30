@@ -36,6 +36,8 @@
 .navbar-nav {
     align-items: center;
     height: 100%;
+    gap: 0;
+    padding: 0 8px;
 }
 
 .navbar-nav .nav-link {
