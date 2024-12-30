@@ -152,4 +152,3 @@ document.addEventListener('DOMContentLoaded', function() {
         adjustHeight();
     }
 });
-// This function definition is removed since we already have a more complete sortTable function above
