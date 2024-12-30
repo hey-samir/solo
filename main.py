@@ -7,6 +7,7 @@ from models import Climb, User
 from flask_wtf.csrf import CSRFProtect
 from forms import LoginForm, RegistrationForm, ProfileForm
 from migrations import migrate
+migrate()
 import shutil
 from datetime import datetime, timedelta
 from sqlalchemy import func
