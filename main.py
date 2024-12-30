@@ -181,15 +181,35 @@ def api_stats():
             'attempts': [len(attempts), len(attempts), len(attempts)]
         },
         'metricsOverTime': {
-            'labels': ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-            'metrics': [
-                {
-                    'name': 'Success Rate',
-                    'data': [75, 80, 85, 90],
-                    'color': '#410f70'
-                }
-            ]
+            'labels': [],
+            'metrics': [{
+                'name': 'Success Rate',
+                'data': [],
+                'color': '#410f70'
+            }]
         },
+        
+        # Calculate success rate by date
+        date_stats = {}
+        for climb in current_user.climbs:
+            date = climb.created_at.date()
+            if date not in date_stats:
+                date_stats[date] = {'sends': 0, 'attempts': 0}
+            if climb.status:
+                date_stats[date]['sends'] += 1
+            date_stats[date]['attempts'] += 1
+        
+        # Convert to success rates
+        sorted_dates = sorted(date_stats.keys())
+        success_rates = []
+        for date in sorted_dates:
+            stats = date_stats[date]
+            rate = stats['sends'] / stats['attempts']
+            success_rates.append(rate)
+        
+        # Update metrics data
+        response['metricsOverTime']['labels'] = [d.strftime('%Y-%m-%d') for d in sorted_dates]
+        response['metricsOverTime']['metrics'][0]['data'] = success_rates,
         'climbsPerSession': {
             'labels': [d.strftime('%Y-%m-%d') for d in session_dates],
             'data': [sessions[d] for d in session_dates]
