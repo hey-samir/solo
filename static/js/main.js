@@ -154,7 +154,7 @@ function calculatePoints() {
 
     const grade = document.querySelector('select[name="caliber_grade"]').value;
     const letter = document.querySelector('select[name="caliber_letter"]').value;
-    const rating = parseInt(document.querySelector('.rating-input:checked')?.value || 1);
+    const rating = parseInt(document.querySelector('input[name="rating"]:checked')?.value || 1);
     const status = document.getElementById('statusToggle').checked;
     
     const fullGrade = grade ? `5.${grade}${letter}` : null;
