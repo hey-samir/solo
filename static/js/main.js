@@ -115,6 +115,7 @@ function updateTotalPoints() {
     }
 }
 
+// Initialize all components when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize attempts slider
     var attemptsInput = document.querySelector('input[name="attempts"]');
@@ -129,10 +130,11 @@ document.addEventListener('DOMContentLoaded', function() {
             counter.textContent = value;
         });
     }
+
     // Initialize total points
     updateTotalPoints();
 
-    // Table sorting
+    // Initialize table sorting
     document.querySelectorAll('.sortable').forEach(header => {
         header.addEventListener('click', function() {
             const table = this.closest('table');
@@ -150,61 +152,8 @@ document.addEventListener('DOMContentLoaded', function() {
             sortTable(table, column, currentDirection);
         });
     });
-});
 
-// Calculate points preview
-function calculatePoints() {
-    const gradePoints = {
-        '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
-        '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
-        '5.10a': 200, '5.10b': 250, '5.10c': 300, '5.10d': 350,
-        '5.11a': 400, '5.11b': 500, '5.11c': 600, '5.11d': 700,
-        '5.12a': 800, '5.12b': 900, '5.12c': 1000, '5.12d': 1100,
-        '5.13a': 1250, '5.13b': 1400, '5.13c': 1550, '5.13d': 1700,
-        '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
-        '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
-    };
-
-    const gradeElement = document.querySelector('select[name="caliber_grade"]');
-    const letterElement = document.querySelector('select[name="caliber_letter"]');
-    const statusElement = document.getElementById('statusToggle');
-    const ratingElements = document.querySelectorAll('input[name="rating"]');
-    
-    if (!gradeElement || !letterElement || !statusElement) return;
-    
-    const grade = gradeElement.value;
-    const letter = letterElement.value;
-    const rating = Array.from(ratingElements).find(el => el.checked)?.value || 3;
-    const status = statusElement.checked;
-    
-    const fullGrade = grade ? `5.${grade}${letter}` : null;
-    let points = 0;
-    
-    if (fullGrade && gradePoints[fullGrade]) {
-        points = gradePoints[fullGrade] * (rating / 5);
-        if (!status) {
-            points = points / 2;
-        }
-    }
-    
-    document.getElementById('pointsPreview').textContent = Math.round(points);
-}
-
-// Add event listeners for point calculation
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize attempts slider
-    var attemptsInput = document.querySelector('input[name="attempts"]');
-    if (attemptsInput) {
-        var attemptsSlider = new Slider(attemptsInput, {
-            tooltip: false,
-            max: 10
-        });
-        
-        var counter = document.getElementById('attemptsCounter');
-        attemptsSlider.on('slide', function(value) {
-            counter.textContent = value;
-        });
-    }
+    // Initialize point calculation listeners
     ['caliber_grade', 'caliber_letter'].forEach(name => {
         document.querySelector(`select[name="${name}"]`)?.addEventListener('change', calculatePoints);
     });
@@ -217,23 +166,8 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initial calculation
     calculatePoints();
-});
 
-// Auto-expand textarea
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize attempts slider
-    var attemptsInput = document.querySelector('input[name="attempts"]');
-    if (attemptsInput) {
-        var attemptsSlider = new Slider(attemptsInput, {
-            tooltip: false,
-            max: 10
-        });
-        
-        var counter = document.getElementById('attemptsCounter');
-        attemptsSlider.on('slide', function(value) {
-            counter.textContent = value;
-        });
-    }
+    // Initialize textarea auto-expand
     const textarea = document.querySelector('textarea[name="notes"]');
     if (textarea) {
         function adjustHeight() {
