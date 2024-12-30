@@ -32,8 +32,8 @@ def allowed_file(filename):
 @app.route('/')
 @login_required
 def index():
-    """Redirect root to /sends"""
-    return redirect(url_for('sends'))
+    """Redirect root to /solo"""
+    return redirect(url_for('solo'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
