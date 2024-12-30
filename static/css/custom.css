@@ -994,9 +994,11 @@ input[type="password"].form-control-lg {
 }
 
 .container {
-    padding-right: var(--bs-gutter-x, 0.5rem);
-    padding-left: var(--bs-gutter-x, 0.5rem);
+    padding-right: var(--bs-gutter-x, 0.25rem);
+    padding-left: var(--bs-gutter-x, 0.25rem);
     max-width: 100%;
+    width: 98%;
+    margin: 0 auto;
 }
 
 /* Standings styling */
