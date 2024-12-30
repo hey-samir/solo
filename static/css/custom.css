@@ -1010,8 +1010,8 @@ input[type="password"].form-control-lg {
 }
 
 .container, div.container {
-    padding-right: 0 !important;
-    padding-left: 0 !important;
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
     max-width: 98% !important;
     width: 98% !important;
     margin: 0 auto !important;
