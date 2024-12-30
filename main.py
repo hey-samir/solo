@@ -176,10 +176,10 @@ def api_stats():
     for climb in current_user.climbs:
         date = climb.created_at.date()
         if date not in date_stats:
-            date_stats[date] = {'sends': 0, 'attempts': 0}
+            date_stats[date] = {'sends': 0, 'tries': 0}
         if climb.status:
             date_stats[date]['sends'] += 1
-        date_stats[date]['attempts'] += 1
+        date_stats[date]['tries'] += climb.tries
     
     # Convert to success rates
     sorted_dates = sorted(date_stats.keys())
@@ -468,8 +468,9 @@ def stats():
     # Calculate success rate
     success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
     
-    # Calculate total points (same as sessions calculation)
+    # Calculate total points and tries
     total_points = sum((climb.rating * (10 if climb.status else 5)) for climb in climbs)
+    total_tries = sum(climb.tries for climb in climbs)
     
     # Calculate climbs per session
     sessions = {}
