@@ -64,16 +64,16 @@ function sortTable(table, column, direction) {
 
 // Initialize all components when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize attempts slider
-    const attemptsInput = document.querySelector('input[name="attempts"]');
-    if (attemptsInput) {
-        const attemptsSlider = new Slider(attemptsInput, {
+    // Initialize tries slider
+    const triesInput = document.querySelector('input[name="tries"]');
+    if (triesInput) {
+        const triesSlider = new Slider(triesInput, {
             tooltip: false,
             max: 10
         });
         
-        const counter = document.getElementById('attemptsCounter');
-        attemptsSlider.on('slide', function(value) {
+        const counter = document.getElementById('triesCounter');
+        triesSlider.on('slide', function(value) {
             counter.textContent = value;
         });
     }

@@ -23,6 +23,10 @@
                             Status <i class="bi bi-arrow-down-up"></i>
                             <span class="sort-indicator"></span>
                         </th>
+                        <th class="sortable" data-sort="tries">
+                            # Tries <i class="bi bi-arrow-down-up"></i>
+                            <span class="sort-indicator"></span>
+                        </th>
                         <th class="sortable" data-sort="points">
                             Points <i class="bi bi-arrow-down-up"></i>
                             <span class="sort-indicator"></span>
@@ -48,6 +52,7 @@
                         </td>
                         <td>{{ climb.caliber }}</td>
                         <td>{{ 'Sent' if climb.status else 'Tried' }}</td>
+                        <td>{{ climb.tries }}</td>
                         <td class="climb-points">{{ (climb.rating * (10 if climb.status else 5)) }}</td>
                     </tr>
                     {% endfor %}
