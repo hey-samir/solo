@@ -1125,8 +1125,8 @@ input[type="password"].form-control-lg {
     object-fit: cover;
 }
 .slider.slider-horizontal {
-    width: 100% !important;
-    margin: 8px 0;
+    width: 85% !important;
+    margin: 20px 0 8px 0;
 }
 
 .slider-handle {
