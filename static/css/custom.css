@@ -994,10 +994,10 @@ input[type="password"].form-control-lg {
 }
 
 .container, div.container {
-    padding-right: var(--bs-gutter-x, 0.25rem) !important;
-    padding-left: var(--bs-gutter-x, 0.25rem) !important;
-    max-width: 100% !important;
-    width: 95% !important;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+    max-width: 98% !important;
+    width: 98% !important;
     margin: 0 auto !important;
 }
 
