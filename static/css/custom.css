@@ -783,6 +783,11 @@ textarea.form-control:focus {
     vertical-align: middle !important;
 }
 
+/* Add more space for attempts slider */
+.table-form td .d-flex {
+    margin-top: 0.75rem;
+}
+
 .form-label-cell {
     width: 200px;
     white-space: nowrap;
