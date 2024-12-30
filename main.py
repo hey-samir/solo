@@ -469,16 +469,8 @@ def stats():
     # Calculate success rate
     success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
     
-    # Calculate total points
-    total_points = 0
-    for climb in climbs:
-        if climb.caliber:  # Include all climbs with a grade
-            base_points = grade_points.get(climb.caliber, 0)
-            points = base_points
-            if not climb.status:  # Halve points for unsuccessful attempts
-                points = points / 2
-            total_points += points
-    total_points = int(total_points)  # Convert to integer
+    # Calculate total points (same as sessions calculation)
+    total_points = sum((climb.rating * (10 if climb.status else 5)) for climb in climbs)
     
     # Calculate climbs per session
     sessions = {}
