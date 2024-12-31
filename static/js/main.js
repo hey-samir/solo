@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
             max: 10
         });
         
-        const counter = document.getElementById('triesCounter');
+        const counter = document.getElementById('attemptsCounter');
         triesSlider.on('slide', function(value) {
             counter.textContent = value;
         });
