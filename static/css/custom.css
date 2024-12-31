@@ -226,12 +226,34 @@ footer {
 }
 
 .table thead th {
-    background-color: #1e2638 !important;
+    background-color: #303d59 !important;
     color: var(--bs-white) !important;
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
     padding: 1rem;
     transition: background-color 0.2s;
+}
+
+/* Standings table specific column widths */
+.standings-container .table th:nth-child(1),
+.standings-container .table td:nth-child(1) {
+    width: 10%;
+}
+.standings-container .table th:nth-child(2),
+.standings-container .table td:nth-child(2) {
+    width: 25%;
+}
+.standings-container .table th:nth-child(3),
+.standings-container .table td:nth-child(3) {
+    width: 15%;
+}
+.standings-container .table th:nth-child(4),
+.standings-container .table td:nth-child(4) {
+    width: 30%;
+}
+.standings-container .table th:nth-child(5),
+.standings-container .table td:nth-child(5) {
+    width: 20%;
 }
 
 .table thead th:hover {
@@ -978,12 +1000,34 @@ input[type="password"].form-control-lg {
 }
 
 .table thead th {
-    background-color: #1e2638 !important;
+    background-color: #303d59 !important;
     color: var(--bs-white) !important;
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
     padding: 1rem;
     transition: background-color 0.2s;
+}
+
+/* Standings table specific column widths */
+.standings-container .table th:nth-child(1),
+.standings-container .table td:nth-child(1) {
+    width: 10%;
+}
+.standings-container .table th:nth-child(2),
+.standings-container .table td:nth-child(2) {
+    width: 25%;
+}
+.standings-container .table th:nth-child(3),
+.standings-container .table td:nth-child(3) {
+    width: 15%;
+}
+.standings-container .table th:nth-child(4),
+.standings-container .table td:nth-child(4) {
+    width: 30%;
+}
+.standings-container .table th:nth-child(5),
+.standings-container .table td:nth-child(5) {
+    width: 20%;
 }
 
 .table thead th:hover {
@@ -1113,6 +1157,10 @@ input[type="password"].form-control-lg {
     align-items: center;
     text-align: center;
     flex: 1;
+}
+
+/* Solo specific KPI cards */
+.solo-container .metric-card {
     min-width: 100px;
     max-width: 120px;
 }
