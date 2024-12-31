@@ -101,14 +101,14 @@ function updateAscentsByDifficultyChart(data) {
 
 function updateSendsByDateChart(data) {
     const ctx = document.getElementById('sendsCanvas');
-    if (!ctx) return;
+    if (!ctx || !data || !data.sends || !data.attempts) return;
 
     let chart = Chart.getChart(ctx);
     if (chart) {
         chart.destroy();
     }
 
-    const totalData = data.sends.map((send, i) => send + data.attempts[i]);
+    const totalData = data.sends.data.map((send, i) => send + data.attempts.data[i]);
     const maxValue = Math.max(...totalData);
     const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
 
