@@ -568,8 +568,8 @@ def stats():
     avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
     
     # Calculate new metrics
-    avg_points_per_climb = round(total_points / len(climbs), 1) if climbs else 0
-    success_rate_per_session = round((total_sends / len(sessions) if sessions else 0) * 100, 1)
+    avg_points_per_climb = round(total_points / len(climbs)) if climbs else 0
+    success_rate_per_session = round((total_sends / len(sessions) if sessions else 0) * 100)
 
     return render_template('stats.html',
                          total_ascents=len(climbs),
