@@ -265,6 +265,11 @@ footer {
     color: var(--bs-white);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0;
+    width: auto;
 }
 
 .table tbody tr:last-child td {
@@ -1039,6 +1044,11 @@ input[type="password"].form-control-lg {
     color: var(--bs-white);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 0;
+    width: auto;
 }
 
 .table tbody tr:last-child td {
@@ -1054,6 +1064,12 @@ input[type="password"].form-control-lg {
     border-radius: 8px;
     background: transparent;
     box-shadow: none;
+    overflow-x: auto;
+}
+
+.table {
+    table-layout: auto;
+    width: 100%;
 }
 
 /* Standardize container widths */
