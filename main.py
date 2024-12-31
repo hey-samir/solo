@@ -209,12 +209,8 @@ def api_stats():
         },
         'sendsByDate': {
             'labels': ['Last 7 Days', 'Last 30 Days', 'All Time'],
-            'sends': {
-                'data': [len(sends), len(sends), len(sends)]
-            },
-            'attempts': {
-                'data': [len(attempts), len(attempts), len(attempts)]
-            }
+            'sends': [len(sends), len(sends), len(sends)],
+            'attempts': [len(attempts), len(attempts), len(attempts)]
         },
         'metricsOverTime': {
             'labels': [d.strftime('%Y-%m-%d') for d in sorted_dates],

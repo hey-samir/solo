@@ -108,7 +108,7 @@ function updateSendsByDateChart(data) {
         chart.destroy();
     }
 
-    const totalData = data.sends.data.map((send, i) => send + data.attempts.data[i]);
+    const totalData = data.sends.map((send, i) => send + data.attempts[i]);
     const maxValue = Math.max(...totalData);
     const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
 
