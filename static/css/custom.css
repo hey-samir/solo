@@ -237,29 +237,35 @@ footer {
 
 /* Standings table specific column widths */
 .standings-container {
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
 }
 
 .standings-container .table th:nth-child(1),
 .standings-container .table td:nth-child(1) {
-    width: 30px;
+    width: 25px;
+    padding-right: 0.25rem !important;
 }
 .standings-container .table th:nth-child(2),
 .standings-container .table td:nth-child(2) {
     width: auto;
+    min-width: 100px;
+    padding-left: 0.25rem !important;
 }
 .standings-container .table th:nth-child(3),
 .standings-container .table td:nth-child(3) {
-    width: 50px;
+    width: 45px;
+    padding: 0.5rem 0.25rem !important;
 }
 .standings-container .table th:nth-child(4),
 .standings-container .table td:nth-child(4) {
-    width: 50px;
+    width: 45px;
+    padding: 0.5rem 0.25rem !important;
 }
 .standings-container .table th:nth-child(5),
 .standings-container .table td:nth-child(5) {
-    width: 35px;
+    width: 30px;
+    padding: 0.5rem 0.25rem !important;
 }
 
 .table thead th:hover {
@@ -1021,29 +1027,35 @@ input[type="password"].form-control-lg {
 
 /* Standings table specific column widths */
 .standings-container {
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
 }
 
 .standings-container .table th:nth-child(1),
 .standings-container .table td:nth-child(1) {
-    width: 30px;
+    width: 25px;
+    padding-right: 0.25rem !important;
 }
 .standings-container .table th:nth-child(2),
 .standings-container .table td:nth-child(2) {
     width: auto;
+    min-width: 100px;
+    padding-left: 0.25rem !important;
 }
 .standings-container .table th:nth-child(3),
 .standings-container .table td:nth-child(3) {
-    width: 50px;
+    width: 45px;
+    padding: 0.5rem 0.25rem !important;
 }
 .standings-container .table th:nth-child(4),
 .standings-container .table td:nth-child(4) {
-    width: 50px;
+    width: 45px;
+    padding: 0.5rem 0.25rem !important;
 }
 .standings-container .table th:nth-child(5),
 .standings-container .table td:nth-child(5) {
-    width: 35px;
+    width: 30px;
+    padding: 0.5rem 0.25rem !important;
 }
 
 .table thead th:hover {
