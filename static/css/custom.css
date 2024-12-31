@@ -1038,7 +1038,7 @@ input[type="password"].form-control-lg {
     }
 }
 
-.container, div.container, .sessions-container {
+.container, div.container, .sessions-container, .standings-container, .stats-container {
     padding-right: 1.5rem !important;
     padding-left: 1.5rem !important;
     max-width: 95% !important;
@@ -1047,7 +1047,7 @@ input[type="password"].form-control-lg {
 }
 
 @media (min-width: 768px) {
-    .container, div.container, .sessions-container {
+    .container, div.container, .sessions-container, .standings-container, .stats-container {
         max-width: 90% !important;
         width: 90% !important;
     }
