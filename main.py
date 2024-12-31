@@ -567,15 +567,20 @@ def stats():
     # Calculate average attempts per climb
     avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
     
+    # Calculate new metrics
+    avg_points_per_climb = round(total_points / len(climbs), 1) if climbs else 0
+    success_rate_per_session = round((total_sends / len(sessions) if sessions else 0) * 100, 1)
+
     return render_template('stats.html',
                          total_ascents=len(climbs),
                          total_sends=total_sends,
                          avg_grade=avg_grade,
                          avg_sent_grade=avg_sent_grade,
-                         avg_attempted_grade=avg_attempted_grade,
                          success_rate=success_rate,
                          total_points=total_points,
+                         avg_points_per_climb=avg_points_per_climb,
                          climbs_per_session=climbs_per_session,
+                         success_rate_per_session=success_rate_per_session,
                          avg_attempts_per_climb=avg_attempts_per_climb)
 
 @app.route('/squads')

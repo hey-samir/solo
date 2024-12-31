@@ -337,7 +337,7 @@ footer {
     font-size: 1.75rem;
     font-weight: 700;
     color: var(--bs-white);
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.15rem;
 }
 
 .metric-label {
