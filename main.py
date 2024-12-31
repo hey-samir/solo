@@ -440,7 +440,9 @@ def standings():
 def stats():
     """Stats page showing user metrics and trends"""
     # Get user's climbs
-    climbs = list(current_user.climbs)
+    climbs = list(current_user.climbs.all())
+    sends = [c for c in climbs if c.status]
+    attempts = [c for c in climbs if not c.status]
     
     # Points system
     grade_points = {
