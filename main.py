@@ -564,15 +564,19 @@ def stats():
     recent_attempts = len([c for c in attempts if c.created_at >= recent_date])
     very_recent_attempts = len([c for c in attempts if c.created_at >= very_recent_date])
 
+    # Calculate average attempts per climb
+    avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
+    
     return render_template('stats.html',
+                         total_ascents=len(climbs),
                          total_sends=total_sends,
-                         highest_grade=highest_grade,
                          avg_grade=avg_grade,
+                         avg_sent_grade=avg_sent_grade,
+                         avg_attempted_grade=avg_attempted_grade,
                          success_rate=success_rate,
                          total_points=total_points,
                          climbs_per_session=climbs_per_session,
-                         avg_sent_grade=avg_sent_grade,
-                         avg_attempted_grade=avg_attempted_grade)
+                         avg_attempts_per_climb=avg_attempts_per_climb)
 
 @app.route('/squads')
 @login_required
