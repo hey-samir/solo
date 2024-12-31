@@ -199,7 +199,7 @@ def api_stats():
     success_rates = []
     for date in sorted_dates:
         stats = date_stats[date]
-        rate = (stats['sends'] / stats['attempts']) * 100 if stats['attempts'] > 0 else 0
+        rate = (stats['sends'] / stats['tries']) * 100 if stats['tries'] > 0 else 0
         success_rates.append(rate)
     
     return jsonify({
