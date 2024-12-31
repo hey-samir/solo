@@ -1,11 +1,13 @@
 // Calculate points preview
 function calculatePoints() {
-    // Check if we're on the sends page
-    const sendsForm = document.getElementById('sendsForm');
-    if (!sendsForm) return;
-    
+    // Check if we're on the sends page and have all required elements
     const pointsPreview = document.getElementById('pointsPreview');
-    if (!pointsPreview) return;
+    const gradeElement = document.querySelector('select[name="caliber_grade"]');
+    const letterElement = document.querySelector('select[name="caliber_letter"]');
+    const statusElement = document.getElementById('statusToggle');
+    const ratingElements = document.querySelectorAll('input[name="rating"]');
+    
+    if (!pointsPreview || !gradeElement || !letterElement || !statusElement) return;
 
     const gradePoints = {
         '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
