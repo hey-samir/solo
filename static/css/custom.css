@@ -1014,17 +1014,17 @@ input[type="password"].form-control-lg {
 
 /* Standardize container widths */
 .container, div.container, .sessions-container, .standings-container, .stats-container {
-    padding-right: 1.5rem !important;
-    padding-left: 1.5rem !important;
-    max-width: 95% !important;
-    width: 95% !important;
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+    max-width: 100% !important;
+    width: 100% !important;
     margin: 0 auto !important;
 }
 
 @media (min-width: 1200px) {
     .container, div.container, .sessions-container, .standings-container, .stats-container {
-        max-width: 1400px !important;
-        width: 1400px !important;
+        max-width: 1200px !important;
+        width: 1200px !important;
     }
 }
 
@@ -1039,17 +1039,17 @@ input[type="password"].form-control-lg {
 }
 
 .container, div.container, .sessions-container, .standings-container, .stats-container {
-    padding-right: 1.5rem !important;
-    padding-left: 1.5rem !important;
-    max-width: 95% !important;
-    width: 95% !important;
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+    max-width: 100% !important;
+    width: 100% !important;
     margin: 0 auto !important;
 }
 
 @media (min-width: 1200px) {
     .container, div.container, .sessions-container, .standings-container, .stats-container {
-        max-width: 1400px !important;
-        width: 1400px !important;
+        max-width: 1200px !important;
+        width: 1200px !important;
     }
 }
 
@@ -1113,8 +1113,8 @@ input[type="password"].form-control-lg {
     align-items: center;
     text-align: center;
     flex: 1;
-    min-width: 140px;
-    max-width: 160px;
+    min-width: 100px;
+    max-width: 120px;
 }
 
 .flex-1 {
