@@ -1016,16 +1016,9 @@ input[type="password"].form-control-lg {
 .container, div.container, .sessions-container, .standings-container, .stats-container {
     padding-right: 1.5rem !important;
     padding-left: 1.5rem !important;
-    max-width: 95% !important;
-    width: 95% !important;
+    max-width: 1200px !important;
+    width: 100% !important;
     margin: 0 auto !important;
-}
-
-@media (min-width: 768px) {
-    .container, div.container, .sessions-container, .standings-container, .stats-container {
-        max-width: 90% !important;
-        width: 90% !important;
-    }
 }
 
 @media (max-width: 768px) {
@@ -1041,16 +1034,9 @@ input[type="password"].form-control-lg {
 .container, div.container, .sessions-container, .standings-container, .stats-container {
     padding-right: 1.5rem !important;
     padding-left: 1.5rem !important;
-    max-width: 95% !important;
-    width: 95% !important;
+    max-width: 1200px !important;
+    width: 100% !important;
     margin: 0 auto !important;
-}
-
-@media (min-width: 768px) {
-    .container, div.container, .sessions-container, .standings-container, .stats-container {
-        max-width: 90% !important;
-        width: 90% !important;
-    }
 }
 
 .table-responsive {

@@ -467,6 +467,7 @@ def stats():
 
     # Calculate average grade using simple ranking
     sent_grades = [climb.caliber for climb in climbs if climb.status and climb.caliber]
+    # Define grade ranking system
     grade_rank = {
         '5.0': 1, '5.1': 2, '5.2': 3, '5.3': 4, '5.4': 5,
         '5.5': 6, '5.6': 7, '5.7': 8, '5.8': 9, '5.9': 10,
