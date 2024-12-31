@@ -1,3 +1,4 @@
+
 // Calculate points preview
 function calculatePoints() {
     // Check if we're on the sends page and have all required elements
@@ -5,7 +6,6 @@ function calculatePoints() {
     const gradeElement = document.querySelector('select[name="caliber_grade"]');
     const letterElement = document.querySelector('select[name="caliber_letter"]');
     const statusElement = document.getElementById('statusToggle');
-    const ratingElements = document.querySelectorAll('input[name="rating"]');
     
     if (!pointsPreview || !gradeElement || !letterElement || !statusElement) return;
 
@@ -19,17 +19,9 @@ function calculatePoints() {
         '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
         '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
     };
-
-    const gradeElement = document.querySelector('select[name="caliber_grade"]');
-    const letterElement = document.querySelector('select[name="caliber_letter"]');
-    const statusElement = document.getElementById('statusToggle');
-    const ratingElements = document.querySelectorAll('input[name="rating"]');
-    
-    if (!gradeElement || !letterElement || !statusElement) return;
     
     const grade = gradeElement.value;
     const letter = letterElement.value;
-    const rating = Array.from(ratingElements).find(el => el.checked)?.value || 3;
     const status = statusElement.checked;
     
     const fullGrade = grade ? `5.${grade}${letter}` : null;
@@ -42,7 +34,7 @@ function calculatePoints() {
         }
     }
     
-    document.getElementById('pointsPreview').textContent = Math.round(points);
+    pointsPreview.textContent = Math.round(points);
 }
 
 function updateTotalPoints() {
@@ -76,18 +68,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const triesInput = document.querySelector('input[name="tries"]');
     if (triesInput) {
         const triesSlider = new Slider(triesInput, {
-            tooltip: false,
+            tooltip: 'hide',
+            min: 1,
             max: 10
         });
         
         const counter = document.getElementById('triesCounter');
-        triesSlider.on('slide', function(value) {
-            counter.textContent = value;
-        });
+        if (counter) {
+            triesSlider.on('slide', function(value) {
+                counter.textContent = value;
+            });
+        }
     }
-
-    // Initialize total points
-    updateTotalPoints();
 
     // Initialize point calculation listeners
     ['caliber_grade', 'caliber_letter'].forEach(name => {
@@ -102,11 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (statusToggle) {
         statusToggle.addEventListener('change', calculatePoints);
     }
-
-    // Initialize rating listeners
-    document.querySelectorAll('input[name="rating"]').forEach(input => {
-        input.addEventListener('change', calculatePoints);
-    });
 
     // Initialize table sorting
     document.querySelectorAll('.sortable').forEach(header => {
