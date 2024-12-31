@@ -992,13 +992,43 @@ input[type="password"].form-control-lg {
 }
 
 .sessions-container {
-    padding: 0.5rem;
-    max-width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
 }
 
 .session-group {
     margin-bottom: 2rem;
     padding: 0 0.5rem;
+}
+
+.sessions-container .table {
+    width: 100%;
+    table-layout: fixed;
+}
+
+.sessions-container .table th:nth-child(1),
+.sessions-container .table td:nth-child(1) {
+    width: 15%;
+}
+
+.sessions-container .table th:nth-child(2),
+.sessions-container .table td:nth-child(2) {
+    width: 25%;
+}
+
+.sessions-container .table th:nth-child(3),
+.sessions-container .table td:nth-child(3) {
+    width: 25%;
+}
+
+.sessions-container .table th:nth-child(4),
+.sessions-container .table td:nth-child(4) {
+    width: 15%;
+}
+
+.sessions-container .table th:nth-child(5),
+.sessions-container .table td:nth-child(5) {
+    width: 20%;
 }
 
 .color-dot {
