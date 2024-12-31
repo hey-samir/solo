@@ -9,6 +9,19 @@ from forms import LoginForm, RegistrationForm, ProfileForm
 from migrations import migrate
 migrate()
 import shutil
+
+# Define grade ranking system
+grade_rank = {
+    '5.0': 1, '5.1': 2, '5.2': 3, '5.3': 4, '5.4': 5,
+    '5.5': 6, '5.6': 7, '5.7': 8, '5.8': 9, '5.9': 10,
+    '5.10a': 11, '5.10b': 12, '5.10c': 13, '5.10d': 14,
+    '5.11a': 15, '5.11b': 16, '5.11c': 17, '5.11d': 18,
+    '5.12a': 19, '5.12b': 20, '5.12c': 21, '5.12d': 22,
+    '5.13a': 23, '5.13b': 24, '5.13c': 25, '5.13d': 26,
+    '5.14a': 27, '5.14b': 28, '5.14c': 29, '5.14d': 30,
+    '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
+}
+rank_to_grade = {v: k for k, v in grade_rank.items()}
 from datetime import datetime, timedelta
 from sqlalchemy import func
 from flask import jsonify
