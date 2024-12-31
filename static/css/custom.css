@@ -248,8 +248,8 @@ footer {
 
 .standings-container .table th:nth-child(1),
 .standings-container .table td:nth-child(1) {
-    width: 8%;
-    padding-right: 0.25rem !important;
+    width: 10%;
+    padding-right: 0.5rem !important;
 }
 .standings-container .table th:nth-child(2),
 .standings-container .table td:nth-child(2) {
@@ -1042,8 +1042,8 @@ input[type="password"].form-control-lg {
 
 .standings-container .table th:nth-child(1),
 .standings-container .table td:nth-child(1) {
-    width: 8%;
-    padding-right: 0.25rem !important;
+    width: 10%;
+    padding-right: 0.5rem !important;
 }
 .standings-container .table th:nth-child(2),
 .standings-container .table td:nth-child(2) {
