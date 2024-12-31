@@ -230,8 +230,9 @@ footer {
     color: var(--bs-white) !important;
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
-    padding: 1rem;
+    padding: 0.5rem 0.75rem;
     transition: background-color 0.2s;
+    font-size: 0.9rem;
 }
 
 /* Standings table specific column widths */
@@ -261,7 +262,7 @@ footer {
 }
 
 .table tbody td {
-    padding: 1rem;
+    padding: 0.5rem 0.75rem;
     color: var(--bs-white);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     vertical-align: middle;
@@ -270,6 +271,7 @@ footer {
     text-overflow: ellipsis;
     max-width: 0;
     width: auto;
+    font-size: 0.9rem;
 }
 
 .table tbody tr:last-child td {
@@ -1009,8 +1011,9 @@ input[type="password"].form-control-lg {
     color: var(--bs-white) !important;
     font-weight: 600;
     border-bottom: 2px solid var(--solo-purple);
-    padding: 1rem;
+    padding: 0.5rem 0.75rem;
     transition: background-color 0.2s;
+    font-size: 0.9rem;
 }
 
 /* Standings table specific column widths */
@@ -1040,7 +1043,7 @@ input[type="password"].form-control-lg {
 }
 
 .table tbody td {
-    padding: 1rem;
+    padding: 0.5rem 0.75rem;
     color: var(--bs-white);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     vertical-align: middle;
@@ -1049,6 +1052,7 @@ input[type="password"].form-control-lg {
     text-overflow: ellipsis;
     max-width: 0;
     width: auto;
+    font-size: 0.9rem;
 }
 
 .table tbody tr:last-child td {
