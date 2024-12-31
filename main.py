@@ -552,7 +552,38 @@ def stats():
     avg_sent_grade = calculate_avg_grade(sent_grades)
     avg_attempted_grade = calculate_avg_grade(attempted_grades)
 
-    return render_template('stats.html',
+    # Prepare data for front-end charts
+    recent_date = datetime.now() - timedelta(days=30)
+    very_recent_date = datetime.now() - timedelta(days=7)
+
+    # Count recent sends and attempts
+    recent_sends = len([c for c in sends if c.created_at >= recent_date])
+    very_recent_sends = len([c for c in sends if c.created_at >= very_recent_date])
+    recent_attempts = len([c for c in attempts if c.created_at >= recent_date])
+    very_recent_attempts = len([c for c in attempts if c.created_at >= very_recent_date])
+
+    return jsonify({
+        'ascentsByDifficulty': {
+            'labels': list(difficulty_data.keys()),
+            'data': list(difficulty_data.values())
+        },
+        'sendsByDate': {
+            'labels': ['Last 7 Days', 'Last 30 Days', 'All Time'],
+            'sends': [very_recent_sends, recent_sends, len(sends)],
+            'attempts': [very_recent_attempts, recent_attempts, len(attempts)]
+        },
+        'metricsOverTime': {
+            'labels': [d.strftime('%Y-%m-%d') for d in sorted_dates],
+            'metrics': [{
+                'name': 'Success Rate',
+                'data': success_rates
+            }]
+        },
+        'climbsPerSession': {
+            'labels': [d.strftime('%Y-%m-%d') for d in session_dates],
+            'data': [sessions[d] for d in session_dates]
+        }
+    })
                          total_sends=total_sends,
                          highest_grade=highest_grade,
                          avg_grade=avg_grade,
