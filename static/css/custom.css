@@ -1009,12 +1009,25 @@ input[type="password"].form-control-lg {
     }
 }
 
-.container, div.container {
-    padding-right: 1rem !important;
-    padding-left: 1rem !important;
-    max-width: 90% !important;
-    width: 90% !important;
+.container, div.container, .sessions-container {
+    padding-right: 1.5rem !important;
+    padding-left: 1.5rem !important;
+    max-width: 95% !important;
+    width: 95% !important;
     margin: 0 auto !important;
+}
+
+@media (min-width: 768px) {
+    .container, div.container, .sessions-container {
+        max-width: 90% !important;
+        width: 90% !important;
+    }
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Standings styling */
