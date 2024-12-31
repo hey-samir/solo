@@ -237,34 +237,38 @@ footer {
 
 /* Standings table specific column widths */
 .standings-container {
-    max-width: 500px;
+    max-width: 450px;
     margin: 0 auto;
+}
+
+.standings-container .table {
+    width: 100%;
+    table-layout: fixed;
 }
 
 .standings-container .table th:nth-child(1),
 .standings-container .table td:nth-child(1) {
-    width: 20px;
+    width: 8%;
     padding-right: 0.25rem !important;
 }
 .standings-container .table th:nth-child(2),
 .standings-container .table td:nth-child(2) {
-    width: auto;
-    min-width: 100px;
+    width: 52%;
     padding-left: 0.25rem !important;
 }
 .standings-container .table th:nth-child(3),
 .standings-container .table td:nth-child(3) {
-    width: 45px;
+    width: 15%;
     padding: 0.5rem 0.25rem !important;
 }
 .standings-container .table th:nth-child(4),
 .standings-container .table td:nth-child(4) {
-    width: 45px;
+    width: 15%;
     padding: 0.5rem 0.25rem !important;
 }
 .standings-container .table th:nth-child(5),
 .standings-container .table td:nth-child(5) {
-    width: 25px;
+    width: 10%;
     padding: 0.5rem 0.25rem !important;
 }
 
@@ -1027,34 +1031,38 @@ input[type="password"].form-control-lg {
 
 /* Standings table specific column widths */
 .standings-container {
-    max-width: 500px;
+    max-width: 450px;
     margin: 0 auto;
+}
+
+.standings-container .table {
+    width: 100%;
+    table-layout: fixed;
 }
 
 .standings-container .table th:nth-child(1),
 .standings-container .table td:nth-child(1) {
-    width: 20px;
+    width: 8%;
     padding-right: 0.25rem !important;
 }
 .standings-container .table th:nth-child(2),
 .standings-container .table td:nth-child(2) {
-    width: auto;
-    min-width: 100px;
+    width: 52%;
     padding-left: 0.25rem !important;
 }
 .standings-container .table th:nth-child(3),
 .standings-container .table td:nth-child(3) {
-    width: 45px;
+    width: 15%;
     padding: 0.5rem 0.25rem !important;
 }
 .standings-container .table th:nth-child(4),
 .standings-container .table td:nth-child(4) {
-    width: 45px;
+    width: 15%;
     padding: 0.5rem 0.25rem !important;
 }
 .standings-container .table th:nth-child(5),
 .standings-container .table td:nth-child(5) {
-    width: 25px;
+    width: 10%;
     padding: 0.5rem 0.25rem !important;
 }
 
