@@ -9,24 +9,24 @@
                 <table class="table table-hover">
                     <thead style="background-color: #303d59;">
                         <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Username</th>
+                            <th scope="col" style="padding-right: 0.5rem">#</th>
+                            <th scope="col" style="padding-left: 0.5rem">Username</th>
                             <th scope="col">Sends</th>
                             <th scope="col">Grade</th>
-                            <th scope="col">Points</th>
+                            <th scope="col">Pts</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for user in leaderboard %}
                         <tr>
-                            <td>
+                            <td style="padding-right: 0.5rem">
                                 {% if loop.index <= 3 %}
                                     <span class="material-symbols-outlined">counter_{{ loop.index }}</span>
                                 {% else %}
                                     {{ loop.index }}
                                 {% endif %}
                             </td>
-                            <td>{{ user.username }}</td>
+                            <td style="padding-left: 0.5rem">{{ user.username }}</td>
                             <td>{{ user.total_sends }}</td>
                             <td>{{ user.avg_grade }}</td>
                             <td>{{ user.total_points }}</td>
