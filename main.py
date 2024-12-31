@@ -562,28 +562,7 @@ def stats():
     recent_attempts = len([c for c in attempts if c.created_at >= recent_date])
     very_recent_attempts = len([c for c in attempts if c.created_at >= very_recent_date])
 
-    return jsonify({
-        'ascentsByDifficulty': {
-            'labels': list(difficulty_data.keys()),
-            'data': list(difficulty_data.values())
-        },
-        'sendsByDate': {
-            'labels': ['Last 7 Days', 'Last 30 Days', 'All Time'],
-            'sends': [very_recent_sends, recent_sends, len(sends)],
-            'attempts': [very_recent_attempts, recent_attempts, len(attempts)]
-        },
-        'metricsOverTime': {
-            'labels': [d.strftime('%Y-%m-%d') for d in sorted_dates],
-            'metrics': [{
-                'name': 'Success Rate',
-                'data': success_rates
-            }]
-        },
-        'climbsPerSession': {
-            'labels': [d.strftime('%Y-%m-%d') for d in session_dates],
-            'data': [sessions[d] for d in session_dates]
-        }
-    })
+    return render_template('stats.html',
                          total_sends=total_sends,
                          highest_grade=highest_grade,
                          avg_grade=avg_grade,
