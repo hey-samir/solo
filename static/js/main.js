@@ -1,6 +1,9 @@
 // Calculate points preview
 function calculatePoints() {
-    // Only calculate points if we're on the sends page
+    // Check if we're on the sends page
+    const sendsForm = document.getElementById('sendsForm');
+    if (!sendsForm) return;
+    
     const pointsPreview = document.getElementById('pointsPreview');
     if (!pointsPreview) return;
 

@@ -1276,6 +1276,7 @@ input[type="password"].form-control-lg {
 
 .d-flex.align-items-center.gap-3 {
     width: 200px;
+    padding-left: 15px;
 }
 
 .slider-handle {
