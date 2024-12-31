@@ -1,4 +1,3 @@
-
 // Calculate points preview
 function calculatePoints() {
     // Only calculate points if we're on the sends page
