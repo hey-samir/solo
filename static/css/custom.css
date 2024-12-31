@@ -322,16 +322,29 @@ footer {
 
 .table th:nth-child(1),
 .table td:nth-child(1) {
-    width: 10%;
+    width: 30%;
+    padding-right: 0.5rem !important;
 }
 
 .table th:nth-child(2),
 .table td:nth-child(2) {
-    width: 15%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 0;
+    width: 70%;
+    padding-left: 0.5rem !important;
+}
+
+/* Tries slider container */
+.d-flex.align-items-center.gap-3 {
+    width: 100%;
+    max-width: 300px;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+}
+
+/* Notes textarea */
+textarea.form-control {
+    min-height: 76px !important;
+    height: 76px !important;
 }
 
 .table th:nth-child(3),
