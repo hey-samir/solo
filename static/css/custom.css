@@ -1272,7 +1272,7 @@ input[type="password"].form-control-lg {
 }
 
 .metric-label {
-    font-size: 1rem;
+    font-size: 0.85rem;
     color: var(--bs-gray-400);
 }
 .avatar-selection {
