@@ -211,7 +211,7 @@ function updateMetricsOverTimeChart(data) {
         data: {
             labels: data.labels,
             datasets: [{
-                label: 'Success Rate',
+                label: 'Send Rate',
                 data: data.metrics[0].data,
                 borderColor: '#7442d6',
                 backgroundColor: 'rgba(116, 66, 214, 0.2)',
