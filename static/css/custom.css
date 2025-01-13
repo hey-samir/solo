@@ -314,7 +314,7 @@ header {
 }
 
 /* KPI card styling */
-.kpi-card {
+.feature-card.kpi-card {
     background-color: #2b354d !important;
     border-radius: 8px;
     padding: 0.75rem;
