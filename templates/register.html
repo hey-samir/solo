@@ -33,9 +33,9 @@
                                placeholder="8-12 characters, letters, numbers, symbols allowed">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label required-field">Gym</label>
-                        {{ form.gym(class="form-select form-select-lg") }}
-                        <small class="form-text text-muted">
+                        <label class="form-label required-field">Home Gym</label>
+                        {{ form.gym(class="form-select form-select-lg mb-2") }}
+                        <small class="form-text text-white">
                             Don't see your gym? Select "Submit your gym" to request it.
                         </small>
                     </div>
@@ -48,4 +48,35 @@
         </div>
     </div>
 </div>
+
+<!-- Modal for gym submission -->
+<div class="modal fade" id="gymSubmissionModal" tabindex="-1" aria-labelledby="gymSubmissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gymSubmissionModalLabel">Submit Your Gym</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-white">Looks like we haven't added your gym yet. Use our feedback form to submit a new gym.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.history.back()">Go Back</button>
+                <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for('feedback') }}'">Continue to Feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const gymSelect = document.querySelector('select[name="gym"]');
+    gymSelect.addEventListener('change', function() {
+        if (this.value === 'feedback') {
+            var modal = new bootstrap.Modal(document.getElementById('gymSubmissionModal'));
+            modal.show();
+        }
+    });
+});
+</script>
 {% endblock %}

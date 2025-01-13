@@ -14,8 +14,8 @@ class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    gym = SelectField('Gym', validators=[DataRequired()], choices=[
-        ('', 'Select your gym'),
+    gym = SelectField('Home Gym', validators=[DataRequired()], choices=[
+        ('', 'Select your home gym'),
         ('1', 'Movement Gowanus'),
         ('feedback', 'Submit your gym')
     ])
@@ -23,8 +23,8 @@ class RegistrationForm(FlaskForm):
 class ProfileForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     username = StringField('Username', validators=[DataRequired(), Length(min=1, max=9)])
-    gym = SelectField('Gym', validators=[DataRequired()], choices=[
-        ('', 'Select your gym'),
+    gym = SelectField('Home Gym', validators=[DataRequired()], choices=[
+        ('', 'Select your home gym'),
         ('1', 'Movement Gowanus'),
         ('feedback', 'Submit your gym')
     ])

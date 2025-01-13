@@ -119,12 +119,20 @@ def sign_up():
             gym_id=int(gym_choice) if gym_choice.isdigit() else None
         )
         user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
 
-        # Log the user in after registration
-        login_user(user)
-        return redirect(url_for('solo'))
+        try:
+            db.session.add(user)
+            db.session.commit()
+            # Log the user in after registration
+            login_user(user)
+            flash('Welcome to Solo! Your account has been created successfully.', 'success')
+            return redirect(url_for('solo'))
+        except Exception as e:
+            db.session.rollback()
+            app.logger.error(f"Error creating user: {str(e)}")
+            flash('An error occurred during registration. Please try again.', 'error')
+            return render_template('register.html', form=form)
+
     return render_template('register.html', form=form)
 
 @app.route('/logout')
@@ -346,7 +354,6 @@ def solo():
 @app.route('/update_profile', methods=['POST'])
 @login_required
 def update_profile():
-    """Update user profile information."""
     form = ProfileForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -378,10 +385,6 @@ def update_profile():
             db.session.rollback()
             app.logger.error(f"Error updating profile: {str(e)}")
             flash('Error updating profile. Please try again.', 'error')
-    else:
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash(f'{field}: {error}', 'error')
 
     return redirect(url_for('solo'))
 
@@ -684,7 +687,7 @@ def submit_feedback():
         try:
             # Validate required fields
             if not form.title.data or not form.description.data:
-                flash('Title and description are required.', 'error')
+                flash('Title anddescription are required.', 'error')
                 return redirect(url_for('feedback'))
 
             feedback = Feedback(
@@ -700,7 +703,7 @@ def submit_feedback():
                     if not allowed_file(file.filename):
                         flash('Invalid file type. Please use PNG, JPG, or JPEG.', 'error')
                         return redirect(url_for('feedback'))
-                    
+
                     try:
                         filename = secure_filename(f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
                         upload_folder = os.path.join(app.static_folder, 'images', 'feedback')
@@ -716,7 +719,7 @@ def submit_feedback():
 
             db.session.add(feedback)
             db.session.commit()
-            flash('Your feedback has reached the summit! Thanksfor helping us improve.', 'success')
+            flash('Your feedback has reached the summit! Thanks for helping us improve.', 'success')
             return redirect(url_for('feedback'))
         except Exception as e:
             app.logger.error(f"Error submitting feedback: {str(e)}")

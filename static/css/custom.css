@@ -394,7 +394,6 @@ header {
 }
 
 .form-control,
-.form-select,
 textarea.form-control {
     background-color: var(--input-bg) !important;
     border: 2px solid var(--border-color) !important;
@@ -408,12 +407,11 @@ textarea.form-control {
 }
 
 .form-control:hover,
-.form-select:hover {
+textarea.form-control:hover {
     border-color: rgba(116, 66, 214, 0.5) !important;
 }
 
 .form-control:focus,
-.form-select:focus,
 textarea.form-control:focus {
     border-color: var(--solo-purple) !important;
     box-shadow: 0 0 0 3px rgba(116, 66, 214, 0.15) !important;
@@ -462,10 +460,10 @@ textarea.form-control:focus {
 
 /* Helper text */
 .form-text {
-    color: var(--text-muted);
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
-    line-height: 1.4;
+    color: var(--text-color) !important;
+    font-size: 0.875rem !important;
+    margin-top: 0.5rem !important;
+    opacity: 0.8;
 }
 
 /* Slider styling */
@@ -527,7 +525,6 @@ textarea.form-control:focus {
 
 /* Form controls width */
 .form-control,
-.form-select,
 textarea.form-control {
     width: 100% !important;
 }
@@ -2591,4 +2588,56 @@ textarea.form-control {
 
 .rating-star:hover {
     color: var(--solo-purple-light);
+}
+
+/* Update form select styling */
+.form-select,
+.form-select-lg {
+    background-color: var(--input-bg) !important;
+    border: 2px solid var(--border-color) !important;
+    color: var(--input-text) !important;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    min-height: 42px;
+    width: 100%;
+}
+
+.form-select:hover,
+.form-select-lg:hover {
+    border-color: rgba(116, 66, 214, 0.5) !important;
+}
+
+.form-select:focus,
+.form-select-lg:focus {
+    border-color: var(--solo-purple) !important;
+    box-shadow: 0 0 0 3px rgba(116, 66, 214, 0.15) !important;
+    outline: none;
+}
+
+/* Make form text more visible */
+.form-text {
+    color: var(--text-color) !important;
+    font-size: 0.875rem !important;
+    margin-top: 0.5rem !important;
+    opacity: 0.8;
+}
+
+/* Adjust modal styling */
+.modal-content {
+    background-color: var(--bg-color) !important;
+    border: 1px solid var(--border-color);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
 }
