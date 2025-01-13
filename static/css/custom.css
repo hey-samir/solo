@@ -330,8 +330,8 @@ header {
 }
 
 .feature-card .card-body {
-    background-color: #2b354d !important;
     padding: 1rem;
+    background: transparent !important;
 }
 
 .kpi-card .card-title,
@@ -1116,7 +1116,7 @@ body {
 
 .form-control,
 .form-select,
-textarea.form-control {
+textarea.formcontrol {
     background-color: var(--bs-dark) !important;
     border: 2px solid var(--bs-white) !important;
     color: var(--bs-white) !important;
