@@ -1741,11 +1741,27 @@ input[type="password"].form-control-lg {
 .sends-container {
     max-width: 450px !important;
     margin: 1rem auto !important;
-    padding: 0 1rem !important;
+    padding: 0 !important;
 }
 
 .sends-container .card {
     width: 100% !important;
+    margin: 0 auto !important;
+}
+
+.sends-container .input-group {
+    display: inline-flex !important;
+    width: auto !important;
+}
+
+.sends-container .input-group .form-select {
+    width: auto !important;
+    min-width: 60px !important;
+}
+
+.sends-container .btn-primary {
+    width: calc(100% - 2rem) !important;
+    margin: 1rem !important;
 }
 
 .sends-container td {
