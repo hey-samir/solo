@@ -449,6 +449,22 @@ textarea.form-control:focus {
     background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%) !important;
     color: white !important;
     border: none !important;
+    width: 100% !important;
+}
+
+/* Form controls width */
+.form-control,
+.form-select,
+textarea.form-control {
+    width: 100% !important;
+}
+
+/* Feedback submit button */
+.feedback-submit {
+    background-color: var(--solo-purple) !important;
+    color: white !important;
+    border: none !important;
+    width: 100% !important;
 }
 
 /* Stats section spacing */
@@ -512,7 +528,6 @@ textarea.form-control:focus {
     font-weight: 600;
     min-width: 80px;  /* Ensure minimum width for columns */
 }
-
 
 .table,
 .table tbody,
@@ -607,7 +622,6 @@ footer small {
     transform: translateY(-1px);
 }
 
-
 a {
     color: #7343d0 !important;
     text-decoration: none;
@@ -646,7 +660,6 @@ h2 {
         font-size: 0.875rem;
     }
 }
-
 
 .table {
     width: 100%;
@@ -1158,7 +1171,6 @@ textarea.form-control:focus {
     transform: scale(1.1);
 }
 
-
 .required-field::after {
     content: "*";
     color: var(--bs-white);
@@ -1209,7 +1221,6 @@ textarea.form-control:focus {
     background-color: rgba(65, 15, 112, 0.1);
     border-color: var(--bs-white);
 }
-
 
 .form-label.required-field::after {
     color: #b2b2b2;
