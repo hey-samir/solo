@@ -1767,8 +1767,8 @@ input[type="password"].form-control-lg {
 }
 
 .sends-container .btn-primary {
-    width: calc(100% - 2rem) !important;
-    margin: 1rem !important;
+    width: 100% !important;
+    margin: 0 !important;
 }
 
 .sends-container td {
