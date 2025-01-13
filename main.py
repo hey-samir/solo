@@ -1,8 +1,6 @@
 import os
 import shutil
 import logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 from datetime import datetime, timedelta
 from flask import (
     Flask, render_template, request, redirect, url_for, flash,
@@ -19,7 +17,6 @@ from flask_wtf.csrf import CSRFProtect
 from app import app, db, logger
 from models import Gym, Route, Climb, User, Feedback, FeedbackVote, RouteGrade
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
-from migrations import migrate
 from errors import (
     LOGIN_ERROR, REGISTRATION_USERNAME_ERROR, REGISTRATION_USERNAME_TAKEN_ERROR,
     REGISTRATION_EMAIL_TAKEN_ERROR, UPDATE_PROFILE_USERNAME_ERROR,
@@ -27,9 +24,6 @@ from errors import (
     PROFILE_PHOTO_ERROR, AVATAR_UPDATE_ERROR, SEND_UPDATE_SUCCESS,
     SEND_UPDATE_ERROR, INTERNAL_SERVER_ERROR
 )
-
-# Run migrations
-migrate()
 
 # Initialize Flask-Login
 login_manager = LoginManager()
@@ -52,6 +46,21 @@ grade_rank = {
     '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
 }
 rank_to_grade = {v: k for k, v in grade_rank.items()}
+
+# Run migrations, adding RouteGrade table check
+def migrate():
+    try:
+        db.session.execute("SELECT 1 FROM RouteGrade LIMIT 1")
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        if "no such table" in str(e).lower():
+            with app.app_context():
+                db.create_all()
+                logger.info("RouteGrade table created.")
+        else:
+            logger.error(f"Error checking/creating RouteGrade table: {str(e)}")
+
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
@@ -711,10 +720,10 @@ def stats():
 
     # Calculate average attempts per climb
     avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
-    
+
     # Calculate new metrics
     avg_points_per_climb = round(total_points / len(climbs)) if climbs else 0
-    
+
     # Calculate success rate per session by averaging individual session rates
     session_rates = []
     for date in sessions:
