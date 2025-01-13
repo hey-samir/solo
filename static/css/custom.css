@@ -1740,7 +1740,12 @@ input[type="password"].form-control-lg {
 
 .sends-container {
     max-width: 450px !important;
-    margin: 0 auto !important;
+    margin: 1rem auto !important;
+    padding: 0 1rem !important;
+}
+
+.sends-container .card {
+    width: 100% !important;
 }
 
 .sends-container td {
@@ -1751,6 +1756,20 @@ input[type="password"].form-control-lg {
     background-color: #1e2638;
     border-radius: 8px;
     overflow: hidden;
+}
+
+.input-group .form-select {
+    height: 38px !important;
+    flex: 1 1 auto !important;
+}
+
+.input-group-text {
+    height: 38px !important;
+}
+
+.btn-primary {
+    width: 100% !important;
+    margin: 0 auto !important;
 }
 
 .sends-container .table {
