@@ -317,7 +317,7 @@ header {
 .feature-card.kpi-card {
     background-color: #2b354d !important;
     border-radius: 8px;
-    padding: 0.5rem 0.15rem;
+    padding: 0.5rem 0;
     margin-bottom: 0.5rem;
     height: 100%;
 }
@@ -339,7 +339,7 @@ header {
 }
 
 .feature-card .card-body {
-    padding: 0.25rem;
+    padding: 0.25rem 0.1rem;
     background: transparent !important;
 }
 
