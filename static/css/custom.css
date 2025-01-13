@@ -330,9 +330,12 @@ header {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.feature-card .card-body,
+.feature-card .card-body {
+    padding: 0.5rem;
+    background: transparent !important;
+}
+
 .feature-card .card-body * {
-    padding: 1rem;
     background: transparent !important;
 }
 
