@@ -64,7 +64,13 @@
                         <td>{{ 'Sent' if climb.status else 'Tried' }}</td>
                         <td>{{ climb.tries }}</td>
                         <td>{{ climb.rating }}/5</td>
-                        <td class="climb-points">{{ (climb.rating * (10 if climb.status else 5)) }}</td>
+                        <td class="climb-points" 
+                        data-grade="{{ climb.grade }}" 
+                        data-rating="{{ climb.rating }}" 
+                        data-status="{{ climb.status|tojson }}" 
+                        data-tries="{{ climb.tries }}">
+                        <!-- Points calculated via JavaScript -->
+                    </td>
                     </tr>
                     {% endfor %}
                 </tbody>
