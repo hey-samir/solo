@@ -433,7 +433,7 @@ textarea.form-control {
 
 /* Helper text styling */
 .form-text {
-    color: rgba(255, 255, 255, 0.6) !important;  /* Lighter gray */
+    color: rgba(255, 255, 255, 0.9) !important;  /* Whiter text */
     font-size: 0.875rem !important;
     margin-top: 0.5rem !important;
 }
@@ -445,11 +445,12 @@ textarea.form-control {
     height: 42px !important;
     line-height: 1.2;
     background-color: #1e2637 !important;
+    margin-bottom: 0 !important;
 }
 
 /* Remove helper text from gym selector */
 .gym-selector .form-text {
-    display: none;
+    display: none !important;
 }
 
 /* Join button size consistency */
@@ -549,12 +550,13 @@ textarea.form-control {
 /* Button styling consistency */
 .btn-primary,
 .btn-send,
-.btn.nav-link.active,
-.feedback-submit {
-    background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%) !important;
+.btn.nav-link.active {
+    background: var(--solo-purple) !important;
     color: white !important;
     border: none !important;
-    width: 100% !important;
+    height: 42px !important;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1rem !important;
 }
 
 /* Form controls width */
@@ -1127,7 +1129,7 @@ body {
 }
 
 .save-mode-buttons,
-.edit-mode-buttons {    min-height: 48px;
+.edit-buttons {    min-height: 48px;
 }
 
 .save-mode-buttons .row {
@@ -2034,4 +2036,26 @@ textarea.form-control:focus {
 
 .submit-gym-buttons .btn-secondary:hover {
     background: rgba(116, 66, 214, 0.1) !important;
+}
+
+/* Login/Signup button container */
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+}
+
+.auth-buttons .btn {
+    flex: 1;
+    max-width: 200px;
+}
+
+/* Feedback submit button - solid color */
+.feedback-submit {
+    background-color: var(--solo-purple) !important;
+    color: white !important;
+    border: none !important;
+    width: 100% !important;
+    height: 42px !important;
 }

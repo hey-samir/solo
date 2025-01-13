@@ -17,7 +17,7 @@ class RegistrationForm(FlaskForm):
     gym = SelectField('Home Gym', validators=[DataRequired()], choices=[
         ('', 'Select your home gym'),
         ('1', 'Movement Gowanus'),
-        ('feedback', 'Submit your gym')
+        ('feedback', 'Request new gym')
     ])
 
 class ProfileForm(FlaskForm):
@@ -26,7 +26,7 @@ class ProfileForm(FlaskForm):
     gym = SelectField('Home Gym', validators=[DataRequired()], choices=[
         ('', 'Select your home gym'),
         ('1', 'Movement Gowanus'),
-        ('feedback', 'Submit your gym')
+        ('feedback', 'Request new gym')
     ])
 
 class FeedbackForm(FlaskForm):
