@@ -317,9 +317,26 @@ header {
 .feature-card.kpi-card {
     background-color: #2b354d !important;
     border-radius: 8px;
-    padding: 0.5rem 0;
+    padding: 0.5rem 0.25rem;
     margin-bottom: 0.5rem;
     height: 100%;
+}
+
+.feature-card.kpi-card .card-body {
+    padding: 0.25rem;
+}
+
+.feature-card.kpi-card .material-icons {
+    margin-bottom: 0;
+}
+
+.feature-card.kpi-card .card-title {
+    margin: 0;
+}
+
+.feature-card.kpi-card .card-text {
+    margin: 0;
+    line-height: 1.2;
 }
 
 .feature-card.kpi-card .card-body,
