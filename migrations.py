@@ -5,7 +5,7 @@ from datetime import datetime
 def migrate():
     print("Running migrations...")
     with app.app_context():
-        # Only create tables that don't exist
+        # Create all tables
         db.create_all()
 
         # Add Movement Gowanus if it doesn't exist
