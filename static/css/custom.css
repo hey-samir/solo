@@ -322,6 +322,14 @@ header {
     height: 100%;
 }
 
+.feature-card.kpi-card .card-body,
+.feature-card.kpi-card .card-body > *,
+.feature-card.kpi-card i,
+.feature-card.kpi-card .card-title,
+.feature-card.kpi-card .card-text {
+    background-color: transparent !important;
+}
+
 .feature-card {
     background-color: #2b354d !important;
     border: none !important;
