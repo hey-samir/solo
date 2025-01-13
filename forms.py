@@ -18,7 +18,7 @@ class RegistrationForm(FlaskForm):
         ('', 'Select your home gym'),
         ('1', 'Movement Gowanus'),
         ('feedback', 'Submit your gym')
-    ], description="Choose your primary climbing location. Don't see your gym? Use our feedback form to submit it!")
+    ])
 
 class ProfileForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
@@ -27,7 +27,7 @@ class ProfileForm(FlaskForm):
         ('', 'Select your home gym'),
         ('1', 'Movement Gowanus'),
         ('feedback', 'Submit your gym')
-    ], description="Choose your primary climbing location")
+    ])
 
 class FeedbackForm(FlaskForm):
     title = StringField('Title', validators=[

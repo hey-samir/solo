@@ -18,6 +18,13 @@ from app import app, db, logger
 from models import Gym, Route, Climb, User, Feedback, FeedbackVote
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from migrations import migrate
+from errors import (
+    LOGIN_ERROR, REGISTRATION_USERNAME_ERROR, REGISTRATION_USERNAME_TAKEN_ERROR,
+    REGISTRATION_EMAIL_TAKEN_ERROR, UPDATE_PROFILE_USERNAME_ERROR,
+    UPDATE_PROFILE_USERNAME_TAKEN_ERROR, PROFILE_UPDATE_ERROR,
+    PROFILE_PHOTO_ERROR, AVATAR_UPDATE_ERROR, SEND_UPDATE_SUCCESS,
+    SEND_UPDATE_ERROR, INTERNAL_SERVER_ERROR
+)
 
 # Run migrations
 migrate()
@@ -43,14 +50,6 @@ grade_rank = {
     '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
 }
 rank_to_grade = {v: k for k, v in grade_rank.items()}
-
-from errors import (
-    LOGIN_ERROR, REGISTRATION_USERNAME_ERROR, REGISTRATION_USERNAME_TAKEN_ERROR,
-    REGISTRATION_EMAIL_TAKEN_ERROR, UPDATE_PROFILE_USERNAME_ERROR,
-    UPDATE_PROFILE_USERNAME_TAKEN_ERROR, SEND_UPDATE_SUCCESS, SEND_UPDATE_ERROR,
-    PROFILE_UPDATE_ERROR, PROFILE_PHOTO_ERROR, AVATAR_UPDATE_ERROR,
-    INTERNAL_SERVER_ERROR, LOGIN_REQUIRED_MESSAGE
-)
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
@@ -105,15 +104,15 @@ def sign_up():
         gym_choice = form.gym.data
 
         if not username.isalnum():
-            flash('Username must contain only letters and numbers', 'error')
+            flash(REGISTRATION_USERNAME_ERROR, 'error')
             return render_template('register.html', form=form)
 
         if User.query.filter_by(username=username).first():
-            flash('Username is already taken', 'error')
+            flash(REGISTRATION_USERNAME_TAKEN_ERROR, 'error')
             return render_template('register.html', form=form)
 
         if User.query.filter_by(email=email).first():
-            flash('Email is already registered', 'error')
+            flash(REGISTRATION_EMAIL_TAKEN_ERROR, 'error')
             return render_template('register.html', form=form)
 
         # Handle "Submit your gym" selection
@@ -128,26 +127,30 @@ def sign_up():
             return redirect(url_for('feedback'))
 
         try:
-            # Create new user
-            user = User(
-                username=username,
-                email=email,
-                name=name
-            )
-            user.set_password(form.password.data)
+            # Create new user with gym
+            gym_id = int(gym_choice) if gym_choice and gym_choice != 'feedback' else None
 
-            # Verify and assign gym if valid
-            if gym_choice and gym_choice.isdigit():
-                gym = Gym.query.get(int(gym_choice))
-                if gym:
-                    user.gym_id = gym.id
-                    logger.info(f"Assigned gym {gym.id} to user {username}")
-                else:
+            # Verify gym exists if one was selected
+            if gym_id:
+                gym = Gym.query.get(gym_id)
+                if not gym:
                     flash('Selected gym not found. Please choose a valid gym.', 'error')
                     return render_template('register.html', form=form)
 
+            user = User(
+                username=username,
+                email=email,
+                name=name,
+                gym_id=gym_id
+            )
+            user.set_password(form.password.data)
+
             db.session.add(user)
             db.session.commit()
+
+            if gym_id:
+                logger.info(f"Created user {username} with gym {gym_id}")
+
             login_user(user)
             flash('Welcome to Solo! Your account has been created successfully.', 'success')
             return redirect(url_for('sends'))
@@ -382,38 +385,43 @@ def update_profile():
         name = form.name.data
         gym_choice = form.gym.data
 
-        # Validate and update username if changed
-        if username and username != current_user.username:
-            if not username.isalnum():
-                flash('Username must contain only letters and numbers', 'error')
-                return redirect(url_for('solo'))
-            if User.query.filter_by(username=username).first():
-                flash('Username is already taken', 'error')
-                return redirect(url_for('solo'))
-            current_user.username = username
-
-        # Update name if provided
-        if name:
-            current_user.name = name
-
-        # Handle gym selection
-        if gym_choice == 'feedback':
-            return redirect(url_for('feedback'))
-        elif gym_choice and gym_choice.isdigit():
-            gym = Gym.query.get(int(gym_choice))
-            if gym:
-                current_user.gym_id = gym.id
-            else:
-                flash('Selected gym not found. Please choose a valid gym.', 'error')
-                return redirect(url_for('solo'))
-
         try:
+            # Update username if changed and valid
+            if username and username != current_user.username:
+                if not username.isalnum():
+                    flash(UPDATE_PROFILE_USERNAME_ERROR, 'error')
+                    return redirect(url_for('solo'))
+                if User.query.filter_by(username=username).first():
+                    flash(UPDATE_PROFILE_USERNAME_TAKEN_ERROR, 'error')
+                    return redirect(url_for('solo'))
+                current_user.username = username
+
+            # Update name if provided
+            if name:
+                current_user.name = name
+
+            # Handle gym selection
+            if gym_choice == 'feedback':
+                return redirect(url_for('feedback'))
+            elif gym_choice:
+                if gym_choice.isdigit():
+                    gym = Gym.query.get(int(gym_choice))
+                    if gym:
+                        current_user.gym_id = gym.id
+                        logger.info(f"Updated gym to {gym.id} ({gym.name}) for user {current_user.username}")
+                    else:
+                        flash('Selected gym not found. Please choose a valid gym.', 'error')
+                        return redirect(url_for('solo'))
+
             db.session.commit()
             flash('Profile updated successfully!', 'success')
+            return redirect(url_for('solo'))
+
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error updating profile: {str(e)}")
-            flash('Error updating profile. Please try again.', 'error')
+            flash(PROFILE_UPDATE_ERROR, 'error')
+            return redirect(url_for('solo'))
 
     return redirect(url_for('solo'))
 
@@ -429,7 +437,7 @@ def update_avatar():
         return redirect(url_for('solo'))
     except Exception as e:
         logger.error(f"Error updating avatar: {str(e)}")
-        flash('Error updating avatar. Please try again.', 'error')
+        flash(AVATAR_UPDATE_ERROR, 'error')
         return redirect(url_for('solo'))
     
     try:
@@ -481,7 +489,7 @@ def update_avatar():
             flash('Invalid file type. Please upload a PNG or JPEG image.', 'error')
     except Exception as e:
         logger.error(f"Error processing photo: {str(e)}")
-        flash('Error processing photo. Please try again.', 'error')
+        flash(PROFILE_PHOTO_ERROR, 'error')
         db.session.rollback()
 
     return redirect(url_for('solo'))
@@ -685,23 +693,25 @@ def squads():
 
 @app.route('/feedback', methods=['GET'])
 def feedback():
+    """
+    The feedback route is accessible without login to allow new gym submissions
+    """
     try:
         form = FeedbackForm()
         sort = request.args.get('sort', 'new')
 
         # Query feedback items
-        feedback_items = []
         if sort == 'top':
             feedback_items = Feedback.query.join(FeedbackVote, isouter=True)\
                 .group_by(Feedback.id)\
-                .order_by(func.count(FeedbackVote.id).desc()).all()
+                .order_by(func.count(FeedbackVote.id).desc).all()
         else:  # 'new' is default
             feedback_items = Feedback.query.order_by(Feedback.created_at.desc()).all()
 
         # Check if there's a pending registration for gym submission
         pending_registration = session.get('pending_registration')
         if pending_registration:
-            form.title.data = "New GymSubmission"
+            form.title.data = "New Gym Submission"
             form.description.data = f"Please add my gym to Solo!\n\nGym Name: \nLocation: \nAdditional Details: "
             form.category.data = 'new_gym'
 

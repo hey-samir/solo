@@ -392,11 +392,12 @@ header {
 /* Input fields */
 
 /* Form styling */
+/* Input fields */
 .form-control,
 .form-select,
 .form-select-lg,
 textarea.form-control {
-    background-color: var(--input-bg) !important;
+    background-color: #1e2637 !important;  /* Dark gray background */
     border: 2px solid var(--border-color) !important;
     color: var(--text-color) !important;
     padding: 0.75rem 1rem;
@@ -408,36 +409,54 @@ textarea.form-control {
     max-width: 100%;
 }
 
-.form-select option {
-    background-color: var(--input-bg);
-    color: var(--text-color);
-    padding: 0.5rem 1rem;
-}
-
-.form-select,
-.form-select-lg {
-    padding: 0.75rem 1rem !important;
-    font-size: 1rem !important;
-    min-height: 42px;
-    color: var(--text-color) !important;
-    background-color: var(--input-bg) !important;
+/* Username field specific styling */
+.input-group {
+    display: flex;
+    align-items: stretch;
     width: 100%;
 }
 
-.form-control:hover,
-.form-select:hover,
-.form-select-lg:hover,
-textarea.form-control:hover {
-    border-color: rgba(116, 66, 214, 0.5) !important;
+.input-group .form-control {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    border-left: none !important;
 }
 
-.form-control:focus,
-.form-select:focus,
-.form-select-lg:focus,
-textarea.form-control:focus {
-    border-color: var(--solo-purple) !important;
-    box-shadow: 0 0 0 3px rgba(116, 66, 214, 0.15) !important;
-    outline: none;
+.input-group-text {
+    background-color: #1e2637 !important;
+    border: 2px solid var(--border-color) !important;
+    border-right: none !important;
+    color: var(--text-color) !important;
+    padding: 0.75rem 1rem;
+}
+
+
+/* Helper text styling */
+.form-text {
+    color: rgba(255, 255, 255, 0.6) !important;  /* Lighter gray */
+    font-size: 0.875rem !important;
+    margin-top: 0.5rem !important;
+}
+
+/* Home Gym selector styling */
+.form-select {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    height: 42px !important;
+    line-height: 1.2;
+    background-color: #1e2637 !important;
+}
+
+/* Remove helper text from gym selector */
+.gym-selector .form-text {
+    display: none;
+}
+
+/* Join button size consistency */
+.btn-signup {
+    height: 42px !important;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1rem !important;
 }
 
 /* Labels */
@@ -483,14 +502,6 @@ textarea.form-control:focus {
 /* Form select styling */
 
 
-/* Helper text styling */
-.form-text {
-    color: rgba(255, 255, 255, 0.7) !important;
-    font-size: 0.875rem !important;
-    margin-top: 0.5rem !important;
-    line-height: 1.4;
-}
-
 /* Slider styling */
 .slider.slider-horizontal {
     width: 200px !important;
@@ -535,13 +546,11 @@ textarea.form-control:focus {
     background-color: var(--solo-purple) !important;
 }
 
-/* Button styling */
-.btn.nav-link.active.bg-solo-purple {
-    background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%) !important;
-    color: white !important;
-}
-
-.btn-send {
+/* Button styling consistency */
+.btn-primary,
+.btn-send,
+.btn.nav-link.active,
+.feedback-submit {
     background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%) !important;
     color: white !important;
     border: none !important;
@@ -1942,4 +1951,87 @@ textarea.form-control:focus {
 .btn.nav-link.active.bg-solo-purple {
     height: 42px;
     padding: 0 1.5rem;
+}
+
+/* Transparent background for metrics/trends */
+.feature-card,
+.feature-card .card-body,
+.feature-card.kpi-card,
+.metric-card {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+/* Remove helper text from gym selector */
+.gym-selector .form-text {
+    display: none;
+}
+
+/* Input group styling for username fields */
+.input-group {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+}
+
+.input-group .input-group-text {
+    background-color: var(--input-bg) !important;
+    border: 2px solid var(--border-color) !important;
+    border-right: none !important;
+    color: var(--text-color) !important;
+    padding: 0.75rem 1rem;
+}
+
+.input-group .form-control {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    border-left: none !important;
+}
+
+/* Join button size adjustment */
+.btn-signup {
+    height: 42px;
+    padding: 0 1.5rem;
+    font-size: 1rem;
+}
+
+/* Button container for submit gym flow */
+.submit-gym-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.submit-gym-buttons .btn {
+    flex: 1;
+    height: 42px;
+    font-size: 1rem;
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Ensure consistent button styling */
+.btn-primary,
+.btn-send,
+.btn.nav-link.active,
+.feedback-submit,
+.submit-gym-buttons .btn {
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%) !important;
+    color: white !important;
+    border: none !important;
+    width: 100% !important;
+}
+
+/* Secondary button styling */
+.submit-gym-buttons .btn-secondary {
+    background: transparent !important;
+    border: 2px solid var(--solo-purple) !important;
+    color: var(--solo-purple) !important;
+}
+
+.submit-gym-buttons .btn-secondary:hover {
+    background: rgba(116, 66, 214, 0.1) !important;
 }
