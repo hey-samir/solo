@@ -1,8 +1,8 @@
-from app import db
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.sql import func
+from app import db
 
 class Gym(db.Model):
     __tablename__ = 'gym'
@@ -23,7 +23,7 @@ class Route(db.Model):
     __tablename__ = 'route'
 
     id = db.Column(db.Integer, primary_key=True)
-    route_id = db.Column(db.String(50), unique=True, nullable=False)  # Unique identifier for the route
+    route_id = db.Column(db.String(50), nullable=False)  # Unique identifier for the route
     color = db.Column(db.String(50), nullable=False)
     grade = db.Column(db.String(10), nullable=False)
     routesetter = db.Column(db.String(100))
@@ -50,12 +50,12 @@ class User(UserMixin, db.Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(10), unique=True, nullable=False, index=True)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    username = db.Column(db.String(64), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     name = db.Column(db.String(100))
-    gym_id = db.Column(db.Integer, db.ForeignKey('gym.id'))  # Changed from string to FK
-    member_since = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    gym_id = db.Column(db.Integer, db.ForeignKey('gym.id'))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     profile_photo = db.Column(db.String(255), default='white-solo-av.png')
 
     # Relationships
@@ -73,9 +73,11 @@ class User(UserMixin, db.Model):
         return f'<User {self.username}>'
 
 class Climb(db.Model):
+    __tablename__ = 'climb'
+
     id = db.Column(db.Integer, primary_key=True)
-    route_id = db.Column(db.Integer, db.ForeignKey('route.id'), nullable=False)  # Reference to specific route
-    rating = db.Column(db.Integer, nullable=False)  # User's 1-5 star rating of the climb
+    route_id = db.Column(db.Integer, db.ForeignKey('route.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Boolean, nullable=False, default=False)
     tries = db.Column(db.Integer, nullable=False, default=1)
     notes = db.Column(db.Text)
@@ -90,7 +92,7 @@ class Feedback(db.Model):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     screenshot_url = db.Column(db.String(255))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     votes = db.relationship('FeedbackVote', backref='feedback', lazy='dynamic', cascade='all, delete-orphan')
 

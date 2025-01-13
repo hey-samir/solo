@@ -18,8 +18,11 @@ class RegistrationForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(RegistrationForm, self).__init__(*args, **kwargs)
-        # Dynamic gym choices from database
-        gym_choices = [(str(gym.id), gym.name) for gym in Gym.query.order_by(Gym.name).all()]
+        # Get only Movement Gowanus gym for now
+        movement_gowanus = Gym.query.filter_by(name='Movement Gowanus').first()
+        gym_choices = []
+        if movement_gowanus:
+            gym_choices.append((str(movement_gowanus.id), movement_gowanus.name))
         gym_choices.insert(0, ('', 'Select your home gym'))
         gym_choices.append(('feedback', 'Submit your gym'))
         self.gym.choices = gym_choices
@@ -32,8 +35,11 @@ class ProfileForm(FlaskForm):
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
-        # Dynamic gym choices from database
-        gym_choices = [(str(gym.id), gym.name) for gym in Gym.query.order_by(Gym.name).all()]
+        # Get only Movement Gowanus gym for now
+        movement_gowanus = Gym.query.filter_by(name='Movement Gowanus').first()
+        gym_choices = []
+        if movement_gowanus:
+            gym_choices.append((str(movement_gowanus.id), movement_gowanus.name))
         gym_choices.insert(0, ('', 'Select your home gym'))
         gym_choices.append(('feedback', 'Submit your gym'))
         self.gym.choices = gym_choices

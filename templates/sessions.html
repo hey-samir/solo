@@ -43,34 +43,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for climb in climbs %}
+                    {% for climb, route in climbs %}
                     <tr>
                         <td class="color-cell">
                             <span class="color-dot" style="background-color: 
-                                {% if climb.color == 'White' %}#FFFFFF
-                                {% elif climb.color == 'Pink' %}#FF69B4
-                                {% elif climb.color == 'Bright Blue' %}#0000FF
-                                {% elif climb.color == 'Black' %}#000000
-                                {% elif climb.color == 'Orange' %}#FFA500
-                                {% elif climb.color == 'Purple' %}#800080
-                                {% elif climb.color == 'Green' %}#008000
-                                {% elif climb.color == 'Red' %}#FF0000
-                                {% elif climb.color == 'Yellow' %}#FFFF00
-                                {% elif climb.color == 'Teal' %}#008080
+                                {% if route.color == 'White' %}#FFFFFF
+                                {% elif route.color == 'Pink' %}#FF69B4
+                                {% elif route.color == 'Blue' %}#0000FF
+                                {% elif route.color == 'Black' %}#000000
+                                {% elif route.color == 'Orange' %}#FFA500
+                                {% elif route.color == 'Purple' %}#800080
+                                {% elif route.color == 'Green' %}#008000
+                                {% elif route.color == 'Red' %}#FF0000
+                                {% elif route.color == 'Yellow' %}#FFFF00
+                                {% elif route.color == 'Teal' %}#008080
                                 {% endif %}"></span>
-                            {{ climb.color }}
+                            {{ route.color }}
                         </td>
-                        <td>{{ climb.grade or '--' }}</td>
+                        <td>{{ route.grade or '--' }}</td>
                         <td>{{ 'Sent' if climb.status else 'Tried' }}</td>
                         <td>{{ climb.tries }}</td>
                         <td>{{ climb.rating }}/5</td>
                         <td class="climb-points" 
-                        data-grade="{{ climb.grade }}" 
-                        data-rating="{{ climb.rating }}" 
-                        data-status="{{ climb.status|tojson }}" 
-                        data-tries="{{ climb.tries }}">
-                        <!-- Points calculated via JavaScript -->
-                    </td>
+                            data-grade="{{ route.grade }}" 
+                            data-rating="{{ climb.rating }}" 
+                            data-status="{{ climb.status|tojson }}" 
+                            data-tries="{{ climb.tries }}">
+                            <!-- Points calculated via JavaScript -->
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

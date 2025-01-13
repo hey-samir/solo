@@ -172,9 +172,11 @@ def logout():
 @app.route('/sends')
 @login_required
 def sends():
-    from models import Climb
-    climbs = Climb.query.filter_by(user_id=current_user.id).order_by(Climb.created_at.desc()).all()
-    return render_template('sends.html', climbs=climbs)
+    # Get routes for user's gym
+    routes = []
+    if current_user.gym_id:
+        routes = Route.query.filter_by(gym_id=current_user.gym_id).order_by(Route.color, Route.grade).all()
+    return render_template('sends.html', routes=routes)
 
 @app.route('/add_climb', methods=['POST'])
 @login_required
@@ -182,12 +184,15 @@ def add_climb():
     try:
         app.logger.info("Starting add_climb with form data: %s", request.form)
 
-        # Get grade components
-        grade_num = request.form.get('grade')
-        secondary_grade = request.form.get('secondary_grade', '')
+        route_id = request.form.get('route_id')
+        if not route_id:
+            flash('Please select a route', 'error')
+            return redirect(url_for('sends'))
 
-        # Construct the full grade (e.g., "5.10a")
-        grade = f"5.{grade_num}{secondary_grade}" if grade_num else None
+        route = Route.query.get(route_id)
+        if not route:
+            flash('Invalid route selected', 'error')
+            return redirect(url_for('sends'))
 
         # Convert status to boolean (True for 'Sent', False for 'Tried')
         status = request.form.get('status') == 'on'
@@ -204,14 +209,16 @@ def add_climb():
             tries = 1
 
         climb = Climb(
-            color=request.form.get('color'),
-            grade=grade,
+            route_id=route.id,
             rating=rating,
             status=status,
             tries=tries,
             notes=request.form.get('notes'),
             user_id=current_user.id
         )
+
+        # Update route's aggregate rating
+        route.update_rating(rating)
 
         db.session.add(climb)
         db.session.commit()
@@ -223,8 +230,11 @@ def add_climb():
                 'message': SEND_UPDATE_SUCCESS,
                 'climb': {
                     'id': climb.id,
-                    'color': climb.color,
-                    'grade': climb.grade,
+                    'route': {
+                        'color': route.color,
+                        'grade': route.grade,
+                        'route_id': route.route_id
+                    },
                     'rating': climb.rating,
                     'status': climb.status,
                     'tries': climb.tries,
@@ -321,29 +331,33 @@ def sessions():
         app.logger.info(f"Fetching sessions for user {current_user.id}")
 
         # Get all climbs for the current user, ordered by date and color
-        climbs = Climb.query.filter_by(user_id=current_user.id)\
-            .order_by(Climb.created_at.desc(), Climb.color.asc())\
+        climbs = db.session.query(Climb, Route)\
+            .join(Route)\
+            .filter(Climb.user_id == current_user.id)\
+            .order_by(Climb.created_at.desc(), Route.color.asc())\
             .all()
+
         app.logger.info(f"Found {len(climbs)} climbs for user")
 
         # Group climbs by date
         from itertools import groupby
         from datetime import datetime
 
-        def get_date(climb):
+        def get_date(climb_tuple):
+            climb, route = climb_tuple
             return climb.created_at.date()
 
         # Sort climbs by date and group them
         climbs_by_date = {}
         for date, group in groupby(sorted(climbs, key=get_date, reverse=True), key=get_date):
-            climbs_by_date[date] = list(group)
+            climbs_by_date[date] = [(climb, route) for climb, route in group]
 
         app.logger.info(f"Grouped climbs into {len(climbs_by_date)} sessions")
         return render_template('sessions.html', climbs_by_date=climbs_by_date)
 
     except Exception as e:
         app.logger.error(f"Error in sessions route: {str(e)}")
-        db.session.rollback()  # Rollback any failed transaction
+        db.session.rollback()
         return render_template('sessions.html', climbs_by_date={})
 
 @app.route('/solo')
@@ -704,7 +718,7 @@ def feedback():
         if sort == 'top':
             feedback_items = Feedback.query.join(FeedbackVote, isouter=True)\
                 .group_by(Feedback.id)\
-                .order_by(func.count(FeedbackVote.id).desc).all()
+                .order_by(func.count(FeedbackVote.id).desc()).all()
         else:  # 'new' is default
             feedback_items = Feedback.query.order_by(Feedback.created_at.desc()).all()
 

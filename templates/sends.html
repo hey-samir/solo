@@ -17,7 +17,10 @@
                                         <option value="{{ route.id }}" 
                                                 data-color="{{ route.color }}"
                                                 data-grade="{{ route.grade }}">
-                                            {{ route.color }} {{ route.grade }} ({{ route.route_id }})
+                                            <div class="route-option">
+                                                <span class="color-indicator" style="background-color: {{ route.color }}"></span>
+                                                {{ route.color }} {{ route.grade }} (#{{ route.route_id }})
+                                            </div>
                                         </option>
                                         {% endfor %}
                                     </select>
@@ -96,6 +99,17 @@
     height: 1rem;
     border-radius: 50%;
     display: inline-block;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.form-select option {
+    padding: 8px;
+    display: flex;
+    align-items: center;
+}
+.form-select {
+    background-color: #2b2b2b;
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 </style>
 {% endblock %}
