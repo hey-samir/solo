@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, SelectField, FileField
 from wtforms.validators import DataRequired, Length, Email
+from models import Gym
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=1, max=10)])
@@ -14,20 +15,30 @@ class RegistrationForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
-    gym = SelectField('Home Gym', validators=[DataRequired()], choices=[
-        ('', 'Select your home gym'),
-        ('1', 'Movement Gowanus'),
-        ('feedback', 'Request new gym')
-    ])
+
+    def __init__(self, *args, **kwargs):
+        super(RegistrationForm, self).__init__(*args, **kwargs)
+        # Dynamic gym choices from database
+        gym_choices = [(str(gym.id), gym.name) for gym in Gym.query.order_by(Gym.name).all()]
+        gym_choices.insert(0, ('', 'Select your home gym'))
+        gym_choices.append(('feedback', 'Submit your gym'))
+        self.gym.choices = gym_choices
+
+    gym = SelectField('Home Gym', validators=[DataRequired()])
 
 class ProfileForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     username = StringField('Username', validators=[DataRequired(), Length(min=1, max=9)])
-    gym = SelectField('Home Gym', validators=[DataRequired()], choices=[
-        ('', 'Select your home gym'),
-        ('1', 'Movement Gowanus'),
-        ('feedback', 'Request new gym')
-    ])
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        # Dynamic gym choices from database
+        gym_choices = [(str(gym.id), gym.name) for gym in Gym.query.order_by(Gym.name).all()]
+        gym_choices.insert(0, ('', 'Select your home gym'))
+        gym_choices.append(('feedback', 'Submit your gym'))
+        self.gym.choices = gym_choices
+
+    gym = SelectField('Home Gym', validators=[DataRequired()])
 
 class FeedbackForm(FlaskForm):
     title = StringField('Title', validators=[
