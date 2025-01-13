@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- App Description -->
+    <section class="mb-5">
+        <h2 class="text-solo-purple mb-4">Solo - Quantify your Ascent</h2>
+        <p class="lead">
+            Solo is the first and only app dedicated to solo indoor climbing. Log your sends to rack up points, track your progress with detailed metrics, and climb your way to the top of global leaderboards. Built from the ground up by <a href="/solo-profile/heysamir" class="text-solo-purple">@heysamir</a> using the AI superpowers of <a href="https://replit.com" class="text-solo-purple" target="_blank">Replit</a> in January 2025, Solo is designed to help climbers like you scale new heights—one ascent at a time.
+        </p>
+    </section>
+
+    <!-- Social Links -->
+    <section class="mb-5">
+        <h3 class="text-solo-purple mb-3">Connect With Us</h3>
+        <div class="d-flex flex-wrap gap-3">
+            <a href="https://instagram.com/soloclimbing" class="btn btn-outline-light">
+                <i class="bi bi-instagram"></i> Instagram
+            </a>
+            <a href="https://twitter.com/soloclimbing" class="btn btn-outline-light">
+                <i class="bi bi-twitter-x"></i> Twitter
+            </a>
+            <a href="https://github.com/interspacelabs/solo" class="btn btn-outline-light">
+                <i class="bi bi-github"></i> GitHub
+            </a>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="mb-5">
+        <h3 class="text-solo-purple mb-3">Frequently Asked Questions</h3>
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        How do I log a climb?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show">
+                    <div class="accordion-body">
+                        To log a climb, tap the '+' button in the navigation bar. Fill in the details about your climb including the color, grade, and number of attempts. Mark it as 'Sent' if you completed the climb successfully.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        What's the difference between a Send and an Attempt?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        A 'Send' means you successfully completed the climb from start to finish without falling. An 'Attempt' is when you tried the climb but didn't complete it. Both are valuable to track as they show your progress over time.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        How are points calculated?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        Points are calculated based on the difficulty of the climb and whether you sent it or not. Successfully sending a climb earns you 10 points multiplied by your rating, while attempts earn 5 points multiplied by your rating.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                        Can I edit or delete my climbs?
+                    </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        Currently, climbs cannot be edited or deleted after they're logged. We recommend double-checking your entries before submitting them to ensure accuracy.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                        What do the statistics mean?
+                    </button>
+                </h2>
+                <div id="faq5" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        Your statistics show your climbing progress including your success rate (percentage of successful sends), average grade (the typical difficulty level you climb), and points (overall achievement score based on your climbs).
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Climbing Glossary -->
+    <section class="mb-5">
+        <h3 class="text-solo-purple mb-3">Climbing Glossary</h3>
+        <div class="accordion" id="climbingGlossary">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#send">
+                        Send
+                    </button>
+                </h2>
+                <div id="send" class="accordion-collapse collapse show">
+                    <div class="accordion-body">
+                        Successfully completing a climb from start to finish without falling or resting on the rope.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#beta">
+                        Beta
+                    </button>
+                </h2>
+                <div id="beta" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        Information about how to climb a route, including specific movements and techniques.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#grade">
+                        Grade
+                    </button>
+                </h2>
+                <div id="grade" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        A rating system that indicates the difficulty of a climb. Different scales exist for different types of climbing.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#project">
+                        Project
+                    </button>
+                </h2>
+                <div id="project" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        A challenging route that requires multiple attempts and practice to complete successfully.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flash">
+                        Flash
+                    </button>
+                </h2>
+                <div id="flash" class="accordion-collapse collapse">
+                    <div class="accordion-body">
+                        Completing a climb on your first attempt with prior knowledge of the beta.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="row">
+            <div class="col-md-6 mb-3">
+                <div class="card bg-dark h-100">
+                    <div class="card-body text-center">
+                        <i class="material-icons text-solo-purple mb-3" style="font-size: 2.25rem;">arrow_upward</i>
+                        <h5>Log your Sends</h5>
+                        <p class="mb-0">Track every successful climb with detailed logging</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card bg-dark h-100">
+                    <div class="card-body text-center">
+                        <i class="material-icons text-solo-purple mb-3" style="font-size: 2.25rem;">emoji_events</i>
+                        <h5>Global Leaderboards</h5>
+                        <p class="mb-0">Compete with climbers worldwide</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card bg-dark h-100">
+                    <div class="card-body text-center">
+                        <i class="material-icons text-solo-purple mb-3" style="font-size: 2.25rem;">calendar_today</i>
+                        <h5>View your Sessions</h5>
+                        <p class="mb-0">Analyze your climbing sessions in detail</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card bg-dark h-100">
+                    <div class="card-body text-center">
+                        <i class="material-icons text-solo-purple mb-3" style="font-size: 2.25rem;">bar_chart</i>
+                        <h5>Track your Progress</h5>
+                        <p class="mb-0">Monitor your climbing statistics</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+{% endblock %}

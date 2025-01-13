@@ -1,0 +1,39 @@
+
+{% macro color_mapping() %}
+{% set colors = {
+    'White': '#FFFFFF',
+    'Pink': '#FF69B4', 
+    'Bright Blue': '#00B0FF',
+    'Black': '#000000',
+    'Orange': '#FFA500',
+    'Purple': '#800080',
+    'Green': '#008000',
+    'Red': '#FF0000',
+    'Yellow': '#FFFF00',
+    'Teal': '#008080'
+} %}
+{{ colors }}
+{% endmacro %}
+
+{% macro render_table_header(columns) %}
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                {% for column in columns %}
+                <th>{{ column }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+{% endmacro %}
+
+{% macro render_table_footer() %}
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
+
+{% macro calculate_points(status, tries=1) %}
+{{ 10 if status else 5 }}
+{% endmacro %}

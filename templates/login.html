@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('login') }}">
+                    {{ form.csrf_token }}
+                    <div class="mb-3">
+                        <label class="form-label fs-4">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text">@</span>
+                            <input type="text" name="username" class="form-control form-control-lg" required 
+                                   pattern="[A-Za-z0-9]{1,10}" title="Username must be 1-10 characters, letters and numbers only">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fs-4">Password</label>
+                        <input type="password" name="password" class="form-control form-control-lg" required>
+                    </div>
+                    <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Login</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('sign_up') }}" class="btn btn-lg nav-link active w-100" style="background-color: #303d59; padding: 0.95rem;">Sign up</a>
+                </div>
+                {% if request.args.get('next') and request.args.get('next') != url_for('index') %}
+                    <div class="auth-banner mt-3">
+                        {{ LOGIN_REQUIRED_MESSAGE }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

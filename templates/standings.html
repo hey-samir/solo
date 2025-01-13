@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid px-3">
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>Username</th>
+                            <th class="text-center">Sends</th>
+                            <th class="text-center">Grade</th>
+                            <th class="text-center">Pts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in leaderboard %}
+                        <tr>
+                            <td class="text-center">
+                                {% if loop.index <= 3 %}
+                                    <span class="material-symbols-outlined">counter_{{ loop.index }}</span>
+                                {% else %}
+                                    {{ loop.index }}
+                                {% endif %}
+                            </td>
+                            <td>{{ user.username }}</td>
+                            <td class="text-center">{{ user.total_sends }}</td>
+                            <td class="text-center">{{ user.avg_grade }}</td>
+                            <td class="text-center">{{ user.total_points }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

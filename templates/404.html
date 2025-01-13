@@ -1,0 +1,14 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: calc(100vh - 120px)">
+        <h1 class="display-1 fw-bold mb-4" style="color: var(--solo-purple)">404</h1>
+        <h4 class="mb-4 text-white">We haven't sent this yet.</h4>
+        <a href="{{ url_for('sends') }}" class="btn nav-link active bg-solo-purple px-4">
+            Back to Sends
+        </a>
+    </div>
+</div>
+{% endblock %}

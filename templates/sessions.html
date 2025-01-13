@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sessions-container container-fluid px-2">
+    {% if not climbs_by_date %}
+        <div class="text-center my-5">
+            <h4 class="mb-4">Enter your first climb to see Sessions</h4>
+            <a href="{{ url_for('sends') }}" class="btn btn-primary">Back to Sends</a>
+        </div>
+    {% endif %}
+
+    {% for date, climbs in climbs_by_date.items() %}
+    <div class="session-group">
+        <h3 class="session-date" data-timestamp="{{ date.isoformat() }}">{{ date.strftime('%m/%d/%y') }}</h3>
+        <div class="table-responsive">
+            <table class="table table-hover w-100" data-session-date="{{ date.strftime('%m/%d/%y') }}">
+                <thead>
+                    <tr>
+                        <th class="sortable col-2" data-sort="color">
+                            Color
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable col-2" data-sort="grade">
+                            Grade
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable col-2" data-sort="status">
+                            Status
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable col-2" data-sort="tries">
+                            # Tries
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable col-2" data-sort="rating">
+                            Rating
+                            <span class="sort-indicator"></span>
+                        </th>
+                        <th class="sortable col-2" data-sort="points">
+                            Points
+                            <span class="sort-indicator"></span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for climb in climbs %}
+                    <tr>
+                        <td class="color-cell">
+                            <span class="color-dot" style="background-color: 
+                                {% if climb.color == 'White' %}#FFFFFF
+                                {% elif climb.color == 'Pink' %}#FF69B4
+                                {% elif climb.color == 'Bright Blue' %}#0000FF
+                                {% elif climb.color == 'Black' %}#000000
+                                {% elif climb.color == 'Orange' %}#FFA500
+                                {% elif climb.color == 'Purple' %}#800080
+                                {% elif climb.color == 'Green' %}#008000
+                                {% elif climb.color == 'Red' %}#FF0000
+                                {% elif climb.color == 'Yellow' %}#FFFF00
+                                {% elif climb.color == 'Teal' %}#008080
+                                {% endif %}"></span>
+                            {{ climb.color }}
+                        </td>
+                        <td>{{ climb.grade or '--' }}</td>
+                        <td>{{ 'Sent' if climb.status else 'Tried' }}</td>
+                        <td>{{ climb.tries }}</td>
+                        <td>{{ climb.rating }}/5</td>
+                        <td class="climb-points">{{ (climb.rating * (10 if climb.status else 5)) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/sort.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Convert all session dates to local timezone
+        document.querySelectorAll('.session-date').forEach(function(element) {
+            const timestamp = element.getAttribute('data-timestamp');
+            if (timestamp) {
+                const date = new Date(timestamp);
+                element.textContent = date.toLocaleDateString(undefined, {
+                    month: '2-digit',
+                    day: '2-digit',
+                    year: '2-digit'
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

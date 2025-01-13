@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4 mb-4">
+        <div class="card bg-dark">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('submit_feedback') }}" enctype="multipart/form-data">
+                    {{ form.csrf_token }}
+                    <div class="mb-3">
+                        {{ form.title.label(class="form-label required-field") }}
+                        {{ form.title(class="form-control", placeholder="Short, descriptive title") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.description.label(class="form-label") }}
+                        {{ form.description(class="form-control", placeholder="Detailed description of your feedback") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.category.label(class="form-label") }}
+                        {{ form.category(class="form-select") }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.screenshot.label(class="form-label") }}
+                        {{ form.screenshot(class="form-control") }}
+                    </div>
+                    <button type="submit" class="btn btn-send w-100">Submit Feedback</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-dark">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Community Feedback</h5>
+            </div>
+            <div class="card-body">
+                <div class="btn-group mb-3 w-100">
+                    <a href="{{ url_for('feedback', sort='new') }}" class="btn btn-outline-secondary {{ 'active' if sort == 'new' }}">Latest</a>
+                    <a href="{{ url_for('feedback', sort='top') }}" class="btn btn-outline-secondary {{ 'active' if sort == 'top' }}">Top</a>
+                </div>
+
+                {% for item in feedback_items %}
+                <div class="feedback-item mb-3">
+                    <h6>{{ item.title }}</h6>
+                    <p class="mb-1">{{ item.description }}</p>
+                    <small class="text-muted">By @{{ item.user.username }} on {{ item.created_at.strftime('%Y-%m-%d') }}</small>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
