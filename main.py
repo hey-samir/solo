@@ -1,5 +1,6 @@
 import os
 import shutil
+import logging
 from datetime import datetime, timedelta
 from flask import (
     Flask, render_template, request, redirect, url_for, flash,
@@ -13,7 +14,7 @@ from werkzeug.utils import secure_filename
 from sqlalchemy import func
 from flask_wtf.csrf import CSRFProtect
 
-from app import app, db
+from app import app, db, logger
 from models import Gym, Route, Climb, User, Feedback, FeedbackVote
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from migrations import migrate
@@ -48,7 +49,7 @@ from errors import (
     REGISTRATION_EMAIL_TAKEN_ERROR, UPDATE_PROFILE_USERNAME_ERROR,
     UPDATE_PROFILE_USERNAME_TAKEN_ERROR, SEND_UPDATE_SUCCESS, SEND_UPDATE_ERROR,
     PROFILE_UPDATE_ERROR, PROFILE_PHOTO_ERROR, AVATAR_UPDATE_ERROR,
-    INTERNAL_SERVER_ERROR
+    INTERNAL_SERVER_ERROR, LOGIN_REQUIRED_MESSAGE
 )
 
 # Initialize CSRF protection
@@ -80,7 +81,6 @@ def about():
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('sends'))
-    from errors import LOGIN_REQUIRED_MESSAGE
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -105,15 +105,15 @@ def sign_up():
         gym_choice = form.gym.data
 
         if not username.isalnum():
-            flash(REGISTRATION_USERNAME_ERROR, 'error')
+            flash('Username must contain only letters and numbers', 'error')
             return render_template('register.html', form=form)
 
         if User.query.filter_by(username=username).first():
-            flash(REGISTRATION_USERNAME_TAKEN_ERROR, 'error')
+            flash('Username is already taken', 'error')
             return render_template('register.html', form=form)
 
         if User.query.filter_by(email=email).first():
-            flash(REGISTRATION_EMAIL_TAKEN_ERROR, 'error')
+            flash('Email is already registered', 'error')
             return render_template('register.html', form=form)
 
         # Handle "Submit your gym" selection
@@ -124,28 +124,37 @@ def sign_up():
                 'name': name,
                 'password': form.password.data
             }
+            flash('Please submit your gym information through our feedback form.', 'info')
             return redirect(url_for('feedback'))
 
         try:
-            # Create user with selected gym
+            # Create new user
             user = User(
                 username=username,
                 email=email,
-                name=name,
-                gym_id=int(gym_choice) if gym_choice.isdigit() else None
+                name=name
             )
             user.set_password(form.password.data)
 
+            # Verify and assign gym if valid
+            if gym_choice and gym_choice.isdigit():
+                gym = Gym.query.get(int(gym_choice))
+                if gym:
+                    user.gym_id = gym.id
+                    logger.info(f"Assigned gym {gym.id} to user {username}")
+                else:
+                    flash('Selected gym not found. Please choose a valid gym.', 'error')
+                    return render_template('register.html', form=form)
+
             db.session.add(user)
             db.session.commit()
-
-            # Log the user in after registration
             login_user(user)
             flash('Welcome to Solo! Your account has been created successfully.', 'success')
-            return redirect(url_for('solo'))
+            return redirect(url_for('sends'))
+
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Error creating user: {str(e)}")
+            logger.error(f"Error creating user: {str(e)}")
             flash('An error occurred during registration. Please try again.', 'error')
             return render_template('register.html', form=form)
 
@@ -373,30 +382,37 @@ def update_profile():
         name = form.name.data
         gym_choice = form.gym.data
 
+        # Validate and update username if changed
         if username and username != current_user.username:
             if not username.isalnum():
-                flash(UPDATE_PROFILE_USERNAME_ERROR, 'error')
+                flash('Username must contain only letters and numbers', 'error')
                 return redirect(url_for('solo'))
             if User.query.filter_by(username=username).first():
-                flash(UPDATE_PROFILE_USERNAME_TAKEN_ERROR, 'error')
+                flash('Username is already taken', 'error')
                 return redirect(url_for('solo'))
             current_user.username = username
 
+        # Update name if provided
         if name:
             current_user.name = name
 
         # Handle gym selection
         if gym_choice == 'feedback':
             return redirect(url_for('feedback'))
-        elif gym_choice:
-            current_user.gym_id = int(gym_choice) if gym_choice.isdigit() else None
+        elif gym_choice and gym_choice.isdigit():
+            gym = Gym.query.get(int(gym_choice))
+            if gym:
+                current_user.gym_id = gym.id
+            else:
+                flash('Selected gym not found. Please choose a valid gym.', 'error')
+                return redirect(url_for('solo'))
 
         try:
             db.session.commit()
             flash('Profile updated successfully!', 'success')
         except Exception as e:
             db.session.rollback()
-            app.logger.error(f"Error updating profile: {str(e)}")
+            logger.error(f"Error updating profile: {str(e)}")
             flash('Error updating profile. Please try again.', 'error')
 
     return redirect(url_for('solo'))
@@ -412,7 +428,7 @@ def update_avatar():
             flash('Solo photo updated successfully!', 'success')
         return redirect(url_for('solo'))
     except Exception as e:
-        app.logger.error(f"Error updating avatar: {str(e)}")
+        logger.error(f"Error updating avatar: {str(e)}")
         flash('Error updating avatar. Please try again.', 'error')
         return redirect(url_for('solo'))
     
@@ -464,7 +480,7 @@ def update_avatar():
         else:
             flash('Invalid file type. Please upload a PNG or JPEG image.', 'error')
     except Exception as e:
-        app.logger.error(f"Error processing photo: {str(e)}")
+        logger.error(f"Error processing photo: {str(e)}")
         flash('Error processing photo. Please try again.', 'error')
         db.session.rollback()
 
@@ -682,9 +698,16 @@ def feedback():
         else:  # 'new' is default
             feedback_items = Feedback.query.order_by(Feedback.created_at.desc()).all()
 
+        # Check if there's a pending registration for gym submission
+        pending_registration = session.get('pending_registration')
+        if pending_registration:
+            form.title.data = "New GymSubmission"
+            form.description.data = f"Please add my gym to Solo!\n\nGym Name: \nLocation: \nAdditional Details: "
+            form.category.data = 'new_gym'
+
         return render_template('feedback.html', form=form, feedback_items=feedback_items, sort=sort)
     except Exception as e:
-        app.logger.error(f"Error in feedback route: {str(e)}")
+        logger.error(f"Error in feedback route: {str(e)}")
         return render_template('404.html'), 404
 
 @app.route('/feedback', methods=['POST'])
@@ -697,13 +720,14 @@ def submit_feedback():
                 flash('Title and description are required.', 'error')
                 return redirect(url_for('feedback'))
 
+            # Create new feedback
             feedback = Feedback(
                 title=form.title.data,
                 description=form.description.data,
                 user_id=current_user.id if current_user.is_authenticated else None
             )
 
-                        # Handle screenshot upload if provided
+            # Handle screenshot upload if provided
             if form.screenshot.data:
                 file = form.screenshot.data
                 if file.filename != '':
@@ -720,16 +744,21 @@ def submit_feedback():
                         file.save(file_path)
                         feedback.screenshot_url = f"images/feedback/{filename}"
                     except Exception as e:
-                        app.logger.error(f"File upload error: {str(e)}")
+                        logger.error(f"File upload error: {str(e)}")
                         flash('Error uploading file. Please try again.', 'error')
                         return redirect(url_for('feedback'))
 
             db.session.add(feedback)
             db.session.commit()
+
+            # Clear pending registration after successful feedback submission
+            if 'pending_registration' in session:
+                session.pop('pending_registration')
+
             flash('Your feedback has reached the summit! Thanks for helping us improve.', 'success')
             return redirect(url_for('feedback'))
         except Exception as e:
-            app.logger.error(f"Error submitting feedback: {str(e)}")
+            logger.error(f"Error submitting feedback: {str(e)}")
             db.session.rollback()
             flash('Database error. Please try again.', 'error')
             return redirect(url_for('feedback'))
@@ -759,7 +788,7 @@ def vote_feedback(feedback_id):
         db.session.commit()
         flash(message, 'success')
     except Exception as e:
-        app.logger.error(f"Error processing vote: {str(e)}")
+        logger.error(f"Error processing vote: {str(e)}")
         db.session.rollback()
         flash('Error processing vote. Please try again.', 'error')
 
