@@ -683,8 +683,7 @@ def submit_feedback():
                     
                     try:
                         filename = secure_filename(f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
-                        upload_folder = os.path.join(app.static_folder, 'images', 'feedback')
-                        os.makedirs(upload_folder, exist_ok=True)
+                        upload_folder = os.path.join(app.static_folder, 'images', 'feedback')os.makedirs(upload_folder, exist_ok=True)
 
                         file_path = os.path.join(upload_folder, filename)
                         file.save(file_path)
@@ -744,6 +743,8 @@ def vote_feedback(feedback_id):
 def offline():
     """Serve the offline page."""
     return render_template('offline.html')
+
+from sqlalchemy import func
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=3000)
