@@ -154,7 +154,7 @@ def add_climb():
 
         climb = Climb(
             color=request.form.get('color'),
-            grade=grade,  # Updated from caliber to grade
+            grade=grade,
             rating=rating,
             status=status,
             tries=tries,
@@ -164,12 +164,38 @@ def add_climb():
 
         db.session.add(climb)
         db.session.commit()
+
+        # Return JSON response for API requests
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify({
+                'status': 'success',
+                'message': SEND_UPDATE_SUCCESS,
+                'climb': {
+                    'id': climb.id,
+                    'color': climb.color,
+                    'grade': climb.grade,
+                    'rating': climb.rating,
+                    'status': climb.status,
+                    'tries': climb.tries,
+                    'notes': climb.notes,
+                    'created_at': climb.created_at.isoformat()
+                }
+            })
+
         flash(SEND_UPDATE_SUCCESS, 'success')
         return redirect(url_for('sends'))
 
     except Exception as e:
         app.logger.error("Error in add_climb: %s", str(e))
         db.session.rollback()
+
+        # Return JSON error for API requests
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify({
+                'status': 'error',
+                'message': SEND_UPDATE_ERROR
+            }), 500
+
         flash(SEND_UPDATE_ERROR, 'error')
         return redirect(url_for('sends'))
 
@@ -712,6 +738,12 @@ def vote_feedback(feedback_id):
         flash('Error processing vote. Please try again.', 'error')
 
     return redirect(url_for('feedback'))
+
+# Add this route after your other routes
+@app.route('/offline.html')
+def offline():
+    """Serve the offline page."""
+    return render_template('offline.html')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=3000)
