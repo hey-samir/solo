@@ -14,7 +14,7 @@
     <section class="mb-5">
         <div class="row">
             <div class="col-md-6 mb-3">
-                <div class="card bg-dark h-100">
+                <div class="card kpi-card h-100">
                     <div class="card-body text-center">
                         <i class="material-icons text-solo-purple mb-3" style="font-size: 2.25rem;">arrow_upward</i>
                         <h5>Log your Sends</h5>
@@ -23,7 +23,7 @@
                 </div>
             </div>
             <div class="col-md-6 mb-3">
-                <div class="card bg-dark h-100">
+                <div class="card kpi-card h-100">
                     <div class="card-body text-center">
                         <i class="material-icons text-solo-purple mb-3" style="font-size: 2.25rem;">emoji_events</i>
                         <h5>Global Leaderboards</h5>
@@ -32,7 +32,7 @@
                 </div>
             </div>
             <div class="col-md-6 mb-3">
-                <div class="card bg-dark h-100">
+                <div class="card kpi-card h-100">
                     <div class="card-body text-center">
                         <i class="material-icons text-solo-purple mb-3" style="font-size: 2.25rem;">calendar_today</i>
                         <h5>View your Sessions</h5>
@@ -41,7 +41,7 @@
                 </div>
             </div>
             <div class="col-md-6 mb-3">
-                <div class="card bg-dark h-100">
+                <div class="card kpi-card h-100">
                     <div class="card-body text-center">
                         <i class="material-icons text-solo-purple mb-3" style="font-size: 2.25rem;">bar_chart</i>
                         <h5>Track your Progress</h5>
@@ -56,9 +56,9 @@
     <section class="mb-5">
         <h3 class="text-solo-purple mb-3">Frequently Asked Questions</h3>
         <div class="accordion" id="faqAccordion">
-            <div class="accordion-item bg-dark">
+            <div class="accordion-item bg-dark border-0">
                 <h2 class="accordion-header">
-                    <button class="accordion-button bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                    <button class="accordion-button bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
                         How do I log a climb?
                     </button>
                 </h2>
@@ -69,9 +69,9 @@
                 </div>
             </div>
 
-            <div class="accordion-item bg-dark">
+            <div class="accordion-item bg-dark border-0">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                    <button class="accordion-button collapsed bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
                         What's the difference between a Send and a Try?
                     </button>
                 </h2>
@@ -82,9 +82,9 @@
                 </div>
             </div>
 
-            <div class="accordion-item bg-dark">
+            <div class="accordion-item bg-dark border-0">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                    <button class="accordion-button collapsed bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
                         How are points calculated?
                     </button>
                 </h2>
@@ -95,9 +95,9 @@
                 </div>
             </div>
 
-            <div class="accordion-item bg-dark">
+            <div class="accordion-item bg-dark border-0">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                    <button class="accordion-button collapsed bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
                         What do the stats metrics mean?
                     </button>
                 </h2>
@@ -115,9 +115,9 @@
                 </div>
             </div>
 
-            <div class="accordion-item bg-dark">
+            <div class="accordion-item bg-dark border-0">
                 <h2 class="accordion-header">
-                    <button class="accordion-button collapsed bg-dark text-white" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                    <button class="accordion-button collapsed bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
                         What are the dimensions of a Send?
                     </button>
                 </h2>
@@ -138,4 +138,10 @@
         </div>
     </section>
 </div>
+
+<style>
+.accordion-button::after {
+    filter: brightness(0) invert(1);
+}
+</style>
 {% endblock %}
