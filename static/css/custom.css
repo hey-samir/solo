@@ -1741,12 +1741,19 @@ input[type="password"].form-control-lg {
 .sends-container {
     max-width: 450px !important;
     margin: 1rem auto !important;
-    padding: 0 !important;
+    padding: 0 1rem !important;
+    display: flex;
+    justify-content: center;
 }
 
 .sends-container .card {
     width: 100% !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
+}
+
+.sends-container .btn-primary {
+    width: 100% !important;
+    margin: 0 !important;
 }
 
 .sends-container .input-group {
