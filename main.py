@@ -1,6 +1,8 @@
 import os
 import shutil
 import logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 from datetime import datetime, timedelta
 from flask import (
     Flask, render_template, request, redirect, url_for, flash,
@@ -363,32 +365,41 @@ def sessions():
 @app.route('/solo')
 @login_required
 def solo():
-    form = ProfileForm(obj=current_user)  # Pre-fill form with current user data
+    """
+    Handle the user's profile page
+    """
+    logger.debug("Accessing profile page for user: %s", current_user.username if current_user else 'Anonymous')
+    try:
+        form = ProfileForm(obj=current_user)  # Pre-fill form with current user data
 
-    # Calculate KPI metrics
-    climbs = list(current_user.climbs)
-    total_ascents = len(climbs)
+        # Calculate KPI metrics
+        climbs = list(current_user.climbs)
+        total_ascents = len(climbs)
 
-    # Calculate average grade
-    sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]
-    if sent_grades:
-        valid_ranks = [grade_rank.get(grade, 0) for grade in sent_grades if grade in grade_rank]
-        if valid_ranks:
-            avg_rank = round(sum(valid_ranks) / len(valid_ranks))
-            avg_grade = rank_to_grade.get(avg_rank, '--')
+        # Calculate average grade
+        sent_grades = [climb.route.grade for climb in climbs if climb.status and climb.route.grade]
+        if sent_grades:
+            valid_ranks = [grade_rank.get(grade, 0) for grade in sent_grades if grade in grade_rank]
+            if valid_ranks:
+                avg_rank = round(sum(valid_ranks) / len(valid_ranks))
+                avg_grade = rank_to_grade.get(avg_rank, '--')
+            else:
+                avg_grade = '--'
         else:
             avg_grade = '--'
-    else:
-        avg_grade = '--'
 
-    # Calculate total points
-    total_points = sum((climb.rating * (10 if climb.status else 5)) for climb in climbs)
+        # Calculate total points
+        total_points = sum((climb.rating * (10 if climb.status else 5)) for climb in climbs)
 
-    return render_template('solo-profile.html', 
-                         form=form,
-                         total_ascents=total_ascents,
-                         avg_grade=avg_grade,
-                         total_points=total_points)
+        logger.debug("Successfully rendered profile page")
+        return render_template('solo-profile.html', 
+                            form=form,
+                            total_ascents=total_ascents,
+                            avg_grade=avg_grade,
+                            total_points=total_points)
+    except Exception as e:
+        logger.error("Error in profile page: %s", str(e))
+        return render_template('404.html'), 404
 
 @app.route('/update_profile', methods=['POST'])
 @login_required

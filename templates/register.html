@@ -35,9 +35,6 @@
                     <div class="mb-3">
                         <label class="form-label required-field">Home Gym</label>
                         {{ form.gym(class="form-select form-select-lg mb-2") }}
-                        <small class="form-text text-muted">
-                            Don't see your gym? Select "Submit your gym" to request it.
-                        </small>
                     </div>
                     <button type="submit" class="btn nav-link active bg-solo-purple w-100 py-3">Join</button>
                 </form>
@@ -49,36 +46,26 @@
     </div>
 </div>
 
-<!-- Modal for gym submission -->
-<div class="modal fade" id="gymSubmissionModal" tabindex="-1" aria-labelledby="gymSubmissionModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content bg-dark">
-            <div class="modal-header">
-                <h5 class="modal-title" id="gymSubmissionModalLabel">Submit Your Gym</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-white">Looks like we haven't added your gym yet. Use our feedback form to submit a new gym.</p>
-            </div>
-            <div class="modal-footer">
-                <div class="d-flex w-100 gap-3">
-                    <button type="button" class="btn btn-secondary flex-grow-1" data-bs-dismiss="modal">Go Back</button>
-                    <button type="button" class="btn btn-primary flex-grow-1" onclick="window.location.href='{{ url_for('feedback') }}'">Continue to Feedback</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const gymSelect = document.querySelector('select[name="gym"]');
-    gymSelect.addEventListener('change', function() {
-        if (this.value === 'feedback') {
-            var modal = new bootstrap.Modal(document.getElementById('gymSubmissionModal'));
-            modal.show();
-        }
-    });
-});
-</script>
+<style>
+.form-control-lg, .form-select-lg {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+}
+.form-text, small {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+.form-select-lg {
+    min-height: 3.5rem;
+}
+.input-group-text {
+    font-size: 1rem;
+    background-color: var(--solo-purple);
+    border-color: var(--solo-purple);
+    color: white;
+}
+.input-group .form-control {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+}
+</style>
 {% endblock %}
