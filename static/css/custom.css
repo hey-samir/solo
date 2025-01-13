@@ -317,8 +317,8 @@ header {
 .feature-card.kpi-card {
     background-color: #2b354d !important;
     border-radius: 8px;
-    padding: 0.5rem 0.25rem;
-    margin-bottom: 0.5rem;
+    padding: 0.25rem;
+    margin-bottom: 0.25rem;
     height: 100%;
 }
 
@@ -1420,11 +1420,13 @@ textarea.form-control:focus {
     border-radius: 0;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(140, 82, 255, 0.3);
-}.btn-primary:hover,
+}
+
+.btn-primary:hover,
 .btn:hover {
     background-color: #7442d6;
     transform: translateY(-1px);
-    boxshadow: 0 4px 6px rgba(140, 82, 255, 0.4);
+    box-shadow: 0 4px 6px rgba(140, 82, 255, 0.4);
     transition: all 0.2s ease;
 }
 
@@ -1735,6 +1737,8 @@ input[type="password"].form-control-lg {
 .sends-container .form-input-cell {
     padding-right: 0 !important;
 }
+
+.sends-container {
     max-width: 450px !important;
     margin: 0 auto !important;
 }
@@ -2445,4 +2449,78 @@ textarea.form-control {
     margin-right: 1rem;
     font-size: 1.5rem;
     color: var(--solo-purple);
+}
+
+.feature-card {
+    background-color: #2b354d !important;
+    border: none !important;
+    border-radius: 8px;
+    height: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0.25rem; /* Reduced padding */
+    margin-bottom: 0.25rem; /* Reduced margin */
+}
+
+.feature-card .card-body {
+    padding: 0.25rem 0.1rem;
+    background: transparent !important;
+}
+
+.feature-card .card-body * {
+    background: transparent !important;
+}
+
+.kpi-card .card-title,
+.feature-card .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.kpi-card .card-text,
+.feature-card .card-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.kpi-card .material-icons,
+.feature-card .material-icons {
+    font-size: 2rem;
+    color: var(--solo-purple);
+    margin-bottom: 0.5rem;
+}
+
+.feature-card.kpi-card {
+    background-color: #2b354d !important;
+    border-radius: 8px;
+    padding: 0.25rem;
+    margin-bottom: 0.25rem;
+    height: 100%;
+}
+
+.feature-card.kpi-card .card-body {
+    padding: 0.25rem;
+}
+
+.feature-card.kpi-card .material-icons {
+    margin-bottom: 0;
+}
+
+.feature-card.kpi-card .card-title {
+    margin: 0;
+}
+
+.feature-card.kpi-card .card-text {
+    margin: 0;
+    line-height: 1.2;
+}
+
+.feature-card.kpi-card .card-body,
+.feature-card.kpi-card .card-body > *,
+.feature-card.kpi-card i,
+.feature-card.kpi-card .card-title,
+.feature-card.kpi-card .card-text {
+    background-color: transparent !important;
 }
