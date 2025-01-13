@@ -41,6 +41,7 @@ class FeedbackForm(FlaskForm):
     category = SelectField('Category', choices=[
         ('bugfix', 'Bugfix'),
         ('enhancement', 'Enhancement'),
-        ('feature', 'Feature')
+        ('feature', 'Feature'),
+        ('new_gym', 'New Gym Request')  # Added new gym request category
     ], validators=[DataRequired()])
     screenshot = FileField('Screenshot (Optional)')

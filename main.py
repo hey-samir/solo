@@ -1,17 +1,34 @@
 import os
-from flask import render_template, request, redirect, url_for, flash, send_from_directory, current_app, session
-from flask_login import login_required, current_user, login_user, logout_user
-from werkzeug.utils import secure_filename
-from app import app, db
-from models import Climb, User, Feedback, FeedbackVote # Added Feedback and FeedbackVote models
-from flask_wtf.csrf import CSRFProtect
-from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm # Added FeedbackForm
-from migrations import migrate
-migrate()
 import shutil
 from datetime import datetime, timedelta
+from flask import (
+    Flask, render_template, request, redirect, url_for, flash,
+    send_from_directory, current_app, session, jsonify
+)
+from flask_login import (
+    LoginManager, login_required, current_user,
+    login_user, logout_user, UserMixin
+)
+from werkzeug.utils import secure_filename
 from sqlalchemy import func
-from flask import jsonify
+from flask_wtf.csrf import CSRFProtect
+
+from app import app, db
+from models import Gym, Route, Climb, User, Feedback, FeedbackVote
+from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
+from migrations import migrate
+
+# Run migrations
+migrate()
+
+# Initialize Flask-Login
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # Define grade ranking system
 grade_rank = {
@@ -46,19 +63,17 @@ dest_logo = os.path.join(app.static_folder, 'images', 'solo-clear.png')
 if os.path.exists(source_logo) and not os.path.exists(dest_logo):
     shutil.copy2(source_logo, dest_logo)
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'} # Updated to include gif
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
-    """Landing page - redirects to About page."""
     return redirect(url_for('about'))
 
 @app.route('/about')
 def about():
-    """About page with app description, social links, and climbing glossary."""
     return render_template('about.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -111,18 +126,19 @@ def sign_up():
             }
             return redirect(url_for('feedback'))
 
-        # Create user with selected gym
-        user = User(
-            username=username,
-            email=email,
-            name=name,
-            gym_id=int(gym_choice) if gym_choice.isdigit() else None
-        )
-        user.set_password(form.password.data)
-
         try:
+            # Create user with selected gym
+            user = User(
+                username=username,
+                email=email,
+                name=name,
+                gym_id=int(gym_choice) if gym_choice.isdigit() else None
+            )
+            user.set_password(form.password.data)
+
             db.session.add(user)
             db.session.commit()
+
             # Log the user in after registration
             login_user(user)
             flash('Welcome to Solo! Your account has been created successfully.', 'success')
@@ -144,7 +160,6 @@ def logout():
 @app.route('/sends')
 @login_required
 def sends():
-    """Display user's climbing sends."""
     from models import Climb
     climbs = Climb.query.filter_by(user_id=current_user.id).order_by(Climb.created_at.desc()).all()
     return render_template('sends.html', climbs=climbs)
@@ -290,7 +305,6 @@ def api_stats():
 @app.route('/sessions')
 @login_required
 def sessions():
-    """Display user's climbing sessions grouped by date."""
     try:
         app.logger.info(f"Fetching sessions for user {current_user.id}")
 
@@ -323,7 +337,6 @@ def sessions():
 @app.route('/solo')
 @login_required
 def solo():
-    """User profile page."""
     form = ProfileForm(obj=current_user)  # Pre-fill form with current user data
 
     # Calculate KPI metrics
@@ -402,7 +415,7 @@ def update_avatar():
         app.logger.error(f"Error updating avatar: {str(e)}")
         flash('Error updating avatar. Please try again.', 'error')
         return redirect(url_for('solo'))
-    """Handle profile photo upload."""
+    
     try:
         if 'photo' not in request.files:
             flash('No file uploaded', 'error')
@@ -470,7 +483,7 @@ def standings():
         # Calculate average grade
         sent_grades = []
         for climb in sends:
-            if climb.grade:  # Changed from caliber to grade
+            if climb.grade:  
                 grade_parts = climb.grade.split('.')
                 if len(grade_parts) == 2:
                     grade_num = grade_parts[1].rstrip('abcd')
@@ -496,7 +509,6 @@ def standings():
 @app.route('/stats')
 @login_required
 def stats():
-    """Stats page showing user metrics and trends"""
     climbs = list(current_user.climbs)
     sends = [c for c in climbs if c.status]
     attempts = [c for c in climbs if not c.status]
@@ -531,14 +543,14 @@ def stats():
     highest_grade = '--'
     max_grade_value = 0
     for climb in climbs:
-        if climb.grade and climb.status:  # Changed from caliber to grade
+        if climb.grade and climb.status:  
             grade_value = grade_points.get(climb.grade, 0)
             if grade_value > max_grade_value:
                 max_grade_value = grade_value
                 highest_grade = climb.grade
 
     # Calculate average grade using simple ranking
-    sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]  # Changed from caliber to grade
+    sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]  
 
     # Define grade ranking system
     grade_rank = {
@@ -653,17 +665,14 @@ def stats():
 @app.route('/squads')
 @login_required
 def squads():
-    """Placeholder for squads feature"""
     return render_template('404.html')
 
 @app.route('/feedback', methods=['GET'])
-@login_required
 def feedback():
-    """Display feedback form and feed."""
     try:
         form = FeedbackForm()
         sort = request.args.get('sort', 'new')
-        
+
         # Query feedback items
         feedback_items = []
         if sort == 'top':
@@ -672,31 +681,29 @@ def feedback():
                 .order_by(func.count(FeedbackVote.id).desc()).all()
         else:  # 'new' is default
             feedback_items = Feedback.query.order_by(Feedback.created_at.desc()).all()
-        
+
         return render_template('feedback.html', form=form, feedback_items=feedback_items, sort=sort)
     except Exception as e:
         app.logger.error(f"Error in feedback route: {str(e)}")
         return render_template('404.html'), 404
 
 @app.route('/feedback', methods=['POST'])
-@login_required
 def submit_feedback():
-    """Handle feedback submission."""
     form = FeedbackForm()
     if form.validate_on_submit():
         try:
             # Validate required fields
             if not form.title.data or not form.description.data:
-                flash('Title anddescription are required.', 'error')
+                flash('Title and description are required.', 'error')
                 return redirect(url_for('feedback'))
 
             feedback = Feedback(
                 title=form.title.data,
                 description=form.description.data,
-                user_id=current_user.id
+                user_id=current_user.id if current_user.is_authenticated else None
             )
 
-            # Handle screenshot upload if provided
+                        # Handle screenshot upload if provided
             if form.screenshot.data:
                 file = form.screenshot.data
                 if file.filename != '':
@@ -725,17 +732,13 @@ def submit_feedback():
             app.logger.error(f"Error submitting feedback: {str(e)}")
             db.session.rollback()
             flash('Database error. Please try again.', 'error')
-    else:
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash(f'{field}: {error}', 'error')
+            return redirect(url_for('feedback'))
 
     return redirect(url_for('feedback'))
 
 @app.route('/feedback/<int:feedback_id>/vote', methods=['POST'])
 @login_required
 def vote_feedback(feedback_id):
-    """Handle feedback voting."""
     try:
         # Check if user has already voted
         existing_vote = FeedbackVote.query.filter_by(
@@ -765,10 +768,10 @@ def vote_feedback(feedback_id):
 # Add this route after your other routes
 @app.route('/offline.html')
 def offline():
-    """Serve the offline page."""
     return render_template('offline.html')
 
 from sqlalchemy import func
+import shutil
 
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=3000)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)

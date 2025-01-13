@@ -35,14 +35,14 @@
                     <div class="mb-3">
                         <label class="form-label required-field">Home Gym</label>
                         {{ form.gym(class="form-select form-select-lg mb-2") }}
-                        <small class="form-text text-white">
+                        <small class="form-text text-muted">
                             Don't see your gym? Select "Submit your gym" to request it.
                         </small>
                     </div>
-                    <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100 fs-4">Join</button>
+                    <button type="submit" class="btn nav-link active bg-solo-purple w-100 py-3">Join</button>
                 </form>
                 <div class="text-center mt-3">
-                    <a href="{{ url_for('login') }}" class="text-decoration-none">Already have an account? Login</a>
+                    <a href="{{ url_for('login') }}" class="text-decoration-none text-white">Already have an account? Login</a>
                 </div>
             </div>
         </div>
@@ -55,14 +55,16 @@
         <div class="modal-content bg-dark">
             <div class="modal-header">
                 <h5 class="modal-title" id="gymSubmissionModalLabel">Submit Your Gym</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <p class="text-white">Looks like we haven't added your gym yet. Use our feedback form to submit a new gym.</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="window.history.back()">Go Back</button>
-                <button type="button" class="btn btn-primary" onclick="window.location.href='{{ url_for('feedback') }}'">Continue to Feedback</button>
+                <div class="d-flex w-100 gap-3">
+                    <button type="button" class="btn btn-secondary flex-grow-1" data-bs-dismiss="modal">Go Back</button>
+                    <button type="button" class="btn btn-primary flex-grow-1" onclick="window.location.href='{{ url_for('feedback') }}'">Continue to Feedback</button>
+                </div>
             </div>
         </div>
     </div>
