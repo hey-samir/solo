@@ -4,6 +4,27 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.sql import func
 from app import db
 
+class RouteGrade(db.Model):
+    __tablename__ = 'route_grade'
+
+    id = db.Column(db.Integer, primary_key=True)
+    grade = db.Column(db.String(10), nullable=False)
+    climbing_type = db.Column(db.String(20), nullable=False)  # solo, belay, boulder
+    points = db.Column(db.Integer, nullable=False)  # Points for sending
+    difficulty_rank = db.Column(db.Integer, nullable=False)  # For ordering
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    routes = db.relationship('Route', backref='grade_info', lazy='dynamic')
+
+    @property
+    def attempt_points(self):
+        """Points awarded for attempting but not sending"""
+        return self.points // 2
+
+    def __repr__(self):
+        return f'<RouteGrade {self.grade} ({self.climbing_type})>'
+
 class Gym(db.Model):
     __tablename__ = 'gym'
 
@@ -26,6 +47,7 @@ class Route(db.Model):
     route_id = db.Column(db.String(50), nullable=False)  # Unique identifier for the route
     color = db.Column(db.String(50), nullable=False)
     grade = db.Column(db.String(10), nullable=False)
+    grade_id = db.Column(db.Integer, db.ForeignKey('route_grade.id'), nullable=False)
     routesetter = db.Column(db.String(100))
     date_set = db.Column(db.DateTime, nullable=False)
     gym_id = db.Column(db.Integer, db.ForeignKey('gym.id'), nullable=False)
@@ -83,6 +105,7 @@ class Climb(db.Model):
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    points = db.Column(db.Integer, default=0)  # Add points field
 
     def __repr__(self):
         return f'<Climb {self.route.color} {self.route.grade}>'

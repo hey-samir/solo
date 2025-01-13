@@ -17,7 +17,7 @@ from sqlalchemy import func
 from flask_wtf.csrf import CSRFProtect
 
 from app import app, db, logger
-from models import Gym, Route, Climb, User, Feedback, FeedbackVote
+from models import Gym, Route, Climb, User, Feedback, FeedbackVote, RouteGrade
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from migrations import migrate
 from errors import (
@@ -177,7 +177,17 @@ def sends():
     # Get routes for user's gym
     routes = []
     if current_user.gym_id:
-        routes = Route.query.filter_by(gym_id=current_user.gym_id).order_by(Route.color, Route.grade).all()
+        routes = Route.query\
+            .join(RouteGrade)\
+            .filter(Route.gym_id == current_user.gym_id)\
+            .order_by(RouteGrade.difficulty_rank)\
+            .all()
+
+        # Clean up route_id display (remove #)
+        for route in routes:
+            if route.route_id.startswith('#'):
+                route.route_id = route.route_id[1:]
+
     return render_template('sends.html', routes=routes)
 
 @app.route('/add_climb', methods=['POST'])
@@ -210,13 +220,17 @@ def add_climb():
         if tries < 1:
             tries = 1
 
+        # Calculate points based on grade_info
+        climb_points = route.grade_info.points if status else route.grade_info.attempt_points
+
         climb = Climb(
             route_id=route.id,
             rating=rating,
             status=status,
             tries=tries,
             notes=request.form.get('notes'),
-            user_id=current_user.id
+            user_id=current_user.id,
+            points=climb_points
         )
 
         # Update route's aggregate rating
@@ -240,6 +254,7 @@ def add_climb():
                     'rating': climb.rating,
                     'status': climb.status,
                     'tries': climb.tries,
+                    'points': climb_points,
                     'notes': climb.notes,
                     'created_at': climb.created_at.isoformat()
                 }
@@ -362,9 +377,9 @@ def sessions():
         db.session.rollback()
         return render_template('sessions.html', climbs_by_date={})
 
-@app.route('/solo')
+@app.route('/profile')
 @login_required
-def solo():
+def profile():
     """
     Handle the user's profile page
     """
@@ -393,13 +408,24 @@ def solo():
 
         logger.debug("Successfully rendered profile page")
         return render_template('solo-profile.html', 
-                            form=form,
-                            total_ascents=total_ascents,
-                            avg_grade=avg_grade,
-                            total_points=total_points)
+                          form=form,
+                          total_ascents=total_ascents,
+                          avg_grade=avg_grade,
+                          total_points=total_points)
     except Exception as e:
         logger.error("Error in profile page: %s", str(e))
-        return render_template('404.html'), 404
+        flash('An error occurred while loading your profile. Please try again.', 'error')
+        return render_template('solo-profile.html', form=ProfileForm())
+
+# Redirect old /solo route to /profile
+@app.route('/solo')
+@login_required
+def solo():
+    """
+    Redirect old /solo route to /profile
+    """
+    return redirect(url_for('profile'))
+
 
 @app.route('/update_profile', methods=['POST'])
 @login_required
@@ -415,10 +441,10 @@ def update_profile():
             if username and username != current_user.username:
                 if not username.isalnum():
                     flash(UPDATE_PROFILE_USERNAME_ERROR, 'error')
-                    return redirect(url_for('solo'))
+                    return redirect(url_for('profile'))
                 if User.query.filter_by(username=username).first():
                     flash(UPDATE_PROFILE_USERNAME_TAKEN_ERROR, 'error')
-                    return redirect(url_for('solo'))
+                    return redirect(url_for('profile'))
                 current_user.username = username
 
             # Update name if provided
@@ -436,19 +462,19 @@ def update_profile():
                         logger.info(f"Updated gym to {gym.id} ({gym.name}) for user {current_user.username}")
                     else:
                         flash('Selected gym not found. Please choose a valid gym.', 'error')
-                        return redirect(url_for('solo'))
+                        return redirect(url_for('profile'))
 
             db.session.commit()
             flash('Profile updated successfully!', 'success')
-            return redirect(url_for('solo'))
+            return redirect(url_for('profile'))
 
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error updating profile: {str(e)}")
             flash(PROFILE_UPDATE_ERROR, 'error')
-            return redirect(url_for('solo'))
+            return redirect(url_for('profile'))
 
-    return redirect(url_for('solo'))
+    return redirect(url_for('profile'))
 
 @app.route('/update_avatar', methods=['POST'])
 @login_required
@@ -459,21 +485,21 @@ def update_avatar():
             current_user.profile_photo = avatar
             db.session.commit()
             flash('Solo photo updated successfully!', 'success')
-        return redirect(url_for('solo'))
+        return redirect(url_for('profile'))
     except Exception as e:
         logger.error(f"Error updating avatar: {str(e)}")
         flash(AVATAR_UPDATE_ERROR, 'error')
-        return redirect(url_for('solo'))
+        return redirect(url_for('profile'))
     
     try:
         if 'photo' not in request.files:
             flash('No file uploaded', 'error')
-            return redirect(url_for('solo'))
+            return redirect(url_for('profile'))
 
         file = request.files['photo']
         if file.filename == '':
             flash('No file selected', 'error')
-            return redirect(url_for('solo'))
+            return redirect(url_for('profile'))
 
         if file and allowed_file(file.filename):
             from PIL import Image
@@ -517,7 +543,7 @@ def update_avatar():
         flash(PROFILE_PHOTO_ERROR, 'error')
         db.session.rollback()
 
-    return redirect(url_for('solo'))
+    return redirect(url_for('profile'))
 
 @app.route('/standings')
 @login_required
