@@ -322,20 +322,35 @@ header {
     height: 100%;
 }
 
-.kpi-card .card-title {
+.feature-card {
+    background-color: #2b354d !important;
+    border: none !important;
+    border-radius: 8px;
+    height: 100%;
+}
+
+.feature-card .card-body {
+    background-color: #2b354d !important;
+    padding: 1rem;
+}
+
+.kpi-card .card-title,
+.feature-card .card-title {
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-color);
     margin-bottom: 0.25rem;
 }
 
-.kpi-card .card-text {
+.kpi-card .card-text,
+.feature-card .card-text {
     font-size: 0.875rem;
     color: var(--text-muted);
     line-height: 1.4;
 }
 
-.kpi-card .material-icons {
+.kpi-card .material-icons,
+.feature-card .material-icons {
     font-size: 2rem;
     color: var(--solo-purple);
     margin-bottom: 0.5rem;
