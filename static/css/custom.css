@@ -2565,3 +2565,30 @@ textarea.form-control {
 .feature-card.kpi-card .card-text {
     background-color: transparent !important;
 }
+
+/* Rating stars styling */
+.rating-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rating {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.rating-star {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6c757d;
+    transition: color 0.2s ease;
+}
+
+.rating-star.active {
+    color: var(--solo-purple);
+}
+
+.rating-star:hover {
+    color: var(--solo-purple-light);
+}

@@ -2,22 +2,51 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize all required elements
     const triesSlider = document.getElementById('triesSlider');
     const triesCounter = document.getElementById('triesCounter');
-    const starsRating = document.querySelector('[data-coreui-toggle="rating"]');
+    const ratingContainer = document.querySelector('.rating');
+    const ratingStars = document.querySelectorAll('.rating-star');
+    const ratingInput = document.getElementById('ratingInput');
     const pointsEstimate = document.getElementById('pointsEstimate');
     const statusToggle = document.getElementById('statusToggle');
     const gradeSelect = document.querySelector('select[name="grade"]');
     const secondaryGradeSelect = document.querySelector('select[name="secondary_grade"]');
     const colorInputs = document.querySelectorAll('input[name="color"]');
 
-    // Debug log to check if elements are found
-    console.log('Elements found:', {
-        triesSlider: !!triesSlider,
-        starsRating: !!starsRating,
-        pointsEstimate: !!pointsEstimate,
-        statusToggle: !!statusToggle,
-        gradeSelect: !!gradeSelect,
-        colorInputs: colorInputs.length
-    });
+    // Initialize star rating system
+    if (ratingContainer && ratingStars.length > 0) {
+        // Set initial rating
+        const initialRating = parseInt(ratingInput.value) || 3;
+        updateStars(initialRating);
+
+        // Add click handlers to stars
+        ratingStars.forEach((star, index) => {
+            star.addEventListener('click', () => {
+                const rating = index + 1;
+                updateStars(rating);
+                ratingInput.value = rating;
+                updatePointsEstimate();
+            });
+
+            // Add hover effects
+            star.addEventListener('mouseenter', () => {
+                updateStars(index + 1, true);
+            });
+
+            star.addEventListener('mouseleave', () => {
+                updateStars(parseInt(ratingInput.value) || 3);
+            });
+        });
+    }
+
+    // Function to update star appearance
+    function updateStars(rating, isHover = false) {
+        ratingStars.forEach((star, index) => {
+            if (index < rating) {
+                star.classList.add('active');
+            } else {
+                star.classList.remove('active');
+            }
+        });
+    }
 
     // Initialize bootstrap slider
     if (triesSlider) {
@@ -47,14 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
             'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
         };
 
-        // Add debug logging
-        console.log('Grade points calculation:', {
-            grade,
-            subGrade,
-            basePoints: basePoints[grade],
-            multiplier: subGradeMultiplier[subGrade]
-        });
-
         return Math.round((basePoints[grade] || 0) * (subGradeMultiplier[subGrade] || 1));
     }
 
@@ -64,18 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const selectedColor = document.querySelector('input[name="color"]:checked');
             const grade = gradeSelect?.value || '';
             const subGrade = secondaryGradeSelect?.value || '';
-            const stars = parseInt(document.getElementById('stars')?.value || 3);
+            const stars = parseInt(ratingInput?.value || 3);
             const isSent = statusToggle?.checked || false;
             const tries = parseInt(triesSlider?.value || 1);
-
-            console.log('Current form values:', {
-                color: selectedColor?.value,
-                grade,
-                subGrade,
-                stars,
-                isSent,
-                tries
-            });
 
             // Only calculate points if both color and grade are selected
             if (!selectedColor || !grade) {
@@ -88,18 +100,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const statusMultiplier = isSent ? 1 : 0.5;
             const triesMultiplier = Math.max(0.1, 1 / Math.sqrt(tries));
 
-            console.log('Points calculation factors:', {
-                basePoints,
-                starMultiplier,
-                statusMultiplier,
-                triesMultiplier
-            });
-
             const points = Math.round(basePoints * starMultiplier * statusMultiplier * triesMultiplier);
 
             if (pointsEstimate) {
                 pointsEstimate.textContent = `Points: ${points}`;
-                console.log('Final points:', points);
             }
         } catch (error) {
             console.error('Error calculating points:', error);
@@ -120,13 +124,6 @@ document.addEventListener('DOMContentLoaded', function() {
         secondaryGradeSelect.addEventListener('change', updatePointsEstimate);
     }
 
-    if (starsRating) {
-        starsRating.addEventListener('change', function(e) {
-            document.getElementById('stars').value = e.detail;
-            updatePointsEstimate();
-        });
-    }
-
     if (statusToggle) {
         const statusButton = document.querySelector('button[type="submit"]');
         const statusLabel = document.getElementById('statusLabel');
@@ -139,8 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const updateLabelVisibility = () => {
             if (statusLabel) {
-                statusLabel.style.opacity = statusToggle.checked ? '1' : '0';
-                statusLabel.style.visibility = statusToggle.checked ? 'visible' : 'hidden';
+                statusLabel.textContent = statusToggle.checked ? 'Sent' : 'Attempted';
             }
         };
 

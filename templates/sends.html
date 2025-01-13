@@ -78,10 +78,18 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="form-label-cell"><label class="form-label">Stars</label></td>
+                                <td class="form-label-cell"><label class="form-label required-field">Stars</label></td>
                                 <td class="form-input-cell">
-                                    <input type="hidden" name="stars" id="stars" value="3">
-                                    <div data-coreui-toggle="rating" data-coreui-value="3" class="rating-stars"></div>
+                                    <div class="rating-container">
+                                        <input type="hidden" name="rating" id="ratingInput" value="3">
+                                        <div class="rating" data-coreui-toggle="rating" data-coreui-value="3">
+                                            <i class="rating-star bi bi-star-fill"></i>
+                                            <i class="rating-star bi bi-star-fill"></i>
+                                            <i class="rating-star bi bi-star-fill"></i>
+                                            <i class="rating-star bi bi-star-fill"></i>
+                                            <i class="rating-star bi bi-star-fill"></i>
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
@@ -102,6 +110,8 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Add Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
 <!-- Add Bootstrap Slider -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js"></script>
