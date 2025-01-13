@@ -458,12 +458,39 @@ textarea.form-control:focus {
     flex: 1 1 auto;
 }
 
-/* Helper text */
+/* Form select styling */
+.form-select,
+.form-select-lg {
+    background-color: var(--input-bg) !important;
+    border: 2px solid var(--border-color) !important;
+    color: var(--input-text) !important;
+    padding: 1rem !important;
+    font-size: 1.1rem !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    min-height: 48px;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.form-select:hover,
+.form-select-lg:hover {
+    border-color: rgba(116, 66, 214, 0.5) !important;
+}
+
+.form-select:focus,
+.form-select-lg:focus {
+    border-color: var(--solo-purple) !important;
+    box-shadow: 0 0 0 3px rgba(116, 66, 214, 0.15) !important;
+    outline: none;
+}
+
+/* Helper text styling */
 .form-text {
-    color: var(--text-color) !important;
+    color: rgba(255, 255, 255, 0.7) !important;
     font-size: 0.875rem !important;
     margin-top: 0.5rem !important;
-    opacity: 0.8;
+    line-height: 1.4;
 }
 
 /* Slider styling */
@@ -2191,7 +2218,7 @@ header {
     transition: all 0.2s ease;
 }
 
-.avatar-option input[type="radio"]:checked + img {
+.avatar-option input[type"radio"]:checked + img {
     border-color: var(--solo-purple);
     transform: scale(1.1);
 }
