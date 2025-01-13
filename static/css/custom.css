@@ -313,6 +313,34 @@ header {
     font-weight: 500;
 }
 
+/* KPI card styling */
+.kpi-card {
+    background-color: #2b354d !important;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    height: 100%;
+}
+
+.kpi-card .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.25rem;
+}
+
+.kpi-card .card-text {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.kpi-card .material-icons {
+    font-size: 2rem;
+    color: var(--solo-purple);
+    margin-bottom: 0.5rem;
+}
+
 /* Form styles */
 /* Input fields */
 :root {
@@ -1092,7 +1120,7 @@ select[name="secondary_grade"] {
 .input-group-text,
 .input-group select.form-select {
     display: flex;
-    align-items: center;
+    alignitems: center;
     vertical-align: middle !important;
 }
 
