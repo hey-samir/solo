@@ -1740,22 +1740,19 @@ input[type="password"].form-control-lg {
 
 .sends-container {
     max-width: 450px !important;
-    margin: 1rem auto !important;
-    padding: 0 !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.sends-container .card {
-    width: 450px !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     padding: 1rem !important;
 }
 
+.sends-container .card {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
 .sends-container .btn-primary {
-    width: calc(100% - 2rem) !important;
-    margin: 0.5rem 1rem !important;
+    width: 100% !important;
+    margin: 0 !important;
 }
 
 .sends-container .input-group {
