@@ -2,6 +2,49 @@ from app import db
 from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.sql import func
+
+class Gym(db.Model):
+    __tablename__ = 'gym'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    location = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationships
+    users = db.relationship('User', backref='home_gym', lazy='dynamic')
+    routes = db.relationship('Route', backref='gym', lazy='dynamic', cascade='all, delete-orphan')
+
+    def __repr__(self):
+        return f'<Gym {self.name}>'
+
+class Route(db.Model):
+    __tablename__ = 'route'
+
+    id = db.Column(db.Integer, primary_key=True)
+    route_id = db.Column(db.String(50), unique=True, nullable=False)  # Unique identifier for the route
+    color = db.Column(db.String(50), nullable=False)
+    grade = db.Column(db.String(10), nullable=False)
+    routesetter = db.Column(db.String(100))
+    date_set = db.Column(db.DateTime, nullable=False)
+    gym_id = db.Column(db.Integer, db.ForeignKey('gym.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Aggregated rating
+    avg_rating = db.Column(db.Float, default=0)
+    rating_count = db.Column(db.Integer, default=0)
+
+    # Relationships
+    climbs = db.relationship('Climb', backref='route', lazy='dynamic')
+
+    def __repr__(self):
+        return f'<Route {self.route_id} - {self.color} {self.grade}>'
+
+    def update_rating(self, new_rating):
+        """Update the average rating when a new rating is added"""
+        self.avg_rating = ((self.avg_rating * self.rating_count) + new_rating) / (self.rating_count + 1)
+        self.rating_count += 1
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'
@@ -11,10 +54,11 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
     name = db.Column(db.String(100))
-    gym = db.Column(db.String(100))
+    gym_id = db.Column(db.Integer, db.ForeignKey('gym.id'))  # Changed from string to FK
     member_since = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     profile_photo = db.Column(db.String(255), default='white-solo-av.png')
 
+    # Relationships
     climbs = db.relationship('Climb', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     feedback = db.relationship('Feedback', backref='user', lazy='dynamic', cascade='all, delete-orphan')
     feedback_votes = db.relationship('FeedbackVote', backref='user', lazy='dynamic', cascade='all, delete-orphan')
@@ -30,8 +74,7 @@ class User(UserMixin, db.Model):
 
 class Climb(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    color = db.Column(db.String(50), nullable=False)
-    grade = db.Column(db.String(10), nullable=True)  # Stores the climbing grade (e.g., "5.10a")
+    route_id = db.Column(db.Integer, db.ForeignKey('route.id'), nullable=False)  # Reference to specific route
     rating = db.Column(db.Integer, nullable=False)  # User's 1-5 star rating of the climb
     status = db.Column(db.Boolean, nullable=False, default=False)
     tries = db.Column(db.Integer, nullable=False, default=1)
@@ -40,7 +83,7 @@ class Climb(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def __repr__(self):
-        return f'<Climb {self.color} {self.grade}>'
+        return f'<Climb {self.route.color} {self.route.grade}>'
 
 class Feedback(db.Model):
     id = db.Column(db.Integer, primary_key=True)

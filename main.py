@@ -1,5 +1,5 @@
 import os
-from flask import render_template, request, redirect, url_for, flash, send_from_directory, current_app
+from flask import render_template, request, redirect, url_for, flash, send_from_directory, current_app, session
 from flask_login import login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
 from app import app, db
@@ -87,7 +87,7 @@ def sign_up():
         username = form.username.data
         email = form.email.data
         name = form.name.data
-        gym = form.gym.data
+        gym_choice = form.gym.data
 
         if not username.isalnum():
             flash(REGISTRATION_USERNAME_ERROR, 'error')
@@ -101,7 +101,23 @@ def sign_up():
             flash(REGISTRATION_EMAIL_TAKEN_ERROR, 'error')
             return render_template('register.html', form=form)
 
-        user = User(username=username, email=email, name=name, gym=gym)
+        # Handle "Submit your gym" selection
+        if gym_choice == 'feedback':
+            session['pending_registration'] = {
+                'username': username,
+                'email': email,
+                'name': name,
+                'password': form.password.data
+            }
+            return redirect(url_for('feedback'))
+
+        # Create user with selected gym
+        user = User(
+            username=username,
+            email=email,
+            name=name,
+            gym_id=int(gym_choice) if gym_choice.isdigit() else None
+        )
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
@@ -335,7 +351,7 @@ def update_profile():
     if form.validate_on_submit():
         username = form.username.data
         name = form.name.data
-        gym = form.gym.data
+        gym_choice = form.gym.data
 
         if username and username != current_user.username:
             if not username.isalnum():
@@ -348,8 +364,12 @@ def update_profile():
 
         if name:
             current_user.name = name
-        if gym is not None:  # Allow empty string to clear gym
-            current_user.gym = gym
+
+        # Handle gym selection
+        if gym_choice == 'feedback':
+            return redirect(url_for('feedback'))
+        elif gym_choice:
+            current_user.gym_id = int(gym_choice) if gym_choice.isdigit() else None
 
         try:
             db.session.commit()
@@ -683,7 +703,8 @@ def submit_feedback():
                     
                     try:
                         filename = secure_filename(f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
-                        upload_folder = os.path.join(app.static_folder, 'images', 'feedback')os.makedirs(upload_folder, exist_ok=True)
+                        upload_folder = os.path.join(app.static_folder, 'images', 'feedback')
+                        os.makedirs(upload_folder, exist_ok=True)
 
                         file_path = os.path.join(upload_folder, filename)
                         file.save(file_path)

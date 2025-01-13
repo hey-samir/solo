@@ -33,9 +33,11 @@
                                placeholder="8-12 characters, letters, numbers, symbols allowed">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Gym</label>
-                        <input type="text" name="gym" class="form-control form-control-lg"
-                               placeholder="Enter your gym name">
+                        <label class="form-label required-field">Gym</label>
+                        {{ form.gym(class="form-select form-select-lg") }}
+                        <small class="form-text text-muted">
+                            Don't see your gym? Select "Submit your gym" to request it.
+                        </small>
                     </div>
                     <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100 fs-4">Join</button>
                 </form>
