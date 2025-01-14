@@ -44,18 +44,25 @@ login_manager.login_message = "Please log in to access this page."
 @login_manager.user_loader
 def load_user(id):
     from models import User
-    return User.query.get(int(id))
+    return db.session.get(User, int(id))
 
 # Create all tables after importing models
 with app.app_context():
     # Import models here to avoid circular imports
     from models import User, Gym, Route, Climb, Feedback, FeedbackVote, RouteGrade
     try:
+        # Ensure static/images directory exists
+        os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
+
         db.create_all()
         logger.info("Database tables created successfully")
+
         # Generate PWA icons from favicon
-        generate_pwa_icons()
-        logger.info("PWA icons generated successfully")
+        if generate_pwa_icons():
+            logger.info("PWA icons generated successfully")
+        else:
+            logger.warning("Failed to generate PWA icons")
+
     except Exception as e:
         logger.error(f"Initialization error: {e}")
         raise

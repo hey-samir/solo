@@ -9,7 +9,7 @@ from flask import (
     send_from_directory, current_app, session, jsonify
 )
 from flask_login import (
-    LoginManager, login_required, current_user,
+    login_required, current_user,
     login_user, logout_user
 )
 from werkzeug.utils import secure_filename
@@ -19,6 +19,7 @@ from flask_wtf.csrf import CSRFProtect
 # Local imports
 from app import app, db, logger
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
+from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade
 from errors import (
     LOGIN_ERROR, REGISTRATION_USERNAME_ERROR, REGISTRATION_USERNAME_TAKEN_ERROR,
     REGISTRATION_EMAIL_TAKEN_ERROR, UPDATE_PROFILE_USERNAME_ERROR,
@@ -27,50 +28,13 @@ from errors import (
     SEND_UPDATE_ERROR, INTERNAL_SERVER_ERROR
 )
 
-# Initialize Flask-Login
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    from models import User
-    return User.query.get(int(user_id))
-
-# Define grade ranking system
-grade_rank = {
-    '5.0': 1, '5.1': 2, '5.2': 3, '5.3': 4, '5.4': 5,
-    '5.5': 6, '5.6': 7, '5.7': 8, '5.8': 9, '5.9': 10,
-    '5.10a': 11, '5.10b': 12, '5.10c': 13, '5.10d': 14,
-    '5.11a': 15, '5.11b': 16, '5.11c': 17, '5.11d': 18,
-    '5.12a': 19, '5.12b': 20, '5.12c': 21, '5.12d': 22,
-    '5.13a': 23, '5.13b': 24, '5.13c': 25, '5.13d': 26,
-    '5.14a': 27, '5.14b': 28, '5.14c': 29, '5.14d': 30,
-    '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
-}
-rank_to_grade = {v: k for k, v in grade_rank.items()}
-
-# Run migrations, adding RouteGrade table check
-def migrate():
-    try:
-        db.session.execute("SELECT 1 FROM route_grade LIMIT 1")
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        if "no such table" in str(e).lower():
-            with app.app_context():
-                db.create_all()
-                logger.info("RouteGrade table created.")
-        else:
-            logger.error(f"Error checking/creating RouteGrade table: {str(e)}")
-
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
 
 # Create static/images directory if it doesn't exist
 os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
 
-# Copy solo-clear.png to static/images
+# Copy solo-clear.png to static/images if needed
 source_logo = os.path.join('attached_assets', 'solo-clear.png')
 dest_logo = os.path.join(app.static_folder, 'images', 'solo-clear.png')
 if os.path.exists(source_logo) and not os.path.exists(dest_logo):
@@ -96,7 +60,6 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        from models import User
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
@@ -141,8 +104,6 @@ def sign_up():
             return redirect(url_for('feedback'))
 
         try:
-            # Create new user with gym
-            from models import User, Gym
             gym_id = int(gym_choice) if gym_choice and gym_choice != 'feedback' else None
 
             # Verify gym exists if one was selected
@@ -187,8 +148,6 @@ def logout():
 @app.route('/sends')
 @login_required
 def sends():
-    from models import Route, RouteGrade
-    # Get routes for user's gym
     routes = []
     if current_user.gym_id:
         routes = Route.query\
@@ -215,7 +174,6 @@ def add_climb():
             flash('Please select a route', 'error')
             return redirect(url_for('sends'))
 
-        from models import Route
         route = Route.query.get(route_id)
         if not route:
             flash('Invalid route selected', 'error')
@@ -238,7 +196,6 @@ def add_climb():
         # Calculate points based on grade_info
         climb_points = route.grade_info.points if status else route.grade_info.attempt_points
 
-        from models import Climb
         climb = Climb(
             route_id=route.id,
             rating=rating,
@@ -296,7 +253,6 @@ def add_climb():
 @app.route('/api/stats')
 @login_required
 def api_stats():
-    from models import Climb
     user = current_user
     sends = [c for c in user.climbs if c.status is True]
     attempts = [c for c in user.climbs if not c.status]
@@ -365,7 +321,6 @@ def sessions():
         app.logger.info(f"Fetching sessions for user {current_user.id}")
 
         # Get all climbs for the current user, ordered by date and color
-        from models import Climb, Route
         climbs = db.session.query(Climb, Route)\
             .join(Route)\
             .filter(Climb.user_id == current_user.id)\
@@ -403,7 +358,6 @@ def profile():
     """
     logger.debug("Accessing profile page for user: %s", current_user.username if current_user else 'Anonymous')
     try:
-        from forms import ProfileForm
         form = ProfileForm(obj=current_user)  # Pre-fill form with current user data
 
         # Calculate KPI metrics
@@ -449,8 +403,6 @@ def solo():
 @app.route('/update_profile', methods=['POST'])
 @login_required
 def update_profile():
-    from forms import ProfileForm
-    from models import Gym
     form = ProfileForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -569,7 +521,6 @@ def update_avatar():
 @app.route('/standings')
 @login_required
 def standings():
-    from models import User, Climb
     users = User.query.all()
     leaderboard = []
 
@@ -606,7 +557,6 @@ def standings():
 @app.route('/stats')
 @login_required
 def stats():
-    from models import Climb
     climbs = list(current_user.climbs)
     sends = [c for c in climbs if c.status]
     attempts = [c for c in climbs if not c.status]
@@ -772,13 +722,10 @@ def feedback():
     The feedback route is accessible without login to allow new gym submissions
     """
     try:
-        from forms import FeedbackForm
         form = FeedbackForm()
         sort = request.args.get('sort', 'new')
 
         # Query feedback items
-        from models import Feedback, FeedbackVote
-        from sqlalchemy import func
         if sort == 'top':
             feedback_items = Feedback.query.join(FeedbackVote, isouter=True)\
                 .group_by(Feedback.id)\
@@ -790,7 +737,7 @@ def feedback():
         pending_registration = session.get('pending_registration')
         if pending_registration:
             form.title.data = "New Gym Submission"
-            form.description.data = f"Please add my gym to Solo!\n\nGym Name: \nLocation: \nAdditional Details: "
+            form.description.data = f"Please add mygym to Solo!\n\nGym Name: \nLocation: \nAdditional Details: "
             form.category.data = 'new_gym'
 
         return render_template('feedback.html', form=form, feedback_items=feedback_items, sort=sort)
@@ -915,7 +862,6 @@ def handle_error(error):
     logger.error(f'Error: {str(error)}')
     return render_template('404.html', error="Internal Server Error"), 500
 
-from sqlalchemy import func
 import shutil
 
 if __name__ == '__main__':
