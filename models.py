@@ -53,7 +53,7 @@ class Route(db.Model):
     gym_id = db.Column(db.Integer, db.ForeignKey('gym.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # New fields for better route identification
+    # Enhanced fields for better route identification
     wall_sector = db.Column(db.String(50), nullable=False, default='Main Wall')  # Location within gym
     route_type = db.Column(db.String(20), nullable=False, default='top_rope')  # top_rope, lead, auto_belay
     height_meters = db.Column(db.Float)  # Height of the route
@@ -67,11 +67,13 @@ class Route(db.Model):
     rating_count = db.Column(db.Integer, default=0)
 
     # Relationships
-    climbs = db.relationship('Climb', backref='route', lazy='dynamic')
+    climbs = db.relationship('Climb', backref='route', lazy='dynamic', cascade='all, delete-orphan')
 
     # Add unique constraint for route_id within each gym
     __table_args__ = (
         db.UniqueConstraint('route_id', 'gym_id', name='unique_route_per_gym'),
+        db.Index('idx_route_location', 'gym_id', 'wall_sector', 'anchor_number'),
+        db.Index('idx_route_search', 'gym_id', 'active', 'grade_id', 'color'),
     )
 
     def __repr__(self):
@@ -81,6 +83,11 @@ class Route(db.Model):
         """Update the average rating when a new rating is added"""
         self.avg_rating = ((self.avg_rating * self.rating_count) + new_rating) / (self.rating_count + 1)
         self.rating_count += 1
+
+    @property
+    def full_identifier(self):
+        """Generate a human-readable unique identifier for the route"""
+        return f"{self.wall_sector} - {self.anchor_number} - {self.color} {self.grade}"
 
 class User(UserMixin, db.Model):
     __tablename__ = 'user'

@@ -4,6 +4,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
+from flask_migrate import Migrate
 from utils.icon_generator import generate_pwa_icons
 
 # Configure logging
@@ -19,6 +20,7 @@ class Base(DeclarativeBase):
 # Initialize core extensions
 db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
+migrate = Migrate()
 
 # create the app
 app = Flask(__name__)
@@ -38,6 +40,8 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 # Initialize extensions with app
 db.init_app(app)
 login_manager.init_app(app)
+migrate.init_app(app, db)
+
 login_manager.login_view = 'login'
 login_manager.login_message = "Please log in to access this page."
 
@@ -53,9 +57,6 @@ with app.app_context():
     try:
         # Ensure static/images directory exists
         os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
-
-        db.create_all()
-        logger.info("Database tables created successfully")
 
         # Generate PWA icons from favicon
         if generate_pwa_icons():

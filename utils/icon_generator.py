@@ -1,5 +1,5 @@
 import os
-from PIL import Image
+from PIL import Image, ImageDraw
 
 def generate_pwa_icons():
     """Generate various sized icons for PWA from the source favicon."""
@@ -25,25 +25,37 @@ def generate_pwa_icons():
                 img = img.convert('RGBA')
 
             # Generate each size
-            for filename, size in icon_sizes.items():
+            for filename, target_size in icon_sizes.items():
                 # Create a new image with white background
-                background = Image.new('RGBA', (size, size), (255, 255, 255, 0))
+                background = Image.new('RGBA', (target_size, target_size), (255, 255, 255, 255))
 
-                # Resize maintaining aspect ratio
-                aspect = img.size[0] / img.size[1]
-                if aspect > 1:
-                    new_size = (size, int(size / aspect))
-                else:
-                    new_size = (int(size * aspect), size)
+                # Calculate the size to maintain aspect ratio with padding
+                padding_factor = 0.9  # 10% padding
+                available_size = int(target_size * padding_factor)
 
-                resized = img.resize(new_size, Image.Resampling.LANCZOS)
+                # Calculate new dimensions maintaining aspect ratio
+                ratio = min(available_size / img.width, available_size / img.height)
+                new_width = int(img.width * ratio)
+                new_height = int(img.height * ratio)
 
-                # Calculate position to center the image
-                position = ((size - new_size[0]) // 2, (size - new_size[1]) // 2)
+                # Resize the image with high-quality resampling
+                resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
+
+                # Calculate position to center
+                x = (target_size - new_width) // 2
+                y = (target_size - new_height) // 2
+
+                # Create a circular mask if size is large enough
+                if target_size >= 96:
+                    mask = Image.new('L', (target_size, target_size), 0)
+                    draw = ImageDraw.Draw(mask)
+                    draw.ellipse((0, 0, target_size, target_size), fill=255)
+                    background.putalpha(mask)
 
                 # Paste the resized image onto the background
-                background.paste(resized, position, resized)
+                background.paste(resized, (x, y), resized)
 
+                # Save the final icon with high quality
                 output_path = os.path.join(static_dir, filename)
                 background.save(output_path, 'PNG', quality=95)
 
