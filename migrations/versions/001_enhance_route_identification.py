@@ -13,30 +13,44 @@ branch_labels = None
 depends_on = None
 
 def upgrade():
-    # Add new columns to route table
+    # Add new columns for enhanced route identification
     op.add_column('route', sa.Column('wall_sector', sa.String(50), nullable=False, server_default='Main Wall'))
     op.add_column('route', sa.Column('route_type', sa.String(20), nullable=False, server_default='top_rope'))
     op.add_column('route', sa.Column('height_meters', sa.Float(), nullable=True))
     op.add_column('route', sa.Column('active', sa.Boolean(), nullable=False, server_default='true'))
     op.add_column('route', sa.Column('anchor_number', sa.Integer(), nullable=True))
     op.add_column('route', sa.Column('hold_style', sa.String(50), nullable=True))
-    op.add_column('route', sa.Column('tags', sa.String(200), nullable=True))
-    op.add_column('route', sa.Column('avg_rating', sa.Float(), nullable=False, server_default='0'))
-    op.add_column('route', sa.Column('rating_count', sa.Integer(), nullable=False, server_default='0'))
+
+    # Rename existing rating columns to stars for consistency
+    op.alter_column('route', 'avg_rating', 
+                    new_column_name='avg_stars',
+                    existing_type=sa.Float(),
+                    existing_nullable=True)
+    op.alter_column('route', 'rating_count', 
+                    new_column_name='stars_count',
+                    existing_type=sa.Integer(),
+                    existing_nullable=True)
 
     # Create indexes for efficient querying
     op.create_index('idx_route_location', 'route', ['gym_id', 'wall_sector', 'anchor_number'])
     op.create_index('idx_route_search', 'route', ['gym_id', 'active', 'grade_id', 'color'])
 
 def downgrade():
-    # Drop indexes
+    # Drop indexes first to avoid dependency issues
     op.drop_index('idx_route_search')
     op.drop_index('idx_route_location')
 
-    # Drop columns
-    op.drop_column('route', 'rating_count')
-    op.drop_column('route', 'avg_rating')
-    op.drop_column('route', 'tags')
+    # Rename stars columns back to rating
+    op.alter_column('route', 'avg_stars', 
+                    new_column_name='avg_rating',
+                    existing_type=sa.Float(),
+                    existing_nullable=True)
+    op.alter_column('route', 'stars_count', 
+                    new_column_name='rating_count',
+                    existing_type=sa.Integer(),
+                    existing_nullable=True)
+
+    # Drop added columns in reverse order
     op.drop_column('route', 'hold_style')
     op.drop_column('route', 'anchor_number')
     op.drop_column('route', 'active')

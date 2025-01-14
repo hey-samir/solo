@@ -60,11 +60,10 @@ class Route(db.Model):
     active = db.Column(db.Boolean, default=True)  # Whether the route is currently set
     anchor_number = db.Column(db.Integer)  # Physical anchor/station number
     hold_style = db.Column(db.String(50))  # Type of holds used (crimps, jugs, etc)
-    tags = db.Column(db.String(200))  # Comma-separated tags for route characteristics
 
-    # Aggregated rating
-    avg_rating = db.Column(db.Float, default=0)
-    rating_count = db.Column(db.Integer, default=0)
+    # Aggregated stars (renamed from rating)
+    avg_stars = db.Column(db.Float, default=0)
+    stars_count = db.Column(db.Integer, default=0)
 
     # Relationships
     climbs = db.relationship('Climb', backref='route', lazy='dynamic', cascade='all, delete-orphan')
@@ -79,10 +78,10 @@ class Route(db.Model):
     def __repr__(self):
         return f'<Route {self.route_id} - {self.color} {self.grade} ({self.wall_sector})>'
 
-    def update_rating(self, new_rating):
-        """Update the average rating when a new rating is added"""
-        self.avg_rating = ((self.avg_rating * self.rating_count) + new_rating) / (self.rating_count + 1)
-        self.rating_count += 1
+    def update_stars(self, new_stars):
+        """Update the average stars when a new rating is added"""
+        self.avg_stars = ((self.avg_stars * self.stars_count) + new_stars) / (self.stars_count + 1)
+        self.stars_count += 1
 
     @property
     def full_identifier(self):
