@@ -9,16 +9,26 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/static/images/logo.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "src": "/static/images/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
     },
     {
-      "src": "/static/images/logo.png",
+      "src": "/static/images/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/static/images/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ],
   "categories": ["sports", "fitness"],
@@ -26,12 +36,12 @@
     {
       "name": "Log Climb",
       "url": "/sends",
-      "icons": [{ "src": "/static/images/logo.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/static/images/android-chrome-96x96.png", "sizes": "96x96" }]
     },
     {
       "name": "View Stats",
       "url": "/stats",
-      "icons": [{ "src": "/static/images/logo.png", "sizes": "96x96" }]
+      "icons": [{ "src": "/static/images/android-chrome-96x96.png", "sizes": "96x96" }]
     }
   ]
 }

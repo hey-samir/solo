@@ -4,6 +4,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
+from utils.icon_generator import generate_pwa_icons
 
 # Configure logging
 logging.basicConfig(
@@ -52,6 +53,9 @@ with app.app_context():
     try:
         db.create_all()
         logger.info("Database tables created successfully")
+        # Generate PWA icons from favicon
+        generate_pwa_icons()
+        logger.info("PWA icons generated successfully")
     except Exception as e:
-        logger.error(f"Database initialization error: {e}")
+        logger.error(f"Initialization error: {e}")
         raise

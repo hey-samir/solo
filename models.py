@@ -53,6 +53,15 @@ class Route(db.Model):
     gym_id = db.Column(db.Integer, db.ForeignKey('gym.id'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # New fields for better route identification
+    wall_sector = db.Column(db.String(50), nullable=False, default='Main Wall')  # Location within gym
+    route_type = db.Column(db.String(20), nullable=False, default='top_rope')  # top_rope, lead, auto_belay
+    height_meters = db.Column(db.Float)  # Height of the route
+    active = db.Column(db.Boolean, default=True)  # Whether the route is currently set
+    anchor_number = db.Column(db.Integer)  # Physical anchor/station number
+    hold_style = db.Column(db.String(50))  # Type of holds used (crimps, jugs, etc)
+    tags = db.Column(db.String(200))  # Comma-separated tags for route characteristics
+
     # Aggregated rating
     avg_rating = db.Column(db.Float, default=0)
     rating_count = db.Column(db.Integer, default=0)
@@ -60,8 +69,13 @@ class Route(db.Model):
     # Relationships
     climbs = db.relationship('Climb', backref='route', lazy='dynamic')
 
+    # Add unique constraint for route_id within each gym
+    __table_args__ = (
+        db.UniqueConstraint('route_id', 'gym_id', name='unique_route_per_gym'),
+    )
+
     def __repr__(self):
-        return f'<Route {self.route_id} - {self.color} {self.grade}>'
+        return f'<Route {self.route_id} - {self.color} {self.grade} ({self.wall_sector})>'
 
     def update_rating(self, new_rating):
         """Update the average rating when a new rating is added"""
