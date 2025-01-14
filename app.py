@@ -21,9 +21,11 @@ login_manager = LoginManager()
 
 # create the app
 app = Flask(__name__)
+
 # setup a secret key, required by sessions
 app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "dev_key_solo_climbing"
-# configure the database, relative to the app instance folder
+
+# configure the database
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,
@@ -50,10 +52,6 @@ with app.app_context():
     try:
         db.create_all()
         logger.info("Database tables created successfully")
-        # Run migrations
-        from migrations import migrate
-        migrate()
-        logger.info("Database migrations completed successfully")
     except Exception as e:
         logger.error(f"Database initialization error: {e}")
         raise
