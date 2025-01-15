@@ -77,7 +77,7 @@ def login():
 @app.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
     if current_user.is_authenticated:
-        return redirect(url_for('sends'))
+        return redirect(url_for('profile'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
@@ -135,7 +135,7 @@ def sign_up():
 
             login_user(user)
             flash('Welcome to Solo! Your account has been created successfully.', 'success')
-            return redirect(url_for('sends'))
+            return redirect(url_for('profile'))
 
         except Exception as e:
             db.session.rollback()
@@ -733,9 +733,13 @@ def feedback():
 
         # Query feedback items
         if sort == 'top':
-            feedback_items = Feedback.query.join(FeedbackVote, isouter=True)\
-                .group_by(Feedback.id)\
-                .order_by(func.count(FeedbackVote.id).desc()).all()
+            feedback_items = (
+                Feedback.query
+                .join(FeedbackVote, isouter=True)
+                .group_by(Feedback.id)
+                .order_by(func.count(FeedbackVote.id).desc())
+                .all()
+            )
         else:  # 'new' is default
             feedback_items = Feedback.query.order_by(Feedback.created_at.desc()).all()
 
