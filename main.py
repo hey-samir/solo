@@ -20,12 +20,16 @@ from flask_wtf.csrf import CSRFProtect
 from app import app, db, logger
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade
-from errors import (
+from notifications import (
     LOGIN_ERROR, REGISTRATION_USERNAME_ERROR, REGISTRATION_USERNAME_TAKEN_ERROR,
     REGISTRATION_EMAIL_TAKEN_ERROR, UPDATE_PROFILE_USERNAME_ERROR,
     UPDATE_PROFILE_USERNAME_TAKEN_ERROR, PROFILE_UPDATE_ERROR,
     PROFILE_PHOTO_ERROR, AVATAR_UPDATE_ERROR, SEND_UPDATE_SUCCESS,
-    SEND_UPDATE_ERROR, INTERNAL_SERVER_ERROR
+    SEND_UPDATE_ERROR, INTERNAL_SERVER_ERROR, LOGIN_REQUIRED,
+    GYM_SUBMISSION_INFO, REGISTRATION_SUCCESS, PROFILE_UPDATE_SUCCESS,
+    AVATAR_UPDATE_SUCCESS, PROFILE_PHOTO_UPDATE_SUCCESS, FEEDBACK_SUBMIT_SUCCESS,
+    NO_ROUTE_SELECTED, GYM_NOT_FOUND, NO_FILE_UPLOADED, NO_FILE_SELECTED,
+    INVALID_FILE_TYPE, DATABASE_ERROR, FILE_UPLOAD_ERROR
 )
 
 # Initialize CSRF protection
@@ -171,7 +175,7 @@ def add_climb():
 
         route_id = request.form.get('route_id')
         if not route_id:
-            flash('Please select a route', 'error')
+            flash(NO_ROUTE_SELECTED, 'error')
             return redirect(url_for('sends'))
 
         route = Route.query.get(route_id)
@@ -434,11 +438,11 @@ def update_profile():
                         current_user.gym_id = gym.id
                         logger.info(f"Updated gym to {gym.id} ({gym.name}) for user {current_user.username}")
                     else:
-                        flash('Selected gym not found. Please choose a valid gym.', 'error')
+                        flash(GYM_NOT_FOUND, 'error')
                         return redirect(url_for('profile'))
 
             db.session.commit()
-            flash('Profile updated successfully!', 'success')
+            flash(PROFILE_UPDATE_SUCCESS, 'success')
             return redirect(url_for('profile'))
 
         except Exception as e:
@@ -457,7 +461,7 @@ def update_avatar():
         if avatar:
             current_user.profile_photo = avatar
             db.session.commit()
-            flash('Solo photo updated successfully!', 'success')
+            flash(AVATAR_UPDATE_SUCCESS, 'success')
         return redirect(url_for('profile'))
     except Exception as e:
         logger.error(f"Error updating avatar: {str(e)}")
@@ -466,12 +470,12 @@ def update_avatar():
     
     try:
         if 'photo' not in request.files:
-            flash('No file uploaded', 'error')
+            flash(NO_FILE_UPLOADED, 'error')
             return redirect(url_for('profile'))
 
         file = request.files['photo']
         if file.filename == '':
-            flash('No file selected', 'error')
+            flash(NO_FILE_SELECTED, 'error')
             return redirect(url_for('profile'))
 
         if file and allowed_file(file.filename):
@@ -508,9 +512,9 @@ def update_avatar():
             current_user.profile_photo = f"profiles/{filename}"
             db.session.commit()
 
-            flash('Profile photo updated successfully!', 'success')
+            flash(PROFILE_PHOTO_UPDATE_SUCCESS, 'success')
         else:
-            flash('Invalid file type. Please upload a PNG or JPEG image.', 'error')
+            flash(INVALID_FILE_TYPE, 'error')
     except Exception as e:
         logger.error(f"Error processing photo: {str(e)}")
         flash(PROFILE_PHOTO_ERROR, 'error')
@@ -771,7 +775,7 @@ def submit_feedback():
                 file = form.screenshot.data
                 if file.filename != '':
                     if not allowed_file(file.filename):
-                        flash('Invalid file type. Please use PNG, JPG, or JPEG.', 'error')
+                        flash(INVALID_FILE_TYPE, 'error')
                         return redirect(url_for('feedback'))
 
                     try:
@@ -784,7 +788,7 @@ def submit_feedback():
                         feedback.screenshot_url = f"images/feedback/{filename}"
                     except Exception as e:
                         logger.error(f"File upload error: {str(e)}")
-                        flash('Error uploading file. Please try again.', 'error')
+                        flash(FILE_UPLOAD_ERROR, 'error')
                         return redirect(url_for('feedback'))
 
             db.session.add(feedback)
@@ -794,12 +798,12 @@ def submit_feedback():
             if 'pending_registration' in session:
                 session.pop('pending_registration')
 
-            flash('Your feedback has reached the summit! Thanks for helping us improve.', 'success')
+            flash(FEEDBACK_SUBMIT_SUCCESS, 'success')
             return redirect(url_for('feedback'))
         except Exception as e:
             logger.error(f"Error submitting feedback: {str(e)}")
             db.session.rollback()
-            flash('Database error. Please try again.', 'error')
+            flash(DATABASE_ERROR, 'error')
             return redirect(url_for('feedback'))
 
     return redirect(url_for('feedback'))
