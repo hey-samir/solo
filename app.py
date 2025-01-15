@@ -48,23 +48,25 @@ login_manager.login_message = LOGIN_REQUIRED
 
 @login_manager.user_loader
 def load_user(id):
-    from models import User
+    from models import User  # Import here to avoid circular imports
     return db.session.get(User, int(id))
 
-# Create all tables after importing models
-with app.app_context():
-    # Import models here to avoid circular imports
-    from models import User, Gym, Route, Climb, Feedback, FeedbackVote, RouteGrade
-    try:
-        # Ensure static/images directory exists
-        os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
+# Import models and create tables
+def init_app():
+    with app.app_context():
+        from models import User, Gym, Route, Climb, Feedback, FeedbackVote, RouteGrade
+        try:
+            # Ensure static/images directory exists
+            os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
 
-        # Generate PWA icons from favicon
-        if generate_pwa_icons():
-            logger.info("PWA icons generated successfully")
-        else:
-            logger.warning("Failed to generate PWA icons")
+            # Generate PWA icons from favicon
+            if generate_pwa_icons():
+                logger.info("PWA icons generated successfully")
+            else:
+                logger.warning("Failed to generate PWA icons")
 
-    except Exception as e:
-        logger.error(f"Initialization error: {e}")
-        raise
+        except Exception as e:
+            logger.error(f"Initialization error: {e}")
+            raise
+
+init_app()

@@ -20,7 +20,7 @@ from flask_wtf.csrf import CSRFProtect
 from app import app, db, logger
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
-from notifications import (
+from errors import (
     LOGIN_REQUIRED, LOGIN_ERROR, REGISTRATION_USERNAME_ERROR,
     REGISTRATION_USERNAME_TAKEN_ERROR, REGISTRATION_EMAIL_TAKEN_ERROR,
     UPDATE_PROFILE_USERNAME_ERROR, UPDATE_PROFILE_USERNAME_TAKEN_ERROR,
@@ -30,7 +30,8 @@ from notifications import (
     AVATAR_UPDATE_SUCCESS, PROFILE_PHOTO_UPDATE_SUCCESS,
     FEEDBACK_SUBMIT_SUCCESS, NO_ROUTE_SELECTED, GYM_NOT_FOUND,
     NO_FILE_UPLOADED, NO_FILE_SELECTED, INVALID_FILE_TYPE,
-    DATABASE_ERROR, FILE_UPLOAD_ERROR, PHOTO_PROCESSING_ERROR
+    DATABASE_ERROR, FILE_UPLOAD_ERROR, PHOTO_PROCESSING_ERROR,
+    ErrorCodes, get_error_message
 )
 
 # Initialize CSRF protection
@@ -734,7 +735,7 @@ def feedback():
         if sort == 'top':
             feedback_items = Feedback.query.join(FeedbackVote, isouter=True)\
                 .group_by(Feedback.id)\
-                .order_by(func.count(FeedbackVote.id).desc()).all()
+                .orderby(func.count(FeedbackVote.id).desc()).all()
         else:  # 'new' is default
             feedback_items = Feedback.query.order_by(Feedback.created_at.desc()).all()
 
