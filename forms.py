@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, SelectField, FileField
 from wtforms.validators import DataRequired, Length, Email
 from models import Gym
+from notifications import REGISTRATION_USERNAME_ERROR
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=1, max=10)])

@@ -19,7 +19,7 @@ from flask_wtf.csrf import CSRFProtect
 # Local imports
 from app import app, db, logger
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
-from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade
+from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
 from notifications import (
     LOGIN_ERROR, REGISTRATION_USERNAME_ERROR, REGISTRATION_USERNAME_TAKEN_ERROR,
     REGISTRATION_EMAIL_TAKEN_ERROR, UPDATE_PROFILE_USERNAME_ERROR,
