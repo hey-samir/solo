@@ -34,10 +34,14 @@ from errors import (
     ErrorCodes, get_error_message
 )
 
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
 
-# Create static/images directory if it doesn't exist
+# Ensure static/images directory exists
 os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
 
 # Copy solo-clear.png to static/images if needed
@@ -53,6 +57,8 @@ def allowed_file(filename):
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
     return redirect(url_for('about'))
 
 @app.route('/about')
@@ -86,7 +92,7 @@ def sign_up():
         name = form.name.data
         gym_choice = form.gym.data
 
-        if not username.isalnum():
+        if not username or not username.isalnum():
             flash(REGISTRATION_USERNAME_ERROR, 'error')
             return render_template('register.html', form=form)
 
@@ -106,7 +112,7 @@ def sign_up():
                 'name': name,
                 'password': form.password.data
             }
-            flash('Please submit your gym information through our feedback form.', 'info')
+            flash(GYM_SUBMISSION_INFO, 'info')
             return redirect(url_for('feedback'))
 
         try:
@@ -116,31 +122,34 @@ def sign_up():
             if gym_id:
                 gym = Gym.query.get(gym_id)
                 if not gym:
-                    flash('Selected gym not found. Please choose a valid gym.', 'error')
+                    flash(GYM_NOT_FOUND, 'error')
                     return render_template('register.html', form=form)
 
+            # Create new user
             user = User(
                 username=username,
                 email=email,
                 name=name,
-                gym_id=gym_id
+                gym_id=gym_id,
+                member_since=datetime.utcnow()  # Set member_since explicitly
             )
             user.set_password(form.password.data)
 
             db.session.add(user)
             db.session.commit()
 
-            if gym_id:
-                logger.info(f"Created user {username} with gym {gym_id}")
-
+            # Log the user in and redirect to profile
             login_user(user)
-            flash('Welcome to Solo! Your account has been created successfully.', 'success')
+            flash(REGISTRATION_SUCCESS, 'success')
+
+            # Ensure we redirect to profile
+            logger.info(f"Successfully created user {username}, redirecting to profile")
             return redirect(url_for('profile'))
 
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error creating user: {str(e)}")
-            flash('An error occurred during registration. Please try again.', 'error')
+            flash(DATABASE_ERROR, 'error')
             return render_template('register.html', form=form)
 
     return render_template('register.html', form=form)
@@ -379,12 +388,9 @@ def profile():
         climbs = list(current_user.climbs)
         total_ascents = len(climbs)
 
-        # Calculate average grade
+        # Calculate sent grades
         sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status]
-        if sent_grades:
-            avg_grade = calculate_average_grade(sent_grades)
-        else:
-            avg_grade = '--'
+        avg_grade = calculate_average_grade(sent_grades) if sent_grades else '--'
 
         # Calculate total points
         total_points = sum(climb.points for climb in climbs)
@@ -422,7 +428,7 @@ def update_profile():
         try:
             # Update username if changed and valid
             if username and username != current_user.username:
-                if not username.isalnum():
+                if not username or not username.isalnum():
                     flash(UPDATE_PROFILE_USERNAME_ERROR, 'error')
                     return redirect(url_for('profile'))
                 if User.query.filter_by(username=username).first():
@@ -720,7 +726,6 @@ def stats():
                          climbs_per_session=climbs_per_session,
                          success_rate_per_session=success_rate_per_session,
                          avg_attempts_per_climb=avg_attempts_per_climb)
-
 @app.route('/squads')
 @login_required
 def squads():
@@ -739,7 +744,8 @@ def feedback():
         if sort == 'top':
             feedback_items = (
                 Feedback.query
-                .join(FeedbackVote, isouter=True)                .group_by(Feedback.id)
+                .join(FeedbackVote, isouter=True)
+                .group_by(Feedback.id)
                 .order_by(func.count(FeedbackVote.id).desc())
                 .all()
             )
@@ -896,6 +902,9 @@ def calculate_average_grade(grades):
         return '--'
 
 if __name__ == '__main__':
-    # Get port from environment variable or use 3000 as default
-    port = int(os.environ.get('PORT', 3000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    try:
+        logger.info("Starting Flask server...")
+        app.run(host='0.0.0.0', port=5000, debug=True)
+    except Exception as e:
+        logger.error(f"Error starting server: {str(e)}")
+        raise

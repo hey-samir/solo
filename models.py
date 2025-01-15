@@ -98,6 +98,7 @@ class User(UserMixin, db.Model):
     name = db.Column(db.String(100))
     gym_id = db.Column(db.Integer, db.ForeignKey('gym.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    member_since = db.Column(db.DateTime, default=datetime.utcnow)
     profile_photo = db.Column(db.String(255), default='white-solo-av.png')
 
     # Relationships
