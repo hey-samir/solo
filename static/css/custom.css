@@ -1,7 +1,7 @@
 /* Flash message styling - keep at top for highest specificity */
 html body .flash-messages-container {
     position: fixed !important;
-    top: 65px !important;
+    top: 50px !important;
     left: 0;
     right: 0;
     z-index: 9999;
@@ -12,8 +12,9 @@ html body .flash-messages-container {
     padding: 1rem;
 }
 
+/* Flash message styles */
 html body .flash-message {
-    background-color: rgba(48, 61, 89, 0.95);
+    background-color: rgba(48, 61, 89, 0.98);
     color: var(--text-color);
     padding: 0.75rem 1.25rem;
     margin: 0.5rem;
@@ -28,28 +29,28 @@ html body .flash-message {
     position: relative;
 }
 
-/* Keep the rest of the flash message styles unchanged */
 html body .flash-message.alert-success {
-    background-color: rgba(25, 135, 84, 0.95);
+    background-color: rgba(25, 135, 84, 0.98);
     border-color: #198754;
 }
 
 html body .flash-message.alert-danger {
-    background-color: rgba(220, 53, 69, 0.95);
+    background-color: rgba(220, 53, 69, 0.98);
     border-color: #dc3545;
 }
 
 html body .flash-message.alert-warning {
-    background-color: rgba(255, 193, 7, 0.95);
+    background-color: rgba(255, 193, 7, 0.98);
     border-color: #ffc107;
     color: #000;
 }
 
 html body .flash-message.alert-info {
-    background-color: rgba(13, 202, 240, 0.95);
+    background-color: rgba(13, 202, 240, 0.98);
     border-color: #0dcaf0;
 }
 
+/* Flash message animation */
 @keyframes slideDown {
     from {
         transform: translateY(-100%);
@@ -67,11 +68,11 @@ html body .flash-message.alert-info {
 .standings-container,
 .sends-container,
 .stats-container {
-    margin-top: 1rem !important;
+    margin-top: calc(50px + 1rem) !important;
 }
 
-/* Root variables */
-:root {
+/* Root variables - consolidated */
+::root {
     --font-family-sans-serif: 'Lexend', system-ui, -apple-system, sans-serif;
     --solo-purple: #7442d6;
     --solo-purple-light: #9b75ff;
@@ -1370,7 +1371,7 @@ input[type="range"]::-ms-thumb {
 }
 
 /* Global background color */
-:root {
+::root {
     --bg-color: #1e2638;
 }
 
