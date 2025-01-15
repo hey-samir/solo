@@ -154,20 +154,29 @@ def logout():
 @app.route('/sends')
 @login_required
 def sends():
-    routes = []
-    if current_user.gym_id:
-        routes = Route.query\
-            .join(RouteGrade)\
-            .filter(Route.gym_id == current_user.gym_id)\
-            .order_by(RouteGrade.difficulty_rank)\
-            .all()
+    """
+    Handle the sends page - display routes for user's gym
+    """
+    try:
+        routes = []
+        if current_user.gym_id:
+            routes = Route.query\
+                .join(RouteGrade)\
+                .filter(Route.gym_id == current_user.gym_id)\
+                .order_by(RouteGrade.difficulty_rank)\
+                .all()
 
-        # Clean up route_id display (remove #)
-        for route in routes:
-            if route.route_id.startswith('#'):
-                route.route_id = route.route_id[1:]
+            # Clean up route_id display (remove #)
+            for route in routes:
+                if route.route_id and route.route_id.startswith('#'):
+                    route.route_id = route.route_id[1:]
 
-    return render_template('sends.html', routes=routes)
+        return render_template('sends.html', routes=routes)
+    except Exception as e:
+        logger.error(f"Error in sends route: {str(e)}")
+        flash('An error occurred while loading routes. Please try again.', 'error')
+        return render_template('sends.html', routes=[])
+
 
 @app.route('/add_climb', methods=['POST'])
 @login_required
@@ -371,19 +380,14 @@ def profile():
         total_ascents = len(climbs)
 
         # Calculate average grade
-        sent_grades = [climb.route.grade for climb in climbs if climb.status and climb.route.grade]
+        sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status]
         if sent_grades:
-            valid_ranks = [grade_rank.get(grade, 0) for grade in sent_grades if grade in grade_rank]
-            if valid_ranks:
-                avg_rank = round(sum(valid_ranks) / len(valid_ranks))
-                avg_grade = rank_to_grade.get(avg_rank, '--')
-            else:
-                avg_grade = '--'
+            avg_grade = calculate_average_grade(sent_grades)
         else:
             avg_grade = '--'
 
         # Calculate total points
-        total_points = sum((climb.rating * (10 if climb.status else 5)) for climb in climbs)
+        total_points = sum(climb.points for climb in climbs)
 
         logger.debug("Successfully rendered profile page")
         return render_template('solo-profile.html', 
@@ -735,8 +739,7 @@ def feedback():
         if sort == 'top':
             feedback_items = (
                 Feedback.query
-                .join(FeedbackVote, isouter=True)
-                .group_by(Feedback.id)
+                .join(FeedbackVote, isouter=True)                .group_by(Feedback.id)
                 .order_by(func.count(FeedbackVote.id).desc())
                 .all()
             )
@@ -873,6 +876,24 @@ def handle_error(error):
     return render_template('404.html', error="Internal Server Error"), 500
 
 import shutil
+
+def calculate_average_grade(grades):
+    """Helper function to calculate average grade"""
+    try:
+        valid_grades = []
+        for grade in grades:
+            if grade and isinstance(grade, str):
+                parts = grade.split('.')
+                if len(parts) == 2:
+                    base = parts[1].rstrip('abcd')
+                    if base.isdigit():
+                        valid_grades.append(float(base))
+
+        if valid_grades:
+            return f"5.{round(sum(valid_grades) / len(valid_grades))}"
+        return '--'
+    except Exception:
+        return '--'
 
 if __name__ == '__main__':
     # Get port from environment variable or use 3000 as default
