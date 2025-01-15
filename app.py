@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
 from flask_migrate import Migrate
 from utils.icon_generator import generate_pwa_icons
+from notifications import LOGIN_REQUIRED
 
 # Configure logging
 logging.basicConfig(
@@ -43,7 +44,7 @@ login_manager.init_app(app)
 migrate.init_app(app, db)
 
 login_manager.login_view = 'login'
-login_manager.login_message = "Please log in to access this page."
+login_manager.login_message = LOGIN_REQUIRED
 
 @login_manager.user_loader
 def load_user(id):
