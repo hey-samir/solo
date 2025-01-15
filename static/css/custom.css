@@ -1,4 +1,83 @@
-/* Root variables - consolidated */
+/* Flash message styling - keep at top for highest specificity */
+html body .flash-messages-container {
+    position: fixed !important;
+    top: 20px !important;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    padding: 1rem;
+}
+
+html body .flash-message {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: var(--text-color);
+    padding: 0.75rem 1.25rem;
+    margin: 0.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+    pointer-events: auto;
+    animation: slideDown 0.3s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+}
+
+html body .flash-message.alert-success {
+    background-color: rgba(25, 135, 84, 0.95);
+    border-color: #198754;
+}
+
+html body .flash-message.alert-danger {
+    background-color: rgba(220, 53, 69, 0.95);
+    border-color: #dc3545;
+}
+
+html body .flash-message.alert-warning {
+    background-color: rgba(255, 193, 7, 0.95);
+    border-color: #ffc107;
+    color: #000;
+}
+
+html body .flash-message.alert-info {
+    background-color: rgba(13, 202, 240, 0.95);
+    border-color: #0dcaf0;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Add margin to content to prevent overlap with fixed flash messages */
+.container,
+.sessions-container,
+.standings-container,
+.sends-container,
+.stats-container {
+    margin-top: 1rem !important;
+}
+
+/* Add margin to content to prevent overlap with fixed flash messages */
+.container,
+.sessions-container,
+.standings-container,
+.sends-container,
+.stats-container {
+    margin-top: 1rem !important;
+}
+/* Root variables */
 :root {
     --font-family-sans-serif: 'Lexend', system-ui, -apple-system, sans-serif;
     --solo-purple: #7442d6;
@@ -15,91 +94,38 @@
     --input-text: #ffffff;
 }
 
-/* Global styles with high specificity */
-html body {
-    background-color: var(--bg-color) !important;
-    color: var(--text-color) !important;
+/* Global styles */
+html,
+body,
+input,
+button,
+select,
+textarea,
+.form-control,
+.btn,
+.nav-link,
+.metric-value,
+.metric-label {
     font-family: var(--font-family-sans-serif) !important;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
 }
 
-/* Container styles with high specificity */
-html body .container,
-html body .sessions-container,
-html body .standings-container,
-html body .sends-container,
-html body .stats-container {
+/* Background colors */
+html,
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.container,
+.sessions-container,
+.standings-container,
+.sends-container,
+.stats-container {
     background-color: var(--bg-color) !important;
-    margin-top: calc(50px + 1rem) !important;
     width: 95% !important;
     max-width: 1200px !important;
-    padding: 1rem !important;
-}
-
-/* Flash message styling - keep at top level for highest specificity */
-html body .flash-messages-container {
-    position: fixed !important;
-    top: 50px !important;
-    left: 0;
-    right: 0;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    pointer-events: none;
-    padding: 1rem;
-}
-
-/* Flash message styles */
-html body .flash-message {
-    background-color: rgba(48, 61, 89, 0.98);
-    color: var(--text-color);
-    padding: 0.75rem 1.25rem;
-    margin: 0.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    max-width: 600px;
-    width: 90%;
-    text-align: center;
-    pointer-events: auto;
-    animation: slideDown 0.3s ease-out;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative;
-}
-
-html body .flash-message.alert-success {
-    background-color: rgba(25, 135, 84, 0.98);
-    border-color: #198754;
-}
-
-html body .flash-message.alert-danger {
-    background-color: rgba(220, 53, 69, 0.98);
-    border-color: #dc3545;
-}
-
-html body .flash-message.alert-warning {
-    background-color: rgba(255, 193, 7, 0.98);
-    border-color: #ffc107;
-    color: #000;
-}
-
-html body .flash-message.alert-info {
-    background-color: rgba(13, 202, 240, 0.98);
-    border-color: #0dcaf0;
-}
-
-/* Flash message animation */
-@keyframes slideDown {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    margin: calc(64px + 1rem) auto 0 !important;
+    padding: 0 1rem !important;
 }
 
 /* Navbar styling */
@@ -115,16 +141,6 @@ html body .flash-message.alert-info {
     align-items: center;
     bottom: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.navbar-toggler {
-    padding: 0.5rem;
-    border: none;
-    background: transparent !important;
-}
-
-.navbar-toggler-icon {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.55)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
 .navbar-nav {
@@ -376,7 +392,7 @@ header {
 }
 
 .feature-card {
-    background-color: #2b354d !important;
+    background-color: #4f5d73 !important;
     border: none !important;
     border-radius: 8px;
     height: 100%;
@@ -1059,7 +1075,8 @@ body {
     width: 100%;
     padding: 0.5rem;
     font-size: 1.2rem;
-    background-color: var(--bs-dark);    border: 2px solid var(--bs-white);
+    background-color: var(--bs-dark);
+    border: 2px solid var(--bs-white);
     color: var(--bs-white);
     border-radius: 0.5rem;
 }
