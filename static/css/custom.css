@@ -358,8 +358,8 @@ header {
 }
 
 /* KPI card styling */
-.feature-card.kpi-card {
-    background-color: #2b354d !important;
+html body .feature-card.kpi-card {
+    background-color: #4f5d73 !important;
     border-radius: 8px;
     padding: 0.25rem;
     margin-bottom: 0.25rem;
@@ -399,9 +399,13 @@ html body .feature-card {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.feature-card .card-body {
+html body .feature-card .card-body {
     padding: 0.25rem 0.1rem;
-    background: transparent !important;
+    background-color: transparent !important;
+}
+
+html body .feature-card .card-body * {
+    background-color: transparent !important;
 }
 
 .feature-card .card-body * {
