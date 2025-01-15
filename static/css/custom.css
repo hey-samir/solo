@@ -359,7 +359,7 @@ header {
 
 /* KPI card styling */
 html body .feature-card.kpi-card {
-    background-color: #4f5d73 !important;
+    background-color: #313d58 !important;
     border-radius: 8px;
     padding: 0.25rem;
     margin-bottom: 0.25rem;
@@ -392,7 +392,7 @@ html body .feature-card.kpi-card {
 }
 
 html body .feature-card {
-    background-color: #4f5d73 !important;
+    background-color: #313d58 !important;
     border: none !important;
     border-radius: 8px;
     height: 100%;
