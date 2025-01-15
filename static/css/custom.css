@@ -391,7 +391,7 @@ header {
     background-color: transparent !important;
 }
 
-.feature-card {
+html body .feature-card {
     background-color: #4f5d73 !important;
     border: none !important;
     border-radius: 8px;
