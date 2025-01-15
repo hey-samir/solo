@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-3">
+    <!-- App Description -->
+    <section class="mb-4">
+        <h2 class="text-solo-purple mb-3">Quantify your Ascent</h2>
+        <p class="lead">
+            Solo is the first and only beautifully functional app dedicated to solo indoor climbing. Log your sends to rack up points, track your progress with detailed metrics, and climb your way to the top of global leaderboards. Solo is designed to help climbers like you scale new heights—one ascent at a time.
+        </p>
+    </section>
+
+    <!-- Key Features -->
+    <section class="mb-5">
+        <div class="row g-3">
+            <div class="col-6">
+                <div class="card feature-card kpi-card h-100">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <i class="material-icons text-solo-purple mb-2" style="font-size: 2.25rem;">arrow_upward</i>
+                        <h5 class="card-title mb-2">Log Sends Instantly</h5>
+                        <p class="card-text small mb-0">Track all metrics for routes</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card feature-card kpi-card h-100">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <i class="material-icons text-solo-purple mb-2" style="font-size: 2.25rem;">emoji_events</i>
+                        <h5 class="card-title mb-2">Compete Globally</h5>
+                        <p class="card-text small mb-0">See how you rank worldwide</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card feature-card kpi-card h-100">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <i class="material-icons text-solo-purple mb-2" style="font-size: 2.25rem;">calendar_today</i>
+                        <h5 class="card-title mb-2">View Sessions</h5>
+                        <p class="card-text small mb-0">Track your sessions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card feature-card kpi-card h-100">
+                    <div class="card-body text-center d-flex flex-column justify-content-center">
+                        <i class="material-icons text-solo-purple mb-2" style="font-size: 2.25rem;">bar_chart</i>
+                        <h5 class="card-title mb-2">Track Progress</h5>
+                        <p class="card-text small mb-0">Analyze your climbing stats</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="mb-5">
+        <h3 class="text-solo-purple mb-3">Frequently Asked Questions</h3>
+        <div class="accordion" id="faqAccordion">
+            <div class="accordion-item bg-dark border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        How do I log a climb?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show">
+                    <div class="accordion-body text-white">
+                        To log a route, tap the '+' button in the navigation bar. Fill in the details about your route including the color, grade, and whether it was a Send or a Try. Routes are tracked as either Sends (successful completions) or Tries (unsuccessful attempts).
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item bg-dark border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        What's the difference between a Send and a Try?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse">
+                    <div class="accordion-body text-white">
+                        A 'Send' means you successfully completed the route from start to finish without falling. A 'Try' is when you attempted the route but didn't complete it. Both are valuable to track as they show your progress over time. The total number of your Sends and Tries together represents all your Routes.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item bg-dark border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        How are points calculated?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse">
+                    <div class="accordion-body text-white">
+                        Points are calculated based on the difficulty of the route and whether you sent it or not. A Send earns you 10 points multiplied by your star rating, while Tries earn 5 points multiplied by your star rating. This system rewards both successful completions and the effort put into attempting challenging routes.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item bg-dark border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                        What do the stats metrics mean?
+                    </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse">
+                    <div class="accordion-body text-white">
+                        Your statistics show various aspects of your climbing progress:
+                        <ul>
+                            <li><strong>Send Rate:</strong> The percentage of successful sends out of total routes attempted</li>
+                            <li><strong>Average Grade:</strong> The typical difficulty level you climb</li>
+                            <li><strong>Points:</strong> Your overall achievement score based on your routes</li>
+                            <li><strong>Sessions:</strong> Groups of routes climbed within the same timeframe</li>
+                            <li><strong>Star Rating:</strong> Your performance rating based on successful sends</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item bg-dark border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed bg-solo-purple text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
+                        What are the dimensions of a Send?
+                    </button>
+                </h2>
+                <div id="faq5" class="accordion-collapse collapse">
+                    <div class="accordion-body text-white">
+                        When logging a Send, you'll record:
+                        <ul>
+                            <li><strong>Grade:</strong> The difficulty rating of the route</li>
+                            <li><strong>Color:</strong> The hold color used for the route</li>
+                            <li><strong>Type:</strong> Whether it's a Send (success) or Try (attempt)</li>
+                            <li><strong>Stars:</strong> Your rating of the route quality</li>
+                            <li><strong>Date:</strong> When you climbed the route</li>
+                            <li><strong>Session:</strong> Which climbing session it belongs to</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<style>
+.accordion-button::after {
+    filter: brightness(0) invert(1);
+}
+</style>
+{% endblock %}

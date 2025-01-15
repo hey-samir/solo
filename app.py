@@ -1,13 +1,14 @@
-
 import os
 import logging
-from flask import Flask, render_template
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
-from werkzeug.exceptions import NotFound
+from flask_migrate import Migrate
+from utils.icon_generator import generate_pwa_icons
+from notifications import LOGIN_REQUIRED
 
-# Configure logging once
+# Configure logging
 logging.basicConfig(
     level=logging.INFO if not os.environ.get("FLASK_DEBUG") else logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -20,48 +21,52 @@ class Base(DeclarativeBase):
 # Initialize core extensions
 db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
+migrate = Migrate()
 
-def create_app():
-    app = Flask(__name__)
-    
-    # Config settings
-    app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev_key_solo_climbing")
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_recycle": 300,
-        "pool_pre_ping": True,
-        "pool_size": 10,
-        "max_overflow": 20,
-    }
+# create the app
+app = Flask(__name__)
 
-    # Initialize extensions
-    db.init_app(app)
-    login_manager.init_app(app)
-    login_manager.login_view = 'login'
-    
-    with app.app_context():
-        from models import User
-        try:
-            db.create_all()
-            logger.info("Database tables created successfully")
-        except Exception as e:
-            logger.error(f"Database initialization error: {e}")
+# setup a secret key, required by sessions
+app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "dev_key_solo_climbing"
 
-    return app
+# configure the database
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_recycle": 300,
+    "pool_pre_ping": True,
+    "pool_size": 10,
+    "max_overflow": 20,
+}
 
-# Create the application instance
-app = create_app()
+# Initialize extensions with app
+db.init_app(app)
+login_manager.init_app(app)
+migrate.init_app(app, db)
+
+login_manager.login_view = 'login'
+login_manager.login_message = LOGIN_REQUIRED
 
 @login_manager.user_loader
 def load_user(id):
-    from models import User
-    return User.query.get(int(id))
+    from models import User  # Import here to avoid circular imports
+    return db.session.get(User, int(id))
 
-# Error handlers
-@app.errorhandler(Exception)
-def handle_error(error):
-    db.session.rollback()
-    if isinstance(error, NotFound):
-        return render_template('404.html'), 404
-    app.logger.error(f'Error: {str(error)}')
-    return render_template('404.html', error="Internal server error"), 500
+# Import models and create tables
+def init_app():
+    with app.app_context():
+        from models import User, Gym, Route, Climb, Feedback, FeedbackVote, RouteGrade
+        try:
+            # Ensure static/images directory exists
+            os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
+
+            # Generate PWA icons from favicon
+            if generate_pwa_icons():
+                logger.info("PWA icons generated successfully")
+            else:
+                logger.warning("Failed to generate PWA icons")
+
+        except Exception as e:
+            logger.error(f"Initialization error: {e}")
+            raise
+
+init_app()

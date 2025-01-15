@@ -1,0 +1,101 @@
+title,body,labels,assignee
+Why are total points and average grade not tabulating?,"Priority: CRITICAL, Status: Completed",bug,hey-samir
+Fix success rate chart - Sends / (Sends + Attempts) by date,"Priority: CRITICAL, Status: Completed",enhancement,hey-samir
+Fix sorting for colors in Sessions,"Priority: , Status: Incomplete",enhancement,hey-samir
+Add a favicon - Create via Canva - an S inside a white circle,"Priority: HIGH, Status: Incomplete",enhancement,hey-samir
+Ensure website is truly responsive for various screen sizes,"Priority: HIGH, Status: Completed",bug,hey-samir
+Add Square web payments to app - Used to buy custom avatars (and eventually subscriptions),"Priority: HIGH, Status: Incomplete",enhancement,hey-samir
+"Add single select for type of climb - Auto, Toprope, B/D","Priority: HIGH, Status: Incomplete",enhancement,hey-samir
+Make it so new entry carries default of prior entry,"Priority: HIGH, Status: Incomplete",bug,hey-samir
+Fix Sessions arrows,"Priority: , Status: Incomplete",enhancement,hey-samir
+Adjust the background colors of the divs to match,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Fix error dialogs,"Priority: , Status: Incomplete",enhancement,hey-samir
+Fix Donut chart styling and coloring,"Priority: MEDIUM, Status: Incomplete",enhancement,hey-samir
+Fix highest grade label,"Priority: MEDIUM, Status: Incomplete",enhancement,hey-samir
+Ratings module - Reset and allow clear,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Fix the formatting of the tables so that all info shows without scrolling,"Priority: MEDIUM, Status: Completed",enhancement,hey-samir
+Fix display in default state with no climbs,"Priority: MEDIUM, Status: Completed",enhancement,hey-samir
+Kill caliber in Sessions,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Increase size of Grade,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Change profile icon to Mood,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Fix avatars to have clear background,"Priority: MEDIUM, Status: Completed",enhancement,hey-samir
+Make username fully visible,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Fix attempts display,"Priority: MEDIUM, Status: Completed",enhancement,hey-samir
+Reduce cell padding in sessions and standings tables,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Change icon for stats (doesn't look like a graph),"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Prevent Notes text area from auto-collapsing with text input,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Show the current average rating of a wall when you select it,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Show the Ratings back in Sessions but make it X/5 instead of the dots,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+More KPIs,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Update Profile tab to include:,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Build Squads feature to recreate belay partner matching:,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Notify matched users via email,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Show in-app matches in a table with:,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Add Send Feedback button in Profile page (Emails ),"Priority: MEDIUM, Status: Incomplete",enhancement,hey-samir
+Design website at gosolo.nyc that’s a landing page / about,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Make Solo a PWA,"Priority: HIGH, Status: Incomplete",bug,hey-samir
+More than X number of Squads,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Custom avatars,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Natural language date edits,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Export climb data,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Wall AI - Take a picture of the wall ID to auto-analyze dimensions,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Fix stats route conflict,"Priority: CRITICAL, Status: Incomplete",enhancement,hey-samir
+Login required for all pages,"Priority: CRITICAL, Status: Incomplete",bug,hey-samir
+Fix integrity error when submitting sends,"Priority: , Status: Completed",enhancement,hey-samir
+Fix broken database (attempts column missing),"Priority: , Status: Completed",enhancement,hey-samir
+Make navbar closer to bottom and opaque,"Priority: HIGH, Status: Incomplete",bug,hey-samir
+Reduce padding on page sides,"Priority: HIGH, Status: Incomplete",bug,hey-samir
+Reduce padding above color section,"Priority: HIGH, Status: Incomplete",bug,hey-samir
+Reduce spacing in Solo page,"Priority: HIGH, Status: Incomplete",bug,hey-samir
+Increase spacing between Metrics and Trends labels given width,"Priority: HIGH, Status: Completed",bug,hey-samir
+Increase overall width of every page - Tables are smashed,"Priority: HIGH, Status: Completed",bug,hey-samir
+Add Stats page tabs,"Priority: HIGH, Status: Completed",enhancement,hey-samir
+Add copyright footer,"Priority: HIGH, Status: Completed",enhancement,hey-samir
+Change Sent to boolean switch,"Priority: HIGH, Status: Incomplete",bug,hey-samir
+Change Difficulty to Caliber,"Priority: HIGH, Status: Incomplete",bug,hey-samir
+Change Sent display to Sent/Attempted,"Priority: HIGH, Status: Completed",bug,hey-samir
+Make Notes section one line by default,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Reduce space between color rows,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Padding in Solo page,"Priority: , Status: Incomplete",bug,hey-samir
+Fix font issue (for Agent),"Priority: MEDIUM, Status: Incomplete",enhancement,hey-samir
+Add back the color of the KPIs,"Priority: MEDIUM, Status: Completed",enhancement,hey-samir
+Make the font color of the headers slightly darker white to differentiate - Provide a hex code,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Change date format to mm/dd/yy,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Update KPI box styling,"Priority: , Status: Incomplete",bug,hey-samir
+Add totals to Send chart,"Priority: MEDIUM, Status: Completed",enhancement,hey-samir
+Change avatar selection,"Priority: , Status: Incomplete",bug,hey-samir
+Embed the Rating component in your HTML,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+For Colors,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+For Notes,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Make attempts use an ex1slider format with an always-on display,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Update icons:,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Replace 1 / 2 / 3 in Standings with Google icons,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Take a look at app and refactor it to make it more efficient based on what we use it for,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Count total coding line count,"Priority: MEDIUM, Status: Completed",bug,hey-samir
+Add Send Feedback button in Profile page,"Priority: MEDIUM, Status: Incomplete",enhancement,hey-samir
+Add more KPIs:,"Priority: MEDIUM, Status: Completed",enhancement,hey-samir
+Paid Features:,"Priority: MEDIUM, Status: Incomplete",bug,hey-samir
+Fix difficulty naming to Caliber (DONE),"Priority: CRITICAL, Status: Completed",enhancement,hey-samir
+Move Solo button to top right with avatar circle,"Priority: , Status: Completed",bug,hey-samir
+Add new Standings page,"Priority: , Status: Completed",enhancement,hey-samir
+Move Interspace Labs text,"Priority: , Status: Completed",bug,hey-samir
+Fix password/username field heights,"Priority: , Status: Completed",enhancement,hey-samir
+Add # Attempts field,"Priority: , Status: Completed",enhancement,hey-samir
+Make Caliber optional,"Priority: , Status: Completed",bug,hey-samir
+Caliber 5-point rating scale,"Priority: , Status: Completed",bug,hey-samir
+Change Sent to toggle,"Priority: , Status: Completed",bug,hey-samir
+Add charting features,"Priority: , Status: Completed",enhancement,hey-samir
+Change Stats tabs to pills,"Priority: , Status: Completed",bug,hey-samir
+Add pills for notifications,"Priority: , Status: Completed",enhancement,hey-samir
+Fix Caliber 5 point scale styling,"Priority: , Status: Completed",enhancement,hey-samir
+Fix send icon color,"Priority: , Status: Completed",enhancement,hey-samir
+"Remove ""Optional"" text","Priority: , Status: Completed",bug,hey-samir
+Update site motto,"Priority: , Status: Completed",bug,hey-samir
+Add leaderboard,"Priority: , Status: Completed",enhancement,hey-samir
+Adjust KPI layout,"Priority: , Status: Incomplete",bug,hey-samir
+Remove session KPIs,"Priority: , Status: Completed",bug,hey-samir
+Import Lexend font,"Priority: , Status: Completed",bug,hey-samir
+Replace Bootstrap icons with MUI Icons,"Priority: , Status: Completed",bug,hey-samir
+Update 404 page (already done),"Priority: CRITICAL, Status: Completed",bug,hey-samir
+Add Stats page tabs (already done),"Priority: HIGH, Status: Completed",enhancement,hey-samir
+Add copyright footer (already done),"Priority: HIGH, Status: Completed",enhancement,hey-samir

@@ -40,24 +40,27 @@
                             <div class="profile-field" data-editable>
                                 <label class="form-label">Name</label>
                                 <div class="field-content">
-                                    <span class="profile-text">{{ current_user.name }}</span>
-                                    {{ form.name(class_="form-control form-control-lg d-none", value=current_user.name) }}
+                                    <span class="profile-text" style="font-size: 1rem;">{{ current_user.name }}</span>
+                                    <input type="text" name="name" class="form-control form-control-lg" 
+                                           value="{{ current_user.name }}" disabled>
                                 </div>
                             </div>
 
                             <div class="profile-field" data-editable>
                                 <label class="form-label">Username</label>
                                 <div class="field-content">
-                                    <span class="profile-text">@{{ current_user.username }}</span>
-                                    {{ form.username(class_="form-control form-control-lg d-none", value=current_user.username) }}
+                                    <span class="profile-text" style="font-size: 1rem;">@{{ current_user.username }}</span>
+                                    <input type="text" name="username" class="form-control form-control-lg" 
+                                           value="{{ current_user.username }}" disabled>
                                 </div>
                             </div>
 
                             <div class="profile-field" data-editable>
                                 <label class="form-label">Gym</label>
                                 <div class="field-content">
-                                    <span class="profile-text">{{ current_user.gym or 'Not set' }}</span>
-                                    {{ form.gym(class_="form-control form-control-lg d-none", value=current_user.gym) }}
+                                    <span class="profile-text" style="font-size: 1rem;">{{ current_user.gym or 'Not set' }}</span>
+                                    <input type="text" name="gym" class="form-control form-control-lg" 
+                                           value="{{ current_user.gym }}" disabled>
                                 </div>
                             </div>
 
@@ -69,18 +72,25 @@
                             </div>
                         </div>
 
+                        <!-- KPI Metrics Section -->
                         <div class="d-flex justify-content-center gap-3 mb-4">
-                            <div class="metric-card flex-1">
-                                <div class="metric-value">{{ total_ascents }}</div>
-                                <div class="metric-label">Total Ascents</div>
+                            <div style="width: 65px;">
+                                <div class="metric-card">
+                                    <div class="metric-value">{{ total_ascents }}</div>
+                                    <div class="metric-label">Total Ascents</div>
+                                </div>
                             </div>
-                            <div class="metric-card flex-1">
-                                <div class="metric-value">{{ avg_grade }}</div>
-                                <div class="metric-label">Average Grade</div>
+                            <div style="width: 65px;">
+                                <div class="metric-card">
+                                    <div class="metric-value">{{ avg_grade }}</div>
+                                    <div class="metric-label">Avg Grade</div>
+                                </div>
                             </div>
-                            <div class="metric-card flex-1">
-                                <div class="metric-value">{{ total_points }}</div>
-                                <div class="metric-label">Total Points</div>
+                            <div style="width: 65px;">
+                                <div class="metric-card">
+                                    <div class="metric-value">{{ total_points }}</div>
+                                    <div class="metric-label">Total Points</div>
+                                </div>
                             </div>
                         </div>
 
@@ -108,16 +118,4 @@
         </div>
     </div>
 </div>
-
-<script>
-document.getElementById('editPhotoBtn').addEventListener('click', function() {
-    document.getElementById('avatarSelection').classList.toggle('d-none');
-});
-
-document.querySelectorAll('.avatar-option input[type="radio"]').forEach(input => {
-    input.addEventListener('change', function() {
-        document.getElementById('avatar-form').submit();
-    });
-});
-</script>
 {% endblock %}

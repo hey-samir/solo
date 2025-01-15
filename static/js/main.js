@@ -1,116 +1,43 @@
-
-// Calculate points preview
-function calculatePoints() {
-    // Check if we're on the sends page and have all required elements
-    const pointsPreview = document.getElementById('pointsPreview');
-    const gradeElement = document.querySelector('select[name="caliber_grade"]');
-    const letterElement = document.querySelector('select[name="caliber_letter"]');
-    const statusElement = document.getElementById('statusToggle');
-    
-    if (!pointsPreview || !gradeElement || !letterElement || !statusElement) return;
-
-    const gradePoints = {
-        '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
-        '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
-        '5.10a': 200, '5.10b': 250, '5.10c': 300, '5.10d': 350,
-        '5.11a': 400, '5.11b': 500, '5.11c': 600, '5.11d': 700,
-        '5.12a': 800, '5.12b': 900, '5.12c': 1000, '5.12d': 1100,
-        '5.13a': 1250, '5.13b': 1400, '5.13c': 1550, '5.13d': 1700,
-        '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
-        '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
-    };
-    
-    const grade = gradeElement.value;
-    const letter = letterElement.value;
-    const status = statusElement.checked;
-    
-    const fullGrade = grade ? `5.${grade}${letter}` : null;
-    let points = 0;
-    
-    if (fullGrade && gradePoints[fullGrade]) {
-        points = gradePoints[fullGrade];
-        if (!status) {
-            points = points / 2;
-        }
-    }
-    
-    pointsPreview.textContent = Math.round(points);
+// Register service worker for PWA support
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/sw.js')
+        .then(() => console.log('ServiceWorker registered'));
 }
 
-function updateTotalPoints() {
-    const points = Array.from(document.querySelectorAll('.climb-points'))
-        .map(td => parseInt(td.textContent))
-        .reduce((sum, points) => sum + (isNaN(points) ? 0 : points), 0);
+// Global utility functions
+window.formatDate = function(date) {
+    return new Date(date).toLocaleDateString();
+};
 
-    const totalPointsElement = document.getElementById('totalPoints');
-    if (totalPointsElement) {
-        totalPointsElement.textContent = points;
-    }
-}
+// Global form utilities
+window.initializeFormSubmission = function(form, successCallback) {
+    if (!form) return;
 
-function sortTable(table, column, direction) {
-    const rows = Array.from(table.querySelectorAll('tbody tr'));
-    const multiplier = direction === 'asc' ? 1 : -1;
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
-    rows.sort((a, b) => {
-        const aValue = a.children[column].textContent.trim();
-        const bValue = b.children[column].textContent.trim();
-        return aValue.localeCompare(bValue, undefined, {numeric: true}) * multiplier;
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-Token': csrfToken
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Form submission failed');
+            if (successCallback) successCallback(response);
+        })
+        .catch(error => {
+            console.error('Form submission error:', error);
+            alert('Failed to submit form. Please try again.');
+        });
     });
+};
 
-    const tbody = table.querySelector('tbody');
-    tbody.append(...rows);
-}
-
-// Initialize all components when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize tries slider
-    const triesInput = document.querySelector('input[name="tries"]');
-    if (triesInput) {
-        const triesSlider = new Slider(triesInput, {
-            tooltip: 'hide',
-            min: 1,
-            max: 10
-        });
-        
-        const counter = document.getElementById('triesCounter');
-        if (counter) {
-            triesSlider.on('slide', function(value) {
-                counter.textContent = value;
-            });
-        }
-    }
-
-    // Initialize point calculation listeners
-    ['caliber_grade', 'caliber_letter'].forEach(name => {
-        const element = document.querySelector(`select[name="${name}"]`);
-        if (element) {
-            element.addEventListener('change', calculatePoints);
-        }
-    });
-
-    // Initialize status toggle listener
-    const statusToggle = document.getElementById('statusToggle');
-    if (statusToggle) {
-        statusToggle.addEventListener('change', calculatePoints);
-    }
-
-    // Initialize table sorting
-    document.querySelectorAll('.sortable').forEach(header => {
-        header.addEventListener('click', function() {
-            const table = this.closest('table');
-            const column = Array.from(this.parentElement.children).indexOf(this);
-            const currentDirection = this.classList.contains('sort-asc') ? 'desc' : 'asc';
-            
-            this.closest('tr').querySelectorAll('.sortable').forEach(th => {
-                th.classList.remove('sort-asc', 'sort-desc');
-            });
-            
-            this.classList.add(`sort-${currentDirection}`);
-            sortTable(table, column, currentDirection);
-        });
-    });
-
-    // Initial calculation
-    calculatePoints();
+    // Initialize any global UI elements or event listeners here
 });

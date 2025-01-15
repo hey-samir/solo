@@ -33,17 +33,39 @@
                                placeholder="8-12 characters, letters, numbers, symbols allowed">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Gym</label>
-                        <input type="text" name="gym" class="form-control form-control-lg"
-                               placeholder="Enter your gym name">
+                        <label class="form-label required-field">Home Gym</label>
+                        {{ form.gym(class="form-select form-select-lg mb-2") }}
                     </div>
-                    <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100 fs-4">Join</button>
+                    <button type="submit" class="btn nav-link active bg-solo-purple w-100 py-3">Join</button>
                 </form>
                 <div class="text-center mt-3">
-                    <a href="{{ url_for('login') }}" class="text-decoration-none">Already have an account? Login</a>
+                    <a href="{{ url_for('login') }}" class="text-decoration-none text-white">Already have an account? Login</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.form-control-lg, .form-select-lg {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+}
+.form-text, small {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+.form-select-lg {
+    min-height: 3.5rem;
+}
+.input-group-text {
+    font-size: 1rem;
+    background-color: var(--solo-purple);
+    border-color: var(--solo-purple);
+    color: white;
+}
+.input-group .form-control {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+}
+</style>
 {% endblock %}

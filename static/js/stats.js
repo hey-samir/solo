@@ -108,6 +108,12 @@ function updateSendsByDateChart(data) {
         chart.destroy();
     }
 
+    // Format dates as mm/dd
+    const formattedLabels = data.labels.map(date => {
+        const d = new Date(date);
+        return `${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}`;
+    });
+
     const totalData = data.sends.map((send, i) => send + data.attempts[i]);
     const maxValue = Math.max(...totalData);
     const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
@@ -115,7 +121,7 @@ function updateSendsByDateChart(data) {
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: data.labels,
+            labels: formattedLabels,
             datasets: [
                 {
                     label: 'Sends',
@@ -203,16 +209,21 @@ function updateMetricsOverTimeChart(data) {
         chart.destroy();
     }
 
-    const maxValue = Math.max(...data.metrics[0].data);
+    // Filter out any null data points and their corresponding labels
+    const filteredData = data.metrics[0].data.map((value, index) => ({
+        value: value,
+        label: data.labels[index]
+    })).filter(item => item.value !== null);
+
+    const maxValue = Math.max(...filteredData.map(item => item.value));
     const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
 
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.labels,
+            labels: filteredData.map(item => item.label),
             datasets: [{
-                label: 'Send Rate',
-                data: data.metrics[0].data,
+                data: filteredData.map(item => item.value),
                 borderColor: '#7442d6',
                 backgroundColor: 'rgba(116, 66, 214, 0.2)',
                 tension: 0.4,
@@ -226,22 +237,25 @@ function updateMetricsOverTimeChart(data) {
                 title: {
                     display: false
                 },
+                legend: {
+                    display: false
+                },
                 datalabels: {
                     color: '#ffffff',
                     anchor: 'end',
                     align: 'top',
                     formatter: (value) => {
-                        return value > 0 ? Math.round(value * 100) + '%' : '';
+                        return value > 0 ? Math.round(value) + '%' : '';
                     }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    suggestedMax: 1,
+                    max: 120,
                     ticks: {
                         display: false,
-                        stepSize: 0.2
+                        stepSize: 20
                     },
                     grid: {
                         display: false
@@ -267,14 +281,18 @@ function updateClimbsPerSessionChart(data) {
     }
 
     const maxValue = Math.max(...data.data);
-    const suggestedMax = maxValue + Math.ceil(maxValue * 0.2);
+    const chartMax = maxValue + Math.ceil(maxValue * 0.25);
 
+    const formattedLabels = data.labels.map(date => {
+        const d = new Date(date);
+        return `${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getDate().toString().padStart(2, '0')}`;
+    });
+    
     new Chart(ctx, {
         type: 'line',
         data: {
-            labels: data.labels,
+            labels: formattedLabels,
             datasets: [{
-                label: 'Climbs per Session',
                 data: data.data,
                 borderColor: '#7442d6',
                 backgroundColor: 'rgba(116, 66, 214, 0.2)',
@@ -289,6 +307,9 @@ function updateClimbsPerSessionChart(data) {
                 title: {
                     display: false
                 },
+                legend: {
+                    display: false
+                },
                 datalabels: {
                     color: '#ffffff',
                     anchor: 'end',
@@ -299,6 +320,10 @@ function updateClimbsPerSessionChart(data) {
             scales: {
                 y: {
                     beginAtZero: true,
+                    max: chartMax,
+                    ticks: {
+                        display: false
+                    },
                     grid: {
                         display: false
                     }

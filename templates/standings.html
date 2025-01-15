@@ -1,35 +1,34 @@
-
 {% extends "base.html" %}
 
 {% block content %}
-<div class="standings-container">
-    <div class="card mt-4">
-        <div class="card-body">
+<div class="container-fluid px-3">
+    <div class="card">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead style="background-color: #303d59;">
+                <table class="table table-hover mb-0">
+                    <thead>
                         <tr>
-                            <th scope="col" style="padding-right: 0.5rem">#</th>
-                            <th scope="col" style="padding-left: 0.5rem">Username</th>
-                            <th scope="col">Sends</th>
-                            <th scope="col">Grade</th>
-                            <th scope="col">Pts</th>
+                            <th class="text-center">#</th>
+                            <th>Username</th>
+                            <th class="text-center">Sends</th>
+                            <th class="text-center">Grade</th>
+                            <th class="text-center">Pts</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for user in leaderboard %}
                         <tr>
-                            <td style="padding-right: 0.5rem">
+                            <td class="text-center">
                                 {% if loop.index <= 3 %}
                                     <span class="material-symbols-outlined">counter_{{ loop.index }}</span>
                                 {% else %}
                                     {{ loop.index }}
                                 {% endif %}
                             </td>
-                            <td style="padding-left: 0.5rem">{{ user.username }}</td>
-                            <td>{{ user.total_sends }}</td>
-                            <td>{{ user.avg_grade }}</td>
-                            <td>{{ user.total_points }}</td>
+                            <td>{{ user.username }}</td>
+                            <td class="text-center">{{ user.total_sends }}</td>
+                            <td class="text-center">{{ user.avg_grade }}</td>
+                            <td class="text-center">{{ user.total_points }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
