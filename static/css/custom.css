@@ -1551,3 +1551,11 @@ body,
     align-items: center;
     color: white;
 }
+
+.accordion-button::after {
+    filter: brightness(0) invert(1);
+}
+
+.accordion-body {
+    background-color: #313d58 !important;
+}
