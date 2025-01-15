@@ -19,10 +19,10 @@
                         <label class="form-label fs-4">Password</label>
                         <input type="password" name="password" class="form-control form-control-lg" required>
                     </div>
-                    <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Login</button>
+                    <button type="submit" class="btn nav-link active bg-solo-purple w-100 mb-3">Login</button>
                 </form>
-                <div class="text-center mt-3">
-                    <a href="{{ url_for('sign_up') }}" class="btn btn-lg nav-link active w-100" style="background-color: #303d59; padding: 0.95rem;">Sign up</a>
+                <div class="text-center">
+                    <a href="{{ url_for('sign_up') }}" class="btn nav-link active w-100" style="background-color: #313d58;">Sign up</a>
                 </div>
                 {% if request.args.get('next') and request.args.get('next') != url_for('index') %}
                     <div class="auth-banner mt-3">
