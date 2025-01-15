@@ -735,7 +735,7 @@ def feedback():
         if sort == 'top':
             feedback_items = Feedback.query.join(FeedbackVote, isouter=True)\
                 .group_by(Feedback.id)\
-                .orderby(func.count(FeedbackVote.id).desc()).all()
+                .order_by(func.count(FeedbackVote.id).desc()).all()
         else:  # 'new' is default
             feedback_items = Feedback.query.order_by(Feedback.created_at.desc()).all()
 
@@ -871,4 +871,6 @@ def handle_error(error):
 import shutil
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Get port from environment variable or use 3000 as default
+    port = int(os.environ.get('PORT', 3000))
+    app.run(host='0.0.0.0', port=port, debug=True)
