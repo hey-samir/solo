@@ -1,19 +1,19 @@
 /* Flash message styling - keep at top for highest specificity */
-.flash-messages-container {
-    position: fixed;
-    top: 20px; /* Reduced from 64px to show higher */
+html body .flash-messages-container {
+    position: fixed !important;
+    top: 20px !important;
     left: 0;
     right: 0;
-    z-index: 9999; /* Ensure messages appear above all other content */
+    z-index: 9999;
     display: flex;
     flex-direction: column;
     align-items: center;
-    pointer-events: none; /* Allow clicking through the container */
+    pointer-events: none;
     padding: 1rem;
 }
 
-.flash-message {
-    background-color: rgba(255, 255, 255, 0.1); /* Match navbar icon style */
+html body .flash-message {
+    background-color: rgba(255, 255, 255, 0.5);
     color: var(--text-color);
     padding: 0.75rem 1.25rem;
     margin: 0.5rem;
@@ -22,29 +22,29 @@
     max-width: 600px;
     width: 90%;
     text-align: center;
-    pointer-events: auto; /* Make the message itself clickable */
+    pointer-events: auto;
     animation: slideDown 0.3s ease-out;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    position: relative; /* For proper stacking */
+    position: relative;
 }
 
-.flash-message.alert-success {
+html body .flash-message.alert-success {
     background-color: rgba(25, 135, 84, 0.95);
     border-color: #198754;
 }
 
-.flash-message.alert-danger {
+html body .flash-message.alert-danger {
     background-color: rgba(220, 53, 69, 0.95);
     border-color: #dc3545;
 }
 
-.flash-message.alert-warning {
+html body .flash-message.alert-warning {
     background-color: rgba(255, 193, 7, 0.95);
     border-color: #ffc107;
     color: #000;
 }
 
-.flash-message.alert-info {
+html body .flash-message.alert-info {
     background-color: rgba(13, 202, 240, 0.95);
     border-color: #0dcaf0;
 }
@@ -1101,9 +1101,7 @@ body {
 
 /* Reduce helper text size */
 
-/* Status toggle label visibility */
-
-/* Form styling */
+/* Status toggle label visibility/* Form styling */
 .form-control,
 .form-select,
 .form-select-lg,
