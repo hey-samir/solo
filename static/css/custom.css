@@ -1559,3 +1559,24 @@ body,
 .accordion-body {
     background-color: #313d58 !important;
 }
+
+/* Sidebar */
+.offcanvas.offcanvas-end {
+    max-width: 50%;
+    background-color: #313d58;
+}
+
+.offcanvas .list-group-item {
+    background-color: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+}
+
+.offcanvas .list-group-item i {
+    margin-right: 0.75rem;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+}
