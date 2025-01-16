@@ -342,7 +342,7 @@ header {
 
 /* Metric card styling */
 .metric-card {
-    background-color: #313d58;
+    background-color: #313d58; /* Changed to match feature-card */
     border-radius: 8px;
     padding: 1rem;
     text-align: center;
@@ -1287,7 +1287,7 @@ textarea.form-control:focus {
 .feature-card .card-body,
 .feature-card.kpi-card,
 .metric-card {
-    background-color: transparent !important;
+    background-color: #313d58 !important; /* Updated to match feature cards */
     border: none !important;
 }
 
