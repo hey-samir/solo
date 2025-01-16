@@ -764,8 +764,8 @@ def submit_feedback():
             user_id=current_user.id if current_user.is_authenticated else None
         )
 
-            # Handle screenshot upload if provided
-            if form.screenshot.data:
+        # Handle screenshot upload if provided
+        if form.screenshot.data:
                 file = form.screenshot.data
                 if file.filename != '':
                     if not allowed_file(file.filename):
