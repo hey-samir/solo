@@ -13,7 +13,7 @@ from flask_login import (
     login_user, logout_user
 )
 from werkzeug.utils import secure_filename
-from sqlalchemy import func
+from sqlalchemy import func, text
 from flask_wtf.csrf import CSRFProtect
 
 # Local imports
@@ -34,8 +34,11 @@ from errors import (
     ErrorCodes, get_error_message
 )
 
-# Set up logging
-logging.basicConfig(level=logging.DEBUG)
+# Set up logging with more detailed configuration
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Initialize CSRF protection
@@ -54,6 +57,64 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def check_database_connection():
+    """Utility function to check database connection"""
+    if not os.environ.get('DATABASE_URL'):
+        logger.error("DATABASE_URL environment variable is not set")
+        return False
+
+    try:
+        with app.app_context():
+            # Execute a simple query to check connection
+            db.session.execute(text('SELECT 1'))
+            db.session.commit()
+            logger.info("Database connection successful")
+            return True
+    except Exception as e:
+        logger.error(f"Database connection check failed: {str(e)}")
+        return False
+    finally:
+        db.session.close()
+
+def initialize_database():
+    """Initialize database and create tables"""
+    try:
+        with app.app_context():
+            # Import models to ensure they're registered with SQLAlchemy
+            import models  # noqa: F401
+
+            # Create all tables
+            db.create_all()
+            logger.info("Database tables created successfully")
+            return True
+    except Exception as e:
+        logger.error(f"Database initialization failed: {str(e)}")
+        return False
+
+# Add health check endpoint
+@app.route('/health')
+def health_check():
+    """Health check endpoint to verify application and database status"""
+    try:
+        # Check database connection
+        is_connected = check_database_connection()
+        response = {
+            'status': 'healthy' if is_connected else 'unhealthy',
+            'database': 'connected' if is_connected else 'disconnected',
+            'timestamp': datetime.utcnow().isoformat()
+        }
+        if not is_connected:
+            response['error'] = 'Database connection failed'
+            return jsonify(response), 500
+        return jsonify(response)
+    except Exception as e:
+        logger.error(f"Health check failed: {str(e)}")
+        return jsonify({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.utcnow().isoformat()
+        }), 500
 
 @app.route('/')
 def index():
@@ -169,10 +230,10 @@ def sends():
     try:
         routes = []
         if current_user.gym_id:
-            routes = Route.query\
-                .join(RouteGrade)\
-                .filter(Route.gym_id == current_user.gym_id)\
-                .order_by(RouteGrade.difficulty_rank)\
+            routes = Route.query \
+                .join(RouteGrade) \
+                .filter(Route.gym_id == current_user.gym_id) \
+                .order_by(RouteGrade.difficulty_rank) \
                 .all()
 
             # Clean up route_id display (remove #)
@@ -292,10 +353,10 @@ def api_stats():
     for climb in current_user.climbs:
         date = climb.created_at.date()
         sessions[date] = sessions.get(date, 0) + 1
-    
+
     session_dates = list(sessions.keys())
     session_dates.sort()
-    
+
     # Calculate success rate by date
     date_stats = {}
     for climb in current_user.climbs:
@@ -305,7 +366,7 @@ def api_stats():
         if climb.status:
             date_stats[date]['sends'] += 1
         date_stats[date]['tries'] += climb.tries
-    
+
     # Convert to success rates
     sorted_dates = sorted(date_stats.keys())
     success_rates = []
@@ -313,7 +374,7 @@ def api_stats():
         stats = date_stats[date]
         rate = (stats['sends'] / stats['tries']) * 100 if stats['tries'] > 0 else 0
         success_rates.append(rate)
-    
+
     return jsonify({
         'ascentsByDifficulty': {
             'labels': list(difficulty_data.keys()),
@@ -345,10 +406,10 @@ def sessions():
         app.logger.info(f"Fetching sessions for user {current_user.id}")
 
         # Get all climbs for the current user, ordered by date and color
-        climbs = db.session.query(Climb, Route)\
-            .join(Route)\
-            .filter(Climb.user_id == current_user.id)\
-            .order_by(Climb.created_at.desc(), Route.color.asc())\
+        climbs = db.session.query(Climb, Route) \
+            .join(Route) \
+            .filter(Climb.user_id == current_user.id) \
+            .order_by(Climb.created_at.desc(), Route.color.asc()) \
             .all()
 
         app.logger.info(f"Found {len(climbs)} climbs for user")
@@ -396,11 +457,11 @@ def profile():
         total_points = sum(climb.points for climb in climbs)
 
         logger.debug("Successfully rendered profile page")
-        return render_template('solo-profile.html', 
-                          form=form,
-                          total_ascents=total_ascents,
-                          avg_grade=avg_grade,
-                          total_points=total_points)
+        return render_template('solo-profile.html',
+                               form=form,
+                               total_ascents=total_ascents,
+                               avg_grade=avg_grade,
+                               total_points=total_points)
     except Exception as e:
         logger.error("Error in profile page: %s", str(e))
         flash('An error occurred while loading your profile. Please try again.', 'error')
@@ -479,7 +540,7 @@ def update_avatar():
         logger.error(f"Error updating avatar: {str(e)}")
         flash(AVATAR_UPDATE_ERROR, 'error')
         return redirect(url_for('profile'))
-    
+
     try:
         if 'photo' not in request.files:
             flash(NO_FILE_UPLOADED, 'error')
@@ -547,7 +608,7 @@ def standings():
         # Calculate average grade
         sent_grades = []
         for climb in sends:
-            if climb.grade:  
+            if climb.grade:
                 grade_parts = climb.grade.split('.')
                 if len(grade_parts) == 2:
                     grade_num = grade_parts[1].rstrip('abcd')
@@ -588,7 +649,7 @@ def stats():
         '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
         '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
     }
-    
+
     GRADE_POINTS = {
         '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
         '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
@@ -599,22 +660,24 @@ def stats():
         '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
         '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
     }
-    
+
     total_sends = sum(1 for c in climbs if c.status)
-    def grade_to_points(grade): return GRADE_POINTS.get(grade, 0)
+
+    def grade_to_points(grade):
+        return GRADE_POINTS.get(grade, 0)
 
     # Calculate highest grade (most difficult)
     highest_grade = '--'
     max_grade_value = 0
     for climb in climbs:
-        if climb.grade and climb.status:  
+        if climb.grade and climb.status:
             grade_value = grade_points.get(climb.grade, 0)
             if grade_value > max_grade_value:
                 max_grade_value = grade_value
                 highest_grade = climb.grade
 
     # Calculate average grade using simple ranking
-    sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]  
+    sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]
 
     # Define grade ranking system
     grade_rank = {
@@ -628,7 +691,7 @@ def stats():
         '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
     }
     rank_to_grade = {v: k for k, v in grade_rank.items()}
-    
+
     if sent_grades:
         valid_ranks = [grade_rank.get(grade, 0) for grade in sent_grades if grade in grade_rank]
         if valid_ranks:
@@ -638,25 +701,25 @@ def stats():
             avg_grade = '--'
     else:
         avg_grade = '--'
-    
+
     # Calculate success rate
     success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
-    
+
     # Calculate total points and tries
     total_points = sum((climb.rating * (10 if climb.status else 5)) for climb in climbs)
     total_tries = sum(climb.tries for climb in climbs)
-    
+
     # Calculate climbs per session
     sessions = {}
     for climb in climbs:
         date = climb.created_at.date()
         sessions[date] = sessions.get(date, 0) + 1
     climbs_per_session = round(sum(sessions.values()) / len(sessions)) if sessions else 0
-    
+
     # Calculate average grade for sends vs attempts
     sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]
     attempted_grades = [climb.grade for climb in climbs if not climb.status and climb.grade]
-    
+
     def calculate_avg_grade(grades):
         if not grades:
             return 'N/A'
@@ -684,7 +747,7 @@ def stats():
                 modifier = 'a'
             return f'5.{base}{modifier}'
         return 'N/A'
-    
+
     avg_sent_grade = calculate_avg_grade(sent_grades)
     avg_attempted_grade = calculate_avg_grade(attempted_grades)
 
@@ -794,7 +857,8 @@ def submit_feedback():
                         return redirect(url_for('feedback'))
 
                     try:
-                        filename = secure_filename(f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
+                        filename = secure_filename(
+                            f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
                         upload_folder = os.path.join(app.static_folder, 'images', 'feedback')
                         os.makedirs(upload_folder, exist_ok=True)
 
@@ -904,7 +968,27 @@ def calculate_average_grade(grades):
 if __name__ == '__main__':
     try:
         logger.info("Starting Flask server...")
-        app.run(host='0.0.0.0', port=3000, debug=True)
+
+        # Verify environment variables
+        if not os.environ.get('DATABASE_URL'):
+            raise Exception("DATABASE_URL environment variable is not set")
+
+        # Initialize database
+        if not initialize_database():
+            raise Exception("Failed to initialize database")
+
+        # Verify database connection
+        if not check_database_connection():
+            raise Exception("Failed to establish database connection")
+
+        logger.info("Database connection verified")
+
+        # Start the server
+        app.run(
+            host='0.0.0.0',
+            port=5000,
+            debug=True
+        )
     except Exception as e:
-        logger.error(f"Error starting server: {str(e)}")
+        logger.error(f"Failed to start server: {str(e)}")
         raise
