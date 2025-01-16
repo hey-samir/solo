@@ -42,10 +42,12 @@
         </div>
         <div class="offcanvas-body" style="padding-left: 0.5rem;">
             <div class="list-group list-group-flush">
+                {% if current_user.is_authenticated %}
                 <a href="{{ url_for('solo') }}" class="list-group-item list-group-item-action">
                     <i class="material-icons me-2">mood</i>
                     Profile
                 </a>
+                {% endif %}
                 <a href="{{ url_for('about') }}" class="list-group-item list-group-item-action">
                     <i class="material-icons me-2">help</i>
                     About
@@ -58,6 +60,17 @@
                     <i class="material-icons me-2">store</i>
                     Store
                 </a>
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}" class="list-group-item list-group-item-action">
+                    <i class="material-icons me-2">logout</i>
+                    Logout
+                </a>
+                {% else %}
+                <a href="{{ url_for('login') }}" class="list-group-item list-group-item-action">
+                    <i class="material-icons me-2">login</i>
+                    Login
+                </a>
+                {% endif %}
             </div>
         </div>
     </div>
