@@ -88,7 +88,7 @@
             <!-- Ascents by Difficulty -->
             <div class="card mb-4">
                 <div class="card-header bg-transparent">
-                    <h5 class="card-title mb-0">Ascents</h5>
+                    <h5 class="card-title mb-0">Route Mix</h5>
                 </div>
                 <div class="card-body">
                     <div id="ascentsByDifficultyChart" style="height: 300px; width: 100%;">
@@ -124,7 +124,7 @@
             <!-- Climbs per Session -->
             <div class="card mb-4">
                 <div class="card-header bg-transparent">
-                    <h5 class="card-title mb-0">Climbs per Session</h5>
+                    <h5 class="card-title mb-0">Routes per Session</h5>
                 </div>
                 <div class="card-body">
                     <div id="climbsPerSessionChart" style="height: 300px; width: 100%;">
@@ -145,3 +145,16 @@
 <!-- Custom stats JavaScript -->
 <script src="{{ url_for('static', filename='js/stats.js') }}"></script>
 {% endblock %}
+
+            <!-- Send Rate by Color -->
+            <div class="card mb-4">
+                <div class="card-header bg-transparent">
+                    <h5 class="card-title mb-0">Send Rate by Color</h5>
+                </div>
+                <div class="card-body">
+                    <div id="sendRateByColorChart" style="height: 300px; width: 100%;">
+                        <canvas id="colorCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+

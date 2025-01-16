@@ -271,6 +271,53 @@ function updateMetricsOverTimeChart(data) {
     });
 }
 
+function updateSendRateByColorChart(data) {
+    const ctx = document.getElementById('colorCanvas');
+    if (!ctx || !data || !data.data) return;
+
+    let chart = Chart.getChart(ctx);
+    if (chart) {
+        chart.destroy();
+    }
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                data: data.data,
+                backgroundColor: '#7442d6',
+                borderColor: '#7442d6',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                datalabels: {
+                    color: '#ffffff',
+                    anchor: 'end',
+                    align: 'top',
+                    formatter: (value) => value > 0 ? value.toFixed(1) + '%' : ''
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: (value) => value + '%'
+                    }
+                }
+            }
+        }
+    });
+}
+
 function updateClimbsPerSessionChart(data) {
     const ctx = document.getElementById('climbsPerSessionCanvas');
     if (!ctx || !data || !data.data) return;
