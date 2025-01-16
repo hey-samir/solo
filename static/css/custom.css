@@ -598,6 +598,10 @@ textarea.form-control {
 }
 
 /* Nav pills */
+.stats-pills {
+    background-color: transparent !important;
+}
+
 .nav-pills .nav-link {
     color: white !important;
 }
