@@ -347,6 +347,22 @@ def api_stats():
         rate = (stats['sends'] / stats['tries']) * 100 if stats['tries'] > 0 else 0
         success_rates.append(rate)
 
+    # Calculate send rate by color
+    color_stats = {}
+    for climb in current_user.climbs:
+        color = climb.route.color
+        if color not in color_stats:
+            color_stats[color] = {'sends': 0, 'total': 0}
+        if climb.status:
+            color_stats[color]['sends'] += 1
+        color_stats[color]['total'] += 1
+
+    # Convert to percentages
+    color_send_rates = {
+        color: (stats['sends'] / stats['total'] * 100) if stats['total'] > 0 else 0
+        for color, stats in color_stats.items()
+    }
+
     return jsonify({
         'ascentsByDifficulty': {
             'labels': list(difficulty_data.keys()),
@@ -368,6 +384,10 @@ def api_stats():
         'climbsPerSession': {
             'labels': [d.strftime('%Y-%m-%d') for d in session_dates],
             'data': [sessions[d] for d in session_dates]
+        },
+        'sendRateByColor': {
+            'labels': list(color_send_rates.keys()),
+            'data': list(color_send_rates.values())
         }
     })
 

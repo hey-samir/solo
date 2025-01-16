@@ -38,6 +38,7 @@ function updateCharts() {
             updateSendsByDateChart(data.sendsByDate);
             updateMetricsOverTimeChart(data.metricsOverTime);
             updateClimbsPerSessionChart(data.climbsPerSession);
+            updateSendRateByColorChart(data.sendRateByColor);
         })
         .catch(error => console.error('Error updating charts:', error));
 }
