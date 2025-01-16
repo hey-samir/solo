@@ -61,23 +61,14 @@ html body .flash-message.alert-info {
 }
 
 /* Add margin to content to prevent overlap with fixed flash messages */
+/* Standardized container spacing */
 .container,
 .sessions-container,
 .standings-container,
 .sends-container,
 .stats-container {
-    margin-top: 2rem !important;
-    padding-top: 1rem !important;
-}
-
-/* Add margin to content to prevent overlap with fixed flash messages */
-.container,
-.sessions-container,
-.standings-container,
-.sends-container,
-.stats-container {
-    margin-top: 2rem !important;
-    padding-top: 1rem !important;
+    margin-top: 1rem !important;
+    padding-top: 0.5rem !important;
 }
 /* Root variables */
 :root {
