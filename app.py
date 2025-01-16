@@ -16,51 +16,53 @@ logger = logging.getLogger(__name__)
 class Base(DeclarativeBase):
     pass
 
-# Initialize core extensions
+# Initialize extensions without app context
 db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 migrate = Migrate()
 
-# create the app
-app = Flask(__name__)
+def create_app():
+    """Application factory function to create and configure the Flask app"""
+    app = Flask(__name__)
 
-# Configure Flask-Login
-login_manager.session_protection = "strong"
-login_manager.login_view = "login"
-login_manager.login_message = "Please log in to access this page."
-login_manager.login_message_category = "info"
+    # Configure Flask app
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_recycle": 300,
+        "pool_pre_ping": True,
+        "pool_size": 10,
+        "max_overflow": 20,
+    }
+    app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
 
-# setup a secret key, required by sessions
-app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
+    # Configure Flask-Login
+    login_manager.session_protection = "strong"
+    login_manager.login_view = "login"
+    login_manager.login_message = "Please log in to access this page."
+    login_manager.login_message_category = "info"
 
-# configure the database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-    "pool_recycle": 300,
-    "pool_pre_ping": True,
-    "pool_size": 10,
-    "max_overflow": 20,
-}
+    # Initialize extensions with app
+    db.init_app(app)
+    login_manager.init_app(app)
+    migrate.init_app(app, db)
 
-# Initialize extensions with app
-db.init_app(app)
-login_manager.init_app(app)
-migrate.init_app(app, db)
-
-@login_manager.user_loader
-def load_user(id):
-    from models import User
-    return User.query.get(int(id))
-
-try:
     with app.app_context():
-        # Import models here to avoid circular imports
-        import models  # noqa: F401
+        try:
+            # Import models here to avoid circular imports
+            import models  # noqa: F401
+            # Create database tables
+            db.create_all()
+            logger.info("Database initialized successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize database: {str(e)}")
+            raise
 
-        # Create database tables if they don't exist
-        db.create_all()
-        logger.info("Database initialized successfully")
+    @login_manager.user_loader
+    def load_user(id):
+        from models import User
+        return User.query.get(int(id))
 
-except Exception as e:
-    logger.error(f"Failed to initialize database: {str(e)}")
-    raise
+    return app
+
+# Create the Flask application instance
+app = create_app()

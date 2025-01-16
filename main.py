@@ -1,6 +1,7 @@
 import os
 import shutil
 import logging
+import sys
 from datetime import datetime, timedelta
 
 # Flask and extensions
@@ -20,21 +21,9 @@ from flask_wtf.csrf import CSRFProtect
 from app import app, db, logger
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
-from errors import (
-    LOGIN_REQUIRED, LOGIN_ERROR, REGISTRATION_USERNAME_ERROR,
-    REGISTRATION_USERNAME_TAKEN_ERROR, REGISTRATION_EMAIL_TAKEN_ERROR,
-    UPDATE_PROFILE_USERNAME_ERROR, UPDATE_PROFILE_USERNAME_TAKEN_ERROR,
-    PROFILE_UPDATE_ERROR, PROFILE_PHOTO_ERROR, AVATAR_UPDATE_ERROR,
-    SEND_UPDATE_SUCCESS, SEND_UPDATE_ERROR, INTERNAL_SERVER_ERROR,
-    GYM_SUBMISSION_INFO, REGISTRATION_SUCCESS, PROFILE_UPDATE_SUCCESS,
-    AVATAR_UPDATE_SUCCESS, PROFILE_PHOTO_UPDATE_SUCCESS,
-    FEEDBACK_SUBMIT_SUCCESS, NO_ROUTE_SELECTED, GYM_NOT_FOUND,
-    NO_FILE_UPLOADED, NO_FILE_SELECTED, INVALID_FILE_TYPE,
-    DATABASE_ERROR, FILE_UPLOAD_ERROR, PHOTO_PROCESSING_ERROR,
-    ErrorCodes, get_error_message
-)
+from errors import *
 
-# Set up logging with more detailed configuration
+# Set up logging
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -44,22 +33,8 @@ logger = logging.getLogger(__name__)
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
 
-# Ensure static/images directory exists
-os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
-
-# Copy solo-clear.png to static/images if needed
-source_logo = os.path.join('attached_assets', 'solo-clear.png')
-dest_logo = os.path.join(app.static_folder, 'images', 'solo-clear.png')
-if os.path.exists(source_logo) and not os.path.exists(dest_logo):
-    shutil.copy2(source_logo, dest_logo)
-
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 def check_database_connection():
-    """Utility function to check database connection"""
+    """Check database connection status"""
     if not os.environ.get('DATABASE_URL'):
         logger.error("DATABASE_URL environment variable is not set")
         return False
@@ -74,8 +49,6 @@ def check_database_connection():
     except Exception as e:
         logger.error(f"Database connection check failed: {str(e)}")
         return False
-    finally:
-        db.session.close()
 
 def initialize_database():
     """Initialize database and create tables"""
@@ -92,7 +65,6 @@ def initialize_database():
         logger.error(f"Database initialization failed: {str(e)}")
         return False
 
-# Add health check endpoint
 @app.route('/health')
 def health_check():
     """Health check endpoint to verify application and database status"""
@@ -631,164 +603,87 @@ def standings():
 
     return render_template('standings.html', leaderboard=leaderboard)
 
+# Stats calculation functions
+def calculate_avg_grade(grades):
+    """Helper function to calculate average grade"""
+    try:
+        valid_grades = []
+        for grade in grades:
+            if grade and isinstance(grade, str):
+                parts = grade.split('.')
+                if len(parts) == 2:
+                    base = parts[1].rstrip('abcd')
+                    if base.isdigit():
+                        valid_grades.append(float(base))
+
+        if valid_grades:
+            avg = sum(valid_grades) / len(valid_grades)
+            return f"5.{round(avg)}"
+        return '--'
+    except Exception:
+        return '--'
+
+def calculate_stats(climbs):
+    """Calculate all stats for a list of climbs"""
+    try:
+        total_sends = sum(1 for c in climbs if c.status)
+        total_points = sum(climb.points for climb in climbs)
+        success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
+
+        # Calculate session stats
+        sessions = {}
+        for climb in climbs:
+            date = climb.created_at.date()
+            sessions[date] = sessions.get(date, 0) + 1
+
+        climbs_per_session = round(sum(sessions.values()) / len(sessions)) if sessions else 0
+        avg_points_per_climb = round(total_points / len(climbs)) if climbs else 0
+        avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
+
+        # Calculate success rate per session
+        session_rates = []
+        for date in sessions:
+            session_climbs = [c for c in climbs if c.created_at.date() == date]
+            session_sends = sum(1 for c in session_climbs if c.status)
+            if session_climbs:
+                session_rate = (session_sends / len(session_climbs)) * 100
+                session_rates.append(session_rate)
+        success_rate_per_session = round(sum(session_rates) / len(session_rates)) if session_rates else 0
+
+        # Calculate grades
+        sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]
+        avg_sent_grade = calculate_avg_grade(sent_grades)
+
+        return {
+            'total_sends': total_sends,
+            'total_points': total_points,
+            'success_rate': success_rate,
+            'climbs_per_session': climbs_per_session,
+            'avg_points_per_climb': avg_points_per_climb,
+            'avg_attempts_per_climb': avg_attempts_per_climb,
+            'success_rate_per_session': success_rate_per_session,
+            'avg_sent_grade': avg_sent_grade
+        }
+    except Exception as e:
+        logger.error(f"Error calculating stats: {str(e)}")
+        return {}
+
 @app.route('/stats')
 @login_required
 def stats():
-    climbs = list(current_user.climbs)
-    sends = [c for c in climbs if c.status]
-    attempts = [c for c in climbs if not c.status]
+    """Handle stats page"""
+    try:
+        climbs = list(current_user.climbs)
+        stats_data = calculate_stats(climbs)
 
-    # Points system
-    grade_points = {
-        '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
-        '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
-        '5.10a': 200, '5.10b': 250, '5.10c': 300, '5.10d': 350,
-        '5.11a': 400, '5.11b': 500, '5.11c': 600, '5.11d': 700,
-        '5.12a': 800, '5.12b': 900, '5.12c': 1000, '5.12d': 1100,
-        '5.13a': 1250, '5.13b': 1400, '5.13c': 1550, '5.13d': 1700,
-        '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
-        '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
-    }
+        return render_template('stats.html',
+                           total_ascents=len(climbs),
+                           **stats_data)
+    except Exception as e:
+        logger.error(f"Error in stats page: {str(e)}")
+        flash('An error occurred while loading stats. Please try again.', 'error')
+        return render_template('stats.html')
 
-    GRADE_POINTS = {
-        '5.0': 10, '5.1': 20, '5.2': 30, '5.3': 40, '5.4': 50,
-        '5.5': 60, '5.6': 70, '5.7': 80, '5.8': 100, '5.9': 150,
-        '5.10a': 200, '5.10b': 250, '5.10c': 300, '5.10d': 350,
-        '5.11a': 400, '5.11b': 500, '5.11c': 600, '5.11d': 700,
-        '5.12a': 800, '5.12b': 900, '5.12c': 1000, '5.12d': 1100,
-        '5.13a': 1250, '5.13b': 1400, '5.13c': 1550, '5.13d': 1700,
-        '5.14a': 2000, '5.14b': 2500, '5.14c': 3000, '5.14d': 3500,
-        '5.15a': 4000, '5.15b': 5000, '5.15c': 6000, '5.15d': 7500
-    }
-
-    total_sends = sum(1 for c in climbs if c.status)
-
-    def grade_to_points(grade):
-        return GRADE_POINTS.get(grade, 0)
-
-    # Calculate highest grade (most difficult)
-    highest_grade = '--'
-    max_grade_value = 0
-    for climb in climbs:
-        if climb.grade and climb.status:
-            grade_value = grade_points.get(climb.grade, 0)
-            if grade_value > max_grade_value:
-                max_grade_value = grade_value
-                highest_grade = climb.grade
-
-    # Calculate average grade using simple ranking
-    sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]
-
-    # Define grade ranking system
-    grade_rank = {
-        '5.0': 1, '5.1': 2, '5.2': 3, '5.3': 4, '5.4': 5,
-        '5.5': 6, '5.6': 7, '5.7': 8, '5.8': 9, '5.9': 10,
-        '5.10a': 11, '5.10b': 12, '5.10c': 13, '5.10d': 14,
-        '5.11a': 15, '5.11b': 16, '5.11c': 17, '5.11d': 18,
-        '5.12a': 19, '5.12b': 20, '5.12c': 21, '5.12d': 22,
-        '5.13a': 23, '5.13b': 24, '5.13c': 25, '5.13d': 26,
-        '5.14a': 27, '5.14b': 28, '5.14c': 29, '5.14d': 30,
-        '5.15a': 31, '5.15b': 32, '5.15c': 33, '5.15d': 34
-    }
-    rank_to_grade = {v: k for k, v in grade_rank.items()}
-
-    if sent_grades:
-        valid_ranks = [grade_rank.get(grade, 0) for grade in sent_grades if grade in grade_rank]
-        if valid_ranks:
-            avg_rank = round(sum(valid_ranks) / len(valid_ranks))
-            avg_grade = rank_to_grade.get(avg_rank, '--')
-        else:
-            avg_grade = '--'
-    else:
-        avg_grade = '--'
-
-    # Calculate success rate
-    success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
-
-    # Calculate total points and tries
-    total_points = sum((climb.rating * (10 if climb.status else 5)) for climb in climbs)
-    total_tries = sum(climb.tries for climb in climbs)
-
-    # Calculate climbs per session
-    sessions = {}
-    for climb in climbs:
-        date = climb.created_at.date()
-        sessions[date] = sessions.get(date, 0) + 1
-    climbs_per_session = round(sum(sessions.values()) / len(sessions)) if sessions else 0
-
-    # Calculate average grade for sends vs attempts
-    sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]
-    attempted_grades = [climb.grade for climb in climbs if not climb.status and climb.grade]
-
-    def calculate_avg_grade(grades):
-        if not grades:
-            return 'N/A'
-        grade_values = []
-        for grade in grades:
-            parts = grade.split('.')
-            if len(parts) == 2:
-                base = parts[1].rstrip('abcd')
-                if base.isdigit():
-                    modifier = parts[1][len(base):] if len(parts[1]) > len(base) else ''
-                    value = float(base) + {'a': 0.0, 'b': 0.25, 'c': 0.5, 'd': 0.75}.get(modifier, 0)
-                    grade_values.append(value)
-        if grade_values:
-            avg = sum(grade_values) / len(grade_values)
-            base = int(avg)
-            modifier = ''
-            decimal = avg - base
-            if decimal >= 0.75:
-                modifier = 'd'
-            elif decimal >= 0.5:
-                modifier = 'c'
-            elif decimal >= 0.25:
-                modifier = 'b'
-            else:
-                modifier = 'a'
-            return f'5.{base}{modifier}'
-        return 'N/A'
-
-    avg_sent_grade = calculate_avg_grade(sent_grades)
-    avg_attempted_grade = calculate_avg_grade(attempted_grades)
-
-    # Prepare data for front-end charts
-    from datetime import timedelta
-    recent_date = datetime.now() - timedelta(days=30)
-    very_recent_date = datetime.now() - timedelta(days=7)
-
-    # Count recent sends and attempts
-    recent_ssends = len([c for c in sends if c.created_at >= recent_date])
-    very_recent_sends = len([c for c in sends if c.created_at >= very_recent_date])
-    recent_attempts = len([c for c in attempts if c.created_at >= recent_date])
-    very_recent_attempts = len([c for c in attempts if c.created_at >= very_recent_date])
-
-    # Calculate average attempts per climb
-    avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
-
-    # Calculate new metrics
-    avg_points_per_climb = round(total_points / len(climbs)) if climbs else 0
-
-    # Calculate success rate per session by averaging individual session rates
-    session_rates = []
-    for date in sessions:
-        session_climbs = [c for c in climbs if c.created_at.date() == date]
-        session_sends = sum(1 for c in session_climbs if c.status)
-        if session_climbs:
-            session_rate = (session_sends / len(session_climbs)) * 100
-            session_rates.append(session_rate)
-    success_rate_per_session = round(sum(session_rates) / len(session_rates)) if session_rates else 0
-
-    return render_template('stats.html',
-                         total_ascents=len(climbs),
-                         total_sends=total_sends,
-                         avg_grade=avg_grade,
-                         avg_sent_grade=avg_sent_grade,
-                         success_rate=success_rate,
-                         total_points=total_points,
-                         avg_points_per_climb=avg_points_per_climb,
-                         climbs_per_session=climbs_per_session,
-                         success_rate_per_session=success_rate_per_session,
-                         avg_attempts_per_climb=avg_attempts_per_climb)
 @app.route('/squads')
 @login_required
 def squads():
@@ -947,48 +842,43 @@ def handle_error(error):
 
 import shutil
 
-def calculate_average_grade(grades):
-    """Helper function to calculate average grade"""
-    try:
-        valid_grades = []
-        for grade in grades:
-            if grade and isinstance(grade, str):
-                parts = grade.split('.')
-                if len(parts) == 2:
-                    base = parts[1].rstrip('abcd')
-                    if base.isdigit():
-                        valid_grades.append(float(base))
+#Ensure static/images directory exists
+os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
 
-        if valid_grades:
-            return f"5.{round(sum(valid_grades) / len(valid_grades))}"
-        return '--'
-    except Exception:
-        return '--'
+# Copy solo-clear.png to static/images if needed
+source_logo = os.path.join('attached_assets', 'solo-clear.png')
+dest_logo = os.path.join(app.static_folder, 'images', 'solo-clear.png')
+if os.path.exists(source_logo) and not os.path.exists(dest_logo):
+    shutil.copy2(source_logo, dest_logo)
 
-if __name__ == '__main__':
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+if __name__ == "__main__":
     try:
         logger.info("Starting Flask server...")
 
-        # Verify environment variables
+        # Verify DATABASE_URL is set
         if not os.environ.get('DATABASE_URL'):
-            raise Exception("DATABASE_URL environment variable is not set")
+            logger.error("DATABASE_URL environment variable is not set")
+            sys.exit(1)
 
-        # Initialize database
-        if not initialize_database():
-            raise Exception("Failed to initialize database")
-
-        # Verify database connection
+        # Check database connection
         if not check_database_connection():
-            raise Exception("Failed to establish database connection")
+            logger.error("Database connection check failed")
+            sys.exit(1)
 
-        logger.info("Database connection verified")
+        logger.info("Database connection verified successfully")
 
-        # Start the server
-        app.run(
-            host='0.0.0.0',
-            port=5000,
-            debug=True
-        )
+        # Initialize database if needed
+        if not initialize_database():
+            logger.error("Database initialization failed")
+            sys.exit(1)
+
+        # Start Flask server
+        app.run(host='0.0.0.0', port=5000, debug=True)
     except Exception as e:
         logger.error(f"Failed to start server: {str(e)}")
-        raise
+        sys.exit(1)
