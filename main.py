@@ -748,14 +748,14 @@ def submit_feedback():
     from models import Feedback
     from werkzeug.utils import secure_filename
     from datetime import datetime
-    
+
     form = FeedbackForm()
     if not form.validate_on_submit():
         for field, errors in form.errors.items():
             for error in errors:
                 flash(f'{field}: {error}', 'error')
         return redirect(url_for('feedback'))
-        
+
     try:
         # Create new feedback
         feedback = Feedback(
@@ -766,40 +766,40 @@ def submit_feedback():
 
         # Handle screenshot upload if provided
         if form.screenshot.data:
-                file = form.screenshot.data
-                if file.filename != '':
-                    if not allowed_file(file.filename):
-                        flash(INVALID_FILE_TYPE, 'error')
-                        return redirect(url_for('feedback'))
+            file = form.screenshot.data
+            if file.filename != '':
+                if not allowed_file(file.filename):
+                    flash(INVALID_FILE_TYPE, 'error')
+                    return redirect(url_for('feedback'))
 
-                    try:
-                        filename = secure_filename(
-                            f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
-                        upload_folder = os.path.join(app.static_folder, 'images', 'feedback')
-                        os.makedirs(upload_folder, exist_ok=True)
+                try:
+                    filename = secure_filename(
+                        f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
+                    upload_folder = os.path.join(app.static_folder, 'images', 'feedback')
+                    os.makedirs(upload_folder, exist_ok=True)
 
-                        file_path = os.path.join(upload_folder, filename)
-                        file.save(file_path)
-                        feedback.screenshot_url = f"images/feedback/{filename}"
-                    except Exception as e:
-                        logger.error(f"File upload error: {str(e)}")
-                        flash(FILE_UPLOAD_ERROR, 'error')
-                        return redirect(url_for('feedback'))
+                    file_path = os.path.join(upload_folder, filename)
+                    file.save(file_path)
+                    feedback.screenshot_url = f"images/feedback/{filename}"
+                except Exception as e:
+                    logger.error(f"File upload error: {str(e)}")
+                    flash(FILE_UPLOAD_ERROR, 'error')
+                    return redirect(url_for('feedback'))
 
-            db.session.add(feedback)
-            db.session.commit()
+        db.session.add(feedback)
+        db.session.commit()
 
-            # Clear pending registration after successful feedback submission
-            if 'pending_registration' in session:
-                session.pop('pending_registration')
+        # Clear pending registration after successful feedback submission
+        if 'pending_registration' in session:
+            session.pop('pending_registration')
 
-            flash(FEEDBACK_SUBMIT_SUCCESS, 'success')
-            return redirect(url_for('feedback'))
-        except Exception as e:
-            logger.error(f"Error submitting feedback: {str(e)}")
-            db.session.rollback()
-            flash(DATABASE_ERROR, 'error')
-            return redirect(url_for('feedback'))
+        flash(FEEDBACK_SUBMIT_SUCCESS, 'success')
+        return redirect(url_for('feedback'))
+    except Exception as e:
+        logger.error(f"Error submitting feedback: {str(e)}")
+        db.session.rollback()
+        flash(DATABASE_ERROR, 'error')
+        return redirect(url_for('feedback'))
 
     return redirect(url_for('feedback'))
 
