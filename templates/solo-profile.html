@@ -101,13 +101,9 @@
                                 </button>
                             </div>
                             <div class="save-mode-buttons d-none">
-                                <div class="row g-2">
-                                    <div class="col">
-                                        <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-100">Save</button>
-                                    </div>
-                                    <div class="col">
-                                        <button type="button" class="btn btn-lg nav-link active bg-solo-purple w-100 cancel-edit">Back</button>
-                                    </div>
+                                <div class="d-flex gap-3">
+                                    <button type="submit" class="btn btn-lg nav-link active bg-solo-purple w-50">Save</button>
+                                    <button type="button" class="btn btn-lg nav-link active w-50" style="background-color: #313d58;">Back</button>
                                 </div>
                             </div>
                             <a href="{{ url_for('logout') }}" class="btn btn-lg nav-link active bg-solo-purple w-100">Log Out</a>
