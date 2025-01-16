@@ -452,7 +452,7 @@ html body .feature-card .card-body * {
     margin: 0;
     padding: 0;
     width: 100%;
-    overflow-x: hidden;
+    overflow-x: auto;
 }
 
 .table {
@@ -1502,7 +1502,28 @@ body,
 .standings-container .table td {
     background-color: var(--bg-color) !important;
     color: #ffffff;
-    padding: 1rem;
+    padding: 0.75rem;
+}
+
+.standings-container .table th:first-child,
+.standings-container .table td:first-child {
+    width: 60px;
+}
+
+.standings-container .table th:nth-child(2),
+.standings-container .table td:nth-child(2) {
+    width: calc(100% - 360px);
+    min-width: 120px;
+}
+
+.standings-container .table th:nth-child(3),
+.standings-container .table td:nth-child(3),
+.standings-container .table th:nth-child(4),
+.standings-container .table td:nth-child(4),
+.standings-container .table th:nth-child(5),
+.standings-container .table td:nth-child(5) {
+    width: 100px;
+    text-align: center;
 }
 
 .standings-container .table thead th {
