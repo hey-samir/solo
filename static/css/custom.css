@@ -1505,16 +1505,18 @@ body,
     padding: 0.75rem;
 }
 
+.standings-container .table {
+    table-layout: fixed;
+}
+
 .standings-container .table th:first-child,
 .standings-container .table td:first-child {
-    width: 40px;
-    min-width: 40px;
+    width: 8%;
 }
 
 .standings-container .table th:nth-child(2),
 .standings-container .table td:nth-child(2) {
-    width: auto;
-    min-width: 100px;
+    width: 52%;
 }
 
 .standings-container .table th:nth-child(3),
@@ -1523,8 +1525,7 @@ body,
 .standings-container .table td:nth-child(4),
 .standings-container .table th:nth-child(5),
 .standings-container .table td:nth-child(5) {
-    width: 80px;
-    min-width: 80px;
+    width: 13.33%;
     text-align: center;
 }
 
