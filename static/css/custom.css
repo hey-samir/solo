@@ -447,6 +447,27 @@ html body .feature-card .card-body * {
     margin-bottom: 0.5rem;
 }
 
+/* Table styles */
+.table-responsive {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.table {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    table-layout: fixed;
+}
+
+.table td, .table th {
+    padding: 0.75rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
 /* Form styles */
 /* Input fields */
 
