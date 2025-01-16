@@ -132,6 +132,18 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Send Rate by Color -->
+            <div class="card mb-4">
+                <div class="card-header bg-transparent">
+                    <h5 class="card-title mb-0">Send Rate by Color</h5>
+                </div>
+                <div class="card-body">
+                    <div id="sendRateByColorChart" style="height: 300px; width: 100%;">
+                        <canvas id="colorCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -145,16 +157,4 @@
 <!-- Custom stats JavaScript -->
 <script src="{{ url_for('static', filename='js/stats.js') }}"></script>
 {% endblock %}
-
-            <!-- Send Rate by Color -->
-            <div class="card mb-4">
-                <div class="card-header bg-transparent">
-                    <h5 class="card-title mb-0">Send Rate by Color</h5>
-                </div>
-                <div class="card-body">
-                    <div id="sendRateByColorChart" style="height: 300px; width: 100%;">
-                        <canvas id="colorCanvas"></canvas>
-                    </div>
-                </div>
-            </div>
 
