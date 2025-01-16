@@ -600,6 +600,9 @@ textarea.form-control {
 /* Nav pills */
 .stats-pills {
     background-color: transparent !important;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 
 .nav-pills .nav-link {
