@@ -866,16 +866,30 @@ h2 {
     padding: 0.75rem 1rem;
     text-align: left;
     vertical-align: middle;
-    min-width: 80px;
-    max-width: none;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.table td {
+    min-width: 60px;
     white-space: normal;
     word-break: break-word;
+}
+
+.standings-container .table th:first-child,
+.standings-container .table td:first-child {
+    width: 40px;
+    text-align: center;
+}
+
+.standings-container .table th:nth-child(2),
+.standings-container .table td:nth-child(2) {
+    width: 30%;
+}
+
+.standings-container .table th:nth-child(3),
+.standings-container .table td:nth-child(3),
+.standings-container .table th:nth-child(4),
+.standings-container .table td:nth-child(4),
+.standings-container .table th:nth-child(5),
+.standings-container .table td:nth-child(5) {
+    width: 20%;
+    text-align: center;
 }
 
 .d-flex.align-items-center.gap-3 {
