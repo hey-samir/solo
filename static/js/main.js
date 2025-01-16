@@ -39,5 +39,26 @@ window.initializeFormSubmission = function(form, successCallback) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize any global UI elements or event listeners here
+    // Initialize swipe navigation
+    const content = document.querySelector('.container');
+    if (content) {
+        const hammer = new Hammer(content);
+        hammer.on('swipeleft swiperight', function(e) {
+            const navLinks = Array.from(document.querySelectorAll('.navbar-nav .nav-link'));
+            const currentIndex = navLinks.findIndex(link => link.classList.contains('active'));
+            
+            if (currentIndex === -1) return;
+            
+            let nextIndex;
+            if (e.type === 'swipeleft') {
+                nextIndex = Math.min(currentIndex + 1, navLinks.length - 1);
+            } else {
+                nextIndex = Math.max(currentIndex - 1, 0);
+            }
+            
+            if (nextIndex !== currentIndex) {
+                navLinks[nextIndex].click();
+            }
+        });
+    }
 });
