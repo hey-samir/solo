@@ -1,6 +1,7 @@
+
 import os
-import logging
 from PIL import Image, ImageDraw
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,8 @@ def generate_pwa_icons():
             'apple-touch-icon.png': 180,
             'android-chrome-96x96.png': 96,
             'android-chrome-192x192.png': 192,
-            'android-chrome-512x512.png': 512
+            'android-chrome-512x512.png': 512,
+            'favicon.ico': 32
         }
 
         if not os.path.exists(source_path):
@@ -85,10 +87,10 @@ def generate_pwa_icons():
 
                 # Save with high quality
                 output_path = os.path.join(static_dir, filename)
-                if filename.endswith('.png'):
-                    output.save(output_path, 'PNG', quality=95, optimize=True)
+                if filename.endswith('.ico'):
+                    output.save(output_path, 'ICO', quality=95)
                 else:
-                    output.save(output_path, quality=95, optimize=True)
+                    output.save(output_path, 'PNG', quality=95, optimize=True)
                 logger.info(f"Saved icon: {output_path}")
 
         logger.info("PWA icons generated successfully")
