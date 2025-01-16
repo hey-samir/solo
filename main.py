@@ -748,20 +748,21 @@ def submit_feedback():
     from models import Feedback
     from werkzeug.utils import secure_filename
     from datetime import datetime
+    
     form = FeedbackForm()
-    if form.validate_on_submit():
-        try:
-            # Validate required fields
-            if not form.title.data or not form.description.data:
-                flash('Title and description are required.', 'error')
-                return redirect(url_for('feedback'))
-
-            # Create new feedback
-            feedback = Feedback(
-                title=form.title.data,
-                description=form.description.data,
-                user_id=current_user.id if current_user.is_authenticated else None
-            )
+    if not form.validate_on_submit():
+        for field, errors in form.errors.items():
+            for error in errors:
+                flash(f'{field}: {error}', 'error')
+        return redirect(url_for('feedback'))
+        
+    try:
+        # Create new feedback
+        feedback = Feedback(
+            title=form.title.data,
+            description=form.description.data,
+            user_id=current_user.id if current_user.is_authenticated else None
+        )
 
             # Handle screenshot upload if provided
             if form.screenshot.data:
