@@ -1,13 +1,15 @@
+from flask_migrate import Migrate
 from app import app, db
 from models import Gym, Route, RouteGrade
 from datetime import datetime
 
-def migrate():
-    print("Running migrations...")
-    with app.app_context():
-        # Create all tables
-        db.create_all()
+# Initialize Flask-Migrate
+migrate = Migrate(app, db)
 
+def init_db():
+    """Initialize database with required data"""
+    print("Initializing database with required data...")
+    with app.app_context():
         # Initialize route grades if they don't exist
         grades_data = [
             # Solo/Top Rope grades (5.0 - 5.15d)
@@ -59,7 +61,7 @@ def migrate():
 
         try:
             db.session.commit()
-            print("Added route grades")
+            print("Added route grades successfully")
         except Exception as e:
             db.session.rollback()
             print(f"Error adding route grades: {str(e)}")
@@ -72,7 +74,13 @@ def migrate():
                 location='Brooklyn, NY'
             )
             db.session.add(movement_gowanus)
-            db.session.commit()
+            try:
+                db.session.commit()
+                print("Added Movement Gowanus gym")
+            except Exception as e:
+                db.session.rollback()
+                print(f"Error adding gym: {str(e)}")
+                return
 
             # Initial routes for Movement Gowanus (all set on 10/28/2024)
             routes_data = [
@@ -109,15 +117,18 @@ def migrate():
                     grade=grade,
                     grade_id=grade_info.id,
                     date_set=set_date,
-                    gym_id=movement_gowanus.id
+                    gym_id=movement_gowanus.id,
+                    wall_sector='Main Wall',
+                    route_type='top_rope',
+                    active=True
                 )
                 db.session.add(route)
 
             try:
                 db.session.commit()
-                print("Added Movement Gowanus and its initial routes")
+                print("Added Movement Gowanus routes successfully")
             except Exception as e:
                 db.session.rollback()
                 print(f"Error adding routes: {str(e)}")
 
-        print("Database migration completed successfully")
+        print("Database initialization completed successfully")
