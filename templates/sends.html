@@ -6,7 +6,7 @@
         <div class="card-body p-0">
                 <form action="{{ url_for('add_climb') }}" method="POST" id="ascentForm" class="w-100">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <table class="table table-form">
+                    <table class="table table-form w-100">
                         <tbody>
                             <tr>
                                 <td class="form-label-cell"><label class="form-label required-field">Route</label></td>
@@ -17,8 +17,10 @@
                                         <option value="{{ route.id }}" 
                                                 data-color="{{ route.color }}"
                                                 data-grade="{{ route.grade }}">
-                                            <span class="color-dot" style="background-color: {{ route.color }};"></span>
-                                            {{ route.color }} {{ route.grade }}
+                                            <div class="d-flex align-items-center">
+                                                <span class="color-dot me-2" style="background-color: {{ route.color }};"></span>
+                                                {{ route.color }} {{ route.grade }}
+                                            </div>
                                         </option>
                                         {% endfor %}
                                     </select>
@@ -69,7 +71,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <div class="px-3 pb-3">
+                    <div class="px-3 pb-3 w-100">
                         <button type="submit" class="btn btn-primary btn-lg w-100">Send</button>
                         <div id="pointsEstimate" class="text-white mt-3 text-center fs-6">Points: 0</div>
                     </div>
@@ -107,13 +109,13 @@
 }
 
 .custom-switch {
-    background-color: #410f70 !important;
-    border-color: #410f70 !important;
+    background-color: #7442d6 !important;
+    border-color: #7442d6 !important;
 }
 
 .custom-switch:checked {
-    background-color: #410f70 !important;
-    border-color: #410f70 !important;
+    background-color: #7442d6 !important;
+    border-color: #7442d6 !important;
 }
 
 .rating-star {
@@ -123,7 +125,7 @@
 }
 
 .rating-star.active {
-    color: #ffd700;
+    color: #7442d6 !important;
 }
 
 .color-dot {
@@ -133,6 +135,14 @@
     border-radius: 50%;
     margin-right: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.table-form {
+    margin-bottom: 0;
+}
+
+.form-input-cell {
+    width: 100%;
 }
 </style>
 {% endblock %}

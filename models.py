@@ -78,9 +78,9 @@ class Route(db.Model):
     def __repr__(self):
         return f'<Route {self.route_id} - {self.color} {self.grade} ({self.wall_sector})>'
 
-    def update_stars(self, new_stars):
-        """Update the average stars when a new rating is added"""
-        self.avg_stars = ((self.avg_stars * self.stars_count) + new_stars) / (self.stars_count + 1)
+    def update_rating(self, new_rating):
+        """Update the average rating when a new rating is added"""
+        self.avg_stars = ((self.avg_stars * self.stars_count) + new_rating) / (self.stars_count + 1)
         self.stars_count += 1
 
     @property
