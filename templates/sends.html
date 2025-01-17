@@ -4,23 +4,21 @@
 <div class="sends-container">
     <div class="card w-100">
         <div class="card-body p-0">
-                <form action="{{ url_for('add_climb') }}" method="POST" id="ascentForm">
+                <form action="{{ url_for('add_climb') }}" method="POST" id="ascentForm" class="w-100">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <table class="table table-form">
                         <tbody>
                             <tr>
                                 <td class="form-label-cell"><label class="form-label required-field">Route</label></td>
                                 <td class="form-input-cell">
-                                    <select class="form-select form-select-lg" name="route_id" required>
+                                    <select class="form-select form-select-lg custom-select" name="route_id" required>
                                         <option value="" selected disabled>Select a route</option>
                                         {% for route in routes %}
                                         <option value="{{ route.id }}" 
                                                 data-color="{{ route.color }}"
                                                 data-grade="{{ route.grade }}">
-                                            <div class="route-option">
-                                                <span class="color-indicator" style="background-color: {{ route.color }}"></span>
-                                                {{ route.color }} {{ route.grade }} (#{{ route.route_id }})
-                                            </div>
+                                            <span class="color-dot" style="background-color: {{ route.color }};"></span>
+                                            {{ route.color }} {{ route.grade }}
                                         </option>
                                         {% endfor %}
                                     </select>
@@ -43,7 +41,7 @@
                                 <td class="form-label-cell"><label class="form-label required-field">Status</label></td>
                                 <td class="form-input-cell">
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="statusToggle" name="status" checked>
+                                        <input class="form-check-input custom-switch" type="checkbox" role="switch" id="statusToggle" name="status" checked>
                                         <label class="form-check-label" for="statusToggle" id="statusLabel">Sent</label>
                                     </div>
                                 </td>
@@ -53,7 +51,7 @@
                                 <td class="form-input-cell">
                                     <div class="rating-container">
                                         <input type="hidden" name="rating" id="ratingInput" value="3">
-                                        <div class="rating" data-coreui-toggle="rating" data-coreui-value="3">
+                                        <div class="rating">
                                             <i class="rating-star bi bi-star-fill"></i>
                                             <i class="rating-star bi bi-star-fill"></i>
                                             <i class="rating-star bi bi-star-fill"></i>
@@ -71,8 +69,10 @@
                             </tr>
                         </tbody>
                     </table>
-                    <button type="submit" class="btn btn-primary btn-lg w-100">Send</button>
-                    <div id="pointsEstimate" class="text-white mt-3 text-center fs-6">Points: 0</div>
+                    <div class="px-3 pb-3">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Send</button>
+                        <div id="pointsEstimate" class="text-white mt-3 text-center fs-6">Points: 0</div>
+                    </div>
                 </form>
             </div>
         </div>
@@ -89,26 +89,49 @@
 <script src="{{ url_for('static', filename='js/sends.js') }}"></script>
 
 <style>
-.route-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.custom-select {
+    height: auto !important;
+    padding: 0.75rem !important;
 }
-.color-indicator {
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    display: inline-block;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
+
 .form-select option {
     padding: 8px;
     display: flex;
     align-items: center;
 }
+
 .form-select {
     background-color: #2b2b2b;
     color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.custom-switch {
+    background-color: #410f70 !important;
+    border-color: #410f70 !important;
+}
+
+.custom-switch:checked {
+    background-color: #410f70 !important;
+    border-color: #410f70 !important;
+}
+
+.rating-star {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #6c757d;
+}
+
+.rating-star.active {
+    color: #ffd700;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 </style>

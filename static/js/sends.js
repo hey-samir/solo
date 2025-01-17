@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize all required elements
     const triesSlider = document.getElementById('triesSlider');
     const triesCounter = document.getElementById('triesCounter');
-    const ratingContainer = document.querySelector('.rating');
     const ratingStars = document.querySelectorAll('.rating-star');
     const ratingInput = document.getElementById('ratingInput');
     const pointsEstimate = document.getElementById('pointsEstimate');
@@ -23,36 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
         'Teal': '#008080'
     };
 
-    // Add color indicators to route options
-    if (routeSelect) {
-        const options = routeSelect.querySelectorAll('option');
-        options.forEach(option => {
-            if (option.value) {  // Skip the placeholder option
-                const color = option.dataset.color;
-                const hexColor = colorToHex[color] || '#FFFFFF';
-                const originalText = option.textContent;
-
-                // Create a wrapper div for the option content
-                const wrapper = document.createElement('div');
-                wrapper.className = 'route-option';
-
-                // Create color indicator
-                const colorIndicator = document.createElement('span');
-                colorIndicator.className = 'color-indicator';
-                colorIndicator.style.backgroundColor = hexColor;
-                colorIndicator.style.border = '1px solid #fff';
-
-                wrapper.appendChild(colorIndicator);
-                wrapper.appendChild(document.createTextNode(originalText));
-
-                // Set the option's content
-                option.innerHTML = wrapper.outerHTML;
-            }
-        });
-    }
-
     // Initialize star rating system
-    if (ratingContainer && ratingStars.length > 0) {
+    if (ratingStars.length > 0) {
         // Set initial rating
         const initialRating = parseInt(ratingInput.value) || 3;
         updateStars(initialRating);
