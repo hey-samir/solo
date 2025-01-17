@@ -2,6 +2,7 @@ const CACHE_NAME = 'solo-cache-v2';
 const STATIC_CACHE = 'solo-static-v2';
 const API_CACHE = 'solo-api-v2';
 const DYNAMIC_CACHE = 'solo-dynamic-v2';
+const QUEUE_NAME = 'solo-offline-queue';
 
 // Assets that should be cached immediately during installation
 const STATIC_ASSETS = [
@@ -11,11 +12,13 @@ const STATIC_ASSETS = [
   '/sessions',
   '/stats',
   '/standings',
+  '/offline.html',
   '/static/css/custom.css',
   '/static/js/main.js',
   '/static/js/profile.js',
   '/static/js/sends.js',
   '/static/js/sort.js',
+  '/static/js/stats.js',
   '/static/images/solo-clear.png',
   '/static/images/logo.png',
   '/static/manifest.json',
@@ -26,53 +29,117 @@ const STATIC_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap'
 ];
 
-// Install Service Worker and cache static assets
+// Enhanced offline request queue
+class OfflineQueue {
+  static async addToQueue(request) {
+    const queue = await caches.open(QUEUE_NAME);
+    const serializedRequest = await this.serializeRequest(request);
+    const timestamp = new Date().toISOString();
+    await queue.put(`${timestamp}-${Math.random()}`, new Response(JSON.stringify(serializedRequest)));
+  }
+
+  static async serializeRequest(request) {
+    const body = await request.clone().text();
+    return {
+      url: request.url,
+      method: request.method,
+      headers: Array.from(request.headers.entries()),
+      body,
+      mode: request.mode,
+      credentials: request.credentials,
+      cache: request.cache
+    };
+  }
+
+  static async processQueue() {
+    const queue = await caches.open(QUEUE_NAME);
+    const requests = await queue.keys();
+
+    return Promise.all(
+      requests.map(async (request) => {
+        try {
+          const response = await queue.match(request);
+          const serializedRequest = JSON.parse(await response.text());
+
+          const networkResponse = await fetch(new Request(serializedRequest.url, {
+            method: serializedRequest.method,
+            headers: new Headers(serializedRequest.headers),
+            body: serializedRequest.body,
+            mode: serializedRequest.mode,
+            credentials: serializedRequest.credentials,
+            cache: serializedRequest.cache
+          }));
+
+          if (networkResponse.ok) {
+            await queue.delete(request);
+            return { success: true, url: serializedRequest.url };
+          }
+          return { success: false, url: serializedRequest.url };
+        } catch (error) {
+          console.error('Failed to process queued request:', error);
+          return { success: false, url: request.url, error };
+        }
+      })
+    );
+  }
+}
+
+// Install Service Worker with enhanced error handling
 self.addEventListener('install', event => {
   event.waitUntil(
     Promise.all([
       caches.open(STATIC_CACHE).then(cache => {
         console.log('Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        return cache.addAll(STATIC_ASSETS).catch(error => {
+          console.error('Failed to cache static assets:', error);
+          throw error;
+        });
       }),
       caches.open(API_CACHE),
-      caches.open(DYNAMIC_CACHE)
-    ])
+      caches.open(DYNAMIC_CACHE),
+      caches.open(QUEUE_NAME)
+    ]).catch(error => {
+      console.error('Service Worker installation failed:', error);
+      throw error;
+    })
   );
-  // Force the waiting service worker to become the active service worker
   self.skipWaiting();
 });
 
-// Clean up old caches when a new service worker becomes active
+// Activate with enhanced cache cleanup
 self.addEventListener('activate', event => {
   event.waitUntil(
     Promise.all([
-      // Clean up old caches
       caches.keys().then(cacheNames => {
         return Promise.all(
           cacheNames.map(cacheName => {
-            if (![STATIC_CACHE, API_CACHE, DYNAMIC_CACHE].includes(cacheName)) {
+            if (![STATIC_CACHE, API_CACHE, DYNAMIC_CACHE, QUEUE_NAME].includes(cacheName)) {
               console.log('Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       }),
-      // Claim all clients so the new service worker takes over immediately
       clients.claim()
-    ])
+    ]).catch(error => {
+      console.error('Service Worker activation failed:', error);
+      throw error;
+    })
   );
 });
 
-// Helper function to determine caching strategy based on request
+// Enhanced strategy selection
 function getCacheStrategy(request) {
   const url = new URL(request.url);
 
-  // API requests (store and network)
+  if (request.method !== 'GET') {
+    return 'network-only';
+  }
+
   if (url.pathname.startsWith('/api/')) {
     return 'api';
   }
 
-  // Static assets (cache first, network fallback)
   if (
     url.pathname.startsWith('/static/') ||
     request.url.includes('googleapis.com') ||
@@ -82,22 +149,32 @@ function getCacheStrategy(request) {
     return 'static';
   }
 
-  // HTML pages (network first, cache fallback)
   if (request.mode === 'navigate' || request.headers.get('accept').includes('text/html')) {
     return 'page';
   }
 
-  // Default to network first for everything else
   return 'network-first';
 }
 
-// Fetch event handler with different strategies
+// Enhanced fetch event handler with offline support
 self.addEventListener('fetch', event => {
   const strategy = getCacheStrategy(event.request);
 
   switch (strategy) {
+    case 'network-only':
+      event.respondWith(
+        fetch(event.request.clone()).catch(async error => {
+          console.log('Network request failed, queueing for later:', error);
+          await OfflineQueue.addToQueue(event.request.clone());
+          return new Response(
+            JSON.stringify({ error: 'Currently offline, request queued for later' }),
+            { status: 503, headers: { 'Content-Type': 'application/json' } }
+          );
+        })
+      );
+      break;
+
     case 'api':
-      // Network first, then cache for API requests
       event.respondWith(
         fetch(event.request)
           .then(response => {
@@ -107,14 +184,20 @@ self.addEventListener('fetch', event => {
             });
             return response;
           })
-          .catch(() => {
-            return caches.match(event.request);
+          .catch(async () => {
+            const cachedResponse = await caches.match(event.request);
+            if (cachedResponse) {
+              return cachedResponse;
+            }
+            return new Response(
+              JSON.stringify({ error: 'Currently offline' }),
+              { status: 503, headers: { 'Content-Type': 'application/json' } }
+            );
           })
       );
       break;
 
     case 'static':
-      // Cache first, network fallback for static assets
       event.respondWith(
         caches.match(event.request)
           .then(response => {
@@ -130,7 +213,6 @@ self.addEventListener('fetch', event => {
       break;
 
     case 'page':
-      // Network first, cache fallback for HTML pages
       event.respondWith(
         fetch(event.request)
           .then(response => {
@@ -150,7 +232,6 @@ self.addEventListener('fetch', event => {
       break;
 
     default:
-      // Network first, cache fallback for everything else
       event.respondWith(
         fetch(event.request)
           .then(response => {
@@ -163,44 +244,45 @@ self.addEventListener('fetch', event => {
             });
             return response;
           })
-          .catch(() => {
-            return caches.match(event.request);
-          })
+          .catch(() => caches.match(event.request))
       );
   }
 });
 
-// Background sync for offline form submissions
+// Enhanced background sync with retry logic
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-climbs') {
     event.waitUntil(
-      // Implement background sync for climb submissions
-      syncClimbs()
+      OfflineQueue.processQueue()
+        .then(results => {
+          console.log('Sync results:', results);
+          const failed = results.filter(r => !r.success);
+          if (failed.length > 0) {
+            console.log('Some requests failed to sync:', failed);
+            // Retry failed requests in 5 minutes
+            setTimeout(() => {
+              self.registration.sync.register('sync-climbs');
+            }, 5 * 60 * 1000);
+          }
+        })
     );
   }
 });
 
-// Helper function to sync climbs when back online
-async function syncClimbs() {
-  try {
-    const cache = await caches.open('climbs-sync');
-    const requests = await cache.keys();
-
-    return Promise.all(
-      requests.map(async request => {
-        try {
-          const response = await fetch(request);
-          if (response.ok) {
-            await cache.delete(request);
-          }
-          return response;
-        } catch (error) {
-          console.error('Sync failed for request:', request.url);
-          return error;
-        }
-      })
+// Handle periodic sync for background updates
+self.addEventListener('periodicsync', event => {
+  if (event.tag === 'update-leaderboard') {
+    event.waitUntil(
+      fetch('/api/leaderboard')
+        .then(response => response.json())
+        .then(data => {
+          return caches.open(API_CACHE).then(cache => {
+            return cache.put('/api/leaderboard', new Response(JSON.stringify(data)));
+          });
+        })
+        .catch(error => {
+          console.error('Failed to update leaderboard:', error);
+        })
     );
-  } catch (error) {
-    console.error('Error syncing climbs:', error);
   }
-}
+});
