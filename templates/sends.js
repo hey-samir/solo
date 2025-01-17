@@ -80,13 +80,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add color indicators to route options
     if (routeSelect) {
-        const options = routeSelect.querySelectorAll('option[data-color]');
+        const options = routeSelect.querySelectorAll('option');
         options.forEach(option => {
-            const color = option.dataset.color;
-            const hexColor = colorToHex[color] || '#FFFFFF';
-            const dot = option.querySelector('.color-dot');
-            if (dot) {
-                dot.style.backgroundColor = hexColor;
+            if (option.value) {  // Skip the placeholder option
+                const color = option.dataset.color;
+                const hexColor = colorToHex[color] || '#FFFFFF';
+                const grade = option.dataset.grade;
+                
+                // Create the option content with color dot
+                option.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <span class="color-dot me-2" style="background-color: ${hexColor};"></span>
+                        ${color} ${grade}
+                    </div>
+                `;
             }
         });
     }
