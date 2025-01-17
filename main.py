@@ -5,7 +5,7 @@ from flask import (
 )
 from flask_login import (
     login_required, current_user,
-    login_user, logout_user
+    login_user, logout_user, UserMixin
 )
 from werkzeug.utils import secure_filename
 from sqlalchemy import func, text
@@ -16,10 +16,17 @@ import os
 import shutil
 import logging
 import sys
-import qrcode
-from io import BytesIO
 import base64
+from io import BytesIO
 from datetime import datetime, timedelta
+
+# Third-party imports
+try:
+    import qrcode
+    from qrcode import QRCode, constants
+except ImportError:
+    logging.error("QRCode package not properly installed")
+    qrcode = None
 
 # Local imports
 from app import app, db, logger
@@ -467,22 +474,25 @@ def profile(username=None):
 
         # Generate QR code for profile sharing
         try:
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_L,
-                box_size=10,
-                border=4,
-            )
-            profile_url = f"gosolo.nyc/profile/{user.username}"
-            qr.add_data(profile_url)
-            qr.make(fit=True)
+            if qrcode:
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=10,
+                    border=4,
+                )
+                profile_url = f"gosolo.nyc/profile/@{user.username}"
+                qr.add_data(profile_url)
+                qr.make(fit=True)
 
-            # Create QR code image
-            img_buffer = BytesIO()
-            qr_image = qr.make_image(fill_color="black", back_color="white")
-            qr_image.save(img_buffer, format='PNG')
-            img_buffer.seek(0)
-            qr_code = base64.b64encode(img_buffer.getvalue()).decode()
+                # Create QR code image
+                img_buffer = BytesIO()
+                qr_image = qr.make_image(fill_color="black", back_color="white")
+                qr_image.save(img_buffer, format='PNG')
+                img_buffer.seek(0)
+                qr_code = base64.b64encode(img_buffer.getvalue()).decode()
+            else:
+                qr_code = None
         except Exception as e:
             logger.error(f"Error generating QR code: {str(e)}")
             qr_code = None
@@ -491,13 +501,13 @@ def profile(username=None):
 
         logger.debug("Successfully rendered profile page")
         return render_template('solo-profile.html',
-                           form=form,
-                           profile_user=user,
-                           total_ascents=total_ascents,
-                           avg_grade=avg_grade,
-                           total_points=total_points,
-                           qr_code=qr_code,
-                           is_own_profile=is_own_profile)
+                               form=form,
+                               profile_user=user,
+                               total_ascents=total_ascents,
+                               avg_grade=avg_grade,
+                               total_points=total_points,
+                               qr_code=qr_code,
+                               is_own_profile=is_own_profile)
     except Exception as e:
         logger.error("Error in profile page: %s", str(e))
         flash('An error occurred while loading the profile. Please try again.', 'error')

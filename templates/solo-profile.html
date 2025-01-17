@@ -10,10 +10,10 @@
                     <div id="csrf-token" data-token="{{ form.csrf_token._value() }}"></div>
                     {% endif %}
 
-                    <div class="row g-4">
-                        <!-- Column 1: Avatar -->
+                    <div class="row">
+                        <!-- Column 1: Avatar and QR -->
                         <div class="col-md-4 text-center">
-                            <div class="profile-photo-container">
+                            <div class="profile-photo-container mb-3">
                                 <img src="{{ url_for('static', filename='images/' + profile_user.profile_photo) }}" 
                                      alt="Profile Photo" 
                                      class="profile-photo rounded-circle">
@@ -25,7 +25,7 @@
                             </div>
 
                             {% if is_own_profile %}
-                            <div class="avatar-selection d-none mt-3" id="avatarSelection">
+                            <div class="avatar-gallery d-none mt-3" id="avatarSelection">
                                 <form id="avatar-form" method="POST" action="{{ url_for('update_avatar') }}">
                                     <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
                                     <div class="avatar-options">
@@ -42,6 +42,12 @@
                                 </form>
                             </div>
                             {% endif %}
+
+                            {% if qr_code %}
+                            <button type="button" class="btn btn-icon mt-3" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
+                                <i class="material-icons">qr_code_2</i>
+                            </button>
+                            {% endif %}
                         </div>
 
                         <!-- Column 2: User Information -->
@@ -50,57 +56,54 @@
                                 {% if is_own_profile %}
                                 <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
                                 {% endif %}
+
                                 <div class="profile-fields mb-4">
-                                    <div class="profile-field" {% if is_own_profile %}data-editable{% endif %}>
-                                        <div class="field-row">
-                                            <label class="form-label">Name:</label>
-                                            <div class="field-content">
-                                                <span class="profile-text">{{ profile_user.name }}</span>
-                                                {% if is_own_profile %}
-                                                <input type="text" name="name" class="form-control" 
-                                                       value="{{ profile_user.name }}" disabled>
-                                                {% endif %}
-                                            </div>
+                                    <div class="field-row mb-3">
+                                        <label class="form-label">Name</label>
+                                        <div class="field-content">
+                                            {% if is_own_profile %}
+                                            <input type="text" name="name" class="form-control" 
+                                                   value="{{ profile_user.name }}"
+                                                   {% if not is_own_profile %}readonly{% endif %}>
+                                            {% else %}
+                                            <span class="profile-text">{{ profile_user.name }}</span>
+                                            {% endif %}
                                         </div>
                                     </div>
 
-                                    <div class="profile-field">
-                                        <div class="field-row">
-                                            <label class="form-label">Username:</label>
-                                            <div class="field-content">
-                                                <span class="profile-text">@{{ profile_user.username }}</span>
-                                            </div>
+                                    <div class="field-row mb-3">
+                                        <label class="form-label">Username</label>
+                                        <div class="field-content">
+                                            <span class="profile-text">@{{ profile_user.username }}</span>
                                         </div>
                                     </div>
 
-                                    <div class="profile-field" {% if is_own_profile %}data-editable{% endif %}>
-                                        <div class="field-row">
-                                            <label class="form-label">Gym:</label>
-                                            <div class="field-content">
-                                                <span class="profile-text">{{ profile_user.gym or 'Not set' }}</span>
-                                                {% if is_own_profile %}
-                                                <input type="text" name="gym" class="form-control" 
-                                                       value="{{ profile_user.gym }}" disabled>
-                                                {% endif %}
-                                            </div>
+                                    <div class="field-row mb-3">
+                                        <label class="form-label">Gym</label>
+                                        <div class="field-content">
+                                            {% if is_own_profile %}
+                                            <input type="text" name="gym" class="form-control" 
+                                                   value="{{ profile_user.gym or '' }}"
+                                                   {% if not is_own_profile %}readonly{% endif %}>
+                                            {% else %}
+                                            <span class="profile-text">{{ profile_user.gym or 'Not set' }}</span>
+                                            {% endif %}
                                         </div>
                                     </div>
 
-                                    <div class="profile-field">
-                                        <div class="field-row">
-                                            <label class="form-label">Joined:</label>
-                                            <div class="field-content">
-                                                <span class="profile-text">{{ profile_user.member_since.strftime('%B %Y') }}</span>
-                                            </div>
+                                    <div class="field-row mb-3">
+                                        <label class="form-label">Joined</label>
+                                        <div class="field-content">
+                                            <span class="profile-text">{{ profile_user.member_since.strftime('%B %Y') }}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {% if is_own_profile %}
-                                <div class="d-flex gap-2 mt-4">
+                                <div class="profile-actions d-flex gap-2">
                                     <button type="button" class="btn btn-primary flex-grow-1">
                                         <i class="material-icons">edit</i>
-                                        Edit Profile
+                                        Edit
                                     </button>
                                     <button type="button" class="btn btn-primary flex-grow-1" 
                                             data-bs-toggle="modal" 
@@ -175,7 +178,7 @@
                     <p>Or share this link:</p>
                     <input type="text" 
                            class="form-control" 
-                           value="gosolo.nyc/profile/{{ profile_user.username }}" 
+                           value="gosolo.nyc/profile/@{{ profile_user.username }}" 
                            readonly
                            onclick="this.select();">
                 </div>
