@@ -50,9 +50,12 @@ def create_app():
         try:
             # Import models here to avoid circular imports
             import models  # noqa: F401
-            # Create database tables
+            logger.info("Models imported successfully")
+
+            # Create database tables if they don't exist
             db.create_all()
-            logger.info("Database initialized successfully")
+            logger.info("Database tables initialized")
+
         except Exception as e:
             logger.error(f"Failed to initialize database: {str(e)}")
             raise
