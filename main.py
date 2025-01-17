@@ -950,7 +950,31 @@ if __name__ == "__main__":
             sys.exit(1)
 
         # Start Flask server
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        port = int(os.environ.get('PORT', 8080))
+        if os.environ.get('FLASK_ENV') == 'development':
+            app.run(host='0.0.0.0', port=port, debug=True)
+        else:
+            import gunicorn.app.base
+            class StandaloneApplication(gunicorn.app.base.BaseApplication):
+                def __init__(self, app, options=None):
+                    self.options = options or {}
+                    self.application = app
+                    super().__init__()
+
+                def load_config(self):
+                    for key, value in self.options.items():
+                        self.cfg.set(key, value)
+
+                def load(self):
+                    return self.application
+
+            options = {
+                'bind': f'0.0.0.0:{port}',
+                'workers': 4,
+                'worker_class': 'sync',
+                'timeout': 120
+            }
+            StandaloneApplication(app, options).run()
     except Exception as e:
         logger.error(f"Failed to start server: {str(e)}")
         sys.exit(1)
