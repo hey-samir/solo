@@ -1,9 +1,3 @@
-import os
-import shutil
-import logging
-import sys
-from datetime import datetime, timedelta
-
 # Flask and extensions
 from flask import (
     Flask, render_template, request, redirect, url_for, flash,
@@ -16,6 +10,16 @@ from flask_login import (
 from werkzeug.utils import secure_filename
 from sqlalchemy import func, text
 from flask_wtf.csrf import CSRFProtect
+
+# Standard library imports
+import os
+import shutil
+import logging
+import sys
+import qrcode
+from io import BytesIO
+import base64
+from datetime import datetime, timedelta
 
 # Local imports
 from app import app, db, logger
@@ -428,38 +432,75 @@ def sessions():
         return render_template('sessions.html', climbs_by_date={})
 
 @app.route('/profile')
-@login_required
-def profile():
+@app.route('/profile/<username>')
+def profile(username=None):
     """
-    Handle the user's profile page
+    Handle the user's profile page with optional username parameter for public viewing
     """
-    logger.debug("Accessing profile page for user: %s", current_user.username if current_user else 'Anonymous')
+    logger.debug("Accessing profile page for user: %s", username or (current_user.username if current_user.is_authenticated else 'Anonymous'))
     try:
-        form = ProfileForm(obj=current_user)  # Pre-fill form with current user data
+        if username:
+            # Public profile view
+            user = User.query.filter_by(username=username).first_or_404()
+        elif current_user.is_authenticated:
+            # Personal profile view
+            user = current_user
+        else:
+            # No username specified and not logged in
+            flash('Please log in to view your profile.', 'error')
+            return redirect(url_for('login'))
+
+        form = ProfileForm(obj=user)  # Pre-fill form with user data
 
         # Calculate KPI metrics
-        climbs = list(current_user.climbs)
+        climbs = list(user.climbs)
         total_ascents = len(climbs)
 
         # Calculate sent grades
         sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status]
-        avg_grade = calculate_average_grade(sent_grades) if sent_grades else '--'
+        avg_grade = calculate_avg_grade(sent_grades) if sent_grades else '--'
 
         # Calculate total points
         total_points = sum(climb.points for climb in climbs)
 
+        # Generate QR code for profile sharing
+        try:
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            profile_url = url_for('profile', username=user.username, _external=True)
+            qr.add_data(profile_url)
+            qr.make(fit=True)
+
+            # Create QR code image
+            img_buffer = BytesIO()
+            qr_image = qr.make_image(fill_color="black", back_color="white")
+            qr_image.save(img_buffer, format='PNG')
+            img_buffer.seek(0)
+            qr_code = base64.b64encode(img_buffer.getvalue()).decode()
+        except Exception as e:
+            logger.error(f"Error generating QR code: {str(e)}")
+            qr_code = None
+
+        is_own_profile = current_user.is_authenticated and current_user.id == user.id
+
         logger.debug("Successfully rendered profile page")
         return render_template('solo-profile.html',
-                               form=form,
-                               total_ascents=total_ascents,
-                               avg_grade=avg_grade,
-                               total_points=total_points)
+                             form=form,
+                             profile_user=user,
+                             total_ascents=total_ascents,
+                             avg_grade=avg_grade,
+                             total_points=total_points,
+                             qr_code=qr_code,
+                             is_own_profile=is_own_profile)
     except Exception as e:
         logger.error("Error in profile page: %s", str(e))
-        flash('An error occurred while loading your profile. Please try again.', 'error')
-        return render_template('solo-profile.html', form=ProfileForm())
+        flash('An error occurred while loading the profile. Please try again.', 'error')
+        return render_template('404.html'), 404
 
-# Redirect old /solo route to /profile
 @app.route('/solo')
 @login_required
 def solo():
@@ -697,8 +738,8 @@ def stats():
         stats_data = calculate_stats(climbs)
 
         return render_template('stats.html',
-                           total_ascents=len(climbs),
-                           **stats_data)
+                               total_ascents=len(climbs),
+                               **stats_data)
     except Exception as e:
         logger.error(f"Error in stats page: {str(e)}")
         flash('An error occurred while loading stats. Please try again.', 'error')
@@ -860,8 +901,6 @@ def handle_error(error):
     db.session.rollback()
     logger.error(f'Error: {str(error)}')
     return render_template('404.html', error="Internal Server Error"), 500
-
-import shutil
 
 #Ensure static/images directory exists
 os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
