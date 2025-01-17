@@ -880,6 +880,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/74/ab/df8d889fd01139db68ae9e5cb5c8f0ea016823559a6ecb427582d52b07dc/qrcode-8.0-py3-none-any.whl", hash = "sha256:9fc05f03305ad27a709eb742cf3097fa19e6f6f93bb9e2f039c0979190f6f1b1", size = 45710 },
 ]
 
+[package.optional-dependencies]
+pil = [
+    { name = "pillow" },
+]
+
 [[package]]
 name = "regex"
 version = "2024.11.6"
@@ -947,7 +952,7 @@ dependencies = [
     { name = "oauthlib" },
     { name = "pillow" },
     { name = "psycopg2-binary" },
-    { name = "qrcode" },
+    { name = "qrcode", extra = ["pil"] },
     { name = "requests" },
     { name = "sqlalchemy" },
     { name = "svgwrite" },
@@ -968,7 +973,7 @@ requires-dist = [
     { name = "oauthlib", specifier = ">=3.2.2" },
     { name = "pillow", specifier = ">=11.0.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
-    { name = "qrcode", specifier = ">=8.0" },
+    { name = "qrcode", extras = ["pil"], specifier = ">=8.0" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "sqlalchemy", specifier = ">=2.0.36" },
     { name = "svgwrite", specifier = ">=1.4.3" },

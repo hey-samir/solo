@@ -20,5 +20,5 @@ dependencies = [
     "requests>=2.32.3",
     "twilio>=9.4.1",
     "trafilatura>=2.0.0",
-    "qrcode>=8.0",
+    "qrcode[pil]>=8.0",
 ]

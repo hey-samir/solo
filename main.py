@@ -440,11 +440,13 @@ def profile(username=None):
     logger.debug("Accessing profile page for user: %s", username or (current_user.username if current_user.is_authenticated else 'Anonymous'))
     try:
         if username:
+            # Remove @ symbol if present in the URL
+            username = username.lstrip('@')
             # Public profile view
             user = User.query.filter_by(username=username).first_or_404()
         elif current_user.is_authenticated:
-            # Personal profile view
-            user = current_user
+            # Personal profile view - redirect to /profile/username
+            return redirect(url_for('profile', username=current_user.username))
         else:
             # No username specified and not logged in
             flash('Please log in to view your profile.', 'error')
@@ -471,7 +473,7 @@ def profile(username=None):
                 box_size=10,
                 border=4,
             )
-            profile_url = url_for('profile', username=user.username, _external=True)
+            profile_url = f"gosolo.nyc/profile/{user.username}"
             qr.add_data(profile_url)
             qr.make(fit=True)
 
@@ -489,13 +491,13 @@ def profile(username=None):
 
         logger.debug("Successfully rendered profile page")
         return render_template('solo-profile.html',
-                             form=form,
-                             profile_user=user,
-                             total_ascents=total_ascents,
-                             avg_grade=avg_grade,
-                             total_points=total_points,
-                             qr_code=qr_code,
-                             is_own_profile=is_own_profile)
+                           form=form,
+                           profile_user=user,
+                           total_ascents=total_ascents,
+                           avg_grade=avg_grade,
+                           total_points=total_points,
+                           qr_code=qr_code,
+                           is_own_profile=is_own_profile)
     except Exception as e:
         logger.error("Error in profile page: %s", str(e))
         flash('An error occurred while loading the profile. Please try again.', 'error')

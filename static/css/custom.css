@@ -991,6 +991,14 @@ body {
     background-color: var(--solo-purple) !important;
 }
 
+/* Profile card styling */
+.profile-card {
+    background: #1e2638;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 /* Avatar and profile styling */
 .profile-photo-container {
     position: relative;
@@ -1078,31 +1086,7 @@ body {
     border-color: rgba(116, 66, 214, 0.5);
 }
 
-/* QR Code icon styling */
-.qr-code-button {
-    background: transparent;
-    border: none;
-    padding: 0;
-    margin-top: 1rem;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.qrcode-button:hover {
-    transform: scale(1.1);
-}
-
-.qr-code-button i {
-    font-size: 2rem;
-    color: rgba(255, 255, 255, 0.8);
-    transition: color 0.2s ease;
-}
-
-.qr-code-button:hover i {
-    color: white;
-}
-
-/* Profile information styling */
+/* Profile fields styling */
 .profile-fields {
     margin-bottom: 2rem;
 }
@@ -1111,23 +1095,55 @@ body {
     margin-bottom: 1.25rem;
 }
 
-.profile-field .form-label {
+.field-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.field-row .form-label {
     color: var(--text-muted);
     font-size: 0.875rem;
     font-weight: 500;
-    margin-bottom: 0.25rem;
+    margin: 0;
+    min-width: 80px;
 }
 
-.profile-field .profile-text {
+.field-row .field-content {
+    flex-grow: 1;
+}
+
+.profile-text {
     color: var(--text-color);
     line-height: 1.4;
+    font-size: 1rem;
 }
 
 /* Button styling */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn i {
+    font-size: 20px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%) !important;
+    border: none;
+}
+
 .btn-negative {
     background-color: #313d58 !important;
     color: var(--text-color) !important;
-    transition: all 0.2s ease;
+    border: none;
 }
 
 .btn-negative:hover {
