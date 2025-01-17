@@ -1,6 +1,6 @@
 import os
 import logging
-from flask import Flask, request, g
+from flask import Flask, request, g, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from sqlalchemy.orm import DeclarativeBase
@@ -31,7 +31,7 @@ def create_app():
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     # Configure Flask app with enhanced database settings
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///app.db")
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_recycle": 300,  # Recycle connections every 5 minutes
         "pool_pre_ping": True,  # Enable connection health checks
@@ -39,7 +39,7 @@ def create_app():
         "max_overflow": 30,  # Allow more connections when pool is full
         "pool_timeout": 30,  # Connection timeout in seconds
     }
-    app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
+    app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "development_key_only"
 
     # Configure Flask-Login with enhanced security
     login_manager.session_protection = "strong"
@@ -51,6 +51,17 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
+
+    # Register error handlers
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return "Page not found", 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        logger.error(f"Internal Server Error: {error}", exc_info=True)
+        return "Internal Server Error", 500
 
     # Add request timing middleware
     @app.before_request
@@ -67,18 +78,6 @@ def create_app():
                 f'Duration: {total_time:.2f}s'
             )
         return response
-
-    # Enhanced error handling
-    @app.errorhandler(500)
-    def internal_error(error):
-        db.session.rollback()  # Rollback failed transactions
-        logger.error(f"Internal Server Error: {error}", exc_info=True)
-        return "Internal Server Error", 500
-
-    @app.errorhandler(404)
-    def not_found_error(error):
-        logger.warning(f"Page not found: {request.url}")
-        return "Page not found", 404
 
     with app.app_context():
         try:
@@ -107,3 +106,11 @@ def create_app():
 
 # Create the Flask application instance
 app = create_app()
+
+if __name__ == '__main__':
+    # Run the app on port 5000 with improved error handling
+    try:
+        app.run(host='0.0.0.0', port=5000, debug=True)
+    except OSError as e:
+        logger.error(f"Failed to start server: {str(e)}", exc_info=True)
+        raise SystemExit(1)

@@ -21,4 +21,5 @@ dependencies = [
     "twilio>=9.4.1",
     "trafilatura>=2.0.0",
     "qrcode[pil]>=8.0",
+    "gunicorn>=23.0.0",
 ]

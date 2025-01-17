@@ -3,31 +3,52 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/static/sw.js')
         .then(() => {
             console.log('ServiceWorker registered successfully');
-            // After registration, check connection status
             updateOnlineStatus();
         })
         .catch(error => console.error('ServiceWorker registration failed:', error));
 }
 
-// Handle online/offline status
+// Handle online/offline status with enhanced UI feedback
 function updateOnlineStatus() {
     const status = navigator.onLine ? 'online' : 'offline';
     console.log('Connection status:', status);
+
+    // Update UI to show connection status
+    document.querySelectorAll('.connection-status').forEach(el => {
+        el.textContent = status.toUpperCase();
+        el.className = `connection-status badge ${status === 'online' ? 'bg-success' : 'bg-warning'}`;
+    });
+
+    // Add offline indicator to cached content
     if (!navigator.onLine) {
-        // If offline, show the offline page
-        window.location.href = '/offline.html';
+        document.querySelectorAll('.cached-content').forEach(el => {
+            const timestamp = el.getAttribute('data-cache-time');
+            if (timestamp) {
+                const cacheTime = new Date(timestamp);
+                const timeAgo = formatTimeAgo(cacheTime);
+                el.querySelector('.cache-indicator')?.textContent = `Cached ${timeAgo}`;
+            }
+        });
     }
+}
+
+// Format time ago for cache indicators
+function formatTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.round(diffMs / 60000);
+    const diffHours = Math.round(diffMs / 3600000);
+    const diffDays = Math.round(diffMs / 86400000);
+
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
 }
 
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 
-// Global utility functions
-window.formatDate = function(date) {
-    return new Date(date).toLocaleDateString();
-};
-
-// Global form utilities
+// Enhanced form submission with offline support
 window.initializeFormSubmission = function(form, successCallback) {
     if (!form) return;
 
@@ -51,33 +72,71 @@ window.initializeFormSubmission = function(form, successCallback) {
                 throw new Error('Form submission failed');
             }
 
+            // Check if the response indicates cached data
+            const isFromCache = response.headers.get('X-Data-Source') === 'cache';
+            if (isFromCache) {
+                showCacheNotification();
+            }
+
             if (successCallback) {
                 successCallback(response);
             }
         } catch (error) {
             console.error('Form submission error:', error);
             if (!navigator.onLine) {
-                // If offline, queue the request for later
+                // Handle offline form submission
                 if ('serviceWorker' in navigator && 'SyncManager' in window) {
                     try {
                         const sw = await navigator.serviceWorker.ready;
                         await sw.sync.register('sync-climbs');
-                        alert('You are offline. Your changes will be saved and synced when you are back online.');
+                        showOfflineNotification('Changes saved locally and will sync when online');
                     } catch (syncError) {
                         console.error('Failed to register sync:', syncError);
-                        alert('Failed to queue offline changes. Please try again when online.');
+                        showOfflineNotification('Failed to save changes offline', 'error');
                     }
                 } else {
-                    alert('Offline support is not available. Please try again when online.');
+                    showOfflineNotification('Offline support not available', 'error');
                 }
             } else {
-                alert('Failed to submit form. Please try again.');
+                showOfflineNotification('Failed to submit form', 'error');
             }
         }
     });
 };
 
+// UI notifications for offline/cache status
+function showOfflineNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+function showCacheNotification() {
+    const notification = document.createElement('div');
+    notification.className = 'alert alert-info position-fixed bottom-0 end-0 m-3';
+    notification.textContent = 'Viewing cached data';
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// Global utility functions
+window.formatDate = function(date) {
+    return new Date(date).toLocaleDateString();
+};
+
+// Initialize UI components when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // Add connection status indicator to navbar
+    const navbar = document.querySelector('.navbar-nav');
+    if (navbar) {
+        const statusIndicator = document.createElement('li');
+        statusIndicator.className = 'nav-item ms-2';
+        statusIndicator.innerHTML = '<span class="connection-status badge">ONLINE</span>';
+        navbar.appendChild(statusIndicator);
+    }
+
     // Initialize swipe navigation
     const content = document.querySelector('.container');
     if (content) {
@@ -100,4 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Initial online status check
+    updateOnlineStatus();
 });

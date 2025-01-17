@@ -2,16 +2,29 @@ const CACHE_NAME = 'solo-cache-v2';
 const STATIC_CACHE = 'solo-static-v2';
 const API_CACHE = 'solo-api-v2';
 const DYNAMIC_CACHE = 'solo-dynamic-v2';
+const USER_CACHE = 'solo-user-v2';
 const QUEUE_NAME = 'solo-offline-queue';
+
+// Core routes that should work offline
+const CORE_ROUTES = [
+  '/profile',
+  '/sends',
+  '/stats',
+  '/sessions',
+  '/about'
+];
+
+// Core API endpoints to cache
+const CORE_API_ROUTES = [
+  '/api/profile',
+  '/api/sends',
+  '/api/stats',
+  '/api/sessions'
+];
 
 // Assets that should be cached immediately during installation
 const STATIC_ASSETS = [
   '/',
-  '/about',
-  '/sends',
-  '/sessions',
-  '/stats',
-  '/standings',
   '/offline.html',
   '/static/css/custom.css',
   '/static/js/main.js',
@@ -25,11 +38,10 @@ const STATIC_ASSETS = [
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/@coreui/coreui@4.3.0/dist/css/coreui.min.css',
   'https://fonts.googleapis.com/icon?family=Material+Icons',
-  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0',
-  'https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap'
+  ...CORE_ROUTES.map(route => `${route}.html`)
 ];
 
-// Enhanced offline request queue
+// Enhanced offline request queue with retry mechanism
 class OfflineQueue {
   static async addToQueue(request) {
     const queue = await caches.open(QUEUE_NAME);
@@ -84,7 +96,50 @@ class OfflineQueue {
   }
 }
 
-// Install Service Worker with enhanced error handling
+// Enhanced cache management
+class CacheManager {
+  static async cacheApiResponse(request, response) {
+    const cache = await caches.open(API_CACHE);
+    const clonedResponse = response.clone();
+    await cache.put(request, clonedResponse);
+    return response;
+  }
+
+  static async getCachedApiResponse(request) {
+    const cache = await caches.open(API_CACHE);
+    return await cache.match(request);
+  }
+
+  static async cacheUserData(userData) {
+    const cache = await caches.open(USER_CACHE);
+    await cache.put('/api/user-data', new Response(JSON.stringify(userData)));
+  }
+
+  static async getCachedUserData() {
+    const cache = await caches.open(USER_CACHE);
+    const response = await cache.match('/api/user-data');
+    return response ? response.json() : null;
+  }
+
+  // Cache core route data
+  static async cacheCoreRouteData() {
+    const cache = await caches.open(API_CACHE);
+    await Promise.all(
+      CORE_API_ROUTES.map(async route => {
+        try {
+          const response = await fetch(route);
+          if (response.ok) {
+            await cache.put(route, response.clone());
+          }
+        } catch (error) {
+          console.error(`Failed to cache ${route}:`, error);
+        }
+      })
+    );
+  }
+}
+
+// Install Service Worker with enhanced error handling and user data caching
 self.addEventListener('install', event => {
   event.waitUntil(
     Promise.all([
@@ -97,6 +152,7 @@ self.addEventListener('install', event => {
       }),
       caches.open(API_CACHE),
       caches.open(DYNAMIC_CACHE),
+      caches.open(USER_CACHE),
       caches.open(QUEUE_NAME)
     ]).catch(error => {
       console.error('Service Worker installation failed:', error);
@@ -113,13 +169,15 @@ self.addEventListener('activate', event => {
       caches.keys().then(cacheNames => {
         return Promise.all(
           cacheNames.map(cacheName => {
-            if (![STATIC_CACHE, API_CACHE, DYNAMIC_CACHE, QUEUE_NAME].includes(cacheName)) {
+            if (![STATIC_CACHE, API_CACHE, DYNAMIC_CACHE, USER_CACHE, QUEUE_NAME].includes(cacheName)) {
               console.log('Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       }),
+      // Cache core route data after activation
+      CacheManager.cacheCoreRouteData(),
       clients.claim()
     ]).catch(error => {
       console.error('Service Worker activation failed:', error);
@@ -128,7 +186,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Enhanced strategy selection
+// Enhanced strategy selection with user data handling
 function getCacheStrategy(request) {
   const url = new URL(request.url);
 
@@ -137,6 +195,9 @@ function getCacheStrategy(request) {
   }
 
   if (url.pathname.startsWith('/api/')) {
+    if (url.pathname.includes('user-data')) {
+      return 'user-data';
+    }
     return 'api';
   }
 
@@ -156,97 +217,103 @@ function getCacheStrategy(request) {
   return 'network-first';
 }
 
-// Enhanced fetch event handler with offline support
+// Enhanced fetch event handler with offline support and user data handling
 self.addEventListener('fetch', event => {
-  const strategy = getCacheStrategy(event.request);
+  const url = new URL(event.request.url);
 
-  switch (strategy) {
-    case 'network-only':
-      event.respondWith(
-        fetch(event.request.clone()).catch(async error => {
-          console.log('Network request failed, queueing for later:', error);
-          await OfflineQueue.addToQueue(event.request.clone());
+  // Handle core routes
+  if (CORE_ROUTES.includes(url.pathname)) {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => {
+          return response || fetch(event.request)
+            .then(networkResponse => {
+              const responseToCache = networkResponse.clone();
+              caches.open(DYNAMIC_CACHE)
+                .then(cache => {
+                  cache.put(event.request, responseToCache);
+                });
+              return networkResponse;
+            })
+            .catch(() => {
+              return caches.match('/offline.html');
+            });
+        })
+    );
+    return;
+  }
+
+  // Handle API routes
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const responseToCache = response.clone();
+          caches.open(API_CACHE)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+          return response;
+        })
+        .catch(async () => {
+          const cachedResponse = await caches.match(event.request);
+          if (cachedResponse) {
+            // Add a header to indicate this is cached data
+            const headers = new Headers(cachedResponse.headers);
+            headers.append('X-Data-Source', 'cache');
+            return new Response(cachedResponse.body, {
+              status: cachedResponse.status,
+              headers: headers
+            });
+          }
           return new Response(
-            JSON.stringify({ error: 'Currently offline, request queued for later' }),
-            { status: 503, headers: { 'Content-Type': 'application/json' } }
+            JSON.stringify({ 
+              error: 'Offline - Using cached data',
+              cached: true 
+            }),
+            { 
+              status: 200,
+              headers: { 'Content-Type': 'application/json' }
+            }
           );
         })
-      );
-      break;
+    );
+    return;
+  }
 
-    case 'api':
-      event.respondWith(
-        fetch(event.request)
-          .then(response => {
-            const responseClone = response.clone();
-            caches.open(API_CACHE).then(cache => {
-              cache.put(event.request, responseClone);
-            });
-            return response;
-          })
-          .catch(async () => {
-            const cachedResponse = await caches.match(event.request);
-            if (cachedResponse) {
-              return cachedResponse;
-            }
-            return new Response(
-              JSON.stringify({ error: 'Currently offline' }),
-              { status: 503, headers: { 'Content-Type': 'application/json' } }
-            );
-          })
-      );
-      break;
-
-    case 'static':
-      event.respondWith(
-        caches.match(event.request)
-          .then(response => {
-            return response || fetch(event.request).then(networkResponse => {
-              const responseClone = networkResponse.clone();
-              caches.open(STATIC_CACHE).then(cache => {
-                cache.put(event.request, responseClone);
-              });
+  // Handle static assets
+  if (
+    url.pathname.startsWith('/static/') ||
+    event.request.url.includes('googleapis.com') ||
+    event.request.url.includes('jsdelivr.net')
+  ) {
+    event.respondWith(
+      caches.match(event.request)
+        .then(response => {
+          return response || fetch(event.request)
+            .then(networkResponse => {
+              const responseToCache = networkResponse.clone();
+              caches.open(STATIC_CACHE)
+                .then(cache => {
+                  cache.put(event.request, responseToCache);
+                });
               return networkResponse;
             });
-          })
-      );
-      break;
-
-    case 'page':
-      event.respondWith(
-        fetch(event.request)
-          .then(response => {
-            const responseClone = response.clone();
-            caches.open(DYNAMIC_CACHE).then(cache => {
-              cache.put(event.request, responseClone);
-            });
-            return response;
-          })
-          .catch(() => {
-            return caches.match(event.request)
-              .then(response => {
-                return response || caches.match('/offline.html');
-              });
-          })
-      );
-      break;
-
-    default:
-      event.respondWith(
-        fetch(event.request)
-          .then(response => {
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            const responseClone = response.clone();
-            caches.open(DYNAMIC_CACHE).then(cache => {
-              cache.put(event.request, responseClone);
-            });
-            return response;
-          })
-          .catch(() => caches.match(event.request))
-      );
+        })
+    );
+    return;
   }
+
+  // Default strategy for other requests
+  event.respondWith(
+    fetch(event.request)
+      .catch(() => {
+        return caches.match(event.request)
+          .then(response => {
+            return response || caches.match('/offline.html');
+          });
+      })
+  );
 });
 
 // Enhanced background sync with retry logic

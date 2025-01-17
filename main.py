@@ -1,6 +1,6 @@
 # Flask and extensions
 from flask import (
-    Flask, render_template, request, redirect, url_for, flash,
+    render_template, request, redirect, url_for, flash,
     send_from_directory, current_app, session, jsonify
 )
 from flask_login import (
@@ -20,84 +20,17 @@ import base64
 from io import BytesIO
 from datetime import datetime, timedelta
 
-# Third-party imports
-try:
-    import qrcode
-    from qrcode import QRCode, constants
-except ImportError:
-    logging.error("QRCode package not properly installed")
-    qrcode = None
-
 # Local imports
-from app import app, db, logger
+from app import create_app, db, logger
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
 from errors import *
 
-# Set up logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Create the Flask application instance
+app = create_app()
 
 # Initialize CSRF protection
 csrf = CSRFProtect(app)
-
-def check_database_connection():
-    """Check database connection status"""
-    if not os.environ.get('DATABASE_URL'):
-        logger.error("DATABASE_URL environment variable is not set")
-        return False
-
-    try:
-        with app.app_context():
-            # Execute a simple query to check connection
-            db.session.execute(text('SELECT 1'))
-            db.session.commit()
-            logger.info("Database connection successful")
-            return True
-    except Exception as e:
-        logger.error(f"Database connection check failed: {str(e)}")
-        return False
-
-def initialize_database():
-    """Initialize database and create tables"""
-    try:
-        with app.app_context():
-            # Import models to ensure they're registered with SQLAlchemy
-            import models  # noqa: F401
-
-            # Create all tables
-            db.create_all()
-            logger.info("Database tables created successfully")
-            return True
-    except Exception as e:
-        logger.error(f"Database initialization failed: {str(e)}")
-        return False
-
-@app.route('/health')
-def health_check():
-    """Health check endpoint to verify application and database status"""
-    try:
-        # Check database connection
-        is_connected = check_database_connection()
-        response = {
-            'status': 'healthy' if is_connected else 'unhealthy',
-            'database': 'connected' if is_connected else 'disconnected',
-            'timestamp': datetime.utcnow().isoformat()
-        }
-        if not is_connected:
-            response['error'] = 'Database connection failed'
-            return jsonify(response), 500
-        return jsonify(response)
-    except Exception as e:
-        logger.error(f"Health check failed: {str(e)}")
-        return jsonify({
-            'status': 'unhealthy',
-            'error': str(e),
-            'timestamp': datetime.utcnow().isoformat()
-        }), 500
 
 @app.route('/')
 def index():
@@ -459,55 +392,27 @@ def profile(username=None):
             flash('Please log in to view your profile.', 'error')
             return redirect(url_for('login'))
 
-        form = ProfileForm(obj=user)  # Pre-fill form with user data
+        # Initialize form for profile editing
+        form = ProfileForm(obj=user) if current_user.is_authenticated and current_user.id == user.id else None
 
-        # Calculate KPI metrics
+        # Calculate KPI metrics without QR code
         climbs = list(user.climbs)
         total_ascents = len(climbs)
-
-        # Calculate sent grades
         sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status]
         avg_grade = calculate_avg_grade(sent_grades) if sent_grades else '--'
-
-        # Calculate total points
         total_points = sum(climb.points for climb in climbs)
-
-        # Generate QR code for profile sharing
-        try:
-            if qrcode:
-                qr = qrcode.QRCode(
-                    version=1,
-                    error_correction=qrcode.constants.ERROR_CORRECT_L,
-                    box_size=10,
-                    border=4,
-                )
-                profile_url = f"gosolo.nyc/profile/@{user.username}"
-                qr.add_data(profile_url)
-                qr.make(fit=True)
-
-                # Create QR code image
-                img_buffer = BytesIO()
-                qr_image = qr.make_image(fill_color="black", back_color="white")
-                qr_image.save(img_buffer, format='PNG')
-                img_buffer.seek(0)
-                qr_code = base64.b64encode(img_buffer.getvalue()).decode()
-            else:
-                qr_code = None
-        except Exception as e:
-            logger.error(f"Error generating QR code: {str(e)}")
-            qr_code = None
 
         is_own_profile = current_user.is_authenticated and current_user.id == user.id
 
         logger.debug("Successfully rendered profile page")
         return render_template('solo-profile.html',
-                               form=form,
-                               profile_user=user,
-                               total_ascents=total_ascents,
-                               avg_grade=avg_grade,
-                               total_points=total_points,
-                               qr_code=qr_code,
-                               is_own_profile=is_own_profile)
+                            form=form,
+                            profile_user=user,
+                            total_ascents=total_ascents,
+                            avg_grade=avg_grade,
+                            total_points=total_points,
+                            qr_code=None,
+                            is_own_profile=is_own_profile)
     except Exception as e:
         logger.error("Error in profile page: %s", str(e))
         flash('An error occurred while loading the profile. Please try again.', 'error')
@@ -921,8 +826,12 @@ os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
 source_logo = os.path.join('attached_assets', 'solo-clear.png')
 dest_logo = os.path.join(app.static_folder, 'images', 'solo-clear.png')
 if os.path.exists(source_logo) and not os.path.exists(dest_logo):
-    shutil.copy2(source_logo, dest_logo)
+    try:
+        shutil.copy2(source_logo, dest_logo)
+    except Exception as e:
+        logger.error(f"Failed to copy logo: {str(e)}")
 
+# File upload helpers
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
@@ -931,50 +840,7 @@ def allowed_file(filename):
 if __name__ == "__main__":
     try:
         logger.info("Starting Flask server...")
-
-        # Verify DATABASE_URL is set
-        if not os.environ.get('DATABASE_URL'):
-            logger.error("DATABASE_URL environment variable is not set")
-            sys.exit(1)
-
-        # Check database connection
-        if not check_database_connection():
-            logger.error("Database connection check failed")
-            sys.exit(1)
-
-        logger.info("Database connection verified successfully")
-
-        # Initialize database if needed
-        if not initialize_database():
-            logger.error("Database initialization failed")
-            sys.exit(1)
-
-        # Start Flask server
-        port = int(os.environ.get('PORT', 8080))
-        if os.environ.get('FLASK_ENV') == 'development':
-            app.run(host='0.0.0.0', port=port, debug=True)
-        else:
-            import gunicorn.app.base
-            class StandaloneApplication(gunicorn.app.base.BaseApplication):
-                def __init__(self, app, options=None):
-                    self.options = options or {}
-                    self.application = app
-                    super().__init__()
-
-                def load_config(self):
-                    for key, value in self.options.items():
-                        self.cfg.set(key, value)
-
-                def load(self):
-                    return self.application
-
-            options = {
-                'bind': f'0.0.0.0:{port}',
-                'workers': 4,
-                'worker_class': 'sync',
-                'timeout': 120
-            }
-            StandaloneApplication(app, options).run()
+        app.run(host='0.0.0.0', port=5000, debug=True)
     except Exception as e:
         logger.error(f"Failed to start server: {str(e)}")
         sys.exit(1)
