@@ -5,133 +5,149 @@
     <div class="row justify-content-center">
         <div class="col-md-10 col-lg-8">
             <div style="background: #1e2638; border: none; border-radius: 8px;">
-                <div class="card-body p-3">
+                <div class="card-body p-4">
                     {% if is_own_profile %}
                     <div id="csrf-token" data-token="{{ form.csrf_token._value() }}"></div>
                     {% endif %}
 
-                    <div class="text-center mb-4">
-                        <div class="profile-photo-container mb-3">
-                            <img src="{{ url_for('static', filename='images/' + profile_user.profile_photo) }}" 
-                                 alt="Profile Photo" 
-                                 class="profile-photo">
+                    <div class="row">
+                        <!-- Column 1: Avatar and QR Code -->
+                        <div class="col-md-4 text-center">
+                            <div class="profile-photo-container mb-3">
+                                <img src="{{ url_for('static', filename='images/' + profile_user.profile_photo) }}" 
+                                     alt="Profile Photo" 
+                                     class="profile-photo rounded-circle">
+                                {% if is_own_profile %}
+                                <div class="edit-photo-icon" id="editPhotoBtn">
+                                    <i class="material-icons">edit</i>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- QR Code Icon -->
+                            <div class="mt-3">
+                                <button class="qr-code-button" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#qrCodeModal">
+                                    <i class="material-icons">qr_code_2</i>
+                                </button>
+                            </div>
+
                             {% if is_own_profile %}
-                            <div class="edit-photo-icon" id="editPhotoBtn">
-                                <i class="material-icons">edit</i>
+                            <div class="avatar-selection d-none mt-3" id="avatarSelection">
+                                <form id="avatar-form" method="POST" action="{{ url_for('update_avatar') }}">
+                                    <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
+                                    <div class="avatar-options">
+                                        {% for color in ['white', 'black', 'gray', 'purple'] %}
+                                        <label class="avatar-option">
+                                            <input type="radio" name="avatar" value="{{ color }}-solo-av.png" 
+                                                   {% if profile_user.profile_photo == color + '-solo-av.png' %}checked{% endif %}>
+                                            <img src="{{ url_for('static', filename='images/' + color + '-solo-av.png') }}" 
+                                                 alt="{{ color }} solo"
+                                                 class="avatar-thumbnail">
+                                        </label>
+                                        {% endfor %}
+                                    </div>
+                                </form>
                             </div>
                             {% endif %}
                         </div>
-                        {% if is_own_profile %}
-                        <div class="avatar-selection d-none" id="avatarSelection">
-                            <form id="avatar-form" method="POST" action="{{ url_for('update_avatar') }}">
+
+                        <!-- Column 2: User Information -->
+                        <div class="col-md-8">
+                            <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
+                                {% if is_own_profile %}
                                 <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
-                                <div class="avatar-options">
-                                    {% for color in ['white', 'black', 'gray', 'purple'] %}
-                                    <label class="avatar-option">
-                                        <input type="radio" name="avatar" value="{{ color }}-solo-av.png" 
-                                               {% if profile_user.profile_photo == color + '-solo-av.png' %}checked{% endif %}>
-                                        <img src="{{ url_for('static', filename='images/' + color + '-solo-av.png') }}" 
-                                             alt="{{ color }} solo">
-                                    </label>
-                                    {% endfor %}
+                                {% endif %}
+                                <div class="profile-fields mb-4">
+                                    <div class="profile-field" {% if is_own_profile %}data-editable{% endif %}>
+                                        <label class="form-label">Name</label>
+                                        <div class="field-content">
+                                            <span class="profile-text" style="font-size: 1.25rem;">{{ profile_user.name }}</span>
+                                            {% if is_own_profile %}
+                                            <input type="text" name="name" class="form-control form-control-lg" 
+                                                   value="{{ profile_user.name }}" disabled>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-field">
+                                        <label class="form-label">Username</label>
+                                        <div class="field-content">
+                                            <span class="profile-text" style="font-size: 1rem;">@{{ profile_user.username }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-field" {% if is_own_profile %}data-editable{% endif %}>
+                                        <label class="form-label">Gym</label>
+                                        <div class="field-content">
+                                            <span class="profile-text" style="font-size: 1rem;">{{ profile_user.gym or 'Not set' }}</span>
+                                            {% if is_own_profile %}
+                                            <input type="text" name="gym" class="form-control form-control-lg" 
+                                                   value="{{ profile_user.gym }}" disabled>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="profile-field">
+                                        <label class="form-label">Joined</label>
+                                        <div class="field-content">
+                                            <span class="profile-text">{{ profile_user.member_since.strftime('%B %Y') }}</span>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                {% if is_own_profile %}
+                                <div class="d-grid gap-3 mt-4">
+                                    <div class="edit-mode-buttons">
+                                        <div class="d-flex gap-3">
+                                            <button type="button" class="btn btn-lg nav-link active w-50" 
+                                                    style="background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%)">
+                                                Edit Profile
+                                            </button>
+                                            <a href="{{ url_for('logout') }}" 
+                                               class="btn btn-lg nav-link active w-50 btn-negative">
+                                                Logout
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="save-mode-buttons d-none">
+                                        <div class="d-flex gap-3">
+                                            <button type="submit" class="btn btn-lg nav-link active w-50" 
+                                                    style="background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%)">
+                                                Save
+                                            </button>
+                                            <button type="button" class="btn btn-lg nav-link active w-50 btn-negative cancel-edit">
+                                                Back
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
                             </form>
-                        </div>
-                        {% endif %}
-                    </div>
 
-                    <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
-                        {% if is_own_profile %}
-                        <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
-                        {% endif %}
-                        <div class="profile-fields mb-4">
-                            <div class="profile-field" {% if is_own_profile %}data-editable{% endif %}>
-                                <label class="form-label">Name</label>
-                                <div class="field-content">
-                                    <span class="profile-text" style="font-size: 1rem;">{{ profile_user.name }}</span>
-                                    {% if is_own_profile %}
-                                    <input type="text" name="name" class="form-control form-control-lg" 
-                                           value="{{ profile_user.name }}" disabled>
-                                    {% endif %}
+                            <!-- KPI Cards -->
+                            <div class="row mt-4">
+                                <div class="col-md-4">
+                                    <div class="metric-card">
+                                        <div class="metric-value">{{ total_ascents }}</div>
+                                        <div class="metric-label">Total Ascents</div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="profile-field">
-                                <label class="form-label">Username</label>
-                                <div class="field-content">
-                                    <span class="profile-text" style="font-size: 1rem;">@{{ profile_user.username }}</span>
+                                <div class="col-md-4">
+                                    <div class="metric-card">
+                                        <div class="metric-value">{{ avg_grade }}</div>
+                                        <div class="metric-label">Avg Grade</div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="profile-field" {% if is_own_profile %}data-editable{% endif %}>
-                                <label class="form-label">Gym</label>
-                                <div class="field-content">
-                                    <span class="profile-text" style="font-size: 1rem;">{{ profile_user.gym or 'Not set' }}</span>
-                                    {% if is_own_profile %}
-                                    <input type="text" name="gym" class="form-control form-control-lg" 
-                                           value="{{ profile_user.gym }}" disabled>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            <div class="profile-field">
-                                <label class="form-label">Joined</label>
-                                <div class="field-content">
-                                    <span class="profile-text">{{ profile_user.member_since.strftime('%B %Y') }}</span>
+                                <div class="col-md-4">
+                                    <div class="metric-card">
+                                        <div class="metric-value">{{ total_points }}</div>
+                                        <div class="metric-label">Total Points</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- KPI Metrics Section -->
-                        <div class="d-flex justify-content-between gap-2 mb-4 px-2">
-                            <div style="width: 32%;">
-                                <div class="metric-card">
-                                    <div class="metric-value">{{ total_ascents }}</div>
-                                    <div class="metric-label">Total Ascents</div>
-                                </div>
-                            </div>
-                            <div style="width: 32%;">
-                                <div class="metric-card">
-                                    <div class="metric-value">{{ avg_grade }}</div>
-                                    <div class="metric-label">Avg Grade</div>
-                                </div>
-                            </div>
-                            <div style="width: 32%;">
-                                <div class="metric-card">
-                                    <div class="metric-value">{{ total_points }}</div>
-                                    <div class="metric-label">Total Points</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {% if is_own_profile %}
-                        <div class="d-grid gap-3 mt-4">
-                            <div class="edit-mode-buttons">
-                                <div class="d-flex gap-3">
-                                    <button type="button" class="btn btn-lg nav-link active w-50" style="background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%)">
-                                        Edit Profile
-                                    </button>
-                                    <a href="{{ url_for('logout') }}" class="btn btn-lg nav-link active w-50" style="background-color: #313d58;">Log Out</a>
-                                </div>
-                            </div>
-                            <div class="save-mode-buttons d-none">
-                                <div class="d-flex gap-3">
-                                    <button type="submit" class="btn btn-lg nav-link active w-50" style="background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%)">Save</button>
-                                    <button type="button" class="btn btn-lg nav-link active w-50" style="background-color: #313d58;">Back</button>
-                                </div>
-                            </div>
-                        </div>
-                        {% endif %}
-                    </form>
-
-                    <!-- QR Code Section -->
-                    <div class="text-center mt-4">
-                        <button class="btn btn-lg nav-link active" 
-                                style="background: linear-gradient(135deg, var(--solo-purple) 0%, #9b75ff 100%)"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#qrCodeModal">
-                            Share Profile
-                        </button>
                     </div>
                 </div>
             </div>
@@ -142,7 +158,7 @@
 <!-- QR Code Modal -->
 <div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background: #1e2638; color: white;">
+        <div class="modal-content">
             <div class="modal-header border-0">
                 <h5 class="modal-title" id="qrCodeModalLabel">Share Profile</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -156,7 +172,7 @@
                     <p>Or share this link:</p>
                     <input type="text" 
                            class="form-control" 
-                           value="{{ url_for('profile', username=profile_user.username, _external=True) }}" 
+                           value="gosolo.nyc/profile/{{ profile_user.username }}" 
                            readonly
                            onclick="this.select();">
                 </div>
