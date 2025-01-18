@@ -32,10 +32,10 @@ def backup_database():
             db_url
         ], check=True)
 
-        print(f"Database backup created successfully: {backup_file}")
+        current_app.logger.info(f"Database backup created successfully: {backup_file}")
         return True
     except Exception as e:
-        print(f"Failed to create database backup: {str(e)}")
+        current_app.logger.error(f"Failed to create database backup: {str(e)}")
         return False
 
 def migrate_database():
@@ -49,10 +49,10 @@ def migrate_database():
         with current_app.app_context():
             upgrade()
 
-        print("Database migration completed successfully")
+        current_app.logger.info("Database migration completed successfully")
         return True
     except Exception as e:
-        print(f"Migration failed: {str(e)}")
+        current_app.logger.error(f"Migration failed: {str(e)}")
         return False
 
 def rollback_migration():
@@ -61,15 +61,38 @@ def rollback_migration():
         with current_app.app_context():
             downgrade()
 
-        print("Migration rollback completed successfully")
+        current_app.logger.info("Migration rollback completed successfully")
         return True
     except Exception as e:
-        print(f"Rollback failed: {str(e)}")
+        current_app.logger.error(f"Rollback failed: {str(e)}")
         return False
+
+def list_migration_history():
+    """List all available migrations"""
+    try:
+        from alembic.config import Config
+        from alembic.script import ScriptDirectory
+
+        config = Config("migrations/alembic.ini")
+        script = ScriptDirectory.from_config(config)
+
+        migrations = []
+        for revision in script.walk_revisions():
+            migrations.append({
+                'revision': revision.revision,
+                'down_revision': revision.down_revision,
+                'description': revision.doc,
+                'created_date': revision.date
+            })
+
+        return migrations
+    except Exception as e:
+        current_app.logger.error(f"Failed to list migrations: {str(e)}")
+        return []
 
 def init_db():
     """Initialize database with required data"""
-    print("Initializing database with required data...")
+    current_app.logger.info("Initializing database with required data...")
     with current_app.app_context():
         from models import RouteGrade, Gym, Route
 
@@ -124,10 +147,10 @@ def init_db():
 
         try:
             db.session.commit()
-            print("Route grades initialized successfully")
+            current_app.logger.info("Route grades initialized successfully")
         except Exception as e:
             db.session.rollback()
-            print(f"Error initializing grades: {str(e)}")
+            current_app.logger.error(f"Error initializing grades: {str(e)}")
             return
 
         # Add Movement Gowanus if it doesn't exist
@@ -140,10 +163,10 @@ def init_db():
             db.session.add(movement_gowanus)
             try:
                 db.session.commit()
-                print("Added Movement Gowanus gym")
+                current_app.logger.info("Added Movement Gowanus gym")
             except Exception as e:
                 db.session.rollback()
-                print(f"Error adding gym: {str(e)}")
+                current_app.logger.error(f"Error adding gym: {str(e)}")
                 return
 
             # Initial routes for Movement Gowanus (all set on 10/28/2024)
@@ -172,7 +195,7 @@ def init_db():
                 ).first()
 
                 if not grade_info:
-                    print(f"Warning: Grade {grade} not found in RouteGrade table")
+                    current_app.logger.warning(f"Warning: Grade {grade} not found in RouteGrade table")
                     continue
 
                 route = Route(
@@ -190,9 +213,9 @@ def init_db():
 
             try:
                 db.session.commit()
-                print("Added Movement Gowanus routes successfully")
+                current_app.logger.info("Added Movement Gowanus routes successfully")
             except Exception as e:
                 db.session.rollback()
-                print(f"Error adding routes: {str(e)}")
+                current_app.logger.error(f"Error adding routes: {str(e)}")
 
-        print("Database initialization completed successfully")
+        current_app.logger.info("Database initialization completed successfully")

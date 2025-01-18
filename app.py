@@ -86,9 +86,17 @@ def create_app():
     @app.route('/health')
     def health_check():
         """Endpoint to check database health"""
-        health_status = check_database_health()
-        status_code = 200 if health_status['status'] == 'healthy' else 500
-        return jsonify(health_status), status_code
+        try:
+            health_status = check_database_health()
+            status_code = 200 if health_status['status'] == 'healthy' else 500
+            return jsonify(health_status), status_code
+        except Exception as e:
+            logger.error(f"Health check failed: {str(e)}", exc_info=True)
+            return jsonify({
+                'status': 'unhealthy',
+                'error': str(e),
+                'timestamp': time.time()
+            }), 500
 
     return app
 
