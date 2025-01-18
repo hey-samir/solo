@@ -1,84 +1,98 @@
 """
-Centralized error and notification handling for the climbing application.
-This module combines both error codes and notification messages.
+Internal error handling and logging for the climbing application.
+This module handles system-level errors and technical logging.
 """
 
+class ErrorSeverity:
+    """Define error severity levels for internal error handling"""
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
+    CRITICAL = "critical"
+
 class ErrorCodes:
-    """Error codes for the application"""
-    INVALID_CREDENTIALS = "AUTH001"
-    USERNAME_INVALID = "AUTH002"
-    USERNAME_TAKEN = "AUTH003"
-    EMAIL_TAKEN = "AUTH004"
-    PROFILE_UPDATE_FAILED = "PROF001"
-    PHOTO_UPLOAD_FAILED = "PROF002"
-    DATABASE_ERROR = "DB001"
-    FILE_ERROR = "FILE001"
-    SERVER_ERROR = "SRV001"
+    """System error codes with severity levels"""
+    # Authentication System Errors
+    AUTH_INVALID_TOKEN = ("AUTH001", ErrorSeverity.ERROR)
+    AUTH_EXPIRED_TOKEN = ("AUTH002", ErrorSeverity.WARNING)
+    AUTH_MISSING_CREDENTIALS = ("AUTH003", ErrorSeverity.ERROR)
+    AUTH_INVALID_SCOPE = ("AUTH004", ErrorSeverity.ERROR)
 
-# Success Messages
-SEND_UPDATE_SUCCESS = "Send logged and chalked!"
-PROFILE_UPDATE_SUCCESS = "Beta updated - your profile is looking solid!"
-AVATAR_UPDATE_SUCCESS = "New profile pic is locked in and looking crisp!"
-PROFILE_PHOTO_UPDATE_SUCCESS = "Your new profile shot is framed perfectly!"
-REGISTRATION_SUCCESS = "Welcome to the crag! Your account is ready for some epic sends!"
-FEEDBACK_SUBMIT_SUCCESS = "Your beta has been shared with the crew! Thanks for helping us level up!"
-VOTE_ADDED_SUCCESS = "Beta approved! Thanks for the vote!"
-VOTE_REMOVED_SUCCESS = "Beta vote removed - keeping it real!"
+    # Database System Errors
+    DB_CONNECTION_ERROR = ("DB001", ErrorSeverity.CRITICAL)
+    DB_QUERY_ERROR = ("DB002", ErrorSeverity.ERROR)
+    DB_INTEGRITY_ERROR = ("DB003", ErrorSeverity.ERROR)
+    DB_MIGRATION_ERROR = ("DB004", ErrorSeverity.CRITICAL)
 
-# Info Messages
-LOGIN_REQUIRED = "Please clip in (log in) to access this route!"
-GYM_SUBMISSION_INFO = "Help us map out your local crag! Drop the beta in our feedback form."
-OFFLINE_INFO = "You're off the grid! Some features might be sketchy until you reconnect."
-PENDING_SYNC_INFO = "Your sends will be logged once you're back online - keep crushing!"
+    # File System Errors
+    FS_PERMISSION_ERROR = ("FS001", ErrorSeverity.ERROR)
+    FS_STORAGE_FULL = ("FS002", ErrorSeverity.CRITICAL)
+    FS_IO_ERROR = ("FS003", ErrorSeverity.ERROR)
 
-# Warning Messages
-NO_ROUTE_SELECTED = "Psst... you need to pick a route first!"
-NO_FILE_UPLOADED = "Can't send without beta! Upload a photo and let's get climbing!"
-NO_FILE_SELECTED = "No photo selected - pick your best angle and let's capture that send!"
-GYM_NOT_FOUND = "This gym seems off the map. Pick another or help us add it!"
-INVALID_FILE_TYPE = "That file type isn't in our guidebook. Stick to JPEGs and PNGs for the cleanest beta!"
+    # API System Errors
+    API_RATE_LIMIT = ("API001", ErrorSeverity.WARNING)
+    API_TIMEOUT = ("API002", ErrorSeverity.ERROR)
+    API_INVALID_RESPONSE = ("API003", ErrorSeverity.ERROR)
 
-# Error Messages
-LOGIN_ERROR = "Whoops! That beta isn't matching our guidebook. Double-check and try again!"
-REGISTRATION_USERNAME_ERROR = "Keep your username clean like a nice jug - letters and numbers only!"
-REGISTRATION_USERNAME_TAKEN_ERROR = "That username's already on the wall! Pick another and crush it!"
-REGISTRATION_EMAIL_TAKEN_ERROR = "This email's already tied in! Maybe log in instead?"
-UPDATE_PROFILE_USERNAME_ERROR = "Username needs to stick to the basics - just letters and numbers!"
-UPDATE_PROFILE_USERNAME_TAKEN_ERROR = "That username's already taken - like a proj that's been sent! Try another!"
-PROFILE_UPDATE_ERROR = "Profile update took a whipper! Let's try that again."
-PROFILE_PHOTO_ERROR = "This photo's not sticking the landing. Mind trying another?"
-AVATAR_UPDATE_ERROR = "Avatar update ran into some choss. Give it another go!"
-SEND_UPDATE_ERROR = "Send logging hit a sketchy section. Want to try that again?"
-INTERNAL_SERVER_ERROR = "Our systems took a whipper! We're working on the rescue."
-DATABASE_ERROR = "The beta database is a bit sketchy right now. Mind trying again?"
-FILE_UPLOAD_ERROR = "File upload lost its grip. Let's give it another try!"
-PHOTO_PROCESSING_ERROR = "This photo's beta is too complex. Can you try a different one?"
+    # Cache System Errors
+    CACHE_MISS = ("CACHE001", ErrorSeverity.INFO)
+    CACHE_INVALID = ("CACHE002", ErrorSeverity.WARNING)
 
-def get_error_message(error_code: str, **kwargs) -> str:
+    # General System Errors
+    SYSTEM_RESOURCE_EXHAUSTED = ("SYS001", ErrorSeverity.CRITICAL)
+    SYSTEM_CONFIGURATION_ERROR = ("SYS002", ErrorSeverity.ERROR)
+
+def get_error_details(error_code: str, severity_override=None) -> tuple:
     """
-    Get an error message based on the error code and optional parameters.
-    
+    Get technical error details for system logging.
+
     Args:
         error_code: The error code to look up
-        **kwargs: Optional parameters to format into the message
-    
+        severity_override: Optional override for the severity level
+
     Returns:
-        str: The formatted error message
+        tuple: (error description, severity level, log_level)
     """
-    error_messages = {
-        ErrorCodes.INVALID_CREDENTIALS: LOGIN_ERROR,
-        ErrorCodes.USERNAME_INVALID: REGISTRATION_USERNAME_ERROR,
-        ErrorCodes.USERNAME_TAKEN: REGISTRATION_USERNAME_TAKEN_ERROR,
-        ErrorCodes.EMAIL_TAKEN: REGISTRATION_EMAIL_TAKEN_ERROR,
-        ErrorCodes.PROFILE_UPDATE_FAILED: PROFILE_UPDATE_ERROR,
-        ErrorCodes.PHOTO_UPLOAD_FAILED: PROFILE_PHOTO_ERROR,
-        ErrorCodes.DATABASE_ERROR: DATABASE_ERROR,
-        ErrorCodes.FILE_ERROR: FILE_UPLOAD_ERROR,
-        ErrorCodes.SERVER_ERROR: INTERNAL_SERVER_ERROR
+    # Technical error descriptions for system logging
+    error_details = {
+        ErrorCodes.AUTH_INVALID_TOKEN[0]: ("Invalid authentication token provided", ErrorSeverity.ERROR),
+        ErrorCodes.AUTH_EXPIRED_TOKEN[0]: ("Authentication token has expired", ErrorSeverity.WARNING),
+        ErrorCodes.DB_CONNECTION_ERROR[0]: ("Failed to establish database connection", ErrorSeverity.CRITICAL),
+        ErrorCodes.DB_QUERY_ERROR[0]: ("Database query execution failed", ErrorSeverity.ERROR),
+        ErrorCodes.FS_PERMISSION_ERROR[0]: ("Insufficient filesystem permissions", ErrorSeverity.ERROR),
+        ErrorCodes.API_RATE_LIMIT[0]: ("API rate limit exceeded", ErrorSeverity.WARNING),
+        ErrorCodes.SYSTEM_RESOURCE_EXHAUSTED[0]: ("System resources exhausted", ErrorSeverity.CRITICAL)
     }
-    
-    message = error_messages.get(error_code, INTERNAL_SERVER_ERROR)
-    try:
-        return message.format(**kwargs) if kwargs else message
-    except KeyError:
-        return message
+
+    description, severity = error_details.get(error_code, ("Unknown system error", ErrorSeverity.ERROR))
+    if severity_override:
+        severity = severity_override
+
+    return description, severity
+
+def log_error(logger, error_code: str, exc_info=None, **kwargs):
+    """
+    Log a system error with appropriate severity.
+
+    Args:
+        logger: The logger instance to use
+        error_code: The error code to log
+        exc_info: Optional exception info to include
+        **kwargs: Additional logging context
+    """
+    description, severity = get_error_details(error_code)
+
+    # Format the log message with any additional context
+    log_message = f"{description} - Code: {error_code}"
+    if kwargs:
+        context = " ".join(f"{k}={v}" for k, v in kwargs.items())
+        log_message = f"{log_message} Context: {context}"
+
+    if severity == ErrorSeverity.CRITICAL:
+        logger.critical(log_message, exc_info=exc_info)
+    elif severity == ErrorSeverity.ERROR:
+        logger.error(log_message, exc_info=exc_info)
+    elif severity == ErrorSeverity.WARNING:
+        logger.warning(log_message)
+    else:
+        logger.info(log_message)

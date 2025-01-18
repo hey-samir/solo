@@ -3,10 +3,17 @@ import logging
 import sys
 from datetime import datetime, timedelta
 
+# Import both user messages and system errors
+from user_messages import get_user_message, MessageType
+from errors import ErrorSeverity, ErrorCodes, get_error_details, log_error
+
 # Initialize logging
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
@@ -18,11 +25,13 @@ from flask import render_template, request, redirect, url_for, flash, jsonify, s
 from flask_login import login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError # Added import for SQLAlchemyError
+
 
 # Import models and forms after app initialization
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
-from errors import *
+#from errors import *
 
 # Initialize CSRF protection
 from flask_wtf.csrf import CSRFProtect
@@ -812,14 +821,28 @@ def error_404():
 @app.errorhandler(404)
 def page_not_found(e):
     """Global 404 error handler"""
-    return render_template('404.html'), 404
+    log_error(logger, ErrorCodes.API_INVALID_RESPONSE[0])
+    message, type_ = get_user_message('PAGE_NOT_FOUND')
+    return render_template('404.html', error=message), 404
 
 @app.errorhandler(Exception)
 def handle_error(error):
-    """Global error handler"""
+    """Global error handler with improved logging"""
     db.session.rollback()
-    logger.error(f'Error: {str(error)}')
-    return render_template('404.html', error="Internal Server Error"), 500
+
+    if isinstance(error, SQLAlchemyError):
+        # Log the technical error
+        log_error(logger, ErrorCodes.DB_QUERY_ERROR[0], exc_info=True)
+        # Get user-friendly message
+        message, type_ = get_user_message('DATABASE_ERROR')
+    else:
+        # Log the technical error
+        log_error(logger, ErrorCodes.SYSTEM_RESOURCE_EXHAUSTED[0], exc_info=True)
+        # Get user-friendly message
+        message, type_ = get_user_message('SYSTEM_ERROR')
+
+    status_code = 500 if type_ == MessageType.ERROR else 400
+    return render_template('404.html', error=message), status_code
 
 #Ensure static/images directory exists
 os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
