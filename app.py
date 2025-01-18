@@ -48,7 +48,17 @@ def create_app():
     login_manager.login_message = "Please log in to access this page."
     login_manager.login_message_category = "info"
 
-    # Initialize extensions
+    # User loader callback
+    @login_manager.user_loader
+    def load_user(id):
+        try:
+            from models import User
+            return User.query.get(int(id))
+        except Exception as e:
+            logger.error(f"Error loading user {id}: {str(e)}", exc_info=True)
+            return None
+
+    # Initialize extensions with app
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
@@ -80,15 +90,6 @@ def create_app():
         logger.error(f"Internal Server Error: {error}", exc_info=True)
         return render_template('500.html', error="Internal Server Error"), 500
 
-    @login_manager.user_loader
-    def load_user(id):
-        try:
-            from models import User
-            return User.query.get(int(id))
-        except Exception as e:
-            logger.error(f"Error loading user {id}: {str(e)}", exc_info=True)
-            return None
-
     return app
 
 # Create the Flask application instance
@@ -97,7 +98,7 @@ app = create_app()
 # Initialize database tables within app context
 with app.app_context():
     try:
-        import models
+        import models  # Import here to avoid circular imports
         logger.info("Models imported successfully")
         db.create_all()
         logger.info("Database tables initialized successfully")

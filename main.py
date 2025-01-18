@@ -3,12 +3,6 @@ import logging
 import sys
 from datetime import datetime, timedelta
 
-# Flask imports
-from flask import render_template, request, redirect, url_for, flash, jsonify, session
-from flask_login import login_required, current_user, login_user, logout_user
-from werkzeug.utils import secure_filename
-from sqlalchemy import func
-
 # Initialize logging
 logging.basicConfig(
     level=logging.DEBUG,
@@ -17,9 +11,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import app and extensions first
-from app import app, db, logger
+from app import app, db
 
-# Then import models and forms
+# Flask imports
+from flask import render_template, request, redirect, url_for, flash, jsonify, session
+from flask_login import login_required, current_user, login_user, logout_user
+from werkzeug.utils import secure_filename
+from sqlalchemy import func
+
+# Import models and forms after app initialization
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from errors import *
