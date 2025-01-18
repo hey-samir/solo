@@ -19,13 +19,19 @@ const CORE_API_ROUTES = [
   '/api/profile',
   '/api/sends',
   '/api/stats',
-  '/api/sessions'
+  '/api/sessions',
+  '/api/user-data'
 ];
 
 // Assets that should be cached immediately during installation
 const STATIC_ASSETS = [
   '/',
   '/offline.html',
+  '/profile',
+  '/sends',
+  '/stats',
+  '/sessions',
+  '/about',
   '/static/css/custom.css',
   '/static/js/main.js',
   '/static/js/profile.js',
@@ -37,8 +43,7 @@ const STATIC_ASSETS = [
   '/static/manifest.json',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/@coreui/coreui@4.3.0/dist/css/coreui.min.css',
-  'https://fonts.googleapis.com/icon?family=Material+Icons',
-  ...CORE_ROUTES.map(route => `${route}.html`)
+  'https://fonts.googleapis.com/icon?family=Material+Icons'
 ];
 
 // Enhanced offline request queue with retry mechanism
@@ -220,99 +225,70 @@ function getCacheStrategy(request) {
 // Enhanced fetch event handler with offline support and user data handling
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
+  const strategy = getCacheStrategy(event.request);
 
-  // Handle core routes
-  if (CORE_ROUTES.includes(url.pathname)) {
-    event.respondWith(
-      caches.match(event.request)
-        .then(response => {
-          return response || fetch(event.request)
-            .then(networkResponse => {
-              const responseToCache = networkResponse.clone();
-              caches.open(DYNAMIC_CACHE)
-                .then(cache => {
-                  cache.put(event.request, responseToCache);
-                });
-              return networkResponse;
-            })
-            .catch(() => {
-              return caches.match('/offline.html');
-            });
-        })
-    );
-    return;
-  }
+  event.respondWith(
+    (async () => {
+      // Try to get from cache first
+      const cachedResponse = await caches.match(event.request);
 
-  // Handle API routes
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          const responseToCache = response.clone();
-          caches.open(API_CACHE)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-          return response;
-        })
-        .catch(async () => {
-          const cachedResponse = await caches.match(event.request);
+      if (!navigator.onLine) {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        // If it's a page request, serve the offline page
+        if (event.request.mode === 'navigate') {
+          const cache = await caches.open(STATIC_CACHE);
+          return cache.match('/offline.html');
+        }
+
+        // For API requests when offline, return cached data with indicator
+        if (url.pathname.startsWith('/api/')) {
           if (cachedResponse) {
-            // Add a header to indicate this is cached data
             const headers = new Headers(cachedResponse.headers);
             headers.append('X-Data-Source', 'cache');
             return new Response(cachedResponse.body, {
-              status: cachedResponse.status,
+              status: 200,
               headers: headers
             });
           }
-          return new Response(
-            JSON.stringify({ 
-              error: 'Offline - Using cached data',
-              cached: true 
-            }),
-            { 
-              status: 200,
-              headers: { 'Content-Type': 'application/json' }
-            }
-          );
-        })
-    );
-    return;
-  }
-
-  // Handle static assets
-  if (
-    url.pathname.startsWith('/static/') ||
-    event.request.url.includes('googleapis.com') ||
-    event.request.url.includes('jsdelivr.net')
-  ) {
-    event.respondWith(
-      caches.match(event.request)
-        .then(response => {
-          return response || fetch(event.request)
-            .then(networkResponse => {
-              const responseToCache = networkResponse.clone();
-              caches.open(STATIC_CACHE)
-                .then(cache => {
-                  cache.put(event.request, responseToCache);
-                });
-              return networkResponse;
-            });
-        })
-    );
-    return;
-  }
-
-  // Default strategy for other requests
-  event.respondWith(
-    fetch(event.request)
-      .catch(() => {
-        return caches.match(event.request)
-          .then(response => {
-            return response || caches.match('/offline.html');
+          return new Response(JSON.stringify({
+            error: 'Offline - Using cached data',
+            cached: true,
+            timestamp: new Date().toISOString()
+          }), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' }
           });
-      })
+        }
+      }
+
+      try {
+        const response = await fetch(event.request);
+
+        // Cache successful GET requests
+        if (response.ok && event.request.method === 'GET') {
+          const cache = await caches.open(strategy === 'static' ? STATIC_CACHE : API_CACHE);
+          cache.put(event.request, response.clone());
+        }
+
+        return response;
+      } catch (error) {
+        // Return cached response if available
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        // For navigation requests, serve offline page
+        if (event.request.mode === 'navigate') {
+          const cache = await caches.open(STATIC_CACHE);
+          return cache.match('/offline.html');
+        }
+
+        throw error;
+      }
+    })()
   );
 });
 

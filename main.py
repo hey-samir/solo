@@ -1,36 +1,36 @@
-# Flask and extensions
-from flask import (
-    render_template, request, redirect, url_for, flash,
-    send_from_directory, current_app, session, jsonify
-)
-from flask_login import (
-    login_required, current_user,
-    login_user, logout_user, UserMixin
-)
-from werkzeug.utils import secure_filename
-from sqlalchemy import func, text
-from flask_wtf.csrf import CSRFProtect
-
-# Standard library imports
 import os
-import shutil
 import logging
 import sys
-import base64
-from io import BytesIO
 from datetime import datetime, timedelta
 
-# Local imports
-from app import create_app, db, logger
-from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
+# Flask imports
+from flask import render_template, request, redirect, url_for, flash, jsonify, session
+from flask_login import login_required, current_user, login_user, logout_user
+from werkzeug.utils import secure_filename
+from sqlalchemy import func
+
+# Initialize logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Local imports - ensure models are imported before creating app
+from app import app, db, logger
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
+from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from errors import *
 
-# Create the Flask application instance
-app = create_app()
-
 # Initialize CSRF protection
+from flask_wtf.csrf import CSRFProtect
 csrf = CSRFProtect(app)
+
+# File upload configuration
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/')
 def index():
@@ -823,6 +823,7 @@ def handle_error(error):
 os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
 
 # Copy solo-clear.png to static/images if needed
+import shutil
 source_logo = os.path.join('attached_assets', 'solo-clear.png')
 dest_logo = os.path.join(app.static_folder, 'images', 'solo-clear.png')
 if os.path.exists(source_logo) and not os.path.exists(dest_logo):
@@ -831,15 +832,13 @@ if os.path.exists(source_logo) and not os.path.exists(dest_logo):
     except Exception as e:
         logger.error(f"Failed to copy logo: {str(e)}")
 
-# File upload helpers
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 if __name__ == "__main__":
     try:
         logger.info("Starting Flask server...")
+        if not os.environ.get('DATABASE_URL'):
+            logger.error("DATABASE_URL environment variable is not set")
+            sys.exit(1)
+
         app.run(host='0.0.0.0', port=5000, debug=True)
     except Exception as e:
         logger.error(f"Failed to start server: {str(e)}")

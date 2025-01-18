@@ -5,31 +5,53 @@
     <div class="text-center">
         <i class="material-icons" style="font-size: 64px; color: #7442d6;">cloud_off</i>
         <h2 class="mt-3">You're Offline</h2>
-        <p class="lead">It looks like you've lost your internet connection. Don't worry, you can still:</p>
-        
+        <p class="lead">Don't worry! You can still access these features:</p>
+
         <div class="row mt-4">
             <div class="col-md-6 offset-md-3">
-                <ul class="list-group">
-                    <li class="list-group-item">
-                        <i class="material-icons me-2">arrow_upward</i>
-                        View your cached climbs
-                    </li>
-                    <li class="list-group-item">
-                        <i class="material-icons me-2">add_circle</i>
-                        Log new climbs (they'll sync when you're back online)
-                    </li>
-                    <li class="list-group-item">
+                <div class="list-group">
+                    <a href="/profile" class="list-group-item list-group-item-action">
+                        <i class="material-icons me-2">person</i>
+                        View your profile
+                        <small class="text-muted d-block">Last cached data will be shown</small>
+                    </a>
+                    <a href="/sends" class="list-group-item list-group-item-action">
+                        <i class="material-icons me-2">trending_up</i>
+                        Check your sends
+                        <small class="text-muted d-block">View and log new climbs (will sync when online)</small>
+                    </a>
+                    <a href="/stats" class="list-group-item list-group-item-action">
                         <i class="material-icons me-2">bar_chart</i>
-                        Check your cached statistics
-                    </li>
-                </ul>
+                        View your statistics
+                        <small class="text-muted d-block">Based on cached data</small>
+                    </a>
+                    <a href="/sessions" class="list-group-item list-group-item-action">
+                        <i class="material-icons me-2">history</i>
+                        Browse past sessions
+                        <small class="text-muted d-block">From your last sync</small>
+                    </a>
+                    <a href="/about" class="list-group-item list-group-item-action">
+                        <i class="material-icons me-2">info</i>
+                        About Solo
+                        <small class="text-muted d-block">Learn more about the app</small>
+                    </a>
+                </div>
             </div>
         </div>
-        
-        <button onclick="window.location.reload()" class="btn btn-primary mt-4">
-            <i class="material-icons me-2">refresh</i>
-            Try Again
-        </button>
+
+        <div class="mt-4">
+            <button onclick="window.location.reload()" class="btn btn-primary">
+                <i class="material-icons me-2">refresh</i>
+                Check Connection
+            </button>
+
+            <div class="mt-3">
+                <small class="text-muted">
+                    <i class="material-icons" style="font-size: 16px;">info</i>
+                    Changes made while offline will sync automatically when you're back online
+                </small>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
