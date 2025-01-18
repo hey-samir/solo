@@ -5,35 +5,35 @@ const DYNAMIC_CACHE = 'solo-dynamic-v2';
 const USER_CACHE = 'solo-user-v2';
 const QUEUE_NAME = 'solo-offline-queue';
 
-// Add standings to core routes
+// Expand core routes to include all available pages
 const CORE_ROUTES = [
   '/profile',
   '/sends',
   '/stats',
   '/sessions',
   '/about',
-  '/standings'  // Add standings to core routes
+  '/standings',
+  '/feedback',
+  '/store',
+  '/offline.html',
+  '/'  // Add root route
 ];
 
-// Add standings to core API routes
+// Expand core API routes
 const CORE_API_ROUTES = [
   '/api/profile',
   '/api/sends',
   '/api/stats',
   '/api/sessions',
   '/api/user-data',
-  '/standings'  // Add standings to API routes
+  '/standings',
+  '/api/stats'
 ];
 
-// Assets that should be cached immediately during installation
+// Expand static assets to include all necessary resources
 const STATIC_ASSETS = [
   '/',
   '/offline.html',
-  '/profile',
-  '/sends',
-  '/stats',
-  '/sessions',
-  '/about',
   '/static/css/custom.css',
   '/static/js/main.js',
   '/static/js/profile.js',
@@ -42,10 +42,15 @@ const STATIC_ASSETS = [
   '/static/js/stats.js',
   '/static/images/solo-clear.png',
   '/static/images/logo.png',
+  '/static/images/white-solo-av.png',
+  '/static/images/black-solo-av.png',
+  '/static/images/gray-solo-av.png',
+  '/static/images/purple-solo-av.png',
   '/static/manifest.json',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
   'https://cdn.jsdelivr.net/npm/@coreui/coreui@4.3.0/dist/css/coreui.min.css',
-  'https://fonts.googleapis.com/icon?family=Material+Icons'
+  'https://fonts.googleapis.com/icon?family=Material+Icons',
+  'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined'
 ];
 
 // Enhanced offline request queue with retry mechanism
@@ -225,7 +230,7 @@ function getCacheStrategy(request) {
   return 'network-first';
 }
 
-// Enhanced fetch event handler with timestamp tracking
+// Enhanced fetch event handler with comprehensive offline support
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
   const strategy = getCacheStrategy(event.request);
@@ -235,23 +240,30 @@ self.addEventListener('fetch', event => {
       // Try to get from cache first
       const cachedResponse = await caches.match(event.request);
 
-      // Special handling for standings/leaderboard
-      if (url.pathname === '/standings') {
-        if (!navigator.onLine) {
-          if (cachedResponse) {
-            // Add cache timestamp if not present
-            const headers = new Headers(cachedResponse.headers);
-            if (!headers.has('X-Cache-Timestamp')) {
-              headers.set('X-Cache-Timestamp', new Date().toISOString());
-            }
-            return new Response(cachedResponse.body, {
-              status: 200,
-              headers: headers
-            });
-          }
-          // Return offline message if no cache available
+      // Handle offline scenarios
+      if (!navigator.onLine) {
+        if (cachedResponse) {
+          // Add offline indicator header
+          const headers = new Headers(cachedResponse.headers);
+          headers.set('X-Data-Source', 'cache');
+          headers.set('X-Cache-Timestamp', headers.get('X-Cache-Timestamp') || new Date().toISOString());
+
+          return new Response(cachedResponse.body, {
+            status: 200,
+            headers: headers
+          });
+        }
+
+        // If it's a page request, serve the offline page
+        if (event.request.mode === 'navigate') {
+          const cache = await caches.open(STATIC_CACHE);
+          return cache.match('/offline.html');
+        }
+
+        // For API requests, return cached data with offline indicator
+        if (url.pathname.startsWith('/api/')) {
           return new Response(JSON.stringify({
-            error: 'Offline - Using cached standings',
+            error: 'Offline - Using cached data',
             cached: true,
             timestamp: new Date().toISOString()
           }), {
@@ -259,55 +271,36 @@ self.addEventListener('fetch', event => {
             headers: { 'Content-Type': 'application/json' }
           });
         }
-
-        try {
-          const response = await fetch(event.request);
-          if (response.ok) {
-            const cache = await caches.open(API_CACHE);
-            // Add timestamp before caching
-            const headers = new Headers(response.headers);
-            headers.set('X-Cache-Timestamp', new Date().toISOString());
-            const responseToCache = new Response(response.clone().body, {
-              status: response.status,
-              headers: headers
-            });
-            cache.put(event.request, responseToCache);
-            return response;
-          }
-        } catch (error) {
-          if (cachedResponse) {
-            return cachedResponse;
-          }
-          throw error;
-        }
       }
 
-      // Original fetch handling for other routes
-      if (!navigator.onLine) {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        if (event.request.mode === 'navigate') {
-          const cache = await caches.open(STATIC_CACHE);
-          return cache.match('/offline.html');
-        }
-      }
-
+      // Online behavior
       try {
         const response = await fetch(event.request);
         if (response.ok && event.request.method === 'GET') {
           const cache = await caches.open(strategy === 'static' ? STATIC_CACHE : API_CACHE);
-          cache.put(event.request, response.clone());
+
+          // Add timestamp before caching
+          const headers = new Headers(response.headers);
+          headers.set('X-Cache-Timestamp', new Date().toISOString());
+          const responseToCache = new Response(response.clone().body, {
+            status: response.status,
+            headers: headers
+          });
+
+          cache.put(event.request, responseToCache);
         }
         return response;
       } catch (error) {
         if (cachedResponse) {
           return cachedResponse;
         }
+
+        // For navigation requests, serve offline page
         if (event.request.mode === 'navigate') {
           const cache = await caches.open(STATIC_CACHE);
           return cache.match('/offline.html');
         }
+
         throw error;
       }
     })()

@@ -35,6 +35,22 @@
     {% block head %}{% endblock %}
 </head>
 <body class="pb-5">
+    <!-- Offline Status Banner -->
+    <div id="offlineStatusBanner" class="alert alert-warning text-center d-none" role="alert">
+        <i class="material-icons align-middle me-2">cloud_off</i>
+        You're currently offline. Some features may be limited.
+        <span id="lastSyncTime" class="ms-2 small"></span>
+        <button onclick="checkConnection()" class="btn btn-sm btn-outline-dark ms-2">
+            Check Connection
+        </button>
+    </div>
+
+    <!-- Cache Status Indicator -->
+    <div id="cacheStatusBanner" class="alert alert-info text-center d-none" role="alert">
+        <i class="material-icons align-middle me-2">schedule</i>
+        Viewing cached content from <span id="cacheTimestamp"></span>
+    </div>
+
     <!-- Sidebar -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="menuSidebar" aria-labelledby="menuSidebarLabel" style="max-width: 50%;">
         <div class="offcanvas-header">
@@ -84,9 +100,14 @@
                      class="header-logo"
                      height="50">
             </a>
-            <button class="btn menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuSidebar" aria-controls="menuSidebar">
-                <i class="material-icons">menu</i>
-            </button>
+            <div class="d-flex align-items-center">
+                <span id="connectionStatus" class="me-3">
+                    <i class="material-icons" style="font-size: 1.2rem;">wifi</i>
+                </span>
+                <button class="btn menu-toggle" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuSidebar" aria-controls="menuSidebar">
+                    <i class="material-icons">menu</i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -149,6 +170,66 @@
             </ul>
         </div>
     </nav>
+
+    <!-- Offline detection script -->
+    <script>
+        // Offline status management
+        function updateOfflineStatus() {
+            const offlineBanner = document.getElementById('offlineStatusBanner');
+            const connectionIcon = document.querySelector('#connectionStatus i');
+
+            if (!navigator.onLine) {
+                offlineBanner.classList.remove('d-none');
+                connectionIcon.textContent = 'wifi_off';
+                connectionIcon.style.color = '#ffc107';
+            } else {
+                offlineBanner.classList.add('d-none');
+                connectionIcon.textContent = 'wifi';
+                connectionIcon.style.color = '#fff';
+            }
+        }
+
+        // Cache timestamp management
+        function updateCacheStatus(timestamp) {
+            const cacheBanner = document.getElementById('cacheStatusBanner');
+            const timestampSpan = document.getElementById('cacheTimestamp');
+
+            if (timestamp) {
+                const date = new Date(timestamp);
+                timestampSpan.textContent = date.toLocaleString();
+                cacheBanner.classList.remove('d-none');
+            } else {
+                cacheBanner.classList.add('d-none');
+            }
+        }
+
+        // Check response headers for cache information
+        async function checkCacheStatus() {
+            try {
+                const response = await fetch(window.location.href);
+                const timestamp = response.headers.get('X-Cache-Timestamp');
+                if (timestamp) {
+                    updateCacheStatus(timestamp);
+                }
+            } catch (error) {
+                console.log('Error checking cache status:', error);
+            }
+        }
+
+        // Connection check
+        function checkConnection() {
+            updateOfflineStatus();
+            checkCacheStatus();
+        }
+
+        // Event listeners
+        window.addEventListener('online', updateOfflineStatus);
+        window.addEventListener('offline', updateOfflineStatus);
+        document.addEventListener('DOMContentLoaded', () => {
+            updateOfflineStatus();
+            checkCacheStatus();
+        });
+    </script>
 
     <!-- Core JavaScript -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
