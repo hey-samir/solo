@@ -101,18 +101,6 @@ html, body {
     min-width: 80px; /* Reduced from 100px for better mobile fit */
 }
 
-/* Profile card optimization for 6" screens */
-.profile-card {
-    width: calc(100% - 2rem);
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 1rem;
-    border-radius: var(--card-border-radius);
-    background-color: var(--bg-card);
-    aspect-ratio: 1.6; /* Driver's license aspect ratio */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
 /* Send button optimization */
 .btn-send {
     position: fixed;
@@ -133,6 +121,149 @@ html, body {
     transform: scale(0.95);
 }
 
+
+/* Profile container and layout */
+.profile-container {
+    max-width: 1200px !important;
+    padding: 0.5rem !important;
+}
+
+.profile-card {
+    border-radius: var(--card-border-radius);
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+}
+
+.profile-card .card-body {
+    padding: 1rem;
+}
+
+/* Avatar section */
+.profile-photo-container {
+    position: relative;
+    width: 100px; /* Further reduced size */
+    height: 100px;
+    margin: 0 auto 1rem;
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+/* Profile fields layout */
+.profile-fields {
+    margin-bottom: 1rem;
+}
+
+.field-row {
+    margin-bottom: 0.75rem;
+}
+
+.field-row .form-label {
+    margin-bottom: 0.25rem;
+    color: var(--text-muted);
+}
+
+/* Editable fields */
+.editable-field .profile-text {
+    display: block;
+    padding: 0.5rem 0;
+}
+
+.editable-field input,
+.editable-field select {
+    display: none;
+}
+
+.editable-field.editing .profile-text {
+    display: none;
+}
+
+.editable-field.editing input,
+.editable-field.editing select {
+    display: block;
+}
+
+/* Action buttons */
+.profile-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.profile-actions .btn,
+.save-mode-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.625rem 1rem;
+    min-width: 120px;
+}
+
+.profile-actions .btn i,
+.save-mode-buttons .btn i {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+.profile-actions .btn span,
+.save-mode-buttons .btn span {
+    flex-grow: 1;
+    text-align: left;
+}
+
+/* KPI Cards */
+.row.g-3 {
+    --bs-gutter-x: 0.75rem;
+    --bs-gutter-y: 0.75rem;
+    margin: 0 -0.375rem;
+}
+
+.metric-card {
+    background-color: #4A5D79;
+    border-radius: 8px;
+    padding: 1rem;
+    height: 100%;
+    margin: 0;
+}
+
+.metric-value {
+    font-size: 1.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .profile-container {
+        padding: 1rem !important;
+    }
+
+    .profile-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .profile-photo-container {
+        margin: 0;
+    }
+
+    /* Side-by-side layout on larger screens */
+    .row > .col-md-3 {
+        padding-right: 1.5rem;
+    }
+
+    .row > .col-md-9 {
+        padding-left: 1.5rem;
+    }
+}
 
 /* Responsive adjustments for wider screens */
 @media (min-width: 768px) {
@@ -892,8 +1023,7 @@ h2 {
     background-color: #1e2638;
 }
 
-@media (max-width: 768px) {
-    .metric-value {
+@media (max-width: 768px) {    .metric-value {
         font-size: 1.5rem;
     }
 

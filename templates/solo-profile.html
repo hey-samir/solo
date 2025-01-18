@@ -1,22 +1,22 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10 col-lg-8">
+<div class="container profile-container">
+    <div class="row">
+        <div class="col-12">
             <div class="profile-card">
-                <div class="card-body p-4">
+                <div class="card-body">
                     {% if is_own_profile %}
                     <div id="csrf-token" data-token="{{ form.csrf_token._value() }}"></div>
                     {% endif %}
 
                     <div class="row">
-                        <!-- Column 1: Avatar and QR -->
-                        <div class="col-md-4 text-center">
-                            <div class="profile-photo-container mb-3">
+                        <!-- Avatar Column -->
+                        <div class="col-12 col-md-3">
+                            <div class="profile-photo-container">
                                 <img src="{{ url_for('static', filename='images/' + profile_user.profile_photo) }}" 
                                      alt="Profile Photo" 
-                                     class="profile-photo rounded-circle">
+                                     class="profile-photo">
                                 {% if is_own_profile %}
                                 <div class="edit-photo-icon" id="editPhotoBtn">
                                     <i class="material-icons">edit</i>
@@ -27,7 +27,7 @@
                             {% if is_own_profile %}
                             <div class="avatar-gallery d-none mt-3" id="avatarSelection">
                                 <form id="avatar-form" method="POST" action="{{ url_for('update_avatar') }}">
-                                    <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
+                                    {{ form.csrf_token }}
                                     <div class="avatar-options">
                                         {% for color in ['white', 'black', 'gray', 'purple'] %}
                                         <label class="avatar-option">
@@ -44,8 +44,8 @@
                             {% endif %}
                         </div>
 
-                        <!-- Column 2: User Information -->
-                        <div class="col-md-8">
+                        <!-- Info Column -->
+                        <div class="col-12 col-md-9">
                             <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
                                 {% if is_own_profile %}
                                 <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
@@ -56,9 +56,11 @@
                                         <label class="form-label">Name</label>
                                         <div class="field-content">
                                             {% if is_own_profile %}
-                                            <input type="text" name="name" class="form-control" 
-                                                   value="{{ profile_user.name }}"
-                                                   {% if not is_own_profile %}readonly{% endif %}>
+                                            <div class="editable-field" data-editable>
+                                                <span class="profile-text">{{ profile_user.name }}</span>
+                                                <input type="text" name="name" class="form-control" 
+                                                       value="{{ profile_user.name }}" disabled>
+                                            </div>
                                             {% else %}
                                             <span class="profile-text">{{ profile_user.name }}</span>
                                             {% endif %}
@@ -76,15 +78,18 @@
                                         <label class="form-label">Gym</label>
                                         <div class="field-content">
                                             {% if is_own_profile %}
-                                            <select name="gym" class="form-select">
-                                                {% for gym in gyms %}
-                                                <option value="{{ gym.name }}" {% if profile_user.gym == gym.name %}selected{% endif %}>
-                                                    {{ gym.name }}
-                                                </option>
-                                                {% endfor %}
-                                            </select>
+                                            <div class="editable-field" data-editable>
+                                                <span class="profile-text">{{ profile_user.gym }}</span>
+                                                <select name="gym" class="form-select" disabled>
+                                                    {% for gym in gyms %}
+                                                    <option value="{{ gym.name }}" {% if profile_user.gym == gym.name %}selected{% endif %}>
+                                                        {{ gym.name }}
+                                                    </option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
                                             {% else %}
-                                            <span class="profile-text">{{ profile_user.gym or 'Not set' }}</span>
+                                            <span class="profile-text">{{ profile_user.gym }}</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -98,32 +103,33 @@
                                 </div>
 
                                 {% if is_own_profile %}
-                                <div class="profile-actions">
+                                <div class="profile-actions edit-mode-buttons">
                                     <button type="button" class="btn btn-primary edit-toggle">
                                         <i class="material-icons">edit</i>
-                                        Edit
+                                        <span>Edit</span>
                                     </button>
                                     <button type="button" class="btn btn-primary" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#qrCodeModal">
                                         <i class="material-icons">qr_code_2</i>
-                                        Share
+                                        <span>Share</span>
                                     </button>
                                     <a href="{{ url_for('logout') }}" 
                                        class="btn btn-negative">
                                         <i class="material-icons">logout</i>
-                                        Logout
+                                        <span>Logout</span>
                                     </a>
                                 </div>
+
                                 <div class="save-mode-buttons d-none">
                                     <div class="d-flex gap-2">
                                         <button type="submit" class="btn btn-primary">
                                             <i class="material-icons">save</i>
-                                            Save
+                                            <span>Save</span>
                                         </button>
                                         <button type="button" class="btn btn-negative cancel-edit">
                                             <i class="material-icons">close</i>
-                                            Back
+                                            <span>Back</span>
                                         </button>
                                     </div>
                                 </div>
