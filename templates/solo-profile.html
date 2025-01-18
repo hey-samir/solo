@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid profile-container">
-    <div class="row justify-content-center">
+<div class="container-fluid profile-container px-0">
+    <div class="row justify-content-center g-0">
         <div class="col-12">
             <div class="profile-card">
-                <div class="card-body p-4">
+                <div class="card-body p-0">
                     {% if is_own_profile %}
                     <div id="csrf-token" data-token="{{ form.csrf_token._value() }}"></div>
                     {% endif %}
@@ -168,44 +168,32 @@
         </div>
     </div>
 </div>
-
-<!-- QR Code Modal -->
-<div class="modal fade" id="qrCodeModal" tabindex="-1" aria-labelledby="qrCodeModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header border-0">
-                <h5 class="modal-title" id="qrCodeModalLabel">Share Profile</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <p>Scan this QR code to view this profile:</p>
-                <img src="data:image/png;base64,{{ qr_code }}" 
-                     alt="Profile QR Code" 
-                     style="width: 200px; height: 200px;">
-                <div class="mt-3">
-                    <p>Or share this link:</p>
-                    <input type="text" 
-                           class="form-control" 
-                           value="gosolo.nyc/profile/@{{ profile_user.username }}" 
-                           readonly
-                           onclick="this.select();">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block styles %}
 <style>
-.profile-container {
-    max-width: 1600px; /* Increased from 1200px */
-    margin: 0 auto;
+/* Reset container styles */
+.profile-container.container-fluid {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Remove gutters from row */
+.profile-container .row.g-0 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 .profile-card {
     border: none;
     background: transparent;
+    margin: 0 !important;
+}
+
+.card-body {
+    padding: 2rem 0 !important;
 }
 
 .profile-photo-container {
