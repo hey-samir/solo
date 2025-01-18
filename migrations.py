@@ -2,6 +2,7 @@ from flask_migrate import Migrate
 from app import app, db
 from models import Gym, Route, RouteGrade
 from datetime import datetime
+from user_messages import get_user_message, SUCCESS_MESSAGES, USER_ERROR_MESSAGES
 
 # Initialize Flask-Migrate
 migrate = Migrate(app, db)
@@ -61,10 +62,12 @@ def init_db():
 
         try:
             db.session.commit()
-            print("Added route grades successfully")
+            success_message = get_user_message('SEND_LOGGED')
+            print(success_message[0])  # Access first element of tuple
         except Exception as e:
             db.session.rollback()
-            print(f"Error adding route grades: {str(e)}")
+            error_message = get_user_message('DATABASE_ERROR')
+            print(error_message[0])  # Access first element of tuple
 
         # Add Movement Gowanus if it doesn't exist
         movement_gowanus = Gym.query.filter_by(name='Movement Gowanus').first()

@@ -53,7 +53,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flask db upgrade && python -c 'from migrations import init_db; init_db()'"
+args = "flask db upgrade && python -c \"from migrations import init_db; init_db()\""
 
 [[workflows.workflow]]
 name = "Flask Server"
