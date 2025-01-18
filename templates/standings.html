@@ -4,6 +4,13 @@
 <div class="container-fluid px-3">
     <div class="card">
         <div class="card-body p-0">
+            <!-- Add cache indicator -->
+            <div id="cache-indicator" class="alert alert-info m-2" style="display: none;">
+                <i class="material-icons align-middle">access_time</i>
+                <span id="cache-message">Viewing cached standings</span>
+                <span id="cache-timestamp" class="ms-2 text-muted"></span>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-hover mb-0">
                     <thead>
@@ -37,4 +44,34 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check response headers for cache status
+    fetch('/standings', {
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        const timestamp = response.headers.get('X-Cache-Timestamp');
+        const isFromCache = response.headers.get('X-Data-Source') === 'cache';
+
+        if (timestamp || isFromCache) {
+            const indicator = document.getElementById('cache-indicator');
+            const timestampSpan = document.getElementById('cache-timestamp');
+
+            if (timestamp) {
+                const date = new Date(timestamp);
+                timestampSpan.textContent = `Last updated: ${date.toLocaleString()}`;
+            }
+
+            indicator.style.display = 'block';
+        }
+    })
+    .catch(error => console.error('Error checking cache status:', error));
+});
+</script>
 {% endblock %}
