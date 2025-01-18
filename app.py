@@ -103,8 +103,13 @@ def create_app():
 # Create the Flask application instance
 app = create_app()
 
-port = int(os.environ.get("PORT", 80))
-app.run(host='0.0.0.0', port=port)
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 80))
+    app.run(host='0.0.0.0', port=port)
 
 
 # Initialize database tables within app context
