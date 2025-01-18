@@ -100,6 +100,7 @@ with app.app_context():
     try:
         import models  # Import here to avoid circular imports
         logger.info("Models imported successfully")
+        # Initialize tables without checkfirst parameter
         db.create_all()
         logger.info("Database tables initialized successfully")
     except Exception as e:

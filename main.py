@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from user_messages import get_user_message, MessageType
 from errors import ErrorSeverity, ErrorCodes, get_error_details, log_error
 
-# Initialize logging
+# Initialize logging with proper formatting
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
@@ -891,11 +891,42 @@ if os.path.exists(source_logo) and not os.path.exists(dest_logo):
 if __name__ == "__main__":
     try:
         logger.info("Starting Flask server...")
+
+        # Get port from environment variable with fallback to 5000
+        port = int(os.environ.get("PORT", 5000))
+
+        # Check for required environment variables
         if not os.environ.get('DATABASE_URL'):
             logger.error("DATABASE_URL environment variable is not set")
             sys.exit(1)
 
-        app.run(host='0.0.0.0', port=80, debug=False)
+        if not os.environ.get('FLASK_SECRET_KEY'):
+            logger.warning("FLASK_SECRET_KEY not set, using default value")
+            app.secret_key = 'development-key-not-secure'
+
+        # Configure debug mode based on environment
+        debug_mode = os.environ.get('FLASK_ENV') == 'development'
+        if debug_mode:
+            logger.info("Running in development mode")
+        else:
+            logger.info("Running in production mode")
+
+        # Initialize database tables
+        with app.app_context():
+            try:
+                db.create_all()
+                logger.info("Database tables initialized successfully")
+            except Exception as e:
+                logger.error(f"Failed to initialize database: {str(e)}")
+                sys.exit(1)
+
+        # Start server with proper host and port configuration
+        logger.info(f"Starting server on port {port}")
+        app.run(
+            host='0.0.0.0',
+            port=port,
+            debug=debug_mode
+        )
     except Exception as e:
         logger.error(f"Failed to start server: {str(e)}")
         sys.exit(1)

@@ -1,3 +1,43 @@
+class OfflineQueue {
+    static async serializeRequest(request) {
+        const body = await request.clone().text();
+        return {
+            url: request.url,
+            method: request.method,
+            headers: Array.from(request.headers.entries()),
+            body,
+            mode: request.mode,
+            credentials: request.credentials,
+            cache: request.cache
+        };
+    }
+}
+
+class CacheManager {
+    static async cacheApiResponse(request, response) {
+        const cache = await caches.open(API_CACHE);
+        const clonedResponse = response.clone();
+        await cache.put(request, clonedResponse);
+        return response;
+    }
+
+    static async cacheCoreRouteData() {
+        const cache = await caches.open(API_CACHE);
+        await Promise.all(
+            CORE_API_ROUTES.map(async route => {
+                try {
+                    const response = await fetch(route);
+                    if (response.ok) {
+                        await cache.put(route, response.clone());
+                    }
+                } catch (error) {
+                    console.error(`Failed to cache ${route}:`, error);
+                }
+            })
+        );
+    }
+}
+
 const CACHE_NAME = 'solo-cache-v2';
 const STATIC_CACHE = 'solo-static-v2';
 const API_CACHE = 'solo-api-v2';
