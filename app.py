@@ -103,22 +103,20 @@ def create_app():
 # Create the Flask application instance
 app = create_app()
 
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 80))
-    app.run(host='0.0.0.0', port=port)
+    with app.app_context():
+        db.create_all()
+        logger.info("Database tables created successfully")
 
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
 # Initialize database tables within app context
 with app.app_context():
     try:
-        import models  # Import here to avoid circular imports
+        import models
         logger.info("Models imported successfully")
-        db.create_all()
-        logger.info("Database tables initialized successfully")
+        #db.create_all()  removed redundant call
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}", exc_info=True)
         raise

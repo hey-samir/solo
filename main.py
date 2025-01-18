@@ -182,6 +182,7 @@ def sends():
         return render_template('sends.html', routes=[])
 
 
+
 @app.route('/add_climb', methods=['POST'])
 @login_required
 def add_climb():
@@ -893,7 +894,7 @@ if __name__ == "__main__":
         logger.info("Starting Flask server...")
 
         # Get port from environment variable with fallback to 5000
-        port = int(os.environ.get("PORT", 80))
+        port = int(os.environ.get("PORT", 5000))
 
         # Check for required environment variables
         if not os.environ.get('DATABASE_URL'):
@@ -911,22 +912,19 @@ if __name__ == "__main__":
         else:
             logger.info("Running in production mode")
 
-        # Initialize database tables
+        # Initialize database tables and data
         with app.app_context():
             try:
                 db.create_all()
-                logger.info("Database tables initialized successfully")
+                from migrations import init_db
+                init_db()
+                logger.info("Database initialized with initial data")
             except Exception as e:
-                logger.error(f"Failed to initialize database: {str(e)}")
-                sys.exit(1)
+                logger.error(f"Error initializing database: {str(e)}")
+                raise
 
-        # Start server with proper host and port configuration
-        logger.info(f"Starting server on port {port}")
-        app.run(
-            host='0.0.0.0',
-            port=port,
-            debug=debug_mode
-        )
+        app.run(host='0.0.0.0', port=port, debug=debug_mode)
+
     except Exception as e:
-        logger.error(f"Failed to start server: {str(e)}")
+        logger.error(f"Server startup error: {str(e)}")
         sys.exit(1)
