@@ -5,7 +5,7 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "autoscale"
-run = ["sh", "-c", "python main.py"]
+run = ["sh", "-c", "rm -rf migrations/* && FLASK_APP=app.py flask db init && FLASK_APP=app.py flask db migrate -m \"initial migration\""]
 
 [workflows]
 runButton = "Project"
@@ -14,10 +14,6 @@ runButton = "Project"
 name = "Project"
 mode = "parallel"
 author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Database Migration"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
@@ -30,20 +26,6 @@ args = "Apply Migrations"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Flask Server"
-
-[[workflows.workflow]]
-name = "Database Migration"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "FLASK_APP=app.py flask db init && flask db migrate -m \"initial migration\" && flask db upgrade"
 
 [[workflows.workflow]]
 name = "Clean Migration Setup"
