@@ -893,7 +893,7 @@ if __name__ == "__main__":
         logger.info("Starting Flask server...")
 
         # Get port from environment variable with fallback to 5000
-        port = int(os.environ.get("PORT", 5000))
+        port = int(os.environ.get("PORT", 80))
 
         # Check for required environment variables
         if not os.environ.get('DATABASE_URL'):
