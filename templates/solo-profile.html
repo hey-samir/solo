@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container profile-container">
-    <div class="row">
-        <div class="col-12">
+<div class="container-fluid profile-container px-3">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
             <div class="profile-card">
-                <div class="card-body">
+                <div class="card-body p-4">
                     {% if is_own_profile %}
                     <div id="csrf-token" data-token="{{ form.csrf_token._value() }}"></div>
                     {% endif %}
@@ -13,7 +13,7 @@
                     <div class="row">
                         <!-- Avatar Column -->
                         <div class="col-12 col-md-3">
-                            <div class="profile-photo-container">
+                            <div class="profile-photo-container mb-3">
                                 <img src="{{ url_for('static', filename='images/' + profile_user.profile_photo) }}" 
                                      alt="Profile Photo" 
                                      class="profile-photo">
@@ -52,7 +52,7 @@
                                 {% endif %}
 
                                 <div class="profile-fields">
-                                    <div class="field-row">
+                                    <div class="field-row mb-3">
                                         <label class="form-label">Name</label>
                                         <div class="field-content">
                                             {% if is_own_profile %}
@@ -67,34 +67,36 @@
                                         </div>
                                     </div>
 
-                                    <div class="field-row">
+                                    <div class="field-row mb-3">
                                         <label class="form-label">Username</label>
                                         <div class="field-content">
                                             <span class="profile-text">@{{ profile_user.username }}</span>
                                         </div>
                                     </div>
 
-                                    <div class="field-row">
+                                    <div class="field-row mb-3">
                                         <label class="form-label">Gym</label>
                                         <div class="field-content">
                                             {% if is_own_profile %}
                                             <div class="editable-field" data-editable>
-                                                <span class="profile-text">{{ profile_user.gym }}</span>
-                                                <select name="gym" class="form-select" disabled>
-                                                    {% for gym in gyms %}
-                                                    <option value="{{ gym.name }}" {% if profile_user.gym == gym.name %}selected{% endif %}>
-                                                        {{ gym.name }}
+                                                <span class="profile-text">{{ profile_user.gym.name if profile_user.gym else 'No gym selected' }}</span>
+                                                {% if form.gym %}
+                                                <select name="gym" class="form-select d-none" disabled>
+                                                    {% for gym in form.gym.choices %}
+                                                    <option value="{{ gym[0] }}" {% if profile_user.gym and profile_user.gym.id == gym[0] %}selected{% endif %}>
+                                                        {{ gym[1] }}
                                                     </option>
                                                     {% endfor %}
                                                 </select>
+                                                {% endif %}
                                             </div>
                                             {% else %}
-                                            <span class="profile-text">{{ profile_user.gym }}</span>
+                                            <span class="profile-text">{{ profile_user.gym.name if profile_user.gym else 'No gym selected' }}</span>
                                             {% endif %}
                                         </div>
                                     </div>
 
-                                    <div class="field-row">
+                                    <div class="field-row mb-3">
                                         <label class="form-label">Joined</label>
                                         <div class="field-content">
                                             <span class="profile-text">{{ profile_user.member_since.strftime('%B %Y') }}</span>
@@ -103,34 +105,36 @@
                                 </div>
 
                                 {% if is_own_profile %}
-                                <div class="profile-actions edit-mode-buttons">
-                                    <button type="button" class="btn btn-primary edit-toggle">
-                                        <i class="material-icons">edit</i>
-                                        <span>Edit</span>
-                                    </button>
-                                    <button type="button" class="btn btn-primary" 
-                                            data-bs-toggle="modal" 
-                                            data-bs-target="#qrCodeModal">
-                                        <i class="material-icons">qr_code_2</i>
-                                        <span>Share</span>
-                                    </button>
-                                    <a href="{{ url_for('logout') }}" 
-                                       class="btn btn-negative">
-                                        <i class="material-icons">logout</i>
-                                        <span>Logout</span>
-                                    </a>
-                                </div>
+                                <div class="profile-actions mt-4 d-flex gap-3">
+                                    <div class="edit-mode-buttons">
+                                        <button type="button" class="btn btn-primary edit-toggle">
+                                            <i class="material-icons me-2">edit</i>
+                                            <span>Edit</span>
+                                        </button>
+                                        <button type="button" class="btn btn-primary ms-2" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#qrCodeModal">
+                                            <i class="material-icons me-2">qr_code_2</i>
+                                            <span>Share</span>
+                                        </button>
+                                        <a href="{{ url_for('logout') }}" 
+                                           class="btn btn-negative ms-2">
+                                            <i class="material-icons me-2">logout</i>
+                                            <span>Logout</span>
+                                        </a>
+                                    </div>
 
-                                <div class="save-mode-buttons d-none">
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="material-icons">save</i>
-                                            <span>Save</span>
-                                        </button>
-                                        <button type="button" class="btn btn-negative cancel-edit">
-                                            <i class="material-icons">close</i>
-                                            <span>Back</span>
-                                        </button>
+                                    <div class="save-mode-buttons d-none">
+                                        <div class="d-flex gap-2">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="material-icons me-2">save</i>
+                                                <span>Save</span>
+                                            </button>
+                                            <button type="button" class="btn btn-negative cancel-edit">
+                                                <i class="material-icons me-2">close</i>
+                                                <span>Back</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                                 {% endif %}
@@ -138,20 +142,20 @@
 
                             <!-- KPI Cards -->
                             <div class="row g-3 mt-4">
-                                <div class="col-4">
-                                    <div class="metric-card">
+                                <div class="col-sm-4">
+                                    <div class="metric-card p-3">
                                         <div class="metric-value">{{ total_ascents }}</div>
                                         <div class="metric-label">Total Ascents</div>
                                     </div>
                                 </div>
-                                <div class="col-4">
-                                    <div class="metric-card">
+                                <div class="col-sm-4">
+                                    <div class="metric-card p-3">
                                         <div class="metric-value">{{ avg_grade }}</div>
                                         <div class="metric-label">Avg Grade</div>
                                     </div>
                                 </div>
-                                <div class="col-4">
-                                    <div class="metric-card">
+                                <div class="col-sm-4">
+                                    <div class="metric-card p-3">
                                         <div class="metric-value">{{ total_points }}</div>
                                         <div class="metric-label">Total Points</div>
                                     </div>
@@ -190,4 +194,142 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.profile-card {
+    border: none;
+    background: transparent;
+}
+
+.profile-photo-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.edit-photo-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #7442d6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+}
+
+.avatar-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.avatar-option {
+    cursor: pointer;
+}
+
+.avatar-thumbnail {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+}
+
+input[type="radio"]:checked + .avatar-thumbnail {
+    border-color: #7442d6;
+}
+
+.profile-fields {
+    margin-bottom: 2rem;
+}
+
+.field-row {
+    display: flex;
+    align-items: center;
+}
+
+.form-label {
+    min-width: 100px;
+    margin-bottom: 0;
+    color: #6c757d;
+}
+
+.field-content {
+    flex-grow: 1;
+}
+
+.profile-text {
+    font-size: 1.1rem;
+    color: white;
+}
+
+.metric-card {
+    background: rgba(116, 66, 214, 0.1);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: white;
+}
+
+.metric-label {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+}
+
+.btn i {
+    font-size: 1.25rem;
+}
+
+.btn-primary {
+    background-color: #7442d6;
+    border-color: #7442d6;
+}
+
+.btn-negative {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-negative:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+    color: white;
+}
+
+.modal-content {
+    background-color: #1a1a1a;
+    color: white;
+}
+</style>
 {% endblock %}

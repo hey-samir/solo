@@ -9,7 +9,7 @@ from errors import ErrorSeverity, ErrorCodes, get_error_details, log_error
 
 # Initialize logging with proper formatting
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,  # Changed to DEBUG for more verbose logging
     format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout)
@@ -18,7 +18,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Import app and extensions first
-from app import app, db
+try:
+    from app import app, db
+    logger.info("Successfully imported app and db")
+except Exception as e:
+    logger.error(f"Failed to import app: {str(e)}", exc_info=True)
+    sys.exit(1)
 
 # Flask imports
 from flask import render_template, request, redirect, url_for, flash, jsonify, session
@@ -28,8 +33,13 @@ from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 
 # Import models and forms after app initialization
-from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
-from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
+try:
+    from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
+    from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
+    logger.info("Successfully imported models and forms")
+except Exception as e:
+    logger.error(f"Failed to import models and forms: {str(e)}", exc_info=True)
+    sys.exit(1)
 
 # Initialize CSRF protection
 from flask_wtf.csrf import CSRFProtect
@@ -183,7 +193,6 @@ def sends():
         message, type_ = get_user_message('GENERIC_ERROR')
         flash(message, type_)
         return render_template('sends.html', routes=[])
-
 
 
 @app.route('/add_climb', methods=['POST'])
@@ -910,24 +919,19 @@ if __name__ == "__main__":
 
         # Configure debug mode based on environment
         debug_mode = os.environ.get('FLASK_ENV') == 'development'
-        if debug_mode:
-            logger.info("Running in development mode")
-        else:
-            logger.info("Running in production mode")
 
-        # Initialize database tables and data
+        # Initialize database tables
         with app.app_context():
             try:
                 db.create_all()
-                from migrations import init_db
-                init_db()
-                logger.info("Database initialized with initial data")
+                logger.info("Database tables created successfully")
             except Exception as e:
-                logger.error(f"Error initializing database: {str(e)}")
-                raise
+                logger.error(f"Failed to create database tables: {str(e)}", exc_info=True)
+                sys.exit(1)
 
+        # Start the server
         app.run(host='0.0.0.0', port=port, debug=debug_mode)
 
     except Exception as e:
-        logger.error(f"Server startup error: {str(e)}")
+        logger.error(f"Failed to start server: {str(e)}", exc_info=True)
         sys.exit(1)

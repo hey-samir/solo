@@ -33,6 +33,9 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "development_key_only")
 
+    # Enable debug mode for development
+    app.debug = bool(os.environ.get("FLASK_DEBUG", False))
+
     # Session configuration for development
     app.config["SESSION_COOKIE_SECURE"] = False
     app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -74,48 +77,6 @@ def create_app():
             logger.error(f"Error loading user {id}: {str(e)}", exc_info=True)
             return None
 
-    # Request timing middleware
-    @app.before_request
-    def start_timer():
-        g.start = time.time()
-
-    @app.after_request
-    def log_request(response):
-        if hasattr(g, 'start'):
-            total_time = time.time() - g.start
-            logger.info(
-                f'Request: {request.method} {request.path} '
-                f'Status: {response.status_code} '
-                f'Duration: {total_time:.2f}s'
-            )
-        return response
-
-    # Error handlers
-    @app.errorhandler(404)
-    def not_found_error(error):
-        return render_template('404.html'), 404
-
-    @app.errorhandler(500)
-    def internal_error(error):
-        db.session.rollback()
-        logger.error(f"Internal Server Error: {error}", exc_info=True)
-        return render_template('500.html', error="Internal Server Error"), 500
-
-    @app.route('/health')
-    def health_check():
-        """Endpoint to check database health"""
-        try:
-            health_status = check_database_health()
-            status_code = 200 if health_status['status'] == 'healthy' else 500
-            return jsonify(health_status), status_code
-        except Exception as e:
-            logger.error(f"Health check failed: {str(e)}", exc_info=True)
-            return jsonify({
-                'status': 'unhealthy',
-                'error': str(e),
-                'timestamp': time.time()
-            }), 500
-
     return app
 
 # Create the Flask application instance
@@ -127,7 +88,7 @@ if __name__ == "__main__":
         logger.info("Database tables created successfully")
 
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)  # Explicitly enable debug mode
 
 # Initialize database tables within app context
 with app.app_context():
