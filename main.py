@@ -60,7 +60,9 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
-            login_user(user)
+            # Enable session persistence
+            session.permanent = True
+            login_user(user, remember=True)
             next_page = request.args.get('next')
             return redirect(next_page if next_page else url_for('sends'))
         message, type_ = get_user_message('LOGIN_FAILED')
@@ -174,6 +176,7 @@ def sends():
                 if route.route_id and route.route_id.startswith('#'):
                     route.route_id = route.route_id[1:]
 
+        logger.info(f"Fetched {len(routes)} routes for user {current_user.id}")
         return render_template('sends.html', routes=routes)
     except Exception as e:
         logger.error(f"Error in sends route: {str(e)}")

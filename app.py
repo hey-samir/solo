@@ -7,6 +7,7 @@ import time
 from database import db
 from health_checks import check_database_health
 from flask_migrate import Migrate
+from datetime import timedelta
 
 # Configure logging
 logging.basicConfig(
@@ -32,6 +33,20 @@ def create_app():
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "development_key_only")
 
+    # Session configuration for development
+    app.config["SESSION_COOKIE_SECURE"] = False
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = 'Lax'
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=31)
+    app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=31)
+    app.config["REMEMBER_COOKIE_SECURE"] = False
+    app.config["REMEMBER_COOKIE_HTTPONLY"] = True
+
+    # CSRF configuration for development
+    app.config["WTF_CSRF_TIME_LIMIT"] = None  # No time limit for CSRF tokens
+    app.config["WTF_CSRF_SSL_STRICT"] = False  # Disable SSL-only for CSRF
+    app.config["WTF_CSRF_CHECK_DEFAULT"] = False  # Only check CSRF for unsafe methods
+
     # Enable proxy support
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
@@ -41,10 +56,13 @@ def create_app():
     migrate.init_app(app, db)
 
     # Configure Flask-Login
-    login_manager.session_protection = "strong"
+    login_manager.session_protection = "basic"  # Changed from "strong" to "basic" for development
     login_manager.login_view = "login"
     login_manager.login_message = "Please log in to access this page."
     login_manager.login_message_category = "info"
+    login_manager.refresh_view = "login"
+    login_manager.needs_refresh_message = "Please log in again to confirm your identity."
+    login_manager.needs_refresh_message_category = "info"
 
     # User loader callback
     @login_manager.user_loader
@@ -116,7 +134,6 @@ with app.app_context():
     try:
         import models
         logger.info("Models imported successfully")
-        #db.create_all()  removed redundant call
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}", exc_info=True)
         raise
