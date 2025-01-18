@@ -12,7 +12,9 @@ html body .flash-messages-container {
     padding: 1rem;
 }
 
-html body .flash-message {
+/* Consolidated message styling for both flash messages and system notifications */
+html body .flash-message,
+html body .alert {
     background-color: rgba(255, 255, 255, 0.5);
     color: var(--text-color);
     padding: 0.75rem 2.5rem 0.75rem 1.25rem;
@@ -31,7 +33,8 @@ html body .flash-message {
     justify-content: space-between;
 }
 
-.flash-message .close-btn {
+.flash-message .close-btn,
+.alert .close-btn {
     position: absolute;
     right: 10px;
     top: 50%;
@@ -44,27 +47,33 @@ html body .flash-message {
     padding: 0;
 }
 
-.flash-message .close-btn:hover {
+.flash-message .close-btn:hover,
+.alert .close-btn:hover {
     opacity: 1;
 }
 
-html body .flash-message.alert-success {
+/* Message type styling */
+html body .flash-message.alert-success,
+html body .alert-success {
     background-color: rgba(25, 135, 84, 0.95);
     border-color: #198754;
 }
 
-html body .flash-message.alert-danger {
+html body .flash-message.alert-danger,
+html body .alert-danger {
     background-color: rgba(220, 53, 69, 0.95);
     border-color: #dc3545;
 }
 
-html body .flash-message.alert-warning {
+html body .flash-message.alert-warning,
+html body .alert-warning {
     background-color: rgba(255, 193, 7, 0.95);
     border-color: #ffc107;
     color: #000;
 }
 
-html body .flash-message.alert-info {
+html body .flash-message.alert-info,
+html body .alert-info {
     background-color: rgba(13, 202, 240, 0.95);
     border-color: #0dcaf0;
 }

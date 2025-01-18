@@ -75,7 +75,7 @@ window.initializeFormSubmission = function(form, successCallback) {
             // Check if the response indicates cached data
             const isFromCache = response.headers.get('X-Data-Source') === 'cache';
             if (isFromCache) {
-                showCacheNotification();
+                showMessage('INFO_MESSAGES.OFFLINE_MODE');
             }
 
             if (successCallback) {
@@ -84,41 +84,32 @@ window.initializeFormSubmission = function(form, successCallback) {
         } catch (error) {
             console.error('Form submission error:', error);
             if (!navigator.onLine) {
-                // Handle offline form submission
                 if ('serviceWorker' in navigator && 'SyncManager' in window) {
                     try {
                         const sw = await navigator.serviceWorker.ready;
                         await sw.sync.register('sync-climbs');
-                        showOfflineNotification('Changes saved locally and will sync when online');
+                        showMessage('INFO_MESSAGES.PENDING_SYNC');
                     } catch (syncError) {
                         console.error('Failed to register sync:', syncError);
-                        showOfflineNotification('Failed to save changes offline', 'error');
+                        showMessage('USER_ERROR_MESSAGES.SYSTEM_ERROR');
                     }
                 } else {
-                    showOfflineNotification('Offline support not available', 'error');
+                    showMessage('USER_ERROR_MESSAGES.GENERIC_ERROR');
                 }
             } else {
-                showOfflineNotification('Failed to submit form', 'error');
+                showMessage('USER_ERROR_MESSAGES.GENERIC_ERROR');
             }
         }
     });
 };
 
-// UI notifications for offline/cache status
-function showOfflineNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-}
-
-function showCacheNotification() {
-    const notification = document.createElement('div');
-    notification.className = 'alert alert-info position-fixed bottom-0 end-0 m-3';
-    notification.textContent = 'Viewing cached data';
-    document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
+// UI messages using the consolidated message system
+function showMessage(messageKey, type = 'info') {
+    const message = document.createElement('div');
+    message.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3`;
+    message.textContent = messageKey;
+    document.body.appendChild(message);
+    setTimeout(() => message.remove(), 3000);
 }
 
 // Global utility functions
