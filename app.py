@@ -24,19 +24,21 @@ def create_app():
     app = Flask(__name__)
 
     # Basic configuration
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///app.db")
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_recycle": 300,
         "pool_pre_ping": True,
-        "pool_size": 20,
-        "max_overflow": 30,
-        "pool_timeout": 30,
     }
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "development_key_only")
 
     # Enable proxy support
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+    # Initialize extensions with app
+    db.init_app(app)
+    login_manager.init_app(app)
+    migrate.init_app(app, db)
 
     # Configure Flask-Login
     login_manager.session_protection = "strong"
@@ -53,11 +55,6 @@ def create_app():
         except Exception as e:
             logger.error(f"Error loading user {id}: {str(e)}", exc_info=True)
             return None
-
-    # Initialize extensions with app
-    db.init_app(app)
-    login_manager.init_app(app)
-    migrate.init_app(app, db)
 
     # Request timing middleware
     @app.before_request
@@ -103,7 +100,6 @@ with app.app_context():
     try:
         import models  # Import here to avoid circular imports
         logger.info("Models imported successfully")
-        # Initialize tables without checkfirst parameter
         db.create_all()
         logger.info("Database tables initialized successfully")
     except Exception as e:

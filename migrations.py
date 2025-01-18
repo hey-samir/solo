@@ -67,7 +67,6 @@ def rollback_migration():
         print(f"Rollback failed: {str(e)}")
         return False
 
-
 def init_db():
     """Initialize database with required data"""
     print("Initializing database with required data...")

@@ -17,29 +17,19 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Migration Setup"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Database Migration"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Flask Server"
 
-[[workflows.workflow]]
-name = "Migration Setup"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Clean Migration Setup"
 
 [[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "FLASK_APP=main.py flask db init && FLASK_APP=main.py flask db migrate -m \"initial migration\""
+task = "workflow.run"
+args = "Apply Migrations"
 
 [[workflows.workflow]]
 name = "Database Migration"
@@ -53,7 +43,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "flask db upgrade && python -c \"from migrations import init_db; init_db()\""
+args = "FLASK_APP=app.py flask db init && flask db migrate -m \"initial migration\" && flask db upgrade"
 
 [[workflows.workflow]]
 name = "Flask Server"
@@ -69,6 +59,34 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "python main.py"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Clean Migration Setup"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rm -rf migrations/* && FLASK_APP=app.py flask db init && FLASK_APP=app.py flask db migrate -m \"initial migration\""
+
+[[workflows.workflow]]
+name = "Apply Migrations"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "FLASK_APP=app.py flask db upgrade"
 
 [[ports]]
 localPort = 80

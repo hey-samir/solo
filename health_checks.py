@@ -1,28 +1,29 @@
 from datetime import datetime
-from flask import current_app
+from flask import current_app, jsonify
 from database import db
 from models import Gym, Route, RouteGrade
 
 def check_database_health():
     """Check database connectivity and basic health metrics"""
     try:
-        with current_app.app_context():
-            # Test database connection
-            db.session.execute('SELECT 1')
+        # Test database connection
+        db.session.execute('SELECT 1')
 
-            # Get table statistics
-            stats = {
-                'gyms': Gym.query.count(),
-                'routes': Route.query.count(),
-                'grades': RouteGrade.query.count()
-            }
+        # Get table statistics
+        stats = {
+            'gyms': Gym.query.count(),
+            'routes': Route.query.count(),
+            'grades': RouteGrade.query.count()
+        }
 
-            return {
-                'status': 'healthy',
-                'tables': stats,
-                'timestamp': datetime.now().isoformat()
-            }
+        return {
+            'status': 'healthy',
+            'message': 'Database connection successful',
+            'tables': stats,
+            'timestamp': datetime.now().isoformat()
+        }
     except Exception as e:
+        current_app.logger.error(f"Database health check failed: {str(e)}")
         return {
             'status': 'unhealthy',
             'error': str(e),
