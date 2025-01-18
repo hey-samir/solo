@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid profile-container px-3">
+<div class="container-fluid profile-container">
     <div class="row justify-content-center">
-        <div class="col-12 col-lg-10">
+        <div class="col-12">
             <div class="profile-card">
                 <div class="card-body p-4">
                     {% if is_own_profile %}
@@ -199,7 +199,7 @@
 {% block styles %}
 <style>
 .profile-container {
-    max-width: 1200px;
+    max-width: 1600px; /* Increased from 1200px */
     margin: 0 auto;
 }
 
