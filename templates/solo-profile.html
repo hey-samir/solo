@@ -42,12 +42,6 @@
                                 </form>
                             </div>
                             {% endif %}
-
-                            {% if qr_code %}
-                            <button type="button" class="btn btn-icon mt-3" data-bs-toggle="modal" data-bs-target="#qrCodeModal">
-                                <i class="material-icons">qr_code_2</i>
-                            </button>
-                            {% endif %}
                         </div>
 
                         <!-- Column 2: User Information -->
@@ -57,8 +51,8 @@
                                 <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
                                 {% endif %}
 
-                                <div class="profile-fields mb-4">
-                                    <div class="field-row mb-3">
+                                <div class="profile-fields">
+                                    <div class="field-row">
                                         <label class="form-label">Name</label>
                                         <div class="field-content">
                                             {% if is_own_profile %}
@@ -71,27 +65,31 @@
                                         </div>
                                     </div>
 
-                                    <div class="field-row mb-3">
+                                    <div class="field-row">
                                         <label class="form-label">Username</label>
                                         <div class="field-content">
                                             <span class="profile-text">@{{ profile_user.username }}</span>
                                         </div>
                                     </div>
 
-                                    <div class="field-row mb-3">
+                                    <div class="field-row">
                                         <label class="form-label">Gym</label>
                                         <div class="field-content">
                                             {% if is_own_profile %}
-                                            <input type="text" name="gym" class="form-control" 
-                                                   value="{{ profile_user.gym or '' }}"
-                                                   {% if not is_own_profile %}readonly{% endif %}>
+                                            <select name="gym" class="form-select">
+                                                {% for gym in gyms %}
+                                                <option value="{{ gym.name }}" {% if profile_user.gym == gym.name %}selected{% endif %}>
+                                                    {{ gym.name }}
+                                                </option>
+                                                {% endfor %}
+                                            </select>
                                             {% else %}
                                             <span class="profile-text">{{ profile_user.gym or 'Not set' }}</span>
                                             {% endif %}
                                         </div>
                                     </div>
 
-                                    <div class="field-row mb-3">
+                                    <div class="field-row">
                                         <label class="form-label">Joined</label>
                                         <div class="field-content">
                                             <span class="profile-text">{{ profile_user.member_since.strftime('%B %Y') }}</span>
@@ -100,30 +98,30 @@
                                 </div>
 
                                 {% if is_own_profile %}
-                                <div class="profile-actions d-flex gap-2">
-                                    <button type="button" class="btn btn-primary flex-grow-1">
+                                <div class="profile-actions">
+                                    <button type="button" class="btn btn-primary edit-toggle">
                                         <i class="material-icons">edit</i>
                                         Edit
                                     </button>
-                                    <button type="button" class="btn btn-primary flex-grow-1" 
+                                    <button type="button" class="btn btn-primary" 
                                             data-bs-toggle="modal" 
                                             data-bs-target="#qrCodeModal">
                                         <i class="material-icons">qr_code_2</i>
                                         Share
                                     </button>
                                     <a href="{{ url_for('logout') }}" 
-                                       class="btn btn-negative flex-grow-1">
+                                       class="btn btn-negative">
                                         <i class="material-icons">logout</i>
                                         Logout
                                     </a>
                                 </div>
                                 <div class="save-mode-buttons d-none">
                                     <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary flex-grow-1">
+                                        <button type="submit" class="btn btn-primary">
                                             <i class="material-icons">save</i>
                                             Save
                                         </button>
-                                        <button type="button" class="btn btn-negative flex-grow-1 cancel-edit">
+                                        <button type="button" class="btn btn-negative cancel-edit">
                                             <i class="material-icons">close</i>
                                             Back
                                         </button>
