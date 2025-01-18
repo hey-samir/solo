@@ -25,13 +25,11 @@ from flask import render_template, request, redirect, url_for, flash, jsonify, s
 from flask_login import login_required, current_user, login_user, logout_user
 from werkzeug.utils import secure_filename
 from sqlalchemy import func
-from sqlalchemy.exc import SQLAlchemyError # Added import for SQLAlchemyError
-
+from sqlalchemy.exc import SQLAlchemyError
 
 # Import models and forms after app initialization
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
-#from errors import *
 
 # Initialize CSRF protection
 from flask_wtf.csrf import CSRFProtect
@@ -65,7 +63,8 @@ def login():
             login_user(user)
             next_page = request.args.get('next')
             return redirect(next_page if next_page else url_for('sends'))
-        flash(LOGIN_ERROR, 'error')
+        message, type_ = get_user_message('LOGIN_FAILED')
+        flash(message, type_)
     return render_template('login.html', form=form)
 
 @app.route('/sign-up', methods=['GET', 'POST'])
@@ -81,15 +80,18 @@ def sign_up():
         gym_choice = form.gym.data
 
         if not username or not username.isalnum():
-            flash(REGISTRATION_USERNAME_ERROR, 'error')
+            message, type_ = get_user_message('USERNAME_INVALID')
+            flash(message, type_)
             return render_template('register.html', form=form)
 
         if User.query.filter_by(username=username).first():
-            flash(REGISTRATION_USERNAME_TAKEN_ERROR, 'error')
+            message, type_ = get_user_message('USERNAME_TAKEN')
+            flash(message, type_)
             return render_template('register.html', form=form)
 
         if User.query.filter_by(email=email).first():
-            flash(REGISTRATION_EMAIL_TAKEN_ERROR, 'error')
+            message, type_ = get_user_message('EMAIL_TAKEN')
+            flash(message, type_)
             return render_template('register.html', form=form)
 
         # Handle "Submit your gym" selection
@@ -100,7 +102,8 @@ def sign_up():
                 'name': name,
                 'password': form.password.data
             }
-            flash(GYM_SUBMISSION_INFO, 'info')
+            message, type_ = get_user_message('GYM_SUBMISSION')
+            flash(message, type_)
             return redirect(url_for('feedback'))
 
         try:
@@ -110,7 +113,8 @@ def sign_up():
             if gym_id:
                 gym = Gym.query.get(gym_id)
                 if not gym:
-                    flash(GYM_NOT_FOUND, 'error')
+                    message, type_ = get_user_message('GYM_NOT_FOUND')
+                    flash(message, type_)
                     return render_template('register.html', form=form)
 
             # Create new user
@@ -119,7 +123,7 @@ def sign_up():
                 email=email,
                 name=name,
                 gym_id=gym_id,
-                member_since=datetime.utcnow()  # Set member_since explicitly
+                member_since=datetime.utcnow()
             )
             user.set_password(form.password.data)
 
@@ -128,7 +132,8 @@ def sign_up():
 
             # Log the user in and redirect to profile
             login_user(user)
-            flash(REGISTRATION_SUCCESS, 'success')
+            message, type_ = get_user_message('REGISTRATION')
+            flash(message, type_)
 
             # Ensure we redirect to profile
             logger.info(f"Successfully created user {username}, redirecting to profile")
@@ -137,7 +142,8 @@ def sign_up():
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error creating user: {str(e)}")
-            flash(DATABASE_ERROR, 'error')
+            message, type_ = get_user_message('DATABASE_ERROR')
+            flash(message, type_)
             return render_template('register.html', form=form)
 
     return render_template('register.html', form=form)
@@ -171,7 +177,8 @@ def sends():
         return render_template('sends.html', routes=routes)
     except Exception as e:
         logger.error(f"Error in sends route: {str(e)}")
-        flash('An error occurred while loading routes. Please try again.', 'error')
+        message, type_ = get_user_message('GENERIC_ERROR')
+        flash(message, type_)
         return render_template('sends.html', routes=[])
 
 
@@ -183,12 +190,14 @@ def add_climb():
 
         route_id = request.form.get('route_id')
         if not route_id:
-            flash(NO_ROUTE_SELECTED, 'error')
+            message, type_ = get_user_message('NO_ROUTE')
+            flash(message, type_)
             return redirect(url_for('sends'))
 
         route = Route.query.get(route_id)
         if not route:
-            flash('Invalid route selected', 'error')
+            message, type_ = get_user_message('NO_ROUTE')
+            flash(message, type_)
             return redirect(url_for('sends'))
 
         # Convert status to boolean (True for 'Sent', False for 'Tried')
@@ -228,7 +237,7 @@ def add_climb():
         if request.headers.get('Accept') == 'application/json':
             return jsonify({
                 'status': 'success',
-                'message': SEND_UPDATE_SUCCESS,
+                'message': 'SEND_UPDATE_SUCCESS',
                 'climb': {
                     'id': climb.id,
                     'route': {
@@ -245,7 +254,8 @@ def add_climb():
                 }
             })
 
-        flash(SEND_UPDATE_SUCCESS, 'success')
+        message, type_ = get_user_message('SEND_LOGGED')
+        flash(message, type_)
         return redirect(url_for('sends'))
 
     except Exception as e:
@@ -256,10 +266,11 @@ def add_climb():
         if request.headers.get('Accept') == 'application/json':
             return jsonify({
                 'status': 'error',
-                'message': SEND_UPDATE_ERROR
+                'message': 'SEND_UPDATE_ERROR'
             }), 500
 
-        flash(SEND_UPDATE_ERROR, 'error')
+        message, type_ = get_user_message('SEND_UPDATE')
+        flash(message, type_)
         return redirect(url_for('sends'))
 
 @app.route('/api/stats')
@@ -400,7 +411,8 @@ def profile(username=None):
             return redirect(url_for('profile', username=current_user.username))
         else:
             # No username specified and not logged in
-            flash('Please log in to view your profile.', 'error')
+            message, type_ = get_user_message('LOGIN_REQUIRED')
+            flash(message, type_)
             return redirect(url_for('login'))
 
         # Initialize form for profile editing
@@ -426,7 +438,8 @@ def profile(username=None):
                             is_own_profile=is_own_profile)
     except Exception as e:
         logger.error("Error in profile page: %s", str(e))
-        flash('An error occurred while loading the profile. Please try again.', 'error')
+        message, type_ = get_user_message('GENERIC_ERROR')
+        flash(message, type_)
         return render_template('404.html'), 404
 
 @app.route('/solo')
@@ -451,10 +464,12 @@ def update_profile():
             # Update username if changed and valid
             if username and username != current_user.username:
                 if not username or not username.isalnum():
-                    flash(UPDATE_PROFILE_USERNAME_ERROR, 'error')
+                    message, type_ = get_user_message('USERNAME_INVALID')
+                    flash(message, type_)
                     return redirect(url_for('profile'))
                 if User.query.filter_by(username=username).first():
-                    flash(UPDATE_PROFILE_USERNAME_TAKEN_ERROR, 'error')
+                    message, type_ = get_user_message('USERNAME_TAKEN')
+                    flash(message, type_)
                     return redirect(url_for('profile'))
                 current_user.username = username
 
@@ -472,17 +487,20 @@ def update_profile():
                         current_user.gym_id = gym.id
                         logger.info(f"Updated gym to {gym.id} ({gym.name}) for user {current_user.username}")
                     else:
-                        flash(GYM_NOT_FOUND, 'error')
+                        message, type_ = get_user_message('GYM_NOT_FOUND')
+                        flash(message, type_)
                         return redirect(url_for('profile'))
 
             db.session.commit()
-            flash(PROFILE_UPDATE_SUCCESS, 'success')
+            message, type_ = get_user_message('PROFILE_UPDATE_SUCCESS')
+            flash(message, type_)
             return redirect(url_for('profile'))
 
         except Exception as e:
             db.session.rollback()
             logger.error(f"Error updating profile: {str(e)}")
-            flash(PROFILE_UPDATE_ERROR, 'error')
+            message, type_ = get_user_message('PROFILE_UPDATE_ERROR')
+            flash(message, type_)
             return redirect(url_for('profile'))
 
     return redirect(url_for('profile'))
@@ -495,21 +513,25 @@ def update_avatar():
         if avatar:
             current_user.profile_photo = avatar
             db.session.commit()
-            flash(AVATAR_UPDATE_SUCCESS, 'success')
+            message, type_ = get_user_message('AVATAR_UPDATE_SUCCESS')
+            flash(message, type_)
         return redirect(url_for('profile'))
     except Exception as e:
         logger.error(f"Error updating avatar: {str(e)}")
-        flash(AVATAR_UPDATE_ERROR, 'error')
+        message, type_ = get_user_message('AVATAR_UPDATE_ERROR')
+        flash(message, type_)
         return redirect(url_for('profile'))
 
     try:
         if 'photo' not in request.files:
-            flash(NO_FILE_UPLOADED, 'error')
+            message, type_ = get_user_message('NO_FILE_UPLOADED')
+            flash(message, type_)
             return redirect(url_for('profile'))
 
         file = request.files['photo']
         if file.filename == '':
-            flash(NO_FILE_SELECTED, 'error')
+            message, type_ = get_user_message('NO_FILE_SELECTED')
+            flash(message, type_)
             return redirect(url_for('profile'))
 
         if file and allowed_file(file.filename):
@@ -546,12 +568,15 @@ def update_avatar():
             current_user.profile_photo = f"profiles/{filename}"
             db.session.commit()
 
-            flash(PROFILE_PHOTO_UPDATE_SUCCESS, 'success')
+            message, type_ = get_user_message('PROFILE_PHOTO_UPDATE_SUCCESS')
+            flash(message, type_)
         else:
-            flash(INVALID_FILE_TYPE, 'error')
+            message, type_ = get_user_message('INVALID_FILE_TYPE')
+            flash(message, type_)
     except Exception as e:
         logger.error(f"Error processing photo: {str(e)}")
-        flash(PROFILE_PHOTO_ERROR, 'error')
+        message, type_ = get_user_message('PROFILE_PHOTO_ERROR')
+        flash(message, type_)
         db.session.rollback()
 
     return redirect(url_for('profile'))
@@ -670,7 +695,8 @@ def stats():
                                **stats_data)
     except Exception as e:
         logger.error(f"Error in stats page: {str(e)}")
-        flash('An error occurred while loading stats. Please try again.', 'error')
+        message, type_ = get_user_message('GENERIC_ERROR')
+        flash(message, type_)
         return render_template('stats.html')
 
 @app.route('/squads')
@@ -738,7 +764,8 @@ def submit_feedback():
             file = form.screenshot.data
             if file.filename != '':
                 if not allowed_file(file.filename):
-                    flash(INVALID_FILE_TYPE, 'error')
+                    message, type_ = get_user_message('INVALID_FILE_TYPE')
+                    flash(message, type_)
                     return redirect(url_for('feedback'))
 
                 try:
@@ -752,7 +779,8 @@ def submit_feedback():
                     feedback.screenshot_url = f"images/feedback/{filename}"
                 except Exception as e:
                     logger.error(f"File upload error: {str(e)}")
-                    flash(FILE_UPLOAD_ERROR, 'error')
+                    message, type_ = get_user_message('FILE_UPLOAD_ERROR')
+                    flash(message, type_)
                     return redirect(url_for('feedback'))
 
         db.session.add(feedback)
@@ -762,12 +790,14 @@ def submit_feedback():
         if 'pending_registration' in session:
             session.pop('pending_registration')
 
-        flash(FEEDBACK_SUBMIT_SUCCESS, 'success')
+        message, type_ = get_user_message('FEEDBACK_SUBMIT_SUCCESS')
+        flash(message, type_)
         return redirect(url_for('feedback'))
     except Exception as e:
         logger.error(f"Error submitting feedback: {str(e)}")
         db.session.rollback()
-        flash(DATABASE_ERROR, 'error')
+        message, type_ = get_user_message('DATABASE_ERROR')
+        flash(message, type_)
         return redirect(url_for('feedback'))
 
     return redirect(url_for('feedback'))
@@ -786,19 +816,20 @@ def vote_feedback(feedback_id):
         if existing_vote:
             # Remove vote if already voted
             db.session.delete(existing_vote)
-            message = 'Vote removed'
+            message, type_ = get_user_message('VOTE_REMOVED')
         else:
             # Add new vote
             vote = FeedbackVote(user_id=current_user.id, feedback_id=feedback_id)
             db.session.add(vote)
-            message = 'Vote added'
+            message, type_ = get_user_message('VOTE_ADDED')
 
         db.session.commit()
-        flash(message, 'success')
+        flash(message, type_)
     except Exception as e:
         logger.error(f"Error processing vote: {str(e)}")
         db.session.rollback()
-        flash('Error processing vote. Please try again.', 'error')
+        message, type_ = get_user_message('GENERIC_ERROR')
+        flash(message, type_)
 
     return redirect(url_for('feedback'))
 

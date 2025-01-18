@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, SelectField, FileField
 from wtforms.validators import DataRequired, Length, Email
 from models import Gym
-from notifications import REGISTRATION_USERNAME_ERROR
+from user_messages import get_user_message, MessageType
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired(), Length(min=1, max=10)])
@@ -11,7 +11,7 @@ class LoginForm(FlaskForm):
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[
         DataRequired(), 
-        Length(min=1, max=9, message="Username must be 1-9 characters (@ will be added automatically)")
+        Length(min=1, max=9, message=get_user_message('REGISTRATION_USERNAME_ERROR')[0])
     ])
     name = StringField('Name', validators=[DataRequired(), Length(max=100)])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -23,6 +23,8 @@ class RegistrationForm(FlaskForm):
         gyms = Gym.query.order_by(Gym.name).all()
         gym_choices = [(str(gym.id), gym.name) for gym in gyms]
         gym_choices.insert(0, ('', 'Select your home gym'))
+        # Add feedback option
+        gym_choices.append(('feedback', 'Submit your gym'))
         self.gym.choices = gym_choices
 
     gym = SelectField('Home Gym', validators=[DataRequired()])
@@ -37,6 +39,8 @@ class ProfileForm(FlaskForm):
         gyms = Gym.query.order_by(Gym.name).all()
         gym_choices = [(str(gym.id), gym.name) for gym in gyms]
         gym_choices.insert(0, ('', 'Select your home gym'))
+        # Add feedback option
+        gym_choices.append(('feedback', 'Submit your gym'))
         self.gym.choices = gym_choices
 
     gym = SelectField('Home Gym', validators=[DataRequired()])

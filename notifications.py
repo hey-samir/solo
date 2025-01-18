@@ -1,7 +1,5 @@
 """
-This file is deprecated. All notifications have been moved to errors.py
-Please use errors.py for all error and notification handling.
+This module has been deprecated and removed.
+All user-facing messages have been moved to user_messages.py
+All system errors have been moved to errors.py
 """
-
-# Import from errors.py for backwards compatibility
-from errors import *
