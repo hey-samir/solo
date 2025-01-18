@@ -80,7 +80,6 @@ def create_app():
         logger.error(f"Internal Server Error: {error}", exc_info=True)
         return render_template('500.html', error="Internal Server Error"), 500
 
-    # User loader
     @login_manager.user_loader
     def load_user(id):
         try:
@@ -95,24 +94,13 @@ def create_app():
 # Create the Flask application instance
 app = create_app()
 
-# Initialize database tables
+# Initialize database tables within app context
 with app.app_context():
     try:
-        # Import models here to avoid circular imports
         import models
         logger.info("Models imported successfully")
-
-        # Create all tables
         db.create_all()
         logger.info("Database tables initialized successfully")
     except Exception as e:
         logger.error(f"Failed to initialize database: {str(e)}", exc_info=True)
         raise
-
-if __name__ == '__main__':
-    # Run the app on port 5000 with improved error handling
-    try:
-        app.run(host='0.0.0.0', port=5000, debug=True)
-    except OSError as e:
-        logger.error(f"Failed to start server: {str(e)}", exc_info=True)
-        raise SystemExit(1)

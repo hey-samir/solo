@@ -16,8 +16,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Local imports - ensure models are imported before creating app
+# Import app and extensions first
 from app import app, db, logger
+
+# Then import models and forms
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
 from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
 from errors import *
