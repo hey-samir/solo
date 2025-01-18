@@ -1,16 +1,79 @@
-from flask_migrate import Migrate
-from app import app, db
-from models import Gym, Route, RouteGrade
 from datetime import datetime
-from user_messages import get_user_message, SUCCESS_MESSAGES, USER_ERROR_MESSAGES
+import os
+import subprocess
+from flask import current_app
+from flask_migrate import Migrate, upgrade, downgrade
+from database import db
 
 # Initialize Flask-Migrate
-migrate = Migrate(app, db)
+migrate = Migrate()
+
+def backup_database():
+    """Create a backup of the database before running migrations"""
+    try:
+        # Get database URL from environment
+        db_url = os.environ.get('DATABASE_URL')
+        if not db_url:
+            raise ValueError("DATABASE_URL not found in environment variables")
+
+        # Create backups directory if it doesn't exist
+        backup_dir = 'db_backups'
+        if not os.path.exists(backup_dir):
+            os.makedirs(backup_dir)
+
+        # Generate backup filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_file = f"{backup_dir}/backup_{timestamp}.sql"
+
+        # Create backup using pg_dump
+        subprocess.run([
+            'pg_dump',
+            '-f', backup_file,
+            db_url
+        ], check=True)
+
+        print(f"Database backup created successfully: {backup_file}")
+        return True
+    except Exception as e:
+        print(f"Failed to create database backup: {str(e)}")
+        return False
+
+def migrate_database():
+    """Run database migrations with backup"""
+    try:
+        # Create backup before migration
+        if not backup_database():
+            raise Exception("Database backup failed, aborting migration")
+
+        # Run migrations
+        with current_app.app_context():
+            upgrade()
+
+        print("Database migration completed successfully")
+        return True
+    except Exception as e:
+        print(f"Migration failed: {str(e)}")
+        return False
+
+def rollback_migration():
+    """Rollback the last database migration"""
+    try:
+        with current_app.app_context():
+            downgrade()
+
+        print("Migration rollback completed successfully")
+        return True
+    except Exception as e:
+        print(f"Rollback failed: {str(e)}")
+        return False
+
 
 def init_db():
     """Initialize database with required data"""
     print("Initializing database with required data...")
-    with app.app_context():
+    with current_app.app_context():
+        from models import RouteGrade, Gym, Route
+
         # Initialize route grades if they don't exist
         grades_data = [
             # Solo/Top Rope grades (5.0 - 5.15d)
@@ -62,12 +125,11 @@ def init_db():
 
         try:
             db.session.commit()
-            success_message = get_user_message('SEND_LOGGED')
-            print(success_message[0])  # Access first element of tuple
+            print("Route grades initialized successfully")
         except Exception as e:
             db.session.rollback()
-            error_message = get_user_message('DATABASE_ERROR')
-            print(error_message[0])  # Access first element of tuple
+            print(f"Error initializing grades: {str(e)}")
+            return
 
         # Add Movement Gowanus if it doesn't exist
         movement_gowanus = Gym.query.filter_by(name='Movement Gowanus').first()

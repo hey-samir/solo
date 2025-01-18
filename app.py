@@ -1,12 +1,12 @@
 import os
 import logging
-from flask import Flask, request, g, render_template, session
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, request, g, render_template, session, jsonify
 from flask_login import LoginManager
-from sqlalchemy.orm import DeclarativeBase
-from flask_migrate import Migrate
 from werkzeug.middleware.proxy_fix import ProxyFix
 import time
+from database import db
+from health_checks import check_database_health
+from flask_migrate import Migrate
 
 # Configure logging
 logging.basicConfig(
@@ -15,11 +15,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-class Base(DeclarativeBase):
-    pass
-
 # Initialize extensions
-db = SQLAlchemy(model_class=Base)
 login_manager = LoginManager()
 migrate = Migrate()
 
@@ -89,6 +85,13 @@ def create_app():
         db.session.rollback()
         logger.error(f"Internal Server Error: {error}", exc_info=True)
         return render_template('500.html', error="Internal Server Error"), 500
+
+    @app.route('/health')
+    def health_check():
+        """Endpoint to check database health"""
+        health_status = check_database_health()
+        status_code = 200 if health_status['status'] == 'healthy' else 500
+        return jsonify(health_status), status_code
 
     return app
 
