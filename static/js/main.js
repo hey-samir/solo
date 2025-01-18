@@ -66,16 +66,99 @@ function formatTimeAgo(date) {
 window.addEventListener('online', updateOnlineStatus);
 window.addEventListener('offline', updateOnlineStatus);
 
-// Enhanced form submission with offline support
-window.initializeFormSubmission = function(form, successCallback) {
+// Initialize IndexedDB
+const dbName = 'soloClimbDB';
+const dbVersion = 1;
+
+class IndexedDBManager {
+    static async initDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(dbName, dbVersion);
+
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+
+                // Create stores for different data types
+                if (!db.objectStoreNames.contains('climbs')) {
+                    db.createObjectStore('climbs', { keyPath: 'id', autoIncrement: true });
+                }
+                if (!db.objectStoreNames.contains('sessions')) {
+                    db.createObjectStore('sessions', { keyPath: 'id', autoIncrement: true });
+                }
+                if (!db.objectStoreNames.contains('profile')) {
+                    db.createObjectStore('profile', { keyPath: 'username' });
+                }
+            };
+        });
+    }
+
+    static async storeData(storeName, data) {
+        const db = await this.initDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(storeName, 'readwrite');
+            const store = transaction.objectStore(storeName);
+            const request = store.put(data);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+
+    static async getData(storeName, key) {
+        const db = await this.initDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(storeName, 'readonly');
+            const store = transaction.objectStore(storeName);
+            const request = store.get(key);
+
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+        });
+    }
+}
+
+// Enhanced form submission with offline support and validation
+window.initializeFormSubmission = function(form, successCallback, validateCallback) {
     if (!form) return;
 
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
+
+        // Client-side validation
+        if (validateCallback && !validateCallback(new FormData(this))) {
+            return;
+        }
+
         const formData = new FormData(this);
         const csrfToken = document.querySelector('input[name="csrf_token"]').value;
 
         try {
+            if (!navigator.onLine) {
+                // Store form data in IndexedDB for later submission
+                await IndexedDBManager.storeData('pending-forms', {
+                    url: this.action,
+                    method: 'POST',
+                    data: Object.fromEntries(formData),
+                    timestamp: new Date().toISOString()
+                });
+
+                showMessage('Form saved for later submission', 'info');
+
+                // Register for background sync
+                if ('serviceWorker' in navigator && 'SyncManager' in window) {
+                    const sw = await navigator.serviceWorker.ready;
+                    await sw.sync.register('sync-forms');
+                }
+
+                if (successCallback) {
+                    successCallback({ offline: true });
+                }
+                return;
+            }
+
             const response = await fetch(this.action, {
                 method: 'POST',
                 body: formData,
@@ -90,36 +173,56 @@ window.initializeFormSubmission = function(form, successCallback) {
                 throw new Error('Form submission failed');
             }
 
-            // Check if the response indicates cached data
             const isFromCache = response.headers.get('X-Data-Source') === 'cache';
             if (isFromCache) {
-                showMessage('INFO_MESSAGES.OFFLINE_MODE');
+                showMessage('Using cached data', 'info');
             }
 
+            // Store successful response in IndexedDB
+            const responseData = await response.json();
+            await IndexedDBManager.storeData('responses', {
+                url: this.action,
+                data: responseData,
+                timestamp: new Date().toISOString()
+            });
+
             if (successCallback) {
-                successCallback(response);
+                successCallback(responseData);
             }
         } catch (error) {
             console.error('Form submission error:', error);
-            if (!navigator.onLine) {
-                if ('serviceWorker' in navigator && 'SyncManager' in window) {
-                    try {
-                        const sw = await navigator.serviceWorker.ready;
-                        await sw.sync.register('sync-climbs');
-                        showMessage('INFO_MESSAGES.PENDING_SYNC');
-                    } catch (syncError) {
-                        console.error('Failed to register sync:', syncError);
-                        showMessage('USER_ERROR_MESSAGES.SYSTEM_ERROR');
-                    }
-                } else {
-                    showMessage('USER_ERROR_MESSAGES.GENERIC_ERROR');
-                }
-            } else {
-                showMessage('USER_ERROR_MESSAGES.GENERIC_ERROR');
-            }
+            handleOfflineError(error, this.action, formData);
         }
     });
 };
+
+// Enhanced offline error handling
+async function handleOfflineError(error, actionUrl, formData) {
+    if (!navigator.onLine) {
+        try {
+            // Store failed request for retry
+            await IndexedDBManager.storeData('failed-requests', {
+                url: actionUrl,
+                data: Object.fromEntries(formData),
+                timestamp: new Date().toISOString(),
+                error: error.message
+            });
+
+            showMessage('Data saved for later submission', 'warning');
+
+            // Register for background sync
+            if ('serviceWorker' in navigator && 'SyncManager' in window) {
+                const sw = await navigator.serviceWorker.ready;
+                await sw.sync.register('sync-failed-requests');
+            }
+        } catch (storageError) {
+            console.error('Failed to store offline data:', storageError);
+            showMessage('Failed to save offline data', 'error');
+        }
+    } else {
+        showMessage('Connection error. Please try again.', 'error');
+    }
+}
 
 // UI messages using the consolidated message system
 function showMessage(messageKey, type = 'info') {
@@ -171,4 +274,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial online status check
     updateOnlineStatus();
+    IndexedDBManager.initDB().catch(console.error);
 });

@@ -53,103 +53,180 @@ const STATIC_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined'
 ];
 
-// Enhanced offline request queue with retry mechanism
-class OfflineQueue {
-  static async addToQueue(request) {
-    const queue = await caches.open(QUEUE_NAME);
-    const serializedRequest = await this.serializeRequest(request);
-    const timestamp = new Date().toISOString();
-    await queue.put(`${timestamp}-${Math.random()}`, new Response(JSON.stringify(serializedRequest)));
-  }
+// IndexedDB interaction from service worker
+class ServiceWorkerIndexedDB {
+    static async openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('soloClimbDB', 1);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+        });
+    }
 
-  static async serializeRequest(request) {
-    const body = await request.clone().text();
-    return {
-      url: request.url,
-      method: request.method,
-      headers: Array.from(request.headers.entries()),
-      body,
-      mode: request.mode,
-      credentials: request.credentials,
-      cache: request.cache
-    };
-  }
+    static async getAllPendingRequests() {
+        const db = await this.openDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pending-forms', 'failed-requests'], 'readonly');
+            const pendingStore = transaction.objectStore('pending-forms');
+            const failedStore = transaction.objectStore('failed-requests');
 
-  static async processQueue() {
-    const queue = await caches.open(QUEUE_NAME);
-    const requests = await queue.keys();
+            const pending = [];
 
-    return Promise.all(
-      requests.map(async (request) => {
-        try {
-          const response = await queue.match(request);
-          const serializedRequest = JSON.parse(await response.text());
+            pendingStore.openCursor().onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    pending.push(cursor.value);
+                    cursor.continue();
+                }
+            };
 
-          const networkResponse = await fetch(new Request(serializedRequest.url, {
-            method: serializedRequest.method,
-            headers: new Headers(serializedRequest.headers),
-            body: serializedRequest.body,
-            mode: serializedRequest.mode,
-            credentials: serializedRequest.credentials,
-            cache: serializedRequest.cache
-          }));
+            failedStore.openCursor().onsuccess = (event) => {
+                const cursor = event.target.result;
+                if (cursor) {
+                    pending.push(cursor.value);
+                    cursor.continue();
+                }
+            };
 
-          if (networkResponse.ok) {
-            await queue.delete(request);
-            return { success: true, url: serializedRequest.url };
-          }
-          return { success: false, url: serializedRequest.url };
-        } catch (error) {
-          console.error('Failed to process queued request:', error);
-          return { success: false, url: request.url, error };
-        }
-      })
-    );
-  }
+            transaction.oncomplete = () => resolve(pending);
+            transaction.onerror = () => reject(transaction.error);
+        });
+    }
 }
 
-// Enhanced cache management
-class CacheManager {
-  static async cacheApiResponse(request, response) {
-    const cache = await caches.open(API_CACHE);
-    const clonedResponse = response.clone();
-    await cache.put(request, clonedResponse);
-    return response;
-  }
+// Enhanced offline queue with priority and retry
+class EnhancedOfflineQueue extends OfflineQueue {
+    static async addToQueue(request, priority = 'normal') {
+        const queue = await caches.open(QUEUE_NAME);
+        const serializedRequest = await this.serializeRequest(request);
+        const timestamp = new Date().toISOString();
 
-  static async getCachedApiResponse(request) {
-    const cache = await caches.open(API_CACHE);
-    return await cache.match(request);
-  }
+        await queue.put(`${priority}-${timestamp}-${Math.random()}`, new Response(JSON.stringify({
+            ...serializedRequest,
+            priority,
+            retryCount: 0
+        })));
+    }
 
-  static async cacheUserData(userData) {
-    const cache = await caches.open(USER_CACHE);
-    await cache.put('/api/user-data', new Response(JSON.stringify(userData)));
-  }
+    static async processQueue() {
+        const queue = await caches.open(QUEUE_NAME);
+        const requests = await queue.keys();
 
-  static async getCachedUserData() {
-    const cache = await caches.open(USER_CACHE);
-    const response = await cache.match('/api/user-data');
-    return response ? response.json() : null;
-  }
+        // Sort by priority
+        requests.sort((a, b) => {
+            const aPriority = a.url.split('-')[0];
+            const bPriority = b.url.split('-')[0];
+            return aPriority === 'high' ? -1 : bPriority === 'high' ? 1 : 0;
+        });
 
-  // Cache core route data
-  static async cacheCoreRouteData() {
-    const cache = await caches.open(API_CACHE);
-    await Promise.all(
-      CORE_API_ROUTES.map(async route => {
-        try {
-          const response = await fetch(route);
-          if (response.ok) {
-            await cache.put(route, response.clone());
-          }
-        } catch (error) {
-          console.error(`Failed to cache ${route}:`, error);
-        }
-      })
-    );
-  }
+        return Promise.all(
+            requests.map(async (request) => {
+                try {
+                    const response = await queue.match(request);
+                    const serializedRequest = JSON.parse(await response.text());
+
+                    if (serializedRequest.retryCount >= 3) {
+                        console.log('Max retries reached for:', serializedRequest.url);
+                        await queue.delete(request);
+                        return { success: false, url: serializedRequest.url, error: 'Max retries exceeded' };
+                    }
+
+                    const networkResponse = await fetch(new Request(serializedRequest.url, {
+                        method: serializedRequest.method,
+                        headers: new Headers(serializedRequest.headers),
+                        body: serializedRequest.body,
+                        mode: serializedRequest.mode,
+                        credentials: serializedRequest.credentials,
+                        cache: serializedRequest.cache
+                    }));
+
+                    if (networkResponse.ok) {
+                        await queue.delete(request);
+                        return { success: true, url: serializedRequest.url };
+                    }
+
+                    // Increment retry count
+                    serializedRequest.retryCount = (serializedRequest.retryCount || 0) + 1;
+                    await queue.put(request, new Response(JSON.stringify(serializedRequest)));
+
+                    return { success: false, url: serializedRequest.url, willRetry: true };
+                } catch (error) {
+                    console.error('Failed to process queued request:', error);
+                    return { success: false, url: request.url, error };
+                }
+            })
+        );
+    }
 }
+
+// Enhanced cache management with cleanup
+class EnhancedCacheManager extends CacheManager {
+    static async cleanup() {
+        const caches = await self.caches.keys();
+        const oldCaches = caches.filter(cache => !cache.includes(CACHE_NAME));
+
+        await Promise.all([
+            ...oldCaches.map(cache => self.caches.delete(cache)),
+            this.cleanupOldEntries()
+        ]);
+    }
+
+    static async cleanupOldEntries() {
+        const maxAge = 7 * 24 * 60 * 60 * 1000; // 7 days
+        const cacheNames = [API_CACHE, DYNAMIC_CACHE];
+
+        for (const cacheName of cacheNames) {
+            const cache = await self.caches.open(cacheName);
+            const requests = await cache.keys();
+
+            for (const request of requests) {
+                const response = await cache.match(request);
+                const timestamp = response.headers.get('X-Cache-Timestamp');
+
+                if (timestamp) {
+                    const age = Date.now() - new Date(timestamp).getTime();
+                    if (age > maxAge) {
+                        await cache.delete(request);
+                    }
+                }
+            }
+        }
+    }
+
+    static async prefetchRoutes() {
+        const cache = await caches.open(API_CACHE);
+
+        // Predict likely next routes based on current route
+        const currentPath = self.location.pathname;
+        const likelyRoutes = this.getPredictedRoutes(currentPath);
+
+        await Promise.all(
+            likelyRoutes.map(async route => {
+                try {
+                    const response = await fetch(route);
+                    if (response.ok) {
+                        await cache.put(route, response.clone());
+                    }
+                } catch (error) {
+                    console.error(`Failed to prefetch ${route}:`, error);
+                }
+            })
+        );
+    }
+
+    static getPredictedRoutes(currentPath) {
+        // Add logic to predict likely next routes based on current path
+        const predictions = new Map([
+            ['/profile', ['/sends', '/stats', '/sessions']],
+            ['/sends', ['/stats', '/sessions', '/profile']],
+            ['/stats', ['/sends', '/sessions', '/profile']],
+            ['/sessions', ['/sends', '/stats', '/profile']]
+        ]);
+
+        return predictions.get(currentPath) || CORE_ROUTES;
+    }
+}
+
 
 // Install Service Worker with enhanced error handling and user data caching
 self.addEventListener('install', event => {
@@ -189,7 +266,7 @@ self.addEventListener('activate', event => {
         );
       }),
       // Cache core route data after activation
-      CacheManager.cacheCoreRouteData(),
+      EnhancedCacheManager.cacheCoreRouteData(),
       clients.claim(),
       registerPeriodicSync() // Call the periodic sync registration function here
     ]).catch(error => {
@@ -232,86 +309,65 @@ function getCacheStrategy(request) {
 
 // Enhanced fetch event handler with comprehensive offline support
 self.addEventListener('fetch', event => {
-  const url = new URL(event.request.url);
-  const strategy = getCacheStrategy(event.request);
+    const strategy = getCacheStrategy(event.request);
 
-  event.respondWith(
-    (async () => {
-      // Try to get from cache first
-      const cachedResponse = await caches.match(event.request);
+    event.respondWith(
+        (async () => {
+            try {
+                // Always try network first for API calls when online
+                if (strategy === 'api' && navigator.onLine) {
+                    try {
+                        const response = await fetch(event.request);
+                        if (response.ok) {
+                            await EnhancedCacheManager.cacheApiResponse(event.request, response.clone());
+                            return response;
+                        }
+                    } catch (error) {
+                        console.log('API fetch failed, falling back to cache');
+                    }
+                }
 
-      // Handle offline scenarios
-      if (!navigator.onLine) {
-        if (cachedResponse) {
-          // Add offline indicator header
-          const headers = new Headers(cachedResponse.headers);
-          headers.set('X-Data-Source', 'cache');
-          headers.set('X-Cache-Timestamp', headers.get('X-Cache-Timestamp') || new Date().toISOString());
+                const cachedResponse = await caches.match(event.request);
+                if (cachedResponse) {
+                    // Trigger background refresh for stale cache
+                    const cacheTime = new Date(cachedResponse.headers.get('X-Cache-Timestamp'));
+                    if (Date.now() - cacheTime > 60 * 60 * 1000) { // 1 hour
+                        event.waitUntil(
+                            fetch(event.request)
+                                .then(response => {
+                                    if (response.ok) {
+                                        EnhancedCacheManager.cacheApiResponse(event.request, response);
+                                    }
+                                })
+                        );
+                    }
+                    return cachedResponse;
+                }
 
-          return new Response(cachedResponse.body, {
-            status: 200,
-            headers: headers
-          });
-        }
-
-        // If it's a page request, serve the offline page
-        if (event.request.mode === 'navigate') {
-          const cache = await caches.open(STATIC_CACHE);
-          return cache.match('/offline.html');
-        }
-
-        // For API requests, return cached data with offline indicator
-        if (url.pathname.startsWith('/api/')) {
-          return new Response(JSON.stringify({
-            error: 'Offline - Using cached data',
-            cached: true,
-            timestamp: new Date().toISOString()
-          }), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' }
-          });
-        }
-      }
-
-      // Online behavior
-      try {
-        const response = await fetch(event.request);
-        if (response.ok && event.request.method === 'GET') {
-          const cache = await caches.open(strategy === 'static' ? STATIC_CACHE : API_CACHE);
-
-          // Add timestamp before caching
-          const headers = new Headers(response.headers);
-          headers.set('X-Cache-Timestamp', new Date().toISOString());
-          const responseToCache = new Response(response.clone().body, {
-            status: response.status,
-            headers: headers
-          });
-
-          cache.put(event.request, responseToCache);
-        }
-        return response;
-      } catch (error) {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        // For navigation requests, serve offline page
-        if (event.request.mode === 'navigate') {
-          const cache = await caches.open(STATIC_CACHE);
-          return cache.match('/offline.html');
-        }
-
-        throw error;
-      }
-    })()
-  );
+                // Network request
+                const response = await fetch(event.request);
+                if (response.ok && event.request.method === 'GET') {
+                    const cache = await caches.open(strategy === 'static' ? STATIC_CACHE : API_CACHE);
+                    cache.put(event.request, response.clone());
+                }
+                return response;
+            } catch (error) {
+                // If offline and no cache, return offline page for navigation
+                if (event.request.mode === 'navigate') {
+                    const cache = await caches.open(STATIC_CACHE);
+                    return cache.match('/offline.html');
+                }
+                throw error;
+            }
+        })()
+    );
 });
 
 // Enhanced background sync with retry logic
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-climbs') {
     event.waitUntil(
-      OfflineQueue.processQueue()
+      EnhancedOfflineQueue.processQueue()
         .then(results => {
           console.log('Sync results:', results);
           const failed = results.filter(r => !r.success);
@@ -343,6 +399,9 @@ self.addEventListener('periodicsync', event => {
         })
     );
   }
+    if (event.tag === 'cache-cleanup') {
+        event.waitUntil(EnhancedCacheManager.cleanup());
+    }
 });
 
 // Add periodic sync registration logic
@@ -359,6 +418,9 @@ async function registerPeriodicSync() {
       await registration.periodicSync.register('update-leaderboard', {
         minInterval: 60 * 60 * 1000 // 1 hour for leaderboard
       });
+        await registration.periodicSync.register('cache-cleanup', {
+            minInterval: 24 * 60 * 60 * 1000 // 24 hours for cache cleanup
+        });
     }
   } catch (error) {
     console.error('Periodic Sync could not be registered:', error);
