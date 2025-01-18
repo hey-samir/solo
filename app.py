@@ -103,6 +103,12 @@ def create_app():
 # Create the Flask application instance
 app = create_app()
 
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=80)
+
+# Create the Flask application instance
+app = create_app()
+
 # Initialize database tables within app context
 with app.app_context():
     try:
