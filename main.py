@@ -895,7 +895,7 @@ if __name__ == "__main__":
             logger.error("DATABASE_URL environment variable is not set")
             sys.exit(1)
 
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        app.run(host='0.0.0.0', port=80, debug=False)
     except Exception as e:
         logger.error(f"Failed to start server: {str(e)}")
         sys.exit(1)
