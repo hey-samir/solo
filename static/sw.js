@@ -185,7 +185,8 @@ self.addEventListener('activate', event => {
       }),
       // Cache core route data after activation
       CacheManager.cacheCoreRouteData(),
-      clients.claim()
+      clients.claim(),
+      registerPeriodicSync() // Call the periodic sync registration function here
     ]).catch(error => {
       console.error('Service Worker activation failed:', error);
       throw error;
@@ -350,3 +351,23 @@ self.addEventListener('periodicsync', event => {
     );
   }
 });
+
+// Add periodic sync registration logic
+async function registerPeriodicSync() {
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    if ('periodicSync' in registration) {
+      // Try to register periodic sync with a minimum interval of 12 hours
+      await registration.periodicSync.register('update-cache', {
+        minInterval: 12 * 60 * 60 * 1000 // 12 hours in milliseconds
+      });
+
+      // Register specific periodic syncs for different features
+      await registration.periodicSync.register('update-leaderboard', {
+        minInterval: 60 * 60 * 1000 // 1 hour for leaderboard
+      });
+    }
+  } catch (error) {
+    console.error('Periodic Sync could not be registered:', error);
+  }
+}

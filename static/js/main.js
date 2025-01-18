@@ -1,9 +1,27 @@
 // Register service worker for PWA support
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/static/sw.js')
-        .then(() => {
+        .then(async (registration) => {
             console.log('ServiceWorker registered successfully');
             updateOnlineStatus();
+
+            // Request periodic sync permission and register if available
+            try {
+                if ('periodicSync' in registration) {
+                    const status = await navigator.permissions.query({
+                        name: 'periodic-background-sync',
+                    });
+
+                    if (status.state === 'granted') {
+                        console.log('Periodic sync can be registered');
+                        // The actual registration is handled in the service worker
+                    } else {
+                        console.log('Periodic sync cannot be used, falling back to regular sync');
+                    }
+                }
+            } catch (error) {
+                console.log('Periodic sync not supported, falling back to regular sync');
+            }
         })
         .catch(error => console.error('ServiceWorker registration failed:', error));
 }
