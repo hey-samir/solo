@@ -1,9 +1,22 @@
 const CACHE_NAME = 'solo-cache-v1';
-const STATIC_ASSETS = [
+const ROUTES_TO_CACHE = [
   '/',
   '/offline.html',
+  '/profile',
+  '/sends',
+  '/stats',
+  '/sessions',
+  '/about',
+  '/standings',
+  '/feedback'
+];
+
+const STATIC_ASSETS = [
   '/static/css/custom.css',
   '/static/js/main.js',
+  '/static/js/profile.js',
+  '/static/js/sends.js',
+  '/static/js/stats.js',
   '/static/images/solo-clear.png',
   '/static/manifest.json',
   'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css'
@@ -14,11 +27,14 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        console.log('Caching routes and static assets');
+        return Promise.all([
+          cache.addAll(ROUTES_TO_CACHE),
+          cache.addAll(STATIC_ASSETS)
+        ]);
       })
       .catch(error => {
-        console.error('Failed to cache static assets:', error);
+        console.error('Failed to cache assets:', error);
         throw error;
       })
   );
@@ -38,37 +54,57 @@ self.addEventListener('activate', event => {
       );
     })
   );
+  self.clients.claim();
 });
 
-// Simplified fetch handler
+// Enhanced fetch handler with route handling
 self.addEventListener('fetch', event => {
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Cache GET requests for routes
-        if (event.request.method === 'GET' && event.request.url.startsWith(self.location.origin)) {
+    (async () => {
+      try {
+        // Try network first
+        const response = await fetch(event.request);
+
+        // Cache successful GET requests
+        if (response.ok && event.request.method === 'GET') {
           const responseClone = response.clone();
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseClone);
-            });
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(event.request, responseClone);
         }
+
         return response;
-      })
-      .catch(async () => {
+      } catch (error) {
         const cache = await caches.open(CACHE_NAME);
+
+        // Check if this is a navigation request
+        if (event.request.mode === 'navigate') {
+          // Try to get the cached version of the requested page
+          const cachedResponse = await cache.match(event.request);
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          // If no cached version, return the offline page
+          return cache.match('/offline.html');
+        }
+
+        // For non-navigation requests, try cache
         const cachedResponse = await cache.match(event.request);
-        return cachedResponse || cache.match('/offline.html');
-      })
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        // If nothing found in cache, return offline error
+        throw error;
+      }
+    })()
   );
 });
 
 // Basic background sync
 self.addEventListener('sync', event => {
   if (event.tag === 'sync-climbs') {
-    event.waitUntil(
-      syncPendingClimbs()
-    );
+    event.waitUntil(syncPendingClimbs());
   }
 });
 

@@ -4,6 +4,11 @@ if ('serviceWorker' in navigator) {
         .then(registration => {
             console.log('ServiceWorker registered successfully');
             updateOnlineStatus();
+
+            // Set initial sync time if not set
+            if (!localStorage.getItem('lastSyncTime')) {
+                localStorage.setItem('lastSyncTime', new Date().toISOString());
+            }
         })
         .catch(error => console.error('ServiceWorker registration failed:', error));
 }
@@ -13,10 +18,30 @@ function updateOnlineStatus() {
     const status = navigator.onLine ? 'online' : 'offline';
     console.log('Connection status:', status);
 
+    // Update all status indicators
     document.querySelectorAll('.connection-status').forEach(el => {
         el.textContent = status.toUpperCase();
         el.className = `connection-status badge ${status === 'online' ? 'bg-success' : 'bg-warning'}`;
     });
+
+    // If we're back online, trigger sync
+    if (status === 'online') {
+        triggerSync();
+    }
+}
+
+// Trigger sync when back online
+async function triggerSync() {
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+        const registration = await navigator.serviceWorker.ready;
+        try {
+            await registration.sync.register('sync-climbs');
+            localStorage.setItem('lastSyncTime', new Date().toISOString());
+            showMessage('Syncing your data...', 'info');
+        } catch (error) {
+            console.error('Sync registration failed:', error);
+        }
+    }
 }
 
 window.addEventListener('online', updateOnlineStatus);
@@ -50,6 +75,18 @@ class DBManager {
             request.onerror = () => reject(request.error);
         });
     }
+
+    static async getPendingClimbsCount() {
+        const db = await this.openDB();
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction(['pending-climbs'], 'readonly');
+            const store = transaction.objectStore('pending-climbs');
+            const countRequest = store.count();
+
+            countRequest.onsuccess = () => resolve(countRequest.result);
+            countRequest.onerror = () => reject(countRequest.error);
+        });
+    }
 }
 
 // Enhanced form submission with offline support
@@ -66,6 +103,13 @@ window.initializeFormSubmission = function(form, successCallback) {
                 // Store climb data for later sync
                 await DBManager.addPendingClimb(data);
                 showMessage('Climb saved for later submission', 'info');
+
+                // Update pending count in UI if element exists
+                const pendingCount = await DBManager.getPendingClimbsCount();
+                const syncStatus = document.getElementById('sync-status');
+                if (syncStatus) {
+                    syncStatus.textContent = `${pendingCount} items pending sync`;
+                }
 
                 // Request sync when back online
                 if ('serviceWorker' in navigator && 'SyncManager' in window) {
@@ -97,6 +141,7 @@ window.initializeFormSubmission = function(form, successCallback) {
                 successCallback(responseData);
             }
 
+            localStorage.setItem('lastSyncTime', new Date().toISOString());
             showMessage('Climb logged successfully', 'success');
         } catch (error) {
             console.error('Form submission error:', error);
@@ -123,6 +168,18 @@ document.addEventListener('DOMContentLoaded', function() {
         statusIndicator.className = 'nav-item ms-2';
         statusIndicator.innerHTML = '<span class="connection-status badge">ONLINE</span>';
         navbar.appendChild(statusIndicator);
+    }
+
+    // Handle navigation when offline
+    if (!navigator.onLine) {
+        document.addEventListener('click', function(e) {
+            // Only handle links within our app
+            if (e.target.tagName === 'A' && e.target.href.startsWith(window.location.origin)) {
+                e.preventDefault();
+                // Let the service worker handle the navigation
+                window.location.href = e.target.href;
+            }
+        });
     }
 
     // Initial status check

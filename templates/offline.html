@@ -5,7 +5,7 @@
     <div class="text-center">
         <i class="material-icons" style="font-size: 64px; color: #7442d6;">cloud_off</i>
         <h2 class="mt-3">{{ get_user_message('OFFLINE_MODE')[0] }}</h2>
-        <p class="lead">Don't worry! You can still access these features:</p>
+        <p class="lead">You're offline, but Solo works offline! Here's what you can do:</p>
 
         <div class="row mt-4">
             <div class="col-md-6 offset-md-3">
@@ -17,8 +17,8 @@
                     </a>
                     <a href="/sends" class="list-group-item list-group-item-action">
                         <i class="material-icons me-2">trending_up</i>
-                        Check your sends
-                        <small class="text-muted d-block">View and log new climbs (will sync when online)</small>
+                        Log your climbs
+                        <small class="text-muted d-block">All climbs will sync when you're back online</small>
                     </a>
                     <a href="/stats" class="list-group-item list-group-item-action">
                         <i class="material-icons me-2">bar_chart</i>
@@ -45,13 +45,45 @@
                 Check Connection
             </button>
 
-            <div class="mt-3">
+            <div class="mt-3 offline-status">
                 <small class="text-muted">
                     <i class="material-icons" style="font-size: 16px;">info</i>
-                    {{ get_user_message('PENDING_SYNC')[0] }}
+                    <span id="sync-status">{{ get_user_message('PENDING_SYNC')[0] }}</span>
+                </small>
+            </div>
+
+            <div class="mt-3 cache-info">
+                <small class="text-muted">
+                    <i class="material-icons" style="font-size: 16px;">update</i>
+                    <span id="cache-time"></span>
                 </small>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update cache time
+    const cacheTime = localStorage.getItem('lastSyncTime');
+    if (cacheTime) {
+        const timeAgo = Math.round((Date.now() - new Date(cacheTime).getTime()) / 60000);
+        document.getElementById('cache-time').textContent = 
+            `Last synced ${timeAgo} minutes ago`;
+    }
+
+    // Add click event listeners to nav items
+    document.querySelectorAll('.list-group-item').forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Only prevent default if we're offline
+            if (!navigator.onLine) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                // Use the cached version through service worker
+                window.location.href = href;
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
