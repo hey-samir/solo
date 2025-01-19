@@ -1,4 +1,4 @@
-Chart.defaults.color = '#ffffff';
+Chart.defaults.color = '#b2b2b2';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 Chart.register(ChartDataLabels);
 
