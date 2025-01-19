@@ -445,12 +445,14 @@ def profile(username=None):
         # Calculate total points using the standardized formula
         total_points = 0
         for climb in climbs:
-            grade = climb.route.grade_info.grade
-            base_points = getGradePoints(grade)
-            star_multiplier = max(0.1, climb.rating / 3)
-            status_multiplier = 1 if climb.status else 0.5
-            tries_multiplier = max(0.1, 1 / (climb.tries ** 0.5))
-            total_points += round(base_points * star_multiplier * status_multiplier * tries_multiplier)
+            if climb.route and climb.route.grade_info:
+                grade = climb.route.grade
+                base_points = getGradePoints(grade)
+                star_multiplier = max(0.1, climb.rating / 3)
+                status_multiplier = 1 if climb.status else 0.5
+                tries_multiplier = max(0.1, 1 / (climb.tries ** 0.5))
+                climb_points = round(base_points * star_multiplier * status_multiplier * tries_multiplier)
+                total_points += climb_points
 
         is_own_profile = current_user.is_authenticated and current_user.id == user.id
 
@@ -684,7 +686,8 @@ def calculate_stats(climbs):
         total_points = 0
         for climb in climbs:
             if climb.route and climb.route.grade_info:
-                base_points = climb.route.grade_info.points
+                grade = climb.route.grade
+                base_points = getGradePoints(grade)
                 star_multiplier = max(0.1, climb.rating / 3)
                 status_multiplier = 1 if climb.status else 0.5
                 tries_multiplier = max(0.1, 1 / (climb.tries ** 0.5))
