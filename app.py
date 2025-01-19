@@ -23,12 +23,18 @@ migrate = Migrate()
 def create_app():
     """Application factory function"""
     app = Flask(__name__)
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['TEMPLATES_AUTO_RELOAD'] = False
+    app.config['JSON_SORT_KEYS'] = False
 
     # Basic configuration
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_size": 5,
+        "max_overflow": 2,
         "pool_recycle": 300,
         "pool_pre_ping": True,
+        "pool_timeout": 30
     }
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "development_key_only")
