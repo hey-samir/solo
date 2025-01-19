@@ -700,9 +700,34 @@ textarea.form-control {
 
 
 .form-text {
-    color: rgba(255, 255, 255, 0.9) !important;  /* Whiter text */
+    color: #ffffff !important;
     font-size: 0.875rem !important;
     margin-top: 0.5rem !important;
+}
+
+/* Custom file input styling */
+.form-control[type="file"] {
+    position: relative;
+    padding-left: 2.5rem !important;
+}
+
+.form-control[type="file"]::file-selector-button {
+    display: none;
+}
+
+.form-control[type="file"]::before {
+    content: "\e226";  /* Material Icons paperclip code */
+    font-family: 'Material Icons';
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-color);
+    font-size: 1.25rem;
+}
+
+.form-control[type="file"]:hover::before {
+    color: var(--solo-purple);
 }
 
 .form-select {
