@@ -232,7 +232,7 @@ def add_climb():
         star_multiplier = max(0.1, rating / 3)
         status_multiplier = 1 if status else 0.5
         tries_multiplier = max(0.1, 1 / (tries ** 0.5))
-        
+
         climb_points = round(base_points * star_multiplier * status_multiplier * tries_multiplier)
 
         climb = Climb(
@@ -441,7 +441,7 @@ def profile(username=None):
         total_ascents = len(climbs)
         sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status]
         avg_grade = calculate_avg_grade(sent_grades) if sent_grades else '--'
-        
+
         # Calculate total points using the standardized formula
         total_points = 0
         for climb in climbs:
@@ -843,7 +843,7 @@ def vote_feedback(feedback_id):
         if existing_vote:
             # Remove vote if already voted
             db.session.delete(existing_vote)
-            message, type_ = get_user_message('VOTE_REMOVED')
+            message, type_ = getuser_message('VOTE_REMOVED')
         else:
             # Add new vote
             vote = FeedbackVote(user_id=current_user.id, feedback_id=feedback_id)
@@ -955,15 +955,15 @@ def getGradePoints(grade):
     match = grade.split('.')
     if len(match) != 2:
         return 0
-        
+
     mainGrade = match[1].rstrip('abcd')
     subGrade = match[1][len(mainGrade):]
-    
+
     basePoints = {
         '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
         '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
     }
-    
+
     subGradeMultiplier = {
         'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
     }
