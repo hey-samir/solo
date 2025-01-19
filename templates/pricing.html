@@ -2,30 +2,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container pricing-container">
-    <div class="text-center mb-5">
-        <h1 class="display-4 text-white mb-3">Supercharge your climbing</h1>
-        <p class="lead text-muted">Track, analyze, and improve with advanced features</p>
-    </div>
+<div class="container mt-4">
+    <h1 class="text-center mb-4">Supercharge your next trip to make planning stress-free</h1>
 
-    <div class="row justify-content-center g-4">
-        <div class="col-md-5">
-            <div class="pricing-card">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="pricing-card basic">
                 <div class="pricing-header">
                     <h3>Basic</h3>
-                    <div class="pricing-logo">
-                        <img src="{{ url_for('static', filename='images/solo-clear.png') }}" alt="Solo Logo" height="30">
-                    </div>
                 </div>
                 <ul class="feature-list">
-                    <li><i class="material-icons text-success">check</i>Track sends</li>
-                    <li><i class="material-icons text-success">check</i>Basic stats</li>
-                    <li><i class="material-icons text-success">check</i>Session history</li>
-                    <li><i class="material-icons text-muted">remove</i>Advanced analytics</li>
-                    <li><i class="material-icons text-muted">remove</i>Training plans</li>
-                    <li><i class="material-icons text-muted">remove</i>Progress tracking</li>
-                    <li><i class="material-icons text-muted">remove</i>Squad features</li>
-                    <li><i class="material-icons text-muted">remove</i>Offline access</li>
+                    <li><i class="material-icons text-success">check</i>Trip planner</li>
+                    <li><i class="material-icons text-error">close</i>Offline access</li>
+                    <li><i class="material-icons text-error">close</i>Optimize your route</li>
+                    <li><i class="material-icons text-error">close</i>Live flight updates</li>
+                    <li><i class="material-icons text-error">close</i>Flight and car rental deals</li>
+                    <li><i class="material-icons text-error">close</i>Unlimited attachments</li>
+                    <li><i class="material-icons text-error">close</i>Automatic Gmail scanning</li>
+                    <li><i class="material-icons text-error">close</i>Export to Google Maps</li>
+                    <li><i class="material-icons text-error">close</i>Unlimited AI assistance</li>
                 </ul>
                 <div class="text-center mt-4">
                     <a href="{{ url_for('register') }}" class="btn btn-outline-light btn-lg">Start Free</a>
@@ -33,26 +28,24 @@
             </div>
         </div>
 
-        <div class="col-md-5">
+        <div class="col-md-4">
             <div class="pricing-card pro">
                 <div class="pricing-header">
                     <h3>Pro <span class="pro-badge">PRO</span></h3>
-                    <div class="pricing-logo">
-                        <img src="{{ url_for('static', filename='images/solo-clear.png') }}" alt="Solo Pro Logo" height="30">
-                    </div>
                 </div>
                 <ul class="feature-list">
                     <li><i class="material-icons text-success">check</i>Everything in Basic</li>
-                    <li><i class="material-icons text-success">check</i>Advanced analytics</li>
-                    <li><i class="material-icons text-success">check</i>Training plans</li>
-                    <li><i class="material-icons text-success">check</i>Progress tracking</li>
-                    <li><i class="material-icons text-success">check</i>Squad features</li>
                     <li><i class="material-icons text-success">check</i>Offline access</li>
-                    <li><i class="material-icons text-success">check</i>Priority support</li>
-                    <li><i class="material-icons text-success">check</i>Early access</li>
+                    <li><i class="material-icons text-success">check</i>Optimize your route</li>
+                    <li><i class="material-icons text-success">check</i>Live flight updates</li>
+                    <li><i class="material-icons text-success">check</i>Flight and car rental deals</li>
+                    <li><i class="material-icons text-success">check</i>Unlimited attachments</li>
+                    <li><i class="material-icons text-success">check</i>Automatic Gmail scanning</li>
+                    <li><i class="material-icons text-success">check</i>Export to Google Maps</li>
+                    <li><i class="material-icons text-success">check</i>Unlimited AI assistance</li>
                 </ul>
                 <div class="text-center mt-4">
-                    <button class="btn btn-primary btn-lg">Coming Soon</button>
+                    <a href="{{ url_for('register') }}" class="btn btn-solo-purple btn-lg">Start Free Trial</a>
                 </div>
             </div>
         </div>

@@ -788,6 +788,10 @@ def stats():
 def squads():
     return render_template('404.html')
 
+@app.route('/solo-pro')
+def solo_pro():
+    return render_template('pricing.html')
+
 @app.route('/feedback', methods=['GET'])
 def feedback():
     """
