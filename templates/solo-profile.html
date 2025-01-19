@@ -178,12 +178,23 @@
     margin: 0 !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
+    box-sizing: border-box !important;
+    border: none !important;
 }
 
 /* Remove gutters from row */
 .profile-container .row.g-0 {
     margin-left: 0 !important;
     margin-right: 0 !important;
+    --bs-gutter-x: 0 !important;
+    --bs-gutter-y: 0 !important;
+}
+
+/* Reset column padding */
+.profile-container .col-12 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    --bs-gutter-x: 0 !important;
 }
 
 .profile-card {
