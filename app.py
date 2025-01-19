@@ -88,13 +88,29 @@ def create_app():
 # Create the Flask application instance
 app = create_app()
 
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-        logger.info("Database tables created successfully")
+def run_server():
+    """Function to run the Flask server with standardized configuration"""
+    try:
+        # Get port from environment variable with fallback to 5000
+        port = int(os.environ.get("PORT", 5000))
+        host = '0.0.0.0'
 
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)  # Explicitly enable debug mode
+        with app.app_context():
+            db.create_all()
+            logger.info("Database tables created successfully")
+
+        logger.info(f"Starting server on {host}:{port}")
+        app.run(
+            host=host,
+            port=port,
+            debug=bool(os.environ.get("FLASK_DEBUG", False))
+        )
+    except Exception as e:
+        logger.error(f"Failed to start server: {str(e)}", exc_info=True)
+        raise
+
+if __name__ == "__main__":
+    run_server()
 
 # Initialize database tables within app context
 with app.app_context():

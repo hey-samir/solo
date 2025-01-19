@@ -459,13 +459,13 @@ def profile(username=None):
 
         logger.debug("Successfully rendered profile page")
         return render_template('solo-profile.html',
-                            form=form,
-                            profile_user=user,
-                            total_ascents=total_ascents,
-                            avg_grade=avg_grade,
-                            total_points=total_points,
-                            qr_code=None,
-                            is_own_profile=is_own_profile)
+                                form=form,
+                                profile_user=user,
+                                total_ascents=total_ascents,
+                                avg_grade=avg_grade,
+                                total_points=total_points,
+                                qr_code=None,
+                                is_own_profile=is_own_profile)
     except Exception as e:
         logger.error("Error in profile page: %s", str(e))
         message, type_ = get_user_message('GENERIC_ERROR')
@@ -888,8 +888,6 @@ def submit_feedback():
         flash(message, type_)
         return redirect(url_for('feedback'))
 
-    return redirect(url_for('feedback'))
-
 @app.route('/feedback/<int:feedback_id>/vote', methods=['POST'])
 @login_required
 def vote_feedback(feedback_id):
@@ -977,39 +975,11 @@ if os.path.exists(source_logo) and not os.path.exists(dest_logo):
         logger.error(f"Failed to copy logo: {str(e)}")
 
 if __name__ == "__main__":
-    try:
-        logger.info("Starting Flask server...")
+    port = int(os.environ.get("PORT", 5000))
+    host = '0.0.0.0'
+    logger.info(f"Starting server on {host}:{port}")
+    app.run(host=host, port=port, debug=bool(os.environ.get("FLASK_DEBUG", False)))
 
-        # Get port from environment variable with fallback to 5000
-        port = int(os.environ.get("PORT", 5000))
-
-        # Check for required environment variables
-        if not os.environ.get('DATABASE_URL'):
-            logger.error("DATABASE_URL environment variable is not set")
-            sys.exit(1)
-
-        if not os.environ.get('FLASK_SECRET_KEY'):
-            logger.warning("FLASK_SECRET_KEY not set, using default value")
-            app.secret_key = 'development-key-not-secure'
-
-        # Configure debug mode based on environment
-        debug_mode = os.environ.get('FLASK_ENV') == 'development'
-
-        # Initialize database tables
-        with app.app_context():
-            try:
-                db.create_all()
-                logger.info("Database tables created successfully")
-            except Exception as e:
-                logger.error(f"Failed to create database tables: {str(e)}", exc_info=True)
-                sys.exit(1)
-
-        # Start the server
-        app.run(host='0.0.0.0', port=port, debug=debug_mode)
-
-    except Exception as e:
-        logger.error(f"Failed to start server: {str(e)}", exc_info=True)
-        sys.exit(1)
 def getGradePoints(grade):
     if not grade:
         return 0
