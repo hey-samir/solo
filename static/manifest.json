@@ -1,3 +1,4 @@
+
 {
   "name": "Solo - Quantify your climb",
   "short_name": "Solo",
@@ -6,7 +7,8 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#7442d6",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "id": "/",
   "icons": [
     {
       "src": "/static/images/favicon-16x16.png",
@@ -47,7 +49,7 @@
       "icons": [{ "src": "/static/images/android-chrome-96x96.png", "sizes": "96x96" }]
     },
     {
-      "name": "View Stats",
+      "name": "View Stats", 
       "url": "/stats",
       "icons": [{ "src": "/static/images/android-chrome-96x96.png", "sizes": "96x96" }]
     }
