@@ -1,6 +1,13 @@
-Chart.defaults.color = '#b2b2b2';
+Chart.defaults.color = '#ffffff';
 Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.1)';
 Chart.register(ChartDataLabels);
+
+// Set default font options for better visibility
+Chart.defaults.font = {
+    family: "'Lexend', sans-serif",
+    size: 14,
+    weight: '500'
+};
 
 document.addEventListener('DOMContentLoaded', function() {
     const tabElements = document.querySelectorAll('button[data-bs-toggle="tab"]');
