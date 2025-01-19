@@ -227,8 +227,13 @@ def add_climb():
         if tries < 1:
             tries = 1
 
-        # Get points from route grade
-        climb_points = route.grade_info.points if status else route.grade_info.attempt_points
+        # Calculate points based on grade, status, rating and tries
+        base_points = route.grade_info.points
+        star_multiplier = max(0.1, rating / 3)
+        status_multiplier = 1 if status else 0.5
+        tries_multiplier = max(0.1, 1 / (tries ** 0.5))
+        
+        climb_points = round(base_points * star_multiplier * status_multiplier * tries_multiplier)
 
         climb = Climb(
             route_id=route.id,

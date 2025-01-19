@@ -93,27 +93,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updatePointsEstimate() {
         try {
-            const selectedRoute = routeSelect?.selectedOptions[0];
-            if (!selectedRoute?.value) {
-                if (pointsEstimate) pointsEstimate.textContent = 'Points: 0';
-                return;
-            }
-
-            const points = parseInt(selectedRoute.dataset.points || '0');
-            const isSent = statusToggle?.checked || false;
-            const finalPoints = isSent ? points : Math.floor(points / 2);
-
-            if (pointsEstimate) {
-                pointsEstimate.textContent = `Points: ${finalPoints}`;
-            }
-        } catch (error) {
-            console.error('Error calculating points:', error);
-            if (pointsEstimate) pointsEstimate.textContent = 'Points: 0';
-        }
-    }
-
-    function updatePointsEstimate() {
-        try {
             // Get current values
             const selectedRoute = routeSelect?.selectedOptions[0];
             const grade = selectedRoute?.dataset.grade;
