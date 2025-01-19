@@ -1666,3 +1666,32 @@ document.addEventListener('DOMContentLoaded', function() {
         margin: 0 0 1rem;
     }
 }
+
+.table-form {
+    margin-bottom: 0;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-input-cell {
+    width: 70%;
+    padding-right: 1rem;
+}
+
+.form-label-cell {
+    width: 30%;
+    min-width: 120px;
+    font-size: 1.25rem;
+    font-weight: 500;
+    white-space: nowrap;
+    padding-right: 1.5rem;
+    color: #fff;
+}
+
+.sends-container {
+    background-color: #1e2638;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem;
+}
