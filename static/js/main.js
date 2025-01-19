@@ -3,7 +3,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/static/sw.js')
         .then(registration => {
             console.log('ServiceWorker registered successfully');
-            updateOnlineStatus();
+            //updateOnlineStatus();
 
             // Set initial sync time if not set
             if (!localStorage.getItem('lastSyncTime')) {
@@ -13,22 +13,11 @@ if ('serviceWorker' in navigator) {
         .catch(error => console.error('ServiceWorker registration failed:', error));
 }
 
-// Handle online/offline status
-function updateOnlineStatus() {
-    const status = navigator.onLine ? 'online' : 'offline';
-    console.log('Connection status:', status);
+// Handle sync when back online
+window.addEventListener('online', () => {
+    triggerSync();
+});
 
-    // Update all status indicators
-    document.querySelectorAll('.connection-status').forEach(el => {
-        el.textContent = status.toUpperCase();
-        el.className = `connection-status badge ${status === 'online' ? 'bg-success' : 'bg-warning'}`;
-    });
-
-    // If we're back online, trigger sync
-    if (status === 'online') {
-        triggerSync();
-    }
-}
 
 // Trigger sync when back online
 async function triggerSync() {
@@ -44,8 +33,7 @@ async function triggerSync() {
     }
 }
 
-window.addEventListener('online', updateOnlineStatus);
-window.addEventListener('offline', updateOnlineStatus);
+
 
 // Simple IndexedDB wrapper
 class DBManager {
@@ -161,14 +149,14 @@ function showMessage(message, type = 'info') {
 
 // Initialize UI on load
 document.addEventListener('DOMContentLoaded', function() {
-    // Add connection status indicator
-    const navbar = document.querySelector('.navbar-nav');
-    if (navbar) {
-        const statusIndicator = document.createElement('li');
-        statusIndicator.className = 'nav-item ms-2';
-        statusIndicator.innerHTML = '<span class="connection-status badge">ONLINE</span>';
-        navbar.appendChild(statusIndicator);
-    }
+    // Add connection status indicator - REMOVED
+    //const navbar = document.querySelector('.navbar-nav');
+    //if (navbar) {
+    //    const statusIndicator = document.createElement('li');
+    //    statusIndicator.className = 'nav-item ms-2';
+    //    statusIndicator.innerHTML = '<span class="connection-status badge">ONLINE</span>';
+    //    navbar.appendChild(statusIndicator);
+    //}
 
     // Handle navigation when offline
     if (!navigator.onLine) {
@@ -182,6 +170,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initial status check
-    updateOnlineStatus();
+    // Initial status check - REMOVED
+    //updateOnlineStatus();
 });
