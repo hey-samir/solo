@@ -4,8 +4,8 @@ modules = ["python-3.11", "postgresql-16", "nodejs-20"]
 channel = "stable-24_05"
 
 [deployment]
-deploymentTarget = "autoscale"
-run = ["sh", "-c", "rm -rf migrations/* && FLASK_APP=app.py flask db init && FLASK_APP=app.py flask db migrate -m \"initial migration\""]
+deploymentTarget = "flask"
+run = ["python3", "-m", "flask", "run", "--host=0.0.0.0"]
 
 [workflows]
 runButton = "Project"
@@ -71,20 +71,8 @@ args = "FLASK_DEBUG=1 FLASK_ENV=development python3 -u main.py"
 waitForPort = 5000
 
 [[ports]]
-localPort = 80
-externalPort = 3000
-
-[[ports]]
-localPort = 3000
-externalPort = 80
-
-[[ports]]
 localPort = 5000
 externalPort = 5000
-
-[[ports]]
-localPort = 8080
-externalPort = 8080
 
 [auth]
 pageEnabled = false
