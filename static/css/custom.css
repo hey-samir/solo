@@ -462,28 +462,16 @@ html body .alert {
 }
 
 html body .flash-message.alert-success,
-html body .alert-success {
-    background-color: rgba(25, 135, 84, 0.95);
-    border-color: #198754;
-}
-
+html body .alert-success,
 html body .flash-message.alert-danger,
-html body .alert-danger {
-    background-color: rgba(220, 53, 69, 0.95);
-    border-color: #dc3545;
-}
-
+html body .alert-danger,
 html body .flash-message.alert-warning,
-html body .alert-warning {
-    background-color: rgba(255, 193, 7, 0.95);
-    border-color: #ffc107;
-    color: #000;
-}
-
+html body .alert-warning,
 html body .flash-message.alert-info,
 html body .alert-info {
-    background-color: rgba(13, 202, 240, 0.95);
-    border-color: #0dcaf0;
+    background-color: rgba(74, 93, 121, 0.95);
+    border-color: #4A5D79;
+    color: #ffffff;
 }
 
 @keyframes slideDown {
