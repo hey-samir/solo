@@ -1069,9 +1069,11 @@ h2 {
 }
 
 .standings-container .table th:first-child,
-.standings-container .table td:first-child {
-    width: 40px;
-    text-align: center;
+.standings-container .table td:first-child,
+.sends-container .table th:first-child,
+.sends-container .table td:first-child {
+    width: 120px;
+    text-align: left;
 }
 
 .standings-container .table th:nth-child(2),
