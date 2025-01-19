@@ -12,11 +12,11 @@
                         {{ form.title(class="form-control", placeholder="Short, descriptive title") }}
                     </div>
                     <div class="mb-3">
-                        {{ form.description.label(class="form-label") }}
+                        {{ form.description.label(class="form-label required-field") }}
                         {{ form.description(class="form-control", placeholder="Detailed description of your feedback") }}
                     </div>
                     <div class="mb-3">
-                        {{ form.category.label(class="form-label") }}
+                        {{ form.category.label(class="form-label required-field") }}
                         {{ form.category(class="form-select") }}
                     </div>
                     <div class="mb-3">
@@ -32,7 +32,7 @@
     <div class="col-md-4">
         <div class="card bg-dark">
             <div class="card-header">
-                <h5 class="card-title mb-0">Community Feedback</h5>
+                <h4 class="card-title mb-0">Community Feedback</h4>
             </div>
             <div class="card-body">
                 <div class="btn-group mb-3 w-100">

@@ -60,4 +60,4 @@ class FeedbackForm(FlaskForm):
         ('feature', 'Feature'),
         ('new_gym', 'New Gym Request')
     ], validators=[DataRequired()])
-    screenshot = FileField('Screenshot (Optional)')
+    screenshot = FileField('Screenshot')
