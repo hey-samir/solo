@@ -295,18 +295,19 @@ def add_climb():
 @login_required
 def api_stats():
     user = current_user
-    sends = [c for c in user.climbs if c.status is True]
-    attempts = [c for c in user.climbs if not c.status]
+    climbs = list(user.climbs)
+    sends = [c for c in climbs if c.status is True]
+    attempts = [c for c in climbs if not c.status]
 
-    # Prepare data for charts
+    # Calculate difficulty data
     difficulty_data = {}
     for climb in sends:
-        difficulty_data[climb.grade] = difficulty_data.get(climb.grade, 0) + 1
+        if climb.route and climb.route.grade:
+            difficulty_data[climb.route.grade] = difficulty_data.get(climb.route.grade, 0) + 1
 
-    # Format data for front-end
-    # Calculate climbs per session data
+    # Calculate session data
     sessions = {}
-    for climb in current_user.climbs:
+    for climb in climbs:
         date = climb.created_at.date()
         sessions[date] = sessions.get(date, 0) + 1
 
@@ -315,13 +316,13 @@ def api_stats():
 
     # Calculate success rate by date
     date_stats = {}
-    for climb in current_user.climbs:
+    for climb in climbs:
         date = climb.created_at.date()
         if date not in date_stats:
             date_stats[date] = {'sends': 0, 'tries': 0}
         if climb.status:
             date_stats[date]['sends'] += 1
-        date_stats[date]['tries'] += climb.tries
+        date_stats[date]['tries'] += climb.tries if climb.tries else 1
 
     # Convert to success rates
     sorted_dates = sorted(date_stats.keys())
