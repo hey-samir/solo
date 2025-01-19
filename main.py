@@ -739,17 +739,49 @@ def calculate_stats(climbs):
 def stats():
     """Handle stats page"""
     try:
+        # Get climbs and ensure they exist
         climbs = list(current_user.climbs)
+        if not climbs:
+            return render_template('stats.html',
+                                 total_ascents=0,
+                                 total_sends=0,
+                                 total_points=0,
+                                 success_rate=0,
+                                 climbs_per_session=0,
+                                 avg_points_per_climb=0,
+                                 avg_attempts_per_climb=0,
+                                 success_rate_per_session=0,
+                                 avg_sent_grade='--')
+
+        # Calculate stats with error handling
         stats_data = calculate_stats(climbs)
+        if not stats_data:
+            stats_data = {
+                'total_sends': 0,
+                'total_points': 0,
+                'success_rate': 0,
+                'climbs_per_session': 0,
+                'avg_points_per_climb': 0,
+                'avg_attempts_per_climb': 0,
+                'success_rate_per_session': 0,
+                'avg_sent_grade': '--'
+            }
 
         return render_template('stats.html',
-                               total_ascents=len(climbs),
-                               **stats_data)
+                             total_ascents=len(climbs),
+                             **stats_data)
     except Exception as e:
-        logger.error(f"Error in stats page: {str(e)}")
-        message, type_ = get_user_message('GENERIC_ERROR')
-        flash(message, type_)
-        return render_template('stats.html')
+        logger.error(f"Error in stats page: {str(e)}", exc_info=True)
+        return render_template('stats.html',
+                             total_ascents=0,
+                             total_sends=0,
+                             total_points=0,
+                             success_rate=0,
+                             climbs_per_session=0,
+                             avg_points_per_climb=0,
+                             avg_attempts_per_climb=0,
+                             success_rate_per_session=0,
+                             avg_sent_grade='--')
 
 @app.route('/squads')
 @login_required
