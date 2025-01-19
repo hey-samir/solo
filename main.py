@@ -441,7 +441,16 @@ def profile(username=None):
         total_ascents = len(climbs)
         sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status]
         avg_grade = calculate_avg_grade(sent_grades) if sent_grades else '--'
-        total_points = sum(climb.points for climb in climbs)
+        
+        # Calculate total points using the standardized formula
+        total_points = 0
+        for climb in climbs:
+            grade = climb.route.grade_info.grade
+            base_points = getGradePoints(grade)
+            star_multiplier = max(0.1, climb.rating / 3)
+            status_multiplier = 1 if climb.status else 0.5
+            tries_multiplier = max(0.1, 1 / (climb.tries ** 0.5))
+            total_points += round(base_points * star_multiplier * status_multiplier * tries_multiplier)
 
         is_own_profile = current_user.is_authenticated and current_user.id == user.id
 
@@ -940,3 +949,23 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Failed to start server: {str(e)}", exc_info=True)
         sys.exit(1)
+def getGradePoints(grade):
+    if not grade:
+        return 0
+    match = grade.split('.')
+    if len(match) != 2:
+        return 0
+        
+    mainGrade = match[1].rstrip('abcd')
+    subGrade = match[1][len(mainGrade):]
+    
+    basePoints = {
+        '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
+        '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
+    }
+    
+    subGradeMultiplier = {
+        'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
+    }
+
+    return round((basePoints.get(mainGrade, 0)) * (subGradeMultiplier.get(subGrade, 1)))
