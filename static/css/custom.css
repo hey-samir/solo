@@ -773,6 +773,13 @@ textarea.form-control {
     display: flex;
     align-items: stretch;
     width: 100%;
+    min-width: 0;
+}
+
+.input-group .form-control-lg {
+    min-width: 0;
+    flex: 1;
+    width: auto;
 }
 
 .input-group .input-group-text {
