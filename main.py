@@ -614,38 +614,45 @@ def update_avatar():
 @app.route('/standings')
 @login_required
 def standings():
-    users = User.query.all()
-    leaderboard = []
+    """Handle the standings page with user rankings"""
+    try:
+        users = User.query.all()
+        leaderboard = []
 
-    for user in users:
-        sends = [c for c in user.climbs if c.status is True]
-        total_sends = len(sends)
+        for user in users:
+            sends = [c for c in user.climbs if c.status is True]
+            total_sends = len(sends)
 
-        # Calculate average grade
-        sent_grades = []
-        for climb in sends:
-            if climb.grade:
-                grade_parts = climb.grade.split('.')
-                if len(grade_parts) == 2:
-                    grade_num = grade_parts[1].rstrip('abcd')
-                    if grade_num.isdigit():
-                        sent_grades.append(int(grade_num))
-        avg_grade = f"5.{round(sum(sent_grades) / len(sent_grades))}" if sent_grades else '--'
+            # Calculate sent grades
+            sent_grades = [climb.route.grade_info.grade for climb in sends if climb.route and climb.route.grade_info]
+            avg_grade = calculate_avg_grade(sent_grades) if sent_grades else '--'
 
-        # Calculate total points
-        total_points = sum(climb.rating * (10 if climb.status else 5) for climb in user.climbs)
+            # Calculate total points
+            total_points = 0
+            for climb in user.climbs:
+                if climb.route and climb.route.grade_info:
+                    base_points = getGradePoints(climb.route.grade_info.grade)
+                    star_multiplier = max(0.1, climb.rating / 3)
+                    status_multiplier = 1 if climb.status else 0.5
+                    tries_multiplier = max(0.1, 1 / (climb.tries ** 0.5))
+                    total_points += round(base_points * star_multiplier * status_multiplier * tries_multiplier)
 
-        leaderboard.append({
-            'username': user.username,
-            'total_sends': total_sends,
-            'avg_grade': avg_grade,
-            'total_points': total_points
-        })
+            leaderboard.append({
+                'username': user.username,
+                'total_sends': total_sends,
+                'avg_grade': avg_grade,
+                'total_points': total_points
+            })
 
-    # Sort by total points
-    leaderboard = sorted(leaderboard, key=lambda x: x['total_points'], reverse=True)
+        # Sort by total points
+        leaderboard = sorted(leaderboard, key=lambda x: x['total_points'], reverse=True)
+        return render_template('standings.html', leaderboard=leaderboard)
 
-    return render_template('standings.html', leaderboard=leaderboard)
+    except Exception as e:
+        logger.error(f"Error in standings page: {str(e)}")
+        message, type_ = get_user_message('GENERIC_ERROR')
+        flash(message, type_)
+        return render_template('standings.html', leaderboard=[])
 
 # Stats calculation functions
 def calculate_avg_grade(grades):
@@ -666,6 +673,35 @@ def calculate_avg_grade(grades):
         return '--'
     except Exception:
         return '--'
+
+def getGradePoints(grade):
+    """Helper function to calculate points for a grade"""
+    if not grade:
+        return 0
+    try:
+        parts = grade.split('.')
+        if len(parts) != 2:
+            return 0
+
+        # Extract numeric grade and modifier
+        base = parts[1].rstrip('abcd')
+        modifier = parts[1][-1] if parts[1][-1] in 'abcd' else ''
+
+        if not base.isdigit():
+            return 0
+
+        base_points = {
+            '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
+            '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
+        }
+
+        modifier_multiplier = {
+            'a': 1.0, 'b': 1.1, 'c': 1.2, 'd': 1.3, '': 1.0
+        }
+
+        return round(base_points.get(base, 0) * modifier_multiplier.get(modifier, 1.0))
+    except Exception:
+        return 0
 
 def calculate_stats(climbs):
     """Calculate all stats for a list of climbs"""
@@ -790,6 +826,12 @@ def squads():
 
 @app.route('/solo-pro')
 def solo_pro():
+    """Redirect /solo-proto pricing page"""
+    return redirect(url_for('pricing'))
+
+@app.route('/pricing')
+def pricing():
+    """Handle the pricing page"""
     return render_template('pricing.html')
 
 @app.route('/feedback', methods=['GET'])
@@ -902,7 +944,7 @@ def vote_feedback(feedback_id):
         if existing_vote:
             # Remove vote if already voted
             db.session.delete(existing_vote)
-            message, type_ = getuser_message('VOTE_REMOVED')
+            message, type_ = get_user_message('VOTE_REMOVED')
         else:
             # Add new vote
             vote = FeedbackVote(user_id=current_user.id, feedback_id=feedback_id)
