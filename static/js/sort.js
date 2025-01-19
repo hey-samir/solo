@@ -59,7 +59,7 @@ function getGradePoints(grade) {
     return Math.round((basePoints[mainGrade] || 0) * (subGradeMultiplier[subGrade] || 1));
 }
 
-// Calculate points for a climb
+// Calculate points for a climb - matching backend calculation
 function calculatePoints(grade, stars, isSent, tries) {
     const basePoints = getGradePoints(grade);
     const starMultiplier = Math.max(0.1, stars / 3);
@@ -68,6 +68,22 @@ function calculatePoints(grade, stars, isSent, tries) {
 
     return Math.round(basePoints * starMultiplier * statusMultiplier * triesMultiplier);
 }
+
+// Update all point cells
+document.querySelectorAll('.climb-points').forEach(cell => {
+    try {
+        const grade = cell.dataset.grade;
+        const rating = parseInt(cell.dataset.rating) || 3;
+        const status = cell.dataset.status === 'true';
+        const tries = parseInt(cell.dataset.tries) || 1;
+        
+        const points = calculatePoints(grade, rating, status, tries);
+        cell.textContent = points;
+    } catch (error) {
+        console.error('Error calculating points:', error);
+        cell.textContent = '0';
+    }
+});
 
 // Update all point cells
 document.addEventListener('DOMContentLoaded', function() {
