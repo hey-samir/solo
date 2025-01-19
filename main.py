@@ -667,11 +667,32 @@ def calculate_avg_grade(grades):
 def calculate_stats(climbs):
     """Calculate all stats for a list of climbs"""
     try:
+        if not climbs:
+            return {
+                'total_sends': 0,
+                'total_points': 0,
+                'success_rate': 0,
+                'climbs_per_session': 0,
+                'avg_points_per_climb': 0,
+                'avg_attempts_per_climb': 0,
+                'success_rate_per_session': 0,
+                'avg_sent_grade': '--'
+            }
+
+        # Basic stats
         total_sends = sum(1 for c in climbs if c.status)
-        total_points = sum(climb.points for climb in climbs)
+        total_points = 0
+        for climb in climbs:
+            if climb.route and climb.route.grade_info:
+                base_points = climb.route.grade_info.points
+                star_multiplier = max(0.1, climb.rating / 3)
+                status_multiplier = 1 if climb.status else 0.5
+                tries_multiplier = max(0.1, 1 / (climb.tries ** 0.5))
+                total_points += round(base_points * star_multiplier * status_multiplier * tries_multiplier)
+
         success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
 
-        # Calculate session stats
+        # Session stats
         sessions = {}
         for climb in climbs:
             date = climb.created_at.date()
@@ -681,7 +702,7 @@ def calculate_stats(climbs):
         avg_points_per_climb = round(total_points / len(climbs)) if climbs else 0
         avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
 
-        # Calculate success rate per session
+        # Success rate per session
         session_rates = []
         for date in sessions:
             session_climbs = [c for c in climbs if c.created_at.date() == date]
@@ -692,7 +713,7 @@ def calculate_stats(climbs):
         success_rate_per_session = round(sum(session_rates) / len(session_rates)) if session_rates else 0
 
         # Calculate grades
-        sent_grades = [climb.grade for climb in climbs if climb.status and climb.grade]
+        sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status and climb.route and climb.route.grade_info]
         avg_sent_grade = calculate_avg_grade(sent_grades)
 
         return {
