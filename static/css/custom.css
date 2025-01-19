@@ -294,6 +294,86 @@ html, body {
     min-width: 600px; /* Ensures horizontal scroll on mobile */
 }
 
+/* Pricing page styles */
+.pricing-container {
+    padding: 2rem 1rem;
+}
+
+.pricing-card {
+    background: var(--bg-card);
+    border-radius: var(--card-border-radius);
+    padding: 2rem;
+    height: 100%;
+    transition: transform 0.2s;
+}
+
+.pricing-card.pro {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #313d58 100%);
+    border: 1px solid var(--solo-purple);
+}
+
+.pricing-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.pricing-header h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.pricing-logo {
+    margin: 1rem 0;
+}
+
+.feature-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.feature-list li {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0;
+    color: var(--text-color);
+}
+
+.feature-list li i {
+    margin-right: 1rem;
+    font-size: 1.25rem;
+}
+
+.feature-list .material-icons.text-success {
+    color: var(--solo-purple) !important;
+}
+
+.feature-list .material-icons.text-muted {
+    color: var(--text-muted) !important;
+}
+
+.pro-badge {
+    background: var(--solo-purple);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+}
+
+@media (min-width: 768px) {
+    .pricing-container {
+        padding: 4rem 2rem;
+    }
+    
+    .pricing-card {
+        padding: 3rem;
+    }
+}
+
 .navbar.fixed-bottom {
     background-color: var(--bg-color);
     padding: 0;
