@@ -16,9 +16,13 @@ function updateCharts() {
     fetch('/api/stats')
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
+        })
+        .catch(error => {
+            console.error('Error fetching stats:', error);
+            return null;
         })
         .then(data => {
             // Format dates for charts only
@@ -44,6 +48,7 @@ function updateCharts() {
 }
 
 function updateAscentsByDifficultyChart(data) {
+    if (!data) return;
     const ctx = document.getElementById('difficultyCanvas');
     if (!ctx) return;
 
