@@ -4,7 +4,7 @@
 <div class="sends-container">
     <div class="card w-100">
         <div class="card-body p-0">
-                <form action="{{ url_for('add_climb') }}" method="POST" id="ascentForm" class="w-100">
+                <form action="{{ url_for('routes.sends') }}" method="POST" id="ascentForm" class="w-100">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <table class="table table-form w-100">
                         <tbody>

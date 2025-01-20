@@ -67,7 +67,7 @@ def profile(username=None):
         flash(message, type_)
         return render_template('404.html'), 404
 
-@bp.route('/sends')
+@bp.route('/sends', methods=['GET', 'POST'])
 @login_required
 def sends():
     """Handle the sends page - display routes for user's gym"""
