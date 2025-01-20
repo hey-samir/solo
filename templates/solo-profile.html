@@ -26,7 +26,7 @@
 
                             {% if is_own_profile %}
                             <div class="avatar-gallery d-none mt-3" id="avatarSelection">
-                                <form id="avatar-form" method="POST" action="{{ url_for('update_avatar') }}">
+                                <form id="avatar-form" method="POST" action="{{ url_for('routes.update_profile') }}">
                                     {{ form.csrf_token }}
                                     <div class="avatar-options">
                                         {% for color in ['white', 'black', 'gray', 'purple'] %}

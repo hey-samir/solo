@@ -51,6 +51,53 @@ def profile(username=None):
         climbs = list(user.climbs)
         total_ascents = len(climbs)
         total_points = sum(climb.points or 0 for climb in climbs)
+        avg_grade = '--'  # You can implement grade calculation logic here
+
+        is_own_profile = current_user.is_authenticated and current_user.id == user.id
+
+        return render_template('solo-profile.html',
+                            form=form,
+                            profile_user=user,
+                            total_ascents=total_ascents,
+                            avg_grade=avg_grade,
+                            total_points=total_points,
+                            is_own_profile=is_own_profile)
+
+    except Exception as e:
+        logger.error("Error in profile page: %s", str(e))
+        message, type_ = get_user_message('GENERIC_ERROR')
+        flash(message, type_)
+        return render_template('404.html'), 404
+
+@bp.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    """Handle profile updates including avatar changes"""
+    if request.method == 'POST':
+        if 'avatar' in request.form:
+            current_user.profile_photo = request.form['avatar']
+            db.session.commit()
+            return redirect(url_for('routes.profile', username=current_user.username))
+    return redirect(url_for('routes.profile', username=current_user.username))
+    """Handle the user's profile page with optional username parameter"""
+    logger.debug("Accessing profile page for user: %s", username or (current_user.username if current_user.is_authenticated else 'Anonymous'))
+    try:
+        if username:
+            username = username.lstrip('@')
+            user = User.query.filter_by(username=username).first_or_404()
+        elif current_user.is_authenticated:
+            return redirect(url_for('routes.profile', username=current_user.username))
+        else:
+            message, type_ = get_user_message('LOGIN_REQUIRED')
+            flash(message, type_)
+            return redirect(url_for('auth.login'))
+
+        form = ProfileForm(obj=user) if current_user.is_authenticated and current_user.id == user.id else None
+
+        # Calculate KPI metrics
+        climbs = list(user.climbs)
+        total_ascents = len(climbs)
+        total_points = sum(climb.points or 0 for climb in climbs)
 
         is_own_profile = current_user.is_authenticated and current_user.id == user.id
 
