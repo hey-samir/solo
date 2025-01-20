@@ -9,7 +9,7 @@ from errors import ErrorSeverity, ErrorCodes, get_error_details, log_error
 
 # Initialize logging with proper formatting
 logging.basicConfig(
-    level=logging.DEBUG,  # Changed to DEBUG for more verbose logging
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout)
@@ -26,8 +26,8 @@ except Exception as e:
     sys.exit(1)
 
 # Flask imports
-from flask import render_template, request, redirect, url_for, flash, jsonify, session
-from flask_login import login_required, current_user, login_user, logout_user
+from flask import render_template, request
+from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
@@ -50,6 +50,122 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+# Stats calculation functions
+def calculate_avg_grade(grades):
+    """Helper function to calculate average grade"""
+    try:
+        valid_grades = []
+        for grade in grades:
+            if grade and isinstance(grade, str):
+                parts = grade.split('.')
+                if len(parts) == 2:
+                    base = parts[1].rstrip('abcd')
+                    if base.isdigit():
+                        valid_grades.append(float(base))
+
+        if valid_grades:
+            avg = sum(valid_grades) / len(valid_grades)
+            return f"5.{round(avg)}"
+        return '--'
+    except Exception:
+        return '--'
+
+def getGradePoints(grade):
+    """Helper function to calculate points for a grade"""
+    if not grade:
+        return 0
+    try:
+        parts = grade.split('.')
+        if len(parts) != 2:
+            return 0
+
+        # Extract numeric grade and modifier
+        base = parts[1].rstrip('abcd')
+        modifier = parts[1][-1] if parts[1][-1] in 'abcd' else ''
+
+        if not base.isdigit():
+            return 0
+
+        base_points = {
+            '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
+            '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
+        }
+
+        modifier_multiplier = {
+            'a': 1.0, 'b': 1.1, 'c': 1.2, 'd': 1.3, '': 1.0
+        }
+
+        return round(base_points.get(base, 0) * modifier_multiplier.get(modifier, 1.0))
+    except Exception:
+        return 0
+
+def calculate_stats(climbs):
+    """Calculate all stats for a list of climbs"""
+    try:
+        if not climbs:
+            return {
+                'total_sends': 0,
+                'total_points': 0,
+                'success_rate': 0,
+                'climbs_per_session': 0,
+                'avg_points_per_climb': 0,
+                'avg_attempts_per_climb': 0,
+                'success_rate_per_session': 0,
+                'avg_sent_grade': '--'
+            }
+
+        # Basic stats
+        total_sends = sum(1 for c in climbs if c.status)
+        total_points = 0
+        for climb in climbs:
+            if climb.route and climb.route.grade_info:
+                grade = climb.route.grade
+                base_points = getGradePoints(grade)
+                star_multiplier = max(0.1, climb.rating / 3)
+                status_multiplier = 1 if climb.status else 0.5
+                tries_multiplier = max(0.1, 1 / (climb.tries ** 0.5))
+                total_points += round(base_points * star_multiplier * status_multiplier * tries_multiplier)
+
+        success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
+
+        # Session stats
+        sessions = {}
+        for climb in climbs:
+            date = climb.created_at.date()
+            sessions[date] = sessions.get(date, 0) + 1
+
+        climbs_per_session = round(sum(sessions.values()) / len(sessions)) if sessions else 0
+        avg_points_per_climb = round(total_points / len(climbs)) if climbs else 0
+        avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
+
+        # Success rate per session
+        session_rates = []
+        for date in sessions:
+            session_climbs = [c for c in climbs if c.created_at.date() == date]
+            session_sends = sum(1 for c in session_climbs if c.status)
+            if session_climbs:
+                session_rate = (session_sends / len(session_climbs)) * 100
+                session_rates.append(session_rate)
+        success_rate_per_session = round(sum(session_rates) / len(session_rates)) if session_rates else 0
+
+        # Calculate grades
+        sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status and climb.route and climb.route.grade_info]
+        avg_sent_grade = calculate_avg_grade(sent_grades)
+
+        return {
+            'total_sends': total_sends,
+            'total_points': total_points,
+            'success_rate': success_rate,
+            'climbs_per_session': climbs_per_session,
+            'avg_points_per_climb': avg_points_per_climb,
+            'avg_attempts_per_climb': avg_attempts_per_climb,
+            'success_rate_per_session': success_rate_per_session,
+            'avg_sent_grade': avg_sent_grade
+        }
+    except Exception as e:
+        logger.error(f"Error calculating stats: {str(e)}")
+        return {}
 
 @app.route('/')
 def index():
@@ -654,122 +770,6 @@ def standings():
         flash(message, type_)
         return render_template('standings.html', leaderboard=[])
 
-# Stats calculation functions
-def calculate_avg_grade(grades):
-    """Helper function to calculate average grade"""
-    try:
-        valid_grades = []
-        for grade in grades:
-            if grade and isinstance(grade, str):
-                parts = grade.split('.')
-                if len(parts) == 2:
-                    base = parts[1].rstrip('abcd')
-                    if base.isdigit():
-                        valid_grades.append(float(base))
-
-        if valid_grades:
-            avg = sum(valid_grades) / len(valid_grades)
-            return f"5.{round(avg)}"
-        return '--'
-    except Exception:
-        return '--'
-
-def getGradePoints(grade):
-    """Helper function to calculate points for a grade"""
-    if not grade:
-        return 0
-    try:
-        parts = grade.split('.')
-        if len(parts) != 2:
-            return 0
-
-        # Extract numeric grade and modifier
-        base = parts[1].rstrip('abcd')
-        modifier = parts[1][-1] if parts[1][-1] in 'abcd' else ''
-
-        if not base.isdigit():
-            return 0
-
-        base_points = {
-            '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
-            '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
-        }
-
-        modifier_multiplier = {
-            'a': 1.0, 'b': 1.1, 'c': 1.2, 'd': 1.3, '': 1.0
-        }
-
-        return round(base_points.get(base, 0) * modifier_multiplier.get(modifier, 1.0))
-    except Exception:
-        return 0
-
-def calculate_stats(climbs):
-    """Calculate all stats for a list of climbs"""
-    try:
-        if not climbs:
-            return {
-                'total_sends': 0,
-                'total_points': 0,
-                'success_rate': 0,
-                'climbs_per_session': 0,
-                'avg_points_per_climb': 0,
-                'avg_attempts_per_climb': 0,
-                'success_rate_per_session': 0,
-                'avg_sent_grade': '--'
-            }
-
-        # Basic stats
-        total_sends = sum(1 for c in climbs if c.status)
-        total_points = 0
-        for climb in climbs:
-            if climb.route and climb.route.grade_info:
-                grade = climb.route.grade
-                base_points = getGradePoints(grade)
-                star_multiplier = max(0.1, climb.rating / 3)
-                status_multiplier = 1 if climb.status else 0.5
-                tries_multiplier = max(0.1, 1 / (climb.tries ** 0.5))
-                total_points += round(base_points * star_multiplier * status_multiplier * tries_multiplier)
-
-        success_rate = round((total_sends / len(climbs) * 100) if climbs else 0)
-
-        # Session stats
-        sessions = {}
-        for climb in climbs:
-            date = climb.created_at.date()
-            sessions[date] = sessions.get(date, 0) + 1
-
-        climbs_per_session = round(sum(sessions.values()) / len(sessions)) if sessions else 0
-        avg_points_per_climb = round(total_points / len(climbs)) if climbs else 0
-        avg_attempts_per_climb = round(sum(climb.tries for climb in climbs) / len(climbs), 1) if climbs else 0
-
-        # Success rate per session
-        session_rates = []
-        for date in sessions:
-            session_climbs = [c for c in climbs if c.created_at.date() == date]
-            session_sends = sum(1 for c in session_climbs if c.status)
-            if session_climbs:
-                session_rate = (session_sends / len(session_climbs)) * 100
-                session_rates.append(session_rate)
-        success_rate_per_session = round(sum(session_rates) / len(session_rates)) if session_rates else 0
-
-        # Calculate grades
-        sent_grades = [climb.route.grade_info.grade for climb in climbs if climb.status and climb.route and climb.route.grade_info]
-        avg_sent_grade = calculate_avg_grade(sent_grades)
-
-        return {
-            'total_sends': total_sends,
-            'total_points': total_points,
-            'success_rate': success_rate,
-            'climbs_per_session': climbs_per_session,
-            'avg_points_per_climb': avg_points_per_climb,
-            'avg_attempts_per_climb': avg_attempts_per_climb,
-            'success_rate_per_session': success_rate_per_session,
-            'avg_sent_grade': avg_sent_grade
-        }
-    except Exception as e:
-        logger.error(f"Error calculating stats: {str(e)}")
-        return {}
-
 @app.route('/stats')
 @login_required
 def stats():
@@ -822,12 +822,12 @@ def stats():
 @app.route('/squads')
 @login_required
 def squads():
-        return render_template('404.html')
+    return render_template('404.html')
 
 @app.route('/solo-pro')
 def solo_pro():
     """Handle the solo pro page directly"""
-    try:
+        try:
         return render_template('pricing.html')
     except Exception as e:
         logger.error(f"Error rendering pricing page: {str(e)}")
@@ -1024,8 +1024,9 @@ if os.path.exists(source_logo) and not os.path.exists(dest_logo):
     except Exception as e:
         logger.error(f"Failed to copy logo: {str(e)}")
 
+from app import app
+
 if __name__ == "__main__":
-    logger.info("Starting server on 0.0.0.0:5000")
     app.run(host="0.0.0.0", port=5000, debug=True)
 
 def getGradePoints(grade):

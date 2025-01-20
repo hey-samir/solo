@@ -1,12 +1,10 @@
 import os
 import logging
-from flask import Flask, request, g, render_template, session, jsonify
+from flask import Flask
 from flask_login import LoginManager
-from werkzeug.middleware.proxy_fix import ProxyFix
-import time
-from database import db
-from health_checks import check_database_health
+from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import timedelta
 
 # Configure logging
@@ -17,44 +15,48 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Initialize extensions
+db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
 
-def create_app():
+def create_app(test_config=None):
     """Application factory function"""
     app = Flask(__name__)
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['TEMPLATES_AUTO_RELOAD'] = False
-    app.config['JSON_SORT_KEYS'] = False
 
-    # Basic configuration
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_size": 5,
-        "max_overflow": 2,
-        "pool_recycle": 300,
-        "pool_pre_ping": True,
-        "pool_timeout": 30
-    }
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.secret_key = os.environ.get("FLASK_SECRET_KEY", "development_key_only")
+    if test_config is None:
+        # Basic configuration
+        app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
+        app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+            "pool_size": 5,
+            "max_overflow": 2,
+            "pool_recycle": 300,
+            "pool_pre_ping": True,
+            "pool_timeout": 30
+        }
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+        app.config["TEMPLATES_AUTO_RELOAD"] = True
+        app.config["JSON_SORT_KEYS"] = False
 
-    # Enable debug mode for development
-    app.debug = bool(os.environ.get("FLASK_DEBUG", False))
+        # Security configuration
+        app.secret_key = os.environ.get("FLASK_SECRET_KEY", "development_key_only")
+        app.debug = bool(os.environ.get("FLASK_DEBUG", False))
 
-    # Session configuration for development
-    app.config["SESSION_COOKIE_SECURE"] = False
-    app.config["SESSION_COOKIE_HTTPONLY"] = True
-    app.config["SESSION_COOKIE_SAMESITE"] = 'Lax'
-    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=31)
-    app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=31)
-    app.config["REMEMBER_COOKIE_SECURE"] = False
-    app.config["REMEMBER_COOKIE_HTTPONLY"] = True
+        # Session configuration
+        app.config["SESSION_COOKIE_SECURE"] = False
+        app.config["SESSION_COOKIE_HTTPONLY"] = True
+        app.config["SESSION_COOKIE_SAMESITE"] = 'Lax'
+        app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=31)
+        app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=31)
+        app.config["REMEMBER_COOKIE_SECURE"] = False
+        app.config["REMEMBER_COOKIE_HTTPONLY"] = True
 
-    # CSRF configuration for development
-    app.config["WTF_CSRF_TIME_LIMIT"] = None  # No time limit for CSRF tokens
-    app.config["WTF_CSRF_SSL_STRICT"] = False  # Disable SSL-only for CSRF
-    app.config["WTF_CSRF_CHECK_DEFAULT"] = False  # Only check CSRF for unsafe methods
+        # CSRF configuration
+        app.config["WTF_CSRF_TIME_LIMIT"] = None
+        app.config["WTF_CSRF_SSL_STRICT"] = False
+        app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+    else:
+        # Load test config if passed in
+        app.config.update(test_config)
 
     # Enable proxy support
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
@@ -65,13 +67,19 @@ def create_app():
     migrate.init_app(app, db)
 
     # Configure Flask-Login
-    login_manager.session_protection = "basic"  # Changed from "strong" to "basic" for development
-    login_manager.login_view = "login"
+    login_manager.session_protection = "basic"
+    login_manager.login_view = "auth.login"
     login_manager.login_message = "Please log in to access this page."
     login_manager.login_message_category = "info"
-    login_manager.refresh_view = "login"
+    login_manager.refresh_view = "auth.login"
     login_manager.needs_refresh_message = "Please log in again to confirm your identity."
     login_manager.needs_refresh_message_category = "info"
+
+    # Register blueprints
+    from auth import bp as auth_bp
+    from routes import bp as routes_bp
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(routes_bp)
 
     # User loader callback
     @login_manager.user_loader
@@ -83,40 +91,19 @@ def create_app():
             logger.error(f"Error loading user {id}: {str(e)}", exc_info=True)
             return None
 
-    return app
-
-# Create the Flask application instance
-app = create_app()
-
-def run_server():
-    """Function to run the Flask server with standardized configuration"""
-    try:
-        # Get port from environment variable with fallback to 5000
-        port = int(os.environ.get("PORT", 5000))
-        host = '0.0.0.0'
-
-        with app.app_context():
+    # Create tables within app context
+    with app.app_context():
+        try:
+            import models  # noqa: F401
             db.create_all()
             logger.info("Database tables created successfully")
+        except Exception as e:
+            logger.error(f"Failed to initialize database: {str(e)}")
+            raise
 
-        logger.info(f"Starting server on {host}:{port}")
-        app.run(
-            host=host,
-            port=port,
-            debug=bool(os.environ.get("FLASK_DEBUG", False))
-        )
-    except Exception as e:
-        logger.error(f"Failed to start server: {str(e)}", exc_info=True)
-        raise
+    return app
 
+# Only create app if running directly
 if __name__ == "__main__":
-    run_server()
-
-# Initialize database tables within app context
-with app.app_context():
-    try:
-        import models
-        logger.info("Models imported successfully")
-    except Exception as e:
-        logger.error(f"Failed to initialize database: {str(e)}", exc_info=True)
-        raise
+    app = create_app()
+    app.run(host="0.0.0.0", port=5000)
