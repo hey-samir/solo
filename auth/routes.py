@@ -27,7 +27,7 @@ def login():
             return redirect(next_page if next_page else url_for('routes.sends'))
         message, type_ = get_user_message('LOGIN_FAILED')
         flash(message, type_)
-    return render_template('auth/login.html', form=form)
+    return render_template('login.html', form=form)
 
 @bp.route('/logout')
 @login_required
@@ -50,17 +50,17 @@ def sign_up():
         if not username or not username.isalnum():
             message, type_ = get_user_message('USERNAME_INVALID')
             flash(message, type_)
-            return render_template('auth/register.html', form=form)
+            return render_template('register.html', form=form)
 
         if User.query.filter_by(username=username).first():
             message, type_ = get_user_message('USERNAME_TAKEN')
             flash(message, type_)
-            return render_template('auth/register.html', form=form)
+            return render_template('register.html', form=form)
 
         if User.query.filter_by(email=email).first():
             message, type_ = get_user_message('EMAIL_TAKEN')
             flash(message, type_)
-            return render_template('auth/register.html', form=form)
+            return render_template('register.html', form=form)
 
         try:
             gym_id = int(gym_choice) if gym_choice and gym_choice != 'feedback' else None
@@ -70,7 +70,7 @@ def sign_up():
                 if not gym:
                     message, type_ = get_user_message('GYM_NOT_FOUND')
                     flash(message, type_)
-                    return render_template('auth/register.html', form=form)
+                    return render_template('register.html', form=form)
 
             user = User(
                 username=username,
@@ -96,6 +96,6 @@ def sign_up():
             logger.error(f"Error creating user: {str(e)}")
             message, type_ = get_user_message('DATABASE_ERROR')
             flash(message, type_)
-            return render_template('auth/register.html', form=form)
+            return render_template('register.html', form=form)
 
-    return render_template('auth/register.html', form=form)
+    return render_template('register.html', form=form)

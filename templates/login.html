@@ -5,7 +5,7 @@
     <div class="col-md-8 col-lg-6">
         <div class="card">
             <div class="card-body p-4">
-                <form method="POST" action="{{ url_for('login') }}">
+                <form method="POST" action="{{ url_for('auth.login') }}">
                     {{ form.csrf_token }}
                     <div class="mb-3">
                         <label class="form-label fs-4">Username</label>
@@ -21,10 +21,10 @@
                     </div>
                     <div class="d-flex gap-3">
                         <button type="submit" class="btn nav-link active w-50" style="background-color: #313d58;">Login</button>
-                        <a href="{{ url_for('sign_up') }}" class="btn nav-link active bg-solo-purple w-50">Sign up</a>
+                        <a href="{{ url_for('auth.sign_up') }}" class="btn nav-link active bg-solo-purple w-50">Sign up</a>
                     </div>
                 </form>
-                {% if request.args.get('next') and request.args.get('next') != url_for('index') %}
+                {% if request.args.get('next') and request.args.get('next') != url_for('routes.index') %}
                     <div class="auth-banner mt-3">
                         {{ LOGIN_REQUIRED_MESSAGE }}
                     </div>
