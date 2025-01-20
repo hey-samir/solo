@@ -827,12 +827,20 @@ def squads():
 @app.route('/solo-pro')
 def solo_pro():
     """Redirect /solo-pro to pricing page"""
-    return redirect(url_for('pricing'))
+    try:
+        return redirect(url_for('pricing'))
+    except Exception as e:
+        logger.error(f"Error redirecting to pricing: {str(e)}")
+        return render_template('404.html'), 404
 
 @app.route('/pricing')
 def pricing():
     """Handle the pricing page"""
-    return render_template('pricing.html')
+    try:
+        return render_template('pricing.html')
+    except Exception as e:
+        logger.error(f"Error rendering pricing page: {str(e)}")
+        return render_template('404.html'), 404
 
 @app.route('/feedback', methods=['GET'])
 def feedback():
