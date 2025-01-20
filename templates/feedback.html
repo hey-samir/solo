@@ -5,7 +5,7 @@
     <div class="col-md-4 mb-4">
         <div class="card bg-dark">
             <div class="card-body">
-                <form method="POST" action="{{ url_for('submit_feedback') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ url_for('routes.submit_feedback') }}" enctype="multipart/form-data">
                     {{ form.csrf_token }}
                     <div class="mb-3">
                         {{ form.title.label(class="form-label required-field") }}
