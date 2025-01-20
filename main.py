@@ -826,7 +826,7 @@ def squads():
 
 @app.route('/solo-pro')
 def solo_pro():
-    """Redirect /solo-proto pricing page"""
+    """Redirect /solo-pro to pricing page"""
     return redirect(url_for('pricing'))
 
 @app.route('/pricing')
@@ -1017,10 +1017,8 @@ if os.path.exists(source_logo) and not os.path.exists(dest_logo):
         logger.error(f"Failed to copy logo: {str(e)}")
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    host = '0.0.0.0'
-    logger.info(f"Starting server on {host}:{port}")
-    app.run(host=host, port=port, debug=bool(os.environ.get("FLASK_DEBUG", False)))
+    logger.info("Starting server on 0.0.0.0:5000")
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 def getGradePoints(grade):
     if not grade:
