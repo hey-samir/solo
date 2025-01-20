@@ -827,7 +827,7 @@ def squads():
 @app.route('/solo-pro')
 def solo_pro():
     """Handle the solo pro page directly"""
-        try:
+    try:
         return render_template('pricing.html')
     except Exception as e:
         logger.error(f"Error rendering pricing page: {str(e)}")
