@@ -1027,7 +1027,7 @@ if os.path.exists(source_logo) and not os.path.exists(dest_logo):
 from app import app
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 def getGradePoints(grade):
     if not grade:
