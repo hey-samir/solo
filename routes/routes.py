@@ -244,6 +244,37 @@ def feedback():
         logger.error(f"Error in feedback route: {str(e)}")
         return render_template('404.html'), 404
 
+@bp.route('/submit_feedback', methods=['POST'])
+@login_required
+def submit_feedback():
+    """Handle feedback submission"""
+    try:
+        form = FeedbackForm()
+        if form.validate_on_submit():
+            feedback = Feedback(
+                title=form.title.data,
+                description=form.description.data,
+                category=form.category.data,
+                user_id=current_user.id
+            )
+
+            if form.screenshot.data:
+                file = form.screenshot.data
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                feedback.screenshot_url = f"images/feedback/{filename}"
+
+            db.session.add(feedback)
+            db.session.commit()
+
+            flash('Feedback submitted successfully!', 'success')
+        return redirect(url_for('routes.feedback'))
+    except Exception as e:
+        logger.error(f"Error submitting feedback: {str(e)}")
+        flash('Error submitting feedback', 'error')
+        return redirect(url_for('routes.feedback'))
+
 @bp.route('/solo-pro')
 def solo_pro():
     """Handle the solo pro page"""
