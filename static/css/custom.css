@@ -1650,15 +1650,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Profile specific styles */
 .profile-card {
-    background-color: #1e2638 !important; /* Midnight Express instead of Black Coral */
+    background-color: var(--bg-card);
     border-radius: var(--card-border-radius);
     margin: 1rem auto;
+    max-width: 1200px;
     padding: 1.5rem;
 }
 
 .profile-photo-container {
     position: relative;
-    width: 120px; /* Reduced from original size */
+    width: 120px;
     height: 120px;
     margin: 0 auto 1rem;
 }
@@ -1667,6 +1668,7 @@ document.addEventListener('DOMContentLoaded', function() {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
 }
 
 .edit-photo-icon {
@@ -1688,7 +1690,6 @@ document.addEventListener('DOMContentLoaded', function() {
     font-size: 18px;
 }
 
-/* Profile fields layout */
 .profile-fields {
     margin-bottom: 1.5rem;
 }
