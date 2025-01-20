@@ -2,45 +2,82 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1 class="text-center mb-4">Supercharge your next trip to make planning stress-free</h1>
+    <h1 class="text-center mb-4">Choose Your Plan</h1>
 
     <div class="row justify-content-center">
-        <div class="col-md-4">
-            <div class="pricing-card basic">
-                <div class="pricing-header">
-                    <h3>Basic</h3>
-                </div>
-                <ul class="feature-list">
-                    <li><i class="material-icons text-success">check</i>Send Logging</li>
-                    <li><i class="material-icons text-success">check</i>Global Leaderboard</li>
-                    <li><i class="material-icons text-success">check</i>Session View</li>
-                    <li><i class="material-icons text-success">check</i>Stats Tracking</li>
-                    <li><i class="material-icons text-error">close</i>Ad-free Experience</li>
-                    <li><i class="material-icons text-error">close</i>Custom Avatars</li>
-                    <li><i class="material-icons text-error">close</i>Solo AI</li>
-                </ul>
-                <div class="text-center mt-4">
-                    <a href="{{ url_for('sign_up') }}" class="btn btn-outline-light btn-lg">Start Free</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="pricing-card pro">
-                <div class="pricing-header">
-                    <h3>Pro <span class="pro-badge">PRO</span></h3>
-                </div>
-                <ul class="feature-list">
-                    <li><i class="material-icons text-success">check</i>Everything in Basic</li>
-                    <li><i class="material-icons text-success">check</i>Ad-free Experience</li>
-                    <li><i class="material-icons text-success">check</i>Custom Avatars</li>
-                    <li><i class="material-icons text-success">check</i>Solo AI</li>
-                </ul>
-                <div class="text-center mt-4">
-                    <a href="{{ url_for('sign_up') }}" class="btn btn-solo-purple btn-lg">Start Free Trial</a>
+        <div class="col-md-8 col-lg-7">
+            <div class="card bg-dark">
+                <div class="card-body p-2">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-borderless mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50%">Features</th>
+                                    <th class="text-center" style="width: 25%">
+                                        <h3 class="mb-2">Base</h3>
+                                        <a href="{{ url_for('sign_up') }}" class="btn btn-outline-light btn-sm">Start Free</a>
+                                    </th>
+                                    <th class="text-center" style="width: 25%">
+                                        <h3 class="mb-2"><span class="pro-badge">PRO</span></h3>
+                                        <a href="{{ url_for('sign_up') }}" class="btn btn-solo-purple btn-sm">Start Free Trial</a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Send Logging</td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                </tr>
+                                <tr>
+                                    <td>Global Leaderboard</td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                </tr>
+                                <tr>
+                                    <td>Session View</td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                </tr>
+                                <tr>
+                                    <td>Stats Tracking</td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                </tr>
+                                <tr>
+                                    <td>Ad-free Experience</td>
+                                    <td class="text-center"><i class="material-icons text-error">close</i></td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                </tr>
+                                <tr>
+                                    <td>Custom Avatars</td>
+                                    <td class="text-center"><i class="material-icons text-error">close</i></td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                </tr>
+                                <tr>
+                                    <td>Solo AI</td>
+                                    <td class="text-center"><i class="material-icons text-error">close</i></td>
+                                    <td class="text-center"><i class="material-icons text-success">check</i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.table-dark {
+    --bs-table-bg: transparent;
+}
+.table-dark td, .table-dark th {
+    border-color: rgba(255, 255, 255, 0.1);
+    padding: 0.5rem 0.25rem;
+}
+.table-dark th {
+    padding-bottom: 1rem;
+}
+</style>
 {% endblock %}
