@@ -42,11 +42,12 @@ html, body {
 .sessions-container,
 .standings-container,
 .sends-container,
-.stats-container {
+.stats-container,
+.profile-container {
     padding: var(--container-padding) !important;
     margin: calc(var(--header-height) + 0.5rem) auto calc(var(--navbar-height) + 1rem) !important;
     width: calc(100% - 2 * var(--container-padding)) !important;
-    max-width: 100% !important;
+    max-width: 1200px !important;
     background-color: var(--bg-color) !important;
     overflow-x: hidden;
 }
@@ -601,7 +602,6 @@ body {
 .sessions-container,
 .stats-container {
     padding-bottom: 80px;
-    max-width: 768px !important;
     margin: 0 auto !important;
 }
 
