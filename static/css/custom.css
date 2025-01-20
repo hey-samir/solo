@@ -572,9 +572,9 @@ html body .alert-info {
 .standings-container,
 .sends-container,
 .stats-container {
-    margin-top: 1rem !important;
-    padding-top: 0.5rem !important;
-    margin-bottom: 80px !important; /* Account for bottom nav */
+    margin: 1rem auto 80px auto !important;
+    padding: 1rem !important;
+    max-width: 1200px !important;
 }
 
 html,
@@ -594,15 +594,6 @@ textarea,
 body {
     padding-bottom: 60px;
     color: #ffffff;
-}
-
-.container,
-.standings-container,
-.sends-container,
-.sessions-container,
-.stats-container {
-    padding-bottom: 80px;
-    margin: 0 auto !important;
 }
 
 .card {
@@ -1774,9 +1765,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .sends-container {
     background-color: #1e2638;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1rem;
 }
 
 .list-group-item {
