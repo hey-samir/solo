@@ -130,14 +130,17 @@ html, body {
 }
 
 .profile-card {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto !important;
+    padding: 1rem;
     border-radius: var(--card-border-radius);
-    margin: 0;
-    padding: 0;
-    background: transparent !important;
+    background-color: var(--bg-card);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .profile-card .card-body {
-    padding: 1rem;
+    padding: 1.5rem;
 }
 
 /* Avatar section */
@@ -1787,9 +1790,10 @@ document.addEventListener('DOMContentLoaded', function() {
     box-sizing: border-box !important;
 }
 
-.profile-container .row.g-0 {
-    --bs-gutter-x: 1rem !important;
-    --bs-gutter-y: 1rem !important;
+.profile-container .row {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+    margin: 0;
 }
 
 .profile-container .col-12 {
