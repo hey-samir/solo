@@ -2295,9 +2295,13 @@ body {
 }
 
 .profile-card {
-    background: #1e2638;
+    width: 100%;
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 1.5rem;
+    background: var(--bg-card);
     border: none;
-    border-radius: 8px;
+    border-radius: var(--card-border-radius);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -2796,7 +2800,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
 /* Profile container styles */
 .profile-container {
-    max-width: 1200px;
-    margin: 1rem auto;
+    width: 100%;
+    max-width: 1200px !important;
+    margin: 1rem auto !important;
     padding: 1rem;
+    box-sizing: border-box;
 }
