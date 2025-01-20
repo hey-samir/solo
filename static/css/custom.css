@@ -1791,3 +1791,23 @@ document.addEventListener('DOMContentLoaded', function() {
     align-items: center;
     white-space: nowrap;
 }
+
+.profile-container.container-fluid {
+    max-width: 1200px !important;
+    margin: 0 auto !important;
+    padding: 2rem !important;
+    box-sizing: border-box !important;
+    border: none !important;
+}
+
+.profile-container .row.g-0 {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    --bs-gutter-x: 1rem !important;
+    --bs-gutter-y: 1rem !important;
+}
+
+.profile-container .col-12 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
