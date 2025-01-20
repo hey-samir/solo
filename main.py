@@ -822,15 +822,15 @@ def stats():
 @app.route('/squads')
 @login_required
 def squads():
-    return render_template('404.html')
+        return render_template('404.html')
 
 @app.route('/solo-pro')
 def solo_pro():
-    """Redirect /solo-pro to pricing page"""
+    """Handle the solo pro page directly"""
     try:
-        return redirect(url_for('pricing'))
+        return render_template('pricing.html')
     except Exception as e:
-        logger.error(f"Error redirecting to pricing: {str(e)}")
+        logger.error(f"Error rendering pricing page: {str(e)}")
         return render_template('404.html'), 404
 
 @app.route('/pricing')

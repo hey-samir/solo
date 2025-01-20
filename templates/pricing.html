@@ -5,19 +5,19 @@
     <h1 class="text-center mb-4">Choose Your Plan</h1>
 
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-7">
+        <div class="col-md-6">
             <div class="card bg-dark">
-                <div class="card-body p-2">
+                <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-dark table-borderless mb-0">
                             <thead>
                                 <tr>
-                                    <th style="width: 50%">Features</th>
-                                    <th class="text-center" style="width: 25%">
+                                    <th style="width: 60%">Features</th>
+                                    <th class="text-center" style="width: 20%">
                                         <h3 class="mb-2">Base</h3>
                                         <a href="{{ url_for('sign_up') }}" class="btn btn-outline-light btn-sm">Start Free</a>
                                     </th>
-                                    <th class="text-center" style="width: 25%">
+                                    <th class="text-center" style="width: 20%">
                                         <h3 class="mb-2"><span class="pro-badge">PRO</span></h3>
                                         <a href="{{ url_for('sign_up') }}" class="btn btn-solo-purple btn-sm">Start Free Trial</a>
                                     </th>
@@ -74,10 +74,18 @@
 }
 .table-dark td, .table-dark th {
     border-color: rgba(255, 255, 255, 0.1);
-    padding: 0.5rem 0.25rem;
+    padding: 0.25rem;
 }
 .table-dark th {
-    padding-bottom: 1rem;
+    padding-bottom: 0.75rem;
+}
+.card-body {
+    padding: 0 !important;
+}
+.container {
+    max-width: 900px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
 }
 </style>
 {% endblock %}
