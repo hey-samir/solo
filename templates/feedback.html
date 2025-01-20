@@ -36,8 +36,8 @@
             </div>
             <div class="card-body">
                 <div class="btn-group mb-3 w-100">
-                    <a href="{{ url_for('feedback', sort='new') }}" class="btn btn-outline-secondary {{ 'active' if sort == 'new' }}">Latest</a>
-                    <a href="{{ url_for('feedback', sort='top') }}" class="btn btn-outline-secondary {{ 'active' if sort == 'top' }}">Top</a>
+                    <a href="{{ url_for('routes.feedback', sort='new') }}" class="btn btn-outline-secondary {{ 'active' if sort == 'new' }}">Latest</a>
+                    <a href="{{ url_for('routes.feedback', sort='top') }}" class="btn btn-outline-secondary {{ 'active' if sort == 'top' }}">Top</a>
                 </div>
 
                 {% for item in feedback_items %}
