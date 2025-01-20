@@ -54,7 +54,7 @@ def profile(username=None):
 
         is_own_profile = current_user.is_authenticated and current_user.id == user.id
 
-        return render_template('profile.html',
+        return render_template('solo-profile.html',
                             form=form,
                             profile_user=user,
                             total_ascents=total_ascents,
