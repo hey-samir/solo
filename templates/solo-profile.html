@@ -46,7 +46,7 @@
 
                         <!-- Info Column -->
                         <div class="col-12 col-md-9">
-                            <form method="POST" action="{{ url_for('update_profile') }}" class="profile-form">
+                            <form method="POST" action="{{ url_for('routes.update_profile') }}" class="profile-form">
                                 {% if is_own_profile %}
                                 <input type="hidden" name="csrf_token" value="{{ form.csrf_token._value() }}">
                                 {% endif %}
