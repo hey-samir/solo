@@ -1,9 +1,11 @@
 from flask import Blueprint
 
+# Create the blueprint
 bp = Blueprint('auth', __name__)
 
-def init_auth():
-    """Initialize auth routes and related functionality"""
-    from auth import routes  # noqa: F401
+# Export only the blueprint
+__all__ = ['bp']
 
-# This prevents circular imports
+def register_auth_routes(app):
+    from auth.routes import login, logout, register
+    app.register_blueprint(bp)

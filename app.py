@@ -80,19 +80,6 @@ def create_app(test_config=None):
     login_manager.needs_refresh_message = "Please log in again to confirm your identity."
     login_manager.needs_refresh_message_category = "info"
 
-    # Register blueprints
-    logger.info("Registering blueprints")
-    from auth import bp as auth_bp, init_auth
-    from routes import bp as routes_bp, init_routes
-
-    # Initialize routes before registering blueprints
-    init_auth()
-    init_routes()
-
-    # Register blueprints
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(routes_bp)
-
     # User loader callback
     @login_manager.user_loader
     def load_user(id):
@@ -103,13 +90,25 @@ def create_app(test_config=None):
             logger.error(f"Error loading user {id}: {str(e)}", exc_info=True)
             return None
 
-    # Create tables within app context
     with app.app_context():
         try:
+            # Import and register blueprints
+            from auth import bp as auth_bp
+            app.register_blueprint(auth_bp)
+
+            # Import routes after blueprint registration
+            import auth.routes
+            logger.info("Successfully registered auth blueprint and routes")
+
+        except Exception as e:
+            logger.error(f"Error registering blueprints: {str(e)}", exc_info=True)
+            raise
+
+        try:
+            # Initialize database
             import models  # noqa: F401
             db.create_all()
             logger.info("Database tables created successfully")
-
         except Exception as e:
             logger.error(f"Failed to initialize database: {str(e)}", exc_info=True)
             raise
@@ -118,14 +117,6 @@ def create_app(test_config=None):
 
 # Create the application instance
 app = create_app()
-
-# Initialize backup scheduler after app creation
-try:
-    from backup_scheduler import init_backup_scheduler
-    backup_scheduler = init_backup_scheduler(app)
-    logger.info("Backup scheduler initialized successfully")
-except Exception as e:
-    logger.error(f"Failed to initialize backup scheduler: {str(e)}", exc_info=True)
 
 if __name__ == "__main__":
     logger.info("Starting Flask development server")

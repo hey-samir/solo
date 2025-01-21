@@ -28,19 +28,22 @@ class BackupScheduler:
         self.backup_thread.daemon = True
         self.backup_thread.start()
 
-        current_app.logger.info("Backup scheduler started")
+        with self.app.app_context():
+            current_app.logger.info("Backup scheduler started")
 
     def stop(self):
         """Stop the backup scheduler"""
         self.is_running = False
         if self.backup_thread:
             self.backup_thread.join()
-        current_app.logger.info("Backup scheduler stopped")
+        with self.app.app_context():
+            current_app.logger.info("Backup scheduler stopped")
 
     def _backup_loop(self):
         """Main backup scheduling loop"""
         while self.is_running:
             try:
+                # Create a new application context for this iteration
                 with self.app.app_context():
                     # Check if backup is needed
                     if self._should_backup():
@@ -69,12 +72,14 @@ class BackupScheduler:
                             )
 
             except Exception as e:
-                log_error(
-                    current_app.logger,
-                    ErrorCodes.SYSTEM_CONFIGURATION_ERROR[0],
-                    exc_info=True,
-                    error_details=str(e)
-                )
+                # Ensure we have an application context for logging
+                with self.app.app_context():
+                    log_error(
+                        current_app.logger,
+                        ErrorCodes.SYSTEM_CONFIGURATION_ERROR[0],
+                        exc_info=True,
+                        error_details=str(e)
+                    )
 
             # Sleep for 1 hour before next check
             time.sleep(3600)
@@ -89,15 +94,34 @@ class BackupScheduler:
 
     def force_backup(self):
         """Force an immediate backup"""
-        with self.app.app_context():
-            from migrations import backup_database
-            if backup_database():
-                self.last_backup = datetime.now()
-                return True
+        try:
+            with self.app.app_context():
+                from migrations import backup_database
+                if backup_database():
+                    self.last_backup = datetime.now()
+                    return True
+        except Exception as e:
+            with self.app.app_context():
+                log_error(
+                    current_app.logger,
+                    ErrorCodes.DB_BACKUP_FAILED[0],
+                    exc_info=True,
+                    error_details=str(e)
+                )
         return False
 
 def init_backup_scheduler(app, interval_hours=24):
     """Initialize the backup scheduler"""
-    scheduler = BackupScheduler(app, interval_hours)
-    scheduler.start()
-    return scheduler
+    try:
+        scheduler = BackupScheduler(app, interval_hours)
+        scheduler.start()
+        return scheduler
+    except Exception as e:
+        with app.app_context():
+            log_error(
+                app.logger,
+                ErrorCodes.SYSTEM_CONFIGURATION_ERROR[0],
+                exc_info=True,
+                error_details=str(e)
+            )
+        return None

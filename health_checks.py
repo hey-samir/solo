@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask import current_app, jsonify
+from sqlalchemy import text
 from database import db
 from models import Gym, Route, RouteGrade, User
 from errors import ErrorCodes, log_error
@@ -7,8 +8,8 @@ from errors import ErrorCodes, log_error
 def check_database_health():
     """Check database connectivity and basic health metrics"""
     try:
-        # Test database connection
-        db.session.execute('SELECT 1')
+        # Test database connection using text()
+        db.session.execute(text('SELECT 1'))
 
         # Get table statistics
         stats = {
@@ -19,7 +20,7 @@ def check_database_health():
         }
 
         # Get database version
-        version_info = db.session.execute('SELECT version()').scalar()
+        version_info = db.session.execute(text('SELECT version()')).scalar()
 
         # Get connection pool info
         pool_info = {
@@ -39,7 +40,7 @@ def check_database_health():
         # Check for replication lag if applicable
         try:
             replication_lag = db.session.execute(
-                "SELECT EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))::INT"
+                text("SELECT EXTRACT(EPOCH FROM (now() - pg_last_xact_replay_timestamp()))::INT")
             ).scalar()
             if replication_lag and replication_lag > 300:  # 5 minutes lag
                 log_error(
