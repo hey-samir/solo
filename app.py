@@ -91,11 +91,6 @@ def create_app(test_config=None):
             logger.error(f"Error loading user {id}: {str(e)}", exc_info=True)
             return None
 
-    # Import and register blueprints
-    from auth import bp as auth_bp
-    app.register_blueprint(auth_bp)
-    logger.info("Successfully registered auth blueprint")
-
     with app.app_context():
         # Import models first to ensure they're available
         import models  # noqa: F401
@@ -104,6 +99,15 @@ def create_app(test_config=None):
             # Create database tables
             db.create_all()
             logger.info("Database tables created successfully")
+
+            # Register blueprints
+            from auth import bp as auth_bp
+            from routes import bp as routes_bp
+
+            app.register_blueprint(auth_bp)
+            app.register_blueprint(routes_bp)
+
+            logger.info("Successfully registered blueprints")
         except Exception as e:
             logger.error(f"Error during app initialization: {str(e)}", exc_info=True)
             raise

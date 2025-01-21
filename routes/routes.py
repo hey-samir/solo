@@ -1,24 +1,28 @@
 import logging
-from flask import render_template, redirect, url_for, flash, request, jsonify, session
+from flask import render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
-from sqlalchemy import func
-from app import db
+from database import db
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
 from forms import ProfileForm, FeedbackForm
 from user_messages import get_user_message
-from datetime import datetime
 from routes import bp
 
 logger = logging.getLogger(__name__)
 
 @bp.route('/')
 def index():
-    if current_user.is_authenticated:
-        return redirect(url_for('routes.profile'))
-    return redirect(url_for('routes.about'))
+    """Handle the root URL"""
+    try:
+        if current_user.is_authenticated:
+            return redirect(url_for('routes.profile'))
+        return redirect(url_for('routes.about'))
+    except Exception as e:
+        logger.error(f"Error in index route: {str(e)}")
+        return render_template('about.html')
 
 @bp.route('/about')
 def about():
+    """About page route"""
     return render_template('about.html')
 
 @bp.route('/solo')
