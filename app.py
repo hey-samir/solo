@@ -109,6 +109,7 @@ def create_app(test_config=None):
             import models  # noqa: F401
             db.create_all()
             logger.info("Database tables created successfully")
+
         except Exception as e:
             logger.error(f"Failed to initialize database: {str(e)}", exc_info=True)
             raise
@@ -117,6 +118,14 @@ def create_app(test_config=None):
 
 # Create the application instance
 app = create_app()
+
+# Initialize backup scheduler after app creation
+try:
+    from backup_scheduler import init_backup_scheduler
+    backup_scheduler = init_backup_scheduler(app)
+    logger.info("Backup scheduler initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize backup scheduler: {str(e)}", exc_info=True)
 
 if __name__ == "__main__":
     logger.info("Starting Flask development server")
