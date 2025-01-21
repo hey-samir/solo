@@ -1,0 +1,18 @@
+
+Can we do a round of formatting specific changes to ensure consistency across the app? And a few tweks to the css file while we're at it?
+
+Things I want to standardize:
+
+There's a big space between the start of containers and the topnav. Can we remove that?
+Some containers like "Profile" have a bg-card background instead of taking bg-primary. Can you adjust?
+The tables in Standings and Sessions are too wide for the 6" viewport and require horizontal scrolling. Please reduce padding/margin in the columns and/or reduce font so that there is never horizontal scrolling required at any viewport BUT we're always able to see the full table
+When some buttons are active in the bottom navbar, they have a purple background and the icon disappears. Can we standardize thihs so when buttons are pressed, they just get an active indicator below the icon, but nothing else changes?
+Column 1 of "Sends" is too narrow. Can you increase it so the text never has to wrap? You should reduce Column 2 accordingly so there's no spillover
+Can you make the secondary button colkor the slider-track color? I need a little more contrast with the card
+Can you make the 3 buttons in Profile fit on the same row? Feel free to reduce padding a bit so that works
+Can you move the "Start Free" buttons in Solo Pro pricing page to below the table and make them buttons with the button-primary-bg?
+Can you make the KPIs in Profile fit 3 per row? Right now it's just one per row
+The hamburger menu has a lot of space between the top and the first menu item. Can you reduce that a bit?
+The buttons in "Stats" have the wrong background color. Should be bg-primary
+In Trends, the chart titles should use text-primary for the color
+(custom CSS file changes): I notice that pro-badge, slider-track, nav-pills, nav-link.active, feedback-submit, table thead th.sortable:hover, profile-button, signup-btn, edit-photo-icon, and a couple other places define colors when in fact they should just reference the colors we've already defined up top

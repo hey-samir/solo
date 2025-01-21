@@ -58,7 +58,7 @@ html, body {
   min-height: 100vh;
 }
 
-/* Container Layout - Adjusted spacing */
+/* Container Layout - Remove top spacing */
 .container,
 .sessions-container,
 .standings-container,
@@ -67,10 +67,12 @@ html, body {
 .profile-container {
   width: 100%;
   max-width: 1200px;
-  margin: 1rem auto calc(var(--navbar-height) + 1rem);
+  margin: 0 auto calc(var(--navbar-height) + 1rem);
   padding: var(--container-padding);
   background-color: var(--bg-primary);
   overflow-x: hidden;
+  box-sizing: border-box !important;
+  border: none !important;
 }
 
 /* Bottom Navigation */
@@ -81,11 +83,13 @@ html, body {
   border-top: 1px solid var(--border-color);
 }
 
+/* Navigation - Updated active state */
 .navbar-nav .nav-link {
   padding: 0.75rem 1rem;
   color: var(--text-primary);
   opacity: var(--opacity-inactive);
   transition: opacity 0.2s ease;
+  background: transparent;
 }
 
 .navbar-nav .nav-link.active {
@@ -105,6 +109,11 @@ html, body {
   background: var(--solo-purple);
 }
 
+
+.navbar-nav .nav-link:hover {
+  opacity: var(--opacity-hover);
+}
+
 /* Tables - Mobile Optimized */
 .table-responsive {
   overflow-x: hidden;
@@ -118,8 +127,8 @@ html, body {
 
 .table th,
 .table td {
-  padding: 0.5rem;
-  font-size: 0.875rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.8125rem;
   white-space: normal;
   word-break: normal;
   background-color: var(--bg-primary);
@@ -130,13 +139,13 @@ html, body {
 /* Sends Table Column Widths */
 .sends-container .table th:first-child,
 .sends-container .table td:first-child {
-  width: 160px;
-  min-width: 160px;
+  width: 180px;
+  min-width: 180px;
 }
 
 .sends-container .table th:nth-child(2),
 .sends-container .table td:nth-child(2) {
-  width: calc(100% - 160px);
+  width: calc(100% - 180px);
 }
 
 /* Profile Section */
@@ -181,11 +190,11 @@ html, body {
   transform: translateY(-1px);
 }
 
-.btn-negative,
+/* Button Colors - Using slider-track */
 .btn-secondary {
-  background-color: var(--button-secondary-bg);
-  border-color: var(--button-secondary-bg);
-  color: var(--button-secondary-text);
+  background-color: var(--bg-slider-track);
+  border-color: var(--bg-slider-track);
+  color: var(--text-primary);
   transition: opacity 0.2s;
 }
 
@@ -1764,4 +1773,83 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .edit-photo-icon {
   background: var(--shadow-color-dark);
+}
+
+/* Profile KPI Grid */
+.row.g-3 {
+  --bs-gutter-x: 0.75rem;
+  --bs-gutter-y: 0.75rem;
+  margin: 0 -0.375rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.row.g-3 > [class*="col-"] {
+  padding: 0.375rem;
+  flex: 0 0 33.333333%;
+  max-width: 33.333333%;
+}
+
+/* Profile Action Buttons */
+.profile-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+.profile-actions .btn,
+.save-mode-buttons .btn {
+  padding: 0.5rem 0.75rem;
+  min-width: auto;
+  white-space: nowrap;
+}
+
+.profile-actions .btn i,
+.save-mode-buttons .btn i {
+  margin-right: 0.25rem;
+}
+
+@media (max-width: 576px) {
+  .profile-actions .btn span {
+    display: none;
+  }
+
+  .profile-actions .btn i {
+    margin-right: 0;
+  }
+}
+
+/* Stats Buttons */
+.stats-container .btn {
+  background-color: var(--bg-primary);
+  border-color: var(--bg-primary);
+}
+
+/* Chart Titles */
+.chart-title {
+  color: var(--text-primary);
+}
+
+/* Pro Page Buttons */
+.pricing-container .signup-btn {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 1rem auto;
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  text-align: center;
+}
+
+/* Hamburger Menu - Reduced Spacing */
+.offcanvas-header {
+  padding: 1rem;
+}
+
+.offcanvas-body {
+  padding-top: 0.5rem;
+}
+
+.offcanvas-body .nav-link:first-child {
+  margin-top: 0;
 }
