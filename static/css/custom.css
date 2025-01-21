@@ -1791,7 +1791,7 @@ document.addEventListener('DOMContentLoaded', function() {
   color: var(--button-primary-text);
 }
 
-table thead th.sortable:hover {
+.table thead th.sortable:hover {
   background-color: var(--bg-button-hover);
 }
 
@@ -1818,4 +1818,98 @@ table thead th.sortable:hover {
 .slider-handle {
   background: var(--button-primary-bg);
   border-color: var(--button-primary-bg);
+}
+
+/* Pricing Section */
+.pricing-container {
+  padding: 2rem 1rem;
+}
+
+.pricing-card {
+  background: var(--bg-card);
+  border-radius: var(--card-border-radius);
+  padding: 2rem;
+  height: auto;
+  transition: transform 0.2s;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.pricing-card.pro {
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--solo-purple) 100%);
+  border: 1px solid var(--solo-purple);
+}
+
+.pricing-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pricing-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  flex: 1;
+}
+
+.feature-list li {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0;
+  color: var(--text-primary);
+}
+
+.feature-list li i {
+  margin-right: 1rem;
+  font-size: 1.25rem;
+}
+
+.pricing-action {
+  margin-top: auto;
+  text-align: center;
+}
+
+.start-free-btn {
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--card-border-radius);
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 100%;
+  transition: transform 0.2s, background-color 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.start-free-btn:hover {
+  background: var(--bg-button-gradient);
+  color: var(--button-primary-text);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+@media (min-width: 768px) {
+  .pricing-container {
+    padding: 4rem 2rem;
+  }
+
+  .pricing-card {
+    padding: 3rem;
+  }
+
+  .start-free-btn {
+    width: auto;
+    min-width: 200px;
+  }
 }
