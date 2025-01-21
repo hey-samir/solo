@@ -1,12 +1,14 @@
 import os
 import logging
+from datetime import timedelta
 from flask import Flask
 from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
-from datetime import timedelta
+
+# Import db instance
+from database import db
 
 # Configure logging
 logging.basicConfig(
@@ -16,7 +18,6 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Initialize extensions
-db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
 csrf = CSRFProtect()
@@ -90,27 +91,21 @@ def create_app(test_config=None):
             logger.error(f"Error loading user {id}: {str(e)}", exc_info=True)
             return None
 
+    # Import and register blueprints
+    from auth import bp as auth_bp
+    app.register_blueprint(auth_bp)
+    logger.info("Successfully registered auth blueprint")
+
     with app.app_context():
-        try:
-            # Import and register blueprints
-            from auth import bp as auth_bp
-            app.register_blueprint(auth_bp)
-
-            # Import routes after blueprint registration
-            import auth.routes
-            logger.info("Successfully registered auth blueprint and routes")
-
-        except Exception as e:
-            logger.error(f"Error registering blueprints: {str(e)}", exc_info=True)
-            raise
+        # Import models first to ensure they're available
+        import models  # noqa: F401
 
         try:
-            # Initialize database
-            import models  # noqa: F401
+            # Create database tables
             db.create_all()
             logger.info("Database tables created successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize database: {str(e)}", exc_info=True)
+            logger.error(f"Error during app initialization: {str(e)}", exc_info=True)
             raise
 
     return app

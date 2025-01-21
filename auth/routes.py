@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash
-from app import db
+from database import db
 from models import User, Gym
 from forms import LoginForm, RegistrationForm
 from user_messages import get_user_message
@@ -10,6 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Import blueprint at the end to avoid circular imports
 from auth import bp
 
 @bp.route('/login', methods=['GET', 'POST'])

@@ -2,7 +2,7 @@ from datetime import datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.sql import func
-from app import db
+from database import db
 
 class RouteGrade(db.Model):
     __tablename__ = 'route_grade'
