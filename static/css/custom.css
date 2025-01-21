@@ -9,58 +9,47 @@
   --bg-primary: #1e2638;
   --bg-card: #4A5D79;
   --bg-flash: rgba(74, 93, 121, 0.95);
-
-  /* Component Background Colors */
   --bg-slider-track: #343a40;
-  --bg-nav-pill: var(--solo-purple);
-  --bg-button-hover: rgba(255, 255, 255, 0.1);
+
+  /* Component Colors */
+  --bg-button-hover: rgba(var(--text-primary-rgb), 0.1);
   --bg-button-gradient: linear-gradient(135deg, var(--solo-purple) 0%, var(--solo-purple-light) 100%);
+  --button-primary-bg: var(--solo-purple);
+  --button-primary-text: var(--text-primary);
+  --button-secondary-bg: var(--bg-slider-track);
+  --button-secondary-text: var(--text-primary);
 
   /* Text Colors */
   --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-primary-rgb: 255, 255, 255;
+  --text-secondary: rgba(var(--text-primary-rgb), 0.6);
+  --text-muted: rgba(var(--text-primary-rgb), 0.4);
 
   /* Border Colors */
-  --border-color: rgba(255, 255, 255, 0.1);
-  --border-color-active: rgba(255, 255, 255, 0.2);
+  --border-color: rgba(var(--text-primary-rgb), 0.1);
+  --border-color-active: rgba(var(--text-primary-rgb), 0.2);
 
   /* Shadow Colors */
   --shadow-color: rgba(0, 0, 0, 0.1);
   --shadow-color-dark: rgba(0, 0, 0, 0.2);
 
-  /* Button Colors */
-  --button-primary-bg: var(--solo-purple);
-  --button-primary-text: var(--text-primary);
-  --button-secondary-bg: var(--bg-card);
-  --button-secondary-text: var(--text-primary);
-
-  /* Navigation Colors */
-  --nav-text: var(--text-primary);
-  --nav-text-inactive: rgba(255, 255, 255, 0.6);
-  --nav-active-bg: var(--solo-purple);
-
   /* Layout */
-  --header-height: 64px;
   --navbar-height: 60px;
   --container-padding: 1rem;
   --card-border-radius: 8px;
   --touch-target-size: 44px;
-  --touch-spacing: 8px;
 
-  /* Typography */
-  --font-family-sans-serif: 'Lexend', system-ui, -apple-system, sans-serif;
-  --font-size-base: 1rem;
-  --font-size-sm: 0.875rem;
-  --font-size-lg: 1.25rem;
-  --font-size-xl: 1.5rem;
-  --font-size-xxl: 2rem;
+  /* Opacity Levels */
+  --opacity-hover: 0.9;
+  --opacity-active: 1;
+  --opacity-inactive: 0.6;
 }
 
 /* Base Styles */
 html, body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: var(--font-family-sans-serif);
+  font-family: system-ui, -apple-system, sans-serif;
   -webkit-text-size-adjust: 100%;
   padding: 0;
   margin: 0;
@@ -69,7 +58,7 @@ html, body {
   min-height: 100vh;
 }
 
-/* Container Layout */
+/* Container Layout - Adjusted spacing */
 .container,
 .sessions-container,
 .standings-container,
@@ -78,63 +67,100 @@ html, body {
 .profile-container {
   width: 100%;
   max-width: 1200px;
-  margin: calc(var(--header-height) + 0.5rem) auto calc(var(--navbar-height) + 1rem);
+  margin: 1rem auto calc(var(--navbar-height) + 1rem);
   padding: var(--container-padding);
   background-color: var(--bg-primary);
   overflow-x: hidden;
 }
 
-/* Card Components */
-.card {
+/* Bottom Navigation */
+.navbar.fixed-bottom {
+  background-color: var(--bg-primary);
+  padding: 0;
+  height: var(--navbar-height);
+  border-top: 1px solid var(--border-color);
+}
+
+.navbar-nav .nav-link {
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  opacity: var(--opacity-inactive);
+  transition: opacity 0.2s ease;
+}
+
+.navbar-nav .nav-link.active {
+  opacity: var(--opacity-active);
+  color: var(--solo-purple);
+  background: transparent;
+  position: relative;
+}
+
+.navbar-nav .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 2px;
+  background: var(--solo-purple);
+}
+
+/* Tables - Mobile Optimized */
+.table-responsive {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  margin: 0;
+}
+
+.table th,
+.table td {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  white-space: normal;
+  word-break: normal;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   border: none;
-  background-color: transparent;
 }
 
-.card-body {
-  background-color: transparent;
-  padding: 2rem 0;
+/* Sends Table Column Widths */
+.sends-container .table th:first-child,
+.sends-container .table td:first-child {
+  width: 160px;
+  min-width: 160px;
 }
 
-/* Metric Cards */
+.sends-container .table th:nth-child(2),
+.sends-container .table td:nth-child(2) {
+  width: calc(100% - 160px);
+}
+
+/* Profile Section */
+.profile-card {
+  background-color: var(--bg-primary);
+  border: none;
+  margin: 0;
+}
+
+.profile-actions .btn,
+.save-mode-buttons .btn {
+  padding: 0.5rem 0.75rem;
+  min-width: auto;
+}
+
+/* KPI Cards */
 .metric-card {
   background-color: var(--bg-card);
-  border-radius: var(--card-border-radius);
   padding: 1rem;
   height: 100%;
-  margin-bottom: 0.75rem;
-  min-height: 90px;
-  box-shadow: 0 2px 8px var(--shadow-color);
+  margin-bottom: 0;
 }
 
-.metric-value {
-  font-size: var(--font-size-xxl);
-  margin-bottom: 0.25rem;
-  color: var(--text-primary);
-}
-
-.metric-label {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-
-/* Form Elements */
-.form-control,
-.form-select,
-textarea.form-control {
-  background-color: var(--bg-primary);
-  border: 2px solid var(--border-color);
-  color: var(--text-primary);
-  font-size: var(--font-size-base);
-  height: var(--touch-target-size);
-  padding: 0.75rem 1rem;
-  border-radius: var(--card-border-radius);
-  min-width: var(--touch-target-size);
-  -webkit-tap-highlight-color: rgba(var(--solo-purple-rgb), 0.2);
-  width: 100%;
-  max-width: 100%;
-}
-
-/* Button Styles - Consolidated */
+/* Buttons */
 .btn-primary,
 .btn-send,
 .feedback-submit,
@@ -166,10 +192,9 @@ textarea.form-control {
 .btn-negative:hover,
 .btn-secondary:hover {
   background-color: var(--button-secondary-bg);
-  opacity: 0.9;
+  opacity: var(--opacity-hover);
 }
 
-/* Buttons */
 .btn {
   min-height: var(--touch-target-size);
   padding: 0.75rem 1.25rem;
@@ -185,7 +210,7 @@ textarea.form-control {
 .nav-pills .nav-link,
 .navbar-nav .nav-link {
   color: var(--nav-text);
-  opacity: 0.6;
+  opacity: var(--opacity-inactive);
   transition: opacity 0.2s, background-color 0.2s;
 }
 
@@ -194,7 +219,7 @@ textarea.form-control {
 .navbar-nav .nav-link.active {
   background: var(--nav-active-bg);
   color: var(--button-primary-text);
-  opacity: 1;
+  opacity: var(--opacity-active);
 }
 
 /* Navigation */
@@ -229,15 +254,27 @@ textarea.form-control {
   justify-content: center;
   font-size: var(--font-size-sm);
   color: var(--text-primary);
-  opacity: 0.6;
+  opacity: var(--opacity-inactive);
   transition: opacity 0.2s ease;
   min-height: var(--touch-target-size);
   min-width: var(--touch-target-size);
 }
 
 .navbar-nav .nav-link.active {
-  opacity: 1;
+  opacity: var(--opacity-active);
   color: var(--solo-purple);
+  background: transparent;
+  position: relative;
+}
+
+.navbar-nav .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 2px;
+  background: var(--solo-purple);
 }
 
 .navbar-nav .nav-link i {
@@ -247,7 +284,7 @@ textarea.form-control {
 
 /* Profile Button */
 .profile-button {
-  background-color: var(--bg-button-hover);
+  background: var(--bg-button-hover);
   color: var(--text-primary);
 }
 
@@ -285,11 +322,13 @@ textarea.form-control {
 
 .table th,
 .table td {
-  padding: 0.75rem 1rem;
-  font-size: var(--font-size-sm);
+  padding: 0.5rem;
+  font-size: 0.875rem;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   border: none;
+  white-space: normal;
+  word-break: normal;
 }
 
 .table thead th {
@@ -559,7 +598,7 @@ textarea.form-control {
 
 .pro-badge {
   background: var(--solo-purple);
-  color: white;
+  color: var(--text-primary);
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
@@ -755,7 +794,7 @@ textarea.form-control {
 }
 
 .nav-pills .nav-link {
-  color: white;
+  color: var(--text-primary);
 }
 
 .nav-pills .nav-link.active {
@@ -764,7 +803,7 @@ textarea.form-control {
 
 .btn.nav-link.active {
   background: var(--solo-purple);
-  color: white;
+  color: var(--text-primary);
   border: none;
   height: 42px;
   padding: 0.75rem 1.5rem;
@@ -778,7 +817,7 @@ textarea.form-control {
 
 .feedback-submit {
   background-color: var(--solo-purple);
-  color: white;
+  color: var(--text-primary);
   border: none;
   width: 100%;
 }
@@ -889,7 +928,7 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--bg-button-hover);
   position: absolute;
   right: 0;
   top: 50%;
@@ -905,7 +944,7 @@ textarea.form-control {
   height: 50px;
   width: auto;
   display: block;
-  filter: brightness(0) invert(1);
+  filter: brightness(0) invert(var(--opacity-active));
 }
 
 footer {
@@ -922,16 +961,16 @@ footer small {
 .signup-btn {
   display: inline-block;
   padding: 0.5rem 1.5rem;
-  background: var(--solo-purple);
-  color: white;
-  border-radius: 4px;
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border-radius: var(--card-border-radius);
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .signup-btn:hover {
   background: var(--solo-purple-light);
-  color: white;
+  color: var(--button-primary-text);
   transform: translateY(-1px);
 }
 
@@ -1077,7 +1116,6 @@ textarea.form-control {
 .navbar-nav .nav-link.active.bg-solo-purple .nav-icon {
   font-size: 1.75rem;
 }
-}
 
 body {
   font-family: var(--font-family-sans-serif);
@@ -1123,7 +1161,7 @@ body {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--shadow-color-dark);
   border-radius: 50%;
   width: 32px;
   height: 32px;
@@ -1194,13 +1232,13 @@ body {
 }
 
 .btn-negative {
-  background-color: var(--bg-card);
+  background-color: var(--button-secondary-bg);
   color: var(--text-primary);
 }
 
 .btn-negative:hover {
-  background-color: var(--bg-card);
-  opacity: 0.9;
+  background-color: var(--button-secondary-bg);
+  opacity: var(--opacity-hover);
 }
 
 .btn-icon {
@@ -1604,4 +1642,126 @@ document.addEventListener('DOMContentLoaded', function() {
   .profile-container {
     padding: 1rem;
   }
+}
+
+/* Profile Card - Standardized background */
+.profile-card {
+  background: var(--bg-primary);
+  border: none;
+  margin: 0 !important;
+}
+
+/* Table Adjustments for Mobile */
+.table th,
+.table td {
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  white-space: normal;
+  word-break: normal;
+}
+
+/* Sends Table Column Widths */
+.sends-container .table th:first-child,
+.sends-container .table td:first-child {
+  width: 160px;
+  min-width: 160px;
+}
+
+.sends-container .table th:nth-child(2),
+.sends-container .table td:nth-child(2) {
+  width: calc(100% - 160px);
+}
+
+/* Bottom Navbar Active State */
+.navbar-nav .nav-link.active {
+  color: var(--solo-purple);
+  background: transparent;
+  position: relative;
+}
+
+.navbar-nav .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 25%;
+  width: 50%;
+  height: 2px;
+  background: var(--solo-purple);
+}
+
+/* Secondary Button Color */
+.btn-secondary {
+  background-color: var(--bg-slider-track);
+  border-color: var(--bg-slider-track);
+}
+
+/* Profile Action Buttons */
+.profile-actions .btn,
+.save-mode-buttons .btn {
+  padding: 0.5rem 0.75rem;
+  min-width: auto;
+}
+
+/* KPI Cards in Profile */
+.metric-card {
+  background: var(--bg-card);
+  padding: 1rem;
+  height: 100%;
+  margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .profile-container .row.g-3 {
+    --bs-gutter-x: 1rem;
+    --bs-gutter-y: 1rem;
+  }
+}
+
+/* Hamburger Menu Spacing */
+.dropdown-menu {
+  padding-top: 0.5rem;
+}
+
+/* Stats Button Background */
+.stats-container .btn {
+  background-color: var(--bg-primary);
+}
+
+/* Chart Titles */
+.chart-title {
+  color: var(--text-primary);
+}
+
+/* Standardized Component Colors */
+.pro-badge {
+  background: var(--solo-purple);
+}
+
+.slider-track {
+  background: var(--bg-slider-track);
+}
+
+.nav-pills .nav-link.active,
+.btn.nav-link.active {
+  background: var(--solo-purple);
+}
+
+.feedback-submit {
+  background: var(--solo-purple);
+}
+
+.table thead th.sortable:hover {
+  background: var(--bg-primary);
+}
+
+.profile-button {
+  background: var(--bg-button-hover);
+}
+
+.signup-btn {
+  background: var(--solo-purple);
+}
+
+.edit-photo-icon {
+  background: var(--shadow-color-dark);
 }
