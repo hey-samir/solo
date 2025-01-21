@@ -10,9 +10,15 @@
   --bg-card: #4A5D79;
   --bg-flash: rgba(74, 93, 121, 0.95);
 
+  /* Component Background Colors */
+  --bg-slider-track: #343a40;
+  --bg-nav-pill: var(--solo-purple);
+  --bg-button-hover: rgba(255, 255, 255, 0.1);
+  --bg-button-gradient: linear-gradient(135deg, var(--solo-purple) 0%, var(--solo-purple-light) 100%);
+
   /* Text Colors */
   --text-primary: #ffffff;
-  --text-secondary: #6c757d;
+  --text-secondary: rgba(255, 255, 255, 0.6);
 
   /* Border Colors */
   --border-color: rgba(255, 255, 255, 0.1);
@@ -21,6 +27,17 @@
   /* Shadow Colors */
   --shadow-color: rgba(0, 0, 0, 0.1);
   --shadow-color-dark: rgba(0, 0, 0, 0.2);
+
+  /* Button Colors */
+  --button-primary-bg: var(--solo-purple);
+  --button-primary-text: var(--text-primary);
+  --button-secondary-bg: var(--bg-card);
+  --button-secondary-text: var(--text-primary);
+
+  /* Navigation Colors */
+  --nav-text: var(--text-primary);
+  --nav-text-inactive: rgba(255, 255, 255, 0.6);
+  --nav-active-bg: var(--solo-purple);
 
   /* Layout */
   --header-height: 64px;
@@ -117,6 +134,41 @@ textarea.form-control {
   max-width: 100%;
 }
 
+/* Button Styles - Consolidated */
+.btn-primary,
+.btn-send,
+.feedback-submit,
+.signup-btn {
+  background: var(--button-primary-bg);
+  border-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover,
+.btn-send:hover,
+.feedback-submit:hover,
+.signup-btn:hover {
+  background: var(--bg-button-gradient);
+  border-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  transform: translateY(-1px);
+}
+
+.btn-negative,
+.btn-secondary {
+  background-color: var(--button-secondary-bg);
+  border-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  transition: opacity 0.2s;
+}
+
+.btn-negative:hover,
+.btn-secondary:hover {
+  background-color: var(--button-secondary-bg);
+  opacity: 0.9;
+}
+
 /* Buttons */
 .btn {
   min-height: var(--touch-target-size);
@@ -129,30 +181,20 @@ textarea.form-control {
   gap: 0.5rem;
 }
 
-.btn-primary,
-.btn-send {
-  background-color: var(--solo-purple);
-  border-color: var(--solo-purple);
-  color: var(--text-primary);
+/* Navigation Styles - Consolidated */
+.nav-pills .nav-link,
+.navbar-nav .nav-link {
+  color: var(--nav-text);
+  opacity: 0.6;
+  transition: opacity 0.2s, background-color 0.2s;
 }
 
-.btn-primary:hover,
-.btn-send:hover {
-  background-color: var(--solo-purple);
-  border-color: var(--solo-purple);
-  opacity: 0.9;
-}
-
-.btn-negative {
-  background-color: var(--bg-card);
-  border-color: var(--bg-card);
-  color: var(--text-primary);
-}
-
-.btn-negative:hover {
-  background-color: var(--bg-card);
-  border-color: var(--bg-card);
-  opacity: 0.9;
+.nav-pills .nav-link.active,
+.btn.nav-link.active,
+.navbar-nav .nav-link.active {
+  background: var(--nav-active-bg);
+  color: var(--button-primary-text);
+  opacity: 1;
 }
 
 /* Navigation */
@@ -201,6 +243,24 @@ textarea.form-control {
 .navbar-nav .nav-link i {
   font-size: var(--font-size-xl);
   margin-bottom: 0.25rem;
+}
+
+/* Profile Button */
+.profile-button {
+  background-color: var(--bg-button-hover);
+  color: var(--text-primary);
+}
+
+/* Slider Styles - Consolidated */
+.slider-track {
+  background: var(--bg-slider-track);
+  height: 8px;
+}
+
+.slider-selection,
+.slider-handle {
+  background: var(--button-primary-bg);
+  border-color: var(--button-primary-bg);
 }
 
 /* Tables */
@@ -437,7 +497,6 @@ textarea.form-control {
   margin: 0 -0.375rem;
 }
 
-
 .pricing-container {
   padding: 2rem 1rem;
 }
@@ -666,7 +725,7 @@ textarea.form-control {
 }
 
 .slider-track {
-  background: #343a40;
+  background: var(--bg-slider-track);
   height: 8px;
 }
 
@@ -702,7 +761,6 @@ textarea.form-control {
 .nav-pills .nav-link.active {
   background-color: var(--solo-purple);
 }
-
 
 .btn.nav-link.active {
   background: var(--solo-purple);
@@ -1019,6 +1077,7 @@ textarea.form-control {
 .navbar-nav .nav-link.active.bg-solo-purple .nav-icon {
   font-size: 1.75rem;
 }
+}
 
 body {
   font-family: var(--font-family-sans-serif);
@@ -1106,7 +1165,7 @@ body {
 
 .avatar-thumbnail {
   width: 60px;
-height: 60px;
+  height: 60px;
   border-radius: 50%;
   border: 2px solid transparent;
   transition: border-color 0.2s, transform 0.1s;

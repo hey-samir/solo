@@ -10,7 +10,7 @@ from datetime import timedelta
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO if not os.environ.get("FLASK_DEBUG") else logging.DEBUG,
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
 )
 logger = logging.getLogger(__name__)
@@ -24,6 +24,7 @@ csrf = CSRFProtect()
 def create_app(test_config=None):
     """Application factory function"""
     app = Flask(__name__)
+    logger.info("Creating Flask application")
 
     if test_config is None:
         # Basic configuration
@@ -38,10 +39,10 @@ def create_app(test_config=None):
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         app.config["TEMPLATES_AUTO_RELOAD"] = True
         app.config["JSON_SORT_KEYS"] = False
+        app.config["DEBUG"] = True
 
         # Security configuration
         app.secret_key = os.environ.get("FLASK_SECRET_KEY", "development_key_only")
-        app.debug = bool(os.environ.get("FLASK_DEBUG", False))
 
         # Session configuration
         app.config["SESSION_COOKIE_SECURE"] = False
@@ -64,6 +65,7 @@ def create_app(test_config=None):
     app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
     # Initialize extensions with app
+    logger.info("Initializing Flask extensions")
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
@@ -79,8 +81,15 @@ def create_app(test_config=None):
     login_manager.needs_refresh_message_category = "info"
 
     # Register blueprints
-    from auth import bp as auth_bp
-    from routes import bp as routes_bp
+    logger.info("Registering blueprints")
+    from auth import bp as auth_bp, init_auth
+    from routes import bp as routes_bp, init_routes
+
+    # Initialize routes before registering blueprints
+    init_auth()
+    init_routes()
+
+    # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(routes_bp)
 
@@ -101,7 +110,7 @@ def create_app(test_config=None):
             db.create_all()
             logger.info("Database tables created successfully")
         except Exception as e:
-            logger.error(f"Failed to initialize database: {str(e)}")
+            logger.error(f"Failed to initialize database: {str(e)}", exc_info=True)
             raise
 
     return app
@@ -110,4 +119,5 @@ def create_app(test_config=None):
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    logger.info("Starting Flask development server")
+    app.run(host="0.0.0.0", port=5000, debug=True)
