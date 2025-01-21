@@ -2,6 +2,12 @@ import os
 import logging
 import sys
 from datetime import datetime, timedelta
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask_login import login_required, current_user, login_user, logout_user
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.utils import secure_filename
+from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 
 # Import both user messages and system errors
 from user_messages import get_user_message, MessageType
@@ -25,12 +31,9 @@ except Exception as e:
     logger.error(f"Failed to import app: {str(e)}", exc_info=True)
     sys.exit(1)
 
-# Flask imports
-from flask import render_template, request
-from flask_login import login_required, current_user
-from werkzeug.utils import secure_filename
-from sqlalchemy import func
-from sqlalchemy.exc import SQLAlchemyError
+# Initialize CSRF protection
+from flask_wtf.csrf import CSRFProtect
+csrf = CSRFProtect(app)
 
 # Import models and forms after app initialization
 try:
@@ -40,10 +43,6 @@ try:
 except Exception as e:
     logger.error(f"Failed to import models and forms: {str(e)}", exc_info=True)
     sys.exit(1)
-
-# Initialize CSRF protection
-from flask_wtf.csrf import CSRFProtect
-csrf = CSRFProtect(app)
 
 # File upload configuration
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}

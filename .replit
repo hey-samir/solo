@@ -67,7 +67,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python main.py"
+args = "python3 -u main.py"
 waitForPort = 5000
 
 [[ports]]
