@@ -12,18 +12,19 @@ const app = express();
 app.use(cors());
 app.use(json());
 
-// Serve static files from the dist directory
-app.use(express.static('dist'));
-
 // API routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
 
-// Handle React Router paths - send index.html for all non-API routes
-app.get('*', (req, res) => {
+// Serve static files from the dist directory
+app.use(express.static('dist'));
+
+// Handle all routes for the React app
+app.get('/*', (req, res) => {
+  // Don't handle API routes here
   if (!req.path.startsWith('/api')) {
-    res.sendFile(path.resolve(__dirname, '../../dist/index.html'));
+    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
   }
 });
 
