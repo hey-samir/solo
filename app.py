@@ -7,10 +7,7 @@ from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Import db instance
-from database import db
-
-# Configure logging
+# Configure logging once at the application level
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
@@ -28,52 +25,58 @@ def create_app(test_config=None):
     logger.info("Creating Flask application")
 
     if test_config is None:
-        # Basic configuration
+        # Database configuration with optimized connection pooling
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
         app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-            "pool_size": 5,
-            "max_overflow": 2,
-            "pool_recycle": 300,
+            "pool_size": 10,  # Increased for better concurrent handling
+            "max_overflow": 5,
+            "pool_recycle": 1800,  # Increased to 30 minutes
             "pool_pre_ping": True,
-            "pool_timeout": 30
+            "pool_timeout": 60,  # Increased timeout
+            "pool_use_lifo": True  # Better performance under load
         }
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-        app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+        # Performance optimizations
+        app.config["TEMPLATES_AUTO_RELOAD"] = False  # Disable in production
         app.config["JSON_SORT_KEYS"] = False
-        app.config["DEBUG"] = True
 
-        # Security configuration
-        app.secret_key = os.environ.get("FLASK_SECRET_KEY", "development_key_only")
-
-        # Session configuration
-        app.config["SESSION_COOKIE_SECURE"] = False
+        # Security and session configuration
+        app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
+        app.config["SESSION_COOKIE_SECURE"] = True
         app.config["SESSION_COOKIE_HTTPONLY"] = True
         app.config["SESSION_COOKIE_SAMESITE"] = 'Lax'
         app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=31)
         app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=31)
-        app.config["REMEMBER_COOKIE_SECURE"] = False
+        app.config["REMEMBER_COOKIE_SECURE"] = True
         app.config["REMEMBER_COOKIE_HTTPONLY"] = True
 
         # CSRF configuration
-        app.config["WTF_CSRF_TIME_LIMIT"] = None
-        app.config["WTF_CSRF_SSL_STRICT"] = False
-        app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+        app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hour
+        app.config["WTF_CSRF_SSL_STRICT"] = True
+        app.config["WTF_CSRF_CHECK_DEFAULT"] = True
     else:
-        # Load test config if passed in
         app.config.update(test_config)
 
-    # Enable proxy support
-    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+    # Enable proxy support with secure headers
+    app.wsgi_app = ProxyFix(
+        app.wsgi_app,
+        x_proto=1,
+        x_host=1,
+        x_port=1,
+        x_prefix=1
+    )
 
     # Initialize extensions with app
     logger.info("Initializing Flask extensions")
+    from database import db
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
 
-    # Configure Flask-Login
-    login_manager.session_protection = "basic"
+    # Configure Flask-Login with enhanced security
+    login_manager.session_protection = "strong"
     login_manager.login_view = "auth.login"
     login_manager.login_message = "Please log in to access this page."
     login_manager.login_message_category = "info"
@@ -81,7 +84,7 @@ def create_app(test_config=None):
     login_manager.needs_refresh_message = "Please log in again to confirm your identity."
     login_manager.needs_refresh_message_category = "info"
 
-    # User loader callback
+    # User loader callback with error handling
     @login_manager.user_loader
     def load_user(id):
         try:
@@ -95,22 +98,18 @@ def create_app(test_config=None):
         # Import models first to ensure they're available
         import models  # noqa: F401
 
-        try:
-            # Create database tables
-            db.create_all()
-            logger.info("Database tables created successfully")
+        # Create database tables
+        db.create_all()
+        logger.info("Database tables created successfully")
 
-            # Register blueprints
-            from auth import bp as auth_bp
-            from routes import bp as routes_bp
+        # Register blueprints
+        from auth import bp as auth_bp
+        from routes import bp as routes_bp
 
-            app.register_blueprint(auth_bp)
-            app.register_blueprint(routes_bp)
+        app.register_blueprint(auth_bp)
+        app.register_blueprint(routes_bp)
 
-            logger.info("Successfully registered blueprints")
-        except Exception as e:
-            logger.error(f"Error during app initialization: {str(e)}", exc_info=True)
-            raise
+        logger.info("Successfully registered blueprints")
 
     return app
 
@@ -119,4 +118,4 @@ app = create_app()
 
 if __name__ == "__main__":
     logger.info("Starting Flask development server")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)

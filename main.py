@@ -2,9 +2,8 @@ import os
 import logging
 import sys
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user, login_user, logout_user
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
@@ -23,19 +22,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Import app and extensions first
+# Import app and db after logging configuration
 try:
-    from app import app, db
+    from app import app
+    from database import db
     logger.info("Successfully imported app and db")
 except Exception as e:
     logger.error(f"Failed to import app: {str(e)}", exc_info=True)
     sys.exit(1)
 
-# Initialize CSRF protection
-from flask_wtf.csrf import CSRFProtect
-csrf = CSRFProtect(app)
-
-# Import models and forms after app initialization
+# Import models after app initialization
 try:
     from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
     from forms import LoginForm, RegistrationForm, ProfileForm, FeedbackForm
@@ -71,7 +67,6 @@ def calculate_avg_grade(grades):
         return '--'
 
 def getGradePoints(grade):
-    """Helper function to calculate points for a grade"""
     if not grade:
         return 0
     try:
@@ -825,7 +820,7 @@ def squads():
 
 @app.route('/solo-pro')
 def solo_pro():
-    """Handle the solo pro page directly"""
+    """Handle    """Handle the solo pro page directly"""
     try:
         return render_template('pricing.html')
     except Exception as e:
@@ -841,210 +836,36 @@ def pricing():
         logger.error(f"Error rendering pricing page: {str(e)}")
         return render_template('404.html'), 404
 
-@app.route('/feedback', methods=['GET'])
-def feedback():
-    """
-    The feedback route is accessible without login to allow new gym submissions
-    """
-    try:
-        form = FeedbackForm()
-        sort = request.args.get('sort', 'new')
-
-        # Query feedback items
-        if sort == 'top':
-            feedback_items = (
-                Feedback.query
-                .join(FeedbackVote, isouter=True)
-                .group_by(Feedback.id)
-                .order_by(func.count(FeedbackVote.id).desc())
-                .all()
-            )
-        else:  # 'new' is default
-            feedback_items = Feedback.query.order_by(Feedback.created_at.desc()).all()
-
-        # Check if there's a pending registration for gym submission
-        pending_registration = session.get('pending_registration')
-        if pending_registration:
-            form.title.data = "New Gym Submission"
-            form.description.data = f"Please add mygym to Solo!\n\nGym Name: \nLocation: \nAdditional Details: "
-            form.category.data = 'new_gym'
-
-        return render_template('feedback.html', form=form, feedback_items=feedback_items, sort=sort)
-    except Exception as e:
-        logger.error(f"Error in feedback route: {str(e)}")
-        return render_template('404.html'), 404
-
-@app.route('/feedback', methods=['POST'])
-def submit_feedback():
-    from forms import FeedbackForm
-    from models import Feedback
-    from werkzeug.utils import secure_filename
-    from datetime import datetime
-
-    form = FeedbackForm()
-    if not form.validate_on_submit():
-        for field, errors in form.errors.items():
-            for error in errors:
-                flash(f'{field}: {error}', 'error')
-        return redirect(url_for('feedback'))
-
-    try:
-        # Create new feedback
-        feedback = Feedback(
-            title=form.title.data,
-            description=form.description.data,
-            user_id=current_user.id if current_user.is_authenticated else None
-        )
-
-        # Handle screenshot upload if provided
-        if form.screenshot.data:
-            file = form.screenshot.data
-            if file.filename != '':
-                if not allowed_file(file.filename):
-                    message, type_ = get_user_message('INVALID_FILE_TYPE')
-                    flash(message, type_)
-                    return redirect(url_for('feedback'))
-
-                try:
-                    filename = secure_filename(
-                        f"feedback_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{file.filename}")
-                    upload_folder = os.path.join(app.static_folder, 'images', 'feedback')
-                    os.makedirs(upload_folder, exist_ok=True)
-
-                    file_path = os.path.join(upload_folder, filename)
-                    file.save(file_path)
-                    feedback.screenshot_url = f"images/feedback/{filename}"
-                except Exception as e:
-                    logger.error(f"File upload error: {str(e)}")
-                    message, type_ = get_user_message('FILE_UPLOAD_ERROR')
-                    flash(message, type_)
-                    return redirect(url_for('feedback'))
-
-        db.session.add(feedback)
-        db.session.commit()
-
-        # Clear pending registration after successful feedback submission
-        if 'pending_registration' in session:
-            session.pop('pending_registration')
-
-        message, type_ = get_user_message('FEEDBACK_SUBMIT_SUCCESS')
-        flash(message, type_)
-        return redirect(url_for('feedback'))
-    except Exception as e:
-        logger.error(f"Error submitting feedback: {str(e)}")
-        db.session.rollback()
-        message, type_ = get_user_message('DATABASE_ERROR')
-        flash(message, type_)
-        return redirect(url_for('feedback'))
-
-@app.route('/feedback/<int:feedback_id>/vote', methods=['POST'])
-@login_required
-def vote_feedback(feedback_id):
-    from models import FeedbackVote
-    try:
-        # Check if user has already voted
-        existing_vote = FeedbackVote.query.filter_by(
-            user_id=current_user.id,
-            feedback_id=feedback_id
-        ).first()
-
-        if existing_vote:
-            # Remove vote if already voted
-            db.session.delete(existing_vote)
-            message, type_ = get_user_message('VOTE_REMOVED')
-        else:
-            # Add new vote
-            vote = FeedbackVote(user_id=current_user.id, feedback_id=feedback_id)
-            db.session.add(vote)
-            message, type_ = get_user_message('VOTE_ADDED')
-
-        db.session.commit()
-        flash(message, type_)
-    except Exception as e:
-        logger.error(f"Error processing vote: {str(e)}")
-        db.session.rollback()
-        message, type_ = get_user_message('GENERIC_ERROR')
-        flash(message, type_)
-
-    return redirect(url_for('feedback'))
-
-# Add this route after your other routes
-@app.route('/offline.html')
-def offline():
-    return render_template('offline.html')
-
-@app.route('/store')
-@app.route('/coming-soon')
-def coming_soon():
-    """Handle store/coming soon page"""
-    return render_template('404.html'), 404
-
-@app.route('/error_404')
-def error_404():
-    """Handle 404 errors"""
-    return render_template('404.html'), 404
-
-@app.errorhandler(404)
-def page_not_found(e):
-    """Global 404 error handler"""
-    log_error(logger, ErrorCodes.API_INVALID_RESPONSE[0])
-    message, type_ = get_user_message('PAGE_NOT_FOUND')
-    return render_template('404.html', error=message), 404
-
-@app.errorhandler(Exception)
-def handle_error(error):
-    """Global error handler with improved logging"""
-    db.session.rollback()
-
-    if isinstance(error, SQLAlchemyError):
-        # Log the technical error
-        log_error(logger, ErrorCodes.DB_QUERY_ERROR[0], exc_info=True)
-        # Get user-friendly message
-        message, type_ = get_user_message('DATABASE_ERROR')
-    else:
-        # Log the technical error
-        log_error(logger, ErrorCodes.SYSTEM_RESOURCE_EXHAUSTED[0], exc_info=True)
-        # Get user-friendly message
-        message, type_ = get_user_message('SYSTEM_ERROR')
-
-    status_code = 500 if type_ == MessageType.ERROR else 400
-    return render_template('404.html', error=message), status_code
-
-#Ensure static/images directory exists
-os.makedirs(os.path.join(app.static_folder, 'images'), exist_ok=True)
-
-# Copy solo-clear.png to static/images if needed
-import shutil
-source_logo = os.path.join('attached_assets', 'solo-clear.png')
-dest_logo = os.path.join(app.static_folder, 'images', 'solo-clear.png')
-if os.path.exists(source_logo) and not os.path.exists(dest_logo):
-    try:
-        shutil.copy2(source_logo, dest_logo)
-    except Exception as e:
-        logger.error(f"Failed to copy logo: {str(e)}")
-
-from app import app
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
-
 def getGradePoints(grade):
     if not grade:
         return 0
-    match = grade.split('.')
-    if len(match) != 2:
+    try:
+        parts = grade.split('.')
+        if len(parts) != 2:
+            return 0
+
+        # Extract numeric grade and modifier
+        base = parts[1].rstrip('abcd')
+        modifier = parts[1][-1] if parts[1][-1] in 'abcd' else ''
+
+        if not base.isdigit():
+            return 0
+
+        base_points = {
+            '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
+            '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
+        }
+
+        modifier_multiplier = {
+            'a': 1.0, 'b': 1.1, 'c': 1.2, 'd': 1.3, '': 1.0
+        }
+
+        return round(base_points.get(base, 0) * modifier_multiplier.get(modifier, 1.0))
+    except Exception:
         return 0
 
-    mainGrade = match[1].rstrip('abcd')
-    subGrade = match[1][len(mainGrade):]
+# Import Flask app instance
+from app import app
 
-    basePoints = {
-        '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
-        '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
-    }
-
-    subGradeMultiplier = {
-        'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
-    }
-
-    return round((basePoints.get(mainGrade, 0)) * (subGradeMultiplier.get(subGrade, 1)))
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
