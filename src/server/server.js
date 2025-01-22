@@ -40,7 +40,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Routes with better error handling
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'healthy' });
+});
+
+// Basic API endpoints
 app.get('/api/user/:username', async (req, res) => {
   try {
     const username = req.params.username;
@@ -65,48 +70,8 @@ app.get('/api/user/:username', async (req, res) => {
   }
 });
 
-app.get('/api/climbs', async (req, res) => {
-  try {
-    if (!req.user?.id) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const userClimbs = await db.query.climbs.findMany({
-      where: (climbs, { eq }) => eq(climbs.userId, req.user.id),
-      orderBy: (climbs, { desc }) => [desc(climbs.createdAt)]
-    });
-
-    res.json(userClimbs);
-  } catch (error) {
-    console.error('Error fetching climbs:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-app.get('/api/routes', async (req, res) => {
-  try {
-    if (!req.user?.id) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const userRoutes = await db.query.routes.findMany({
-      where: (routes, { eq }) => eq(routes.gymId, req.user.gymId)
-    });
-
-    res.json(userRoutes);
-  } catch (error) {
-    console.error('Error fetching routes:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Health check endpoint
-app.get('/api/health', (_, res) => {
-  res.json({ status: 'healthy' });
-});
-
 // Serve React app for non-API routes
-app.get('*', (_, res) => {
+app.get('*', (req, res) => {
   if (app.get('env') === 'production') {
     res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
   } else {

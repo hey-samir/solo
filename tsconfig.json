@@ -12,8 +12,15 @@
     "allowJs": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "jsx": "react-jsx",
     "types": ["node", "express"],
-    "typeRoots": ["./node_modules/@types", "./src/server/types"]
+    "typeRoots": ["./node_modules/@types", "./src/server/types"],
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"],
+      "@server/*": ["server/*"],
+      "@components/*": ["components/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
