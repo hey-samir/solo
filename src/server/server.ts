@@ -5,9 +5,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import userRoutes from './routes/user';
-import climbRoutes from './routes/climbs';
-import routeRoutes from './routes/routes';
+import { users, routes, climbs } from './db/schema';
+import { eq } from 'drizzle-orm';
 
 dotenv.config();
 
@@ -27,7 +26,7 @@ try {
   console.log('Database connection successful');
 } catch (error) {
   console.error('Database connection failed:', error);
-  process.exit(1); // Exit if database connection fails
+  process.exit(1);
 }
 
 // Middleware
@@ -36,13 +35,12 @@ app.use(cors({
   credentials: true
 }));
 
-// Increase payload size limit for concurrent uploads
 app.use(json({ limit: '10mb' }));
 app.use(express.static('dist', {
   maxAge: '1h' // Cache static assets for 1 hour
 }));
 
-// Simple authentication middleware for development
+// Simple auth middleware for development
 app.use((req: Request, _: Response, next: NextFunction) => {
   // Add a mock user for development
   req.user = {
@@ -52,17 +50,65 @@ app.use((req: Request, _: Response, next: NextFunction) => {
   next();
 });
 
-// API routes
-app.use('/api/user', userRoutes);
-app.use('/api/climbs', climbRoutes);
-app.use('/api/routes', routeRoutes);
-
 // Health check endpoint
 app.get('/api/health', (_: Request, res: Response) => {
   res.json({ status: 'healthy' });
 });
 
-// Serve React app for all non-API routes
+// User endpoint with proper error handling and types
+app.get('/api/user/:username', async (req: Request, res: Response) => {
+  try {
+    const username = req.params.username;
+    const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
+
+    if (!user || user.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({
+      id: user[0].id,
+      username: user[0].username,
+      profilePhoto: user[0].profilePhoto,
+      memberSince: user[0].memberSince,
+      gymId: user[0].gymId
+    });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Climbs endpoint with proper error handling and types
+app.get('/api/climbs', async (req: Request, res: Response) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userClimbs = await db.select().from(climbs).where(eq(climbs.userId, req.user.id));
+    res.json(userClimbs);
+  } catch (error) {
+    console.error('Error fetching climbs:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Routes endpoint with proper error handling and types
+app.get('/api/routes', async (req: Request, res: Response) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const userRoutes = await db.select().from(routes).where(eq(routes.gymId, req.user.gymId!));
+    res.json(userRoutes);
+  } catch (error) {
+    console.error('Error fetching routes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Serve React app for non-API routes
 app.get('*', (_: Request, res: Response) => {
   if (app.get('env') === 'production') {
     res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));

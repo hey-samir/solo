@@ -19,7 +19,7 @@ try {
   console.log('Database connection successful');
 } catch (error) {
   console.error('Database connection failed:', error);
-  // Continue without database for now
+  process.exit(1);
 }
 
 // Middleware
@@ -49,14 +49,16 @@ app.get('/api/health', (req, res) => {
 app.get('/api/user/:username', async (req, res) => {
   try {
     const username = req.params.username;
-    const user = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.username, username)
+    const users = await db.query.users.findMany({
+      where: (users, { eq }) => eq(users.username, username),
+      limit: 1
     });
 
-    if (!user) {
+    if (!users || users.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    const user = users[0];
     res.json({
       id: user.id,
       username: user.username,
@@ -81,7 +83,6 @@ app.get('*', (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Error handling for server startup
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 }).on('error', (error) => {
