@@ -45,6 +45,11 @@ export default function Router() {
             <Standings />
           </Suspense>
         } />
+        <Route path="*" element={
+          <div className="text-center py-8">
+            <h1 className="text-2xl font-bold">404 - Page Not Found</h1>
+          </div>
+        } />
       </Route>
     </Routes>
   )
