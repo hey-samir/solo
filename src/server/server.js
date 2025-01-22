@@ -31,7 +31,7 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static('dist', {
+app.use(express.static(path.join(process.cwd(), 'dist'), {
   maxAge: '1h' // Cache static assets for 1 hour
 }));
 
@@ -73,13 +73,9 @@ app.get('/api/user/:username', async (req, res) => {
   }
 });
 
-// Serve React app for non-API routes
+// Serve index.html for all non-API routes to support client-side routing
 app.get('*', (req, res) => {
-  if (app.get('env') === 'production') {
-    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
-  } else {
-    res.redirect('http://localhost:3000');
-  }
+  res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
 });
 
 const PORT = process.env.PORT || 5000;

@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
 
+console.log('Environment:', process.env.NODE_ENV)
+console.log('API URL:', process.env.VITE_API_URL)
 console.log('Starting React application...')
 
 const root = document.getElementById('root')
