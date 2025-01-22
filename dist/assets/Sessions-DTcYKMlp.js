@@ -1,1 +1,0 @@
-import{j as s}from"./index-LzXNNyBP.js";const t=()=>s.jsxs("div",{className:"container mx-auto px-4 py-8",children:[s.jsx("h1",{className:"text-3xl font-bold text-gray-900",children:"Sessions"}),s.jsx("p",{className:"mt-4 text-gray-600",children:"View your climbing sessions"})]});export{t as default};

@@ -1,12 +1,11 @@
 import os
 import logging
 from datetime import timedelta
-from flask import Flask, send_from_directory
+from flask import Flask, render_template
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
 from flask_cors import CORS
-from werkzeug.middleware.proxy_fix import ProxyFix
 from database import db
 
 # Configure logging
@@ -23,7 +22,10 @@ csrf = CSRFProtect()
 
 def create_app(test_config=None):
     """Application factory function"""
-    app = Flask(__name__, static_folder='dist', static_url_path='')
+    app = Flask(__name__, 
+                template_folder='templates',
+                static_folder='static',
+                static_url_path='/static')
     logger.info("Creating Flask application")
 
     if test_config is None:
@@ -56,15 +58,6 @@ def create_app(test_config=None):
     # Enable CORS for development
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-    # Enable proxy support
-    app.wsgi_app = ProxyFix(
-        app.wsgi_app,
-        x_proto=1,
-        x_host=1,
-        x_port=1,
-        x_prefix=1
-    )
-
     # Initialize extensions
     logger.info("Initializing Flask extensions")
     db.init_app(app)
@@ -95,20 +88,14 @@ def create_app(test_config=None):
 
         # Register blueprints
         from auth import bp as auth_bp
+        from routes.routes import bp as routes_bp
         from api import bp as api_bp
 
         app.register_blueprint(auth_bp)
+        app.register_blueprint(routes_bp)
         app.register_blueprint(api_bp)
 
         logger.info("Successfully registered blueprints")
-
-        # Serve React app for all non-API routes
-        @app.route('/', defaults={'path': ''})
-        @app.route('/<path:path>')
-        def serve(path):
-            if path and os.path.exists(os.path.join(app.static_folder, path)):
-                return send_from_directory(app.static_folder, path)
-            return send_from_directory(app.static_folder, 'index.html')
 
     return app
 

@@ -1,1 +1,0 @@
-import{j as e}from"./index-LzXNNyBP.js";const r=()=>e.jsxs("div",{className:"container mx-auto px-4 py-8",children:[e.jsx("h1",{className:"text-3xl font-bold text-gray-900",children:"Sends"}),e.jsx("p",{className:"mt-4 text-gray-600",children:"Track your climbing progress here"})]});export{r as default};
