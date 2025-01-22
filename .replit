@@ -35,7 +35,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx ts-node --project tsconfig.json src/server/server.ts"
+args = "node src/server/server.js"
 waitForPort = 5000
 
 [[workflows.workflow]]
