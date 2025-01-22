@@ -1,11 +1,16 @@
+import os
 import logging
-from flask import render_template, redirect, url_for, flash
+from datetime import datetime
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
 from flask_login import login_required, current_user
+from werkzeug.utils import secure_filename
 from database import db
 from models import User, Route, Climb, Feedback, FeedbackVote, RouteGrade, Gym
 from forms import ProfileForm, FeedbackForm
 from user_messages import get_user_message
-from routes import bp
+
+# Create blueprint
+bp = Blueprint('routes', __name__)
 
 logger = logging.getLogger(__name__)
 
@@ -83,40 +88,6 @@ def update_profile():
             db.session.commit()
             return redirect(url_for('routes.profile', username=current_user.username))
     return redirect(url_for('routes.profile', username=current_user.username))
-    """Handle the user's profile page with optional username parameter"""
-    logger.debug("Accessing profile page for user: %s", username or (current_user.username if current_user.is_authenticated else 'Anonymous'))
-    try:
-        if username:
-            username = username.lstrip('@')
-            user = User.query.filter_by(username=username).first_or_404()
-        elif current_user.is_authenticated:
-            return redirect(url_for('routes.profile', username=current_user.username))
-        else:
-            message, type_ = get_user_message('LOGIN_REQUIRED')
-            flash(message, type_)
-            return redirect(url_for('auth.login'))
-
-        form = ProfileForm(obj=user) if current_user.is_authenticated and current_user.id == user.id else None
-
-        # Calculate KPI metrics
-        climbs = list(user.climbs)
-        total_ascents = len(climbs)
-        total_points = sum(climb.points or 0 for climb in climbs)
-
-        is_own_profile = current_user.is_authenticated and current_user.id == user.id
-
-        return render_template('solo-profile.html',
-                            form=form,
-                            profile_user=user,
-                            total_ascents=total_ascents,
-                            total_points=total_points,
-                            is_own_profile=is_own_profile)
-
-    except Exception as e:
-        logger.error("Error in profile page: %s", str(e))
-        message, type_ = get_user_message('GENERIC_ERROR')
-        flash(message, type_)
-        return render_template('404.html'), 404
 
 @bp.route('/sends', methods=['GET', 'POST'])
 @login_required

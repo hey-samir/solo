@@ -1,13 +1,15 @@
 import os
 import logging
 from datetime import timedelta
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
+from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
+from database import db
 
-# Configure logging once at the application level
+# Configure logging
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
@@ -21,27 +23,23 @@ csrf = CSRFProtect()
 
 def create_app(test_config=None):
     """Application factory function"""
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='dist', static_url_path='')
     logger.info("Creating Flask application")
 
     if test_config is None:
-        # Database configuration with optimized connection pooling
+        # Database configuration
         app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
         app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-            "pool_size": 10,  # Increased for better concurrent handling
+            "pool_size": 10,
             "max_overflow": 5,
-            "pool_recycle": 1800,  # Increased to 30 minutes
+            "pool_recycle": 1800,
             "pool_pre_ping": True,
-            "pool_timeout": 60,  # Increased timeout
-            "pool_use_lifo": True  # Better performance under load
+            "pool_timeout": 60,
+            "pool_use_lifo": True
         }
         app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-        # Performance optimizations
-        app.config["TEMPLATES_AUTO_RELOAD"] = False  # Disable in production
-        app.config["JSON_SORT_KEYS"] = False
-
-        # Security and session configuration
+        # Security configuration
         app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
         app.config["SESSION_COOKIE_SECURE"] = True
         app.config["SESSION_COOKIE_HTTPONLY"] = True
@@ -50,15 +48,15 @@ def create_app(test_config=None):
         app.config["REMEMBER_COOKIE_DURATION"] = timedelta(days=31)
         app.config["REMEMBER_COOKIE_SECURE"] = True
         app.config["REMEMBER_COOKIE_HTTPONLY"] = True
-
-        # CSRF configuration
-        app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hour
+        app.config["WTF_CSRF_TIME_LIMIT"] = 3600
         app.config["WTF_CSRF_SSL_STRICT"] = True
-        app.config["WTF_CSRF_CHECK_DEFAULT"] = True
     else:
         app.config.update(test_config)
 
-    # Enable proxy support with secure headers
+    # Enable CORS for development
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+    # Enable proxy support
     app.wsgi_app = ProxyFix(
         app.wsgi_app,
         x_proto=1,
@@ -67,24 +65,17 @@ def create_app(test_config=None):
         x_prefix=1
     )
 
-    # Initialize extensions with app
+    # Initialize extensions
     logger.info("Initializing Flask extensions")
-    from database import db
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
 
-    # Configure Flask-Login with enhanced security
+    # Configure Flask-Login
     login_manager.session_protection = "strong"
     login_manager.login_view = "auth.login"
-    login_manager.login_message = "Please log in to access this page."
-    login_manager.login_message_category = "info"
-    login_manager.refresh_view = "auth.login"
-    login_manager.needs_refresh_message = "Please log in again to confirm your identity."
-    login_manager.needs_refresh_message_category = "info"
 
-    # User loader callback with error handling
     @login_manager.user_loader
     def load_user(id):
         try:
@@ -95,7 +86,7 @@ def create_app(test_config=None):
             return None
 
     with app.app_context():
-        # Import models first to ensure they're available
+        # Import models
         import models  # noqa: F401
 
         # Create database tables
@@ -104,12 +95,20 @@ def create_app(test_config=None):
 
         # Register blueprints
         from auth import bp as auth_bp
-        from routes import bp as routes_bp
+        from api import bp as api_bp
 
         app.register_blueprint(auth_bp)
-        app.register_blueprint(routes_bp)
+        app.register_blueprint(api_bp)
 
         logger.info("Successfully registered blueprints")
+
+        # Serve React app for all non-API routes
+        @app.route('/', defaults={'path': ''})
+        @app.route('/<path:path>')
+        def serve(path):
+            if path and os.path.exists(os.path.join(app.static_folder, path)):
+                return send_from_directory(app.static_folder, path)
+            return send_from_directory(app.static_folder, 'index.html')
 
     return app
 

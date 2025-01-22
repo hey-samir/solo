@@ -23,4 +23,5 @@ dependencies = [
     "qrcode[pil]>=8.0",
     "gunicorn>=23.0.0",
     "alembic>=1.14.0",
+    "flask-cors>=5.0.0",
 ]
