@@ -31,8 +31,21 @@ app.use(cors({
 }));
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(path.join(process.cwd(), 'dist'), {
-  maxAge: '1h' // Cache static assets for 1 hour
+
+// Static file serving configuration
+const distPath = path.join(process.cwd(), 'dist');
+console.log('Static directory path:', distPath);
+
+// Serve static files with proper MIME types
+app.use(express.static(distPath, {
+  maxAge: '1h', // Cache static assets for 1 hour
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+  }
 }));
 
 // Simple auth middleware for development
@@ -75,7 +88,13 @@ app.get('/api/user/:username', async (req, res) => {
 
 // Serve index.html for all non-API routes to support client-side routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+  console.log('Serving index.html for path:', req.path);
+  res.sendFile(path.join(distPath, 'index.html'), (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading application');
+    }
+  });
 });
 
 const PORT = process.env.PORT || 5000;

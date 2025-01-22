@@ -5,7 +5,7 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "flask"
-run = ["sh", "-c", "NODE_ENV=development node src/server/server.js"]
+run = ["sh", "-c", "npx vite build && NODE_ENV=production node src/server/server.js"]
 
 [workflows]
 runButton = "Project"
@@ -17,14 +17,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "API Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "React Dev Server"
+args = "Build and Serve"
 
 [[workflows.workflow]]
-name = "API Server"
+name = "Build and Serve"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -35,23 +31,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development node src/server/server.js"
+args = "npx vite build && NODE_ENV=production node src/server/server.js"
 waitForPort = 5000
-
-[[workflows.workflow]]
-name = "React Dev Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "VITE_API_URL=\"https://$REPL_SLUG.$REPL_OWNER.repl.co\" npx vite --port 3000 --host 0.0.0.0 --clearScreen false"
-waitForPort = 3000
 
 [[ports]]
 localPort = 3000
