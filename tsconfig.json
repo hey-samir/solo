@@ -11,7 +11,9 @@
     "rootDir": "src",
     "allowJs": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "types": ["node", "express"],
+    "typeRoots": ["./node_modules/@types", "./src/server/types"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
