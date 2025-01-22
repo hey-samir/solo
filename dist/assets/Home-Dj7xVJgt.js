@@ -1,0 +1,1 @@
+import{j as t}from"./index-LzXNNyBP.js";const o=()=>t.jsx("div",{className:"container mx-auto px-4 py-8",children:t.jsx("h1",{className:"text-3xl font-bold text-gray-900",children:"Solo - Quantify your Ascent"})});export{o as default};

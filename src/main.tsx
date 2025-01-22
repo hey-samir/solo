@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import './index.css'
+import './index.css' // Ensure CSS is imported first
 
 console.log('Environment:', process.env.NODE_ENV)
 console.log('API URL:', process.env.VITE_API_URL)

@@ -1,1 +1,0 @@
-import{j as t}from"./index-DsuX84uD.js";const a=()=>t.jsxs("div",{className:"container mx-auto px-4 py-8",children:[t.jsx("h1",{className:"text-3xl font-bold text-gray-900",children:"Welcome to Solo"}),t.jsx("p",{className:"mt-4 text-gray-600",children:"Your climbing performance tracking application"})]});export{a as default};
