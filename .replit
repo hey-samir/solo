@@ -50,7 +50,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx vite --port 3000 --host"
+args = "VITE_ALLOW_REPLIT_HOST=true npx vite --port 3000 --host --strictPort"
 waitForPort = 3000
 
 [[ports]]

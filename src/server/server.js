@@ -22,13 +22,14 @@ try {
   process.exit(1);
 }
 
-// Middleware
+// Allow all origins in development for Replit environment
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : 'http://localhost:3000',
-  credentials: true
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Increase payload size limit for concurrent uploads
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static('dist', {
   maxAge: '1h' // Cache static assets for 1 hour
