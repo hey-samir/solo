@@ -57,32 +57,88 @@ html, body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto calc(var(--navbar-height) + 1rem);
-  padding: var(--container-padding);
+  padding: 0.5rem;
   background-color: var(--bg-primary);
   overflow-x: hidden;
   box-sizing: border-box !important;
   border: none !important;
 }
 
-/* Bottom Navigation */
-.navbar.fixed-bottom {
+/* Tables - Mobile Optimized */
+.table-responsive {
+  width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  margin: 0;
+  font-size: 0.75rem;
+}
+
+.table th,
+.table td {
+  padding: 0.25rem 0.375rem;
+  white-space: normal;
+  word-break: normal;
   background-color: var(--bg-primary);
-  padding: 0;
-  height: var(--navbar-height);
-  border-top: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border: none;
+}
+
+/* Sends Table Column Widths */
+.sends-container .table th:first-child,
+.sends-container .table td:first-child {
+  width: 200px;
+  min-width: 200px;
+}
+
+.sends-container .table th:nth-child(2),
+.sends-container .table td:nth-child(2) {
+  width: calc(100% - 200px);
+}
+
+/* Profile Section */
+.profile-card {
+  background-color: var(--bg-primary);
+  border: none;
+  margin: 0;
+}
+
+/* Profile Buttons - Fit on same row */
+.profile-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 1rem;
+}
+
+.profile-actions .btn,
+.save-mode-buttons .btn {
+  padding: 0.5rem;
+  min-width: auto;
+  flex: 1;
+  white-space: nowrap;
+}
+
+/* KPI Cards - 3 per row */
+.profile-container .row .col-12 {
+  width: 33.333%;
+  padding: 0.25rem;
 }
 
 /* Navigation - Updated active state */
 .navbar-nav .nav-link {
   padding: 0.75rem 1rem;
   color: var(--text-primary);
-  opacity: var(--opacity-inactive);
+  opacity: 0.7;
   transition: opacity 0.2s ease;
   background: transparent;
 }
 
 .navbar-nav .nav-link.active {
-  opacity: var(--opacity-active);
+  opacity: 1;
   color: var(--solo-purple);
   background: transparent;
   position: relative;
@@ -98,118 +154,72 @@ html, body {
   background: var(--solo-purple);
 }
 
-.navbar-nav .nav-link:hover {
-  opacity: var(--opacity-hover);
-}
-
-/* Tables - Mobile Optimized */
-.table-responsive {
-  width: 100%;
-  margin: 0;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-}
-
-.table {
-  width: 100%;
-  margin: 0;
-  font-size: 0.8125rem;
-}
-
-.table th,
-.table td {
-  padding: 0.375rem 0.5rem;
-  white-space: normal;
-  word-break: normal;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  border: none;
-}
-
-/* Sends Table Column Widths */
-.sends-container .table th:first-child,
-.sends-container .table td:first-child {
-  width: 180px;
-  min-width: 180px;
-}
-
-.sends-container .table th:nth-child(2),
-.sends-container .table td:nth-child(2) {
-  width: calc(100% - 180px);
-}
-
-/* Profile Section */
-.profile-card {
-  background-color: var(--bg-primary);
-  border: none;
-  margin: 0;
-}
-
-.profile-actions .btn,
-.save-mode-buttons .btn {
-  padding: 0.5rem 0.75rem;
-  min-width: auto;
-}
-
-/* KPI Cards */
-.metric-card {
-  background-color: var(--bg-card);
-  padding: 1rem;
-  height: 100%;
-  margin-bottom: 0;
-}
-
-/* Profile KPIs - 3 per row */
-.profile-container .row .col-12 {
-  width: 33.333%;
-  padding: 0.25rem;
-}
-
 /* Buttons */
 .btn-primary,
 .btn-send,
 .feedback-submit,
-.signup-btn {
-  background: var(--button-primary-bg);
+.signup-btn,
+.profile-button,
+.nav-pills .nav-link.active {
+  background-color: var(--button-primary-bg);
   border-color: var(--button-primary-bg);
   color: var(--button-primary-text);
-  transition: background 0.2s, transform 0.1s;
 }
 
-.btn-primary:hover,
-.btn-send:hover,
-.feedback-submit:hover,
-.signup-btn:hover {
-  background: var(--bg-button-gradient);
-  border-color: var(--button-primary-bg);
-  color: var(--button-primary-text);
-  transform: translateY(-1px);
-}
-
-/* Button Colors - Using slider-track */
 .btn-secondary {
-  background-color: var(--bg-slider-track);
-  border-color: var(--bg-slider-track);
-  color: var(--text-primary);
-  transition: opacity 0.2s;
-}
-
-.btn-negative:hover,
-.btn-secondary:hover {
   background-color: var(--button-secondary-bg);
-  opacity: var(--opacity-hover);
+  border-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
 }
 
-.btn {
-  min-height: var(--touch-target-size);
-  padding: 0.75rem 1.25rem;
-  touch-action: manipulation;
-  min-width: var(--touch-target-size);
-  -webkit-tap-highlight-color: rgba(var(--solo-purple-rgb), 0.2);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+/* Slider Track */
+.slider-track {
+  background: var(--bg-slider-track);
 }
+
+/* Stats Button */
+.stats-container .btn {
+  background-color: var(--button-primary-bg);
+}
+
+/* Trends Chart Title */
+.chart-title {
+  color: var(--text-primary);
+}
+
+/* Hamburger Menu */
+.navbar-collapse {
+  padding-top: 0.5rem;
+}
+
+/* Media Queries */
+@media (min-width: 768px) {
+  .container,
+  .sessions-container,
+  .standings-container,
+  .sends-container,
+  .stats-container {
+    padding: 1rem;
+  }
+
+  .table {
+    font-size: 0.875rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.5rem 0.75rem;
+  }
+}
+
+/* Bottom Navigation */
+.navbar.fixed-bottom {
+  background-color: var(--bg-primary);
+  padding: 0;
+  height: var(--navbar-height);
+  border-top: 1px solid var(--border-color);
+}
+
 
 /* Navigation Styles - Consolidated */
 .nav-pills .nav-link,
@@ -552,6 +562,8 @@ html, body {
   height: 100%;
   transition: transform 0.2s;
   box-shadow: 0 2px 8px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
 }
 
 .pricing-card.pro {
@@ -566,19 +578,17 @@ html, body {
   border-bottom: 1px solid var(--border-color);
 }
 
-.pricing-header h3 {
-  color: var(--text-primary);
-  margin-bottom: 1rem;
-}
-
-.pricing-logo {
-  margin: 1rem 0;
+.pricing-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .feature-list {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 2rem 0;
+  flex-grow: 1;
 }
 
 .feature-list li {
@@ -593,24 +603,22 @@ html, body {
   font-size: 1.25rem;
 }
 
-.feature-list .material-icons.text-success {
-  color: var(--solo-purple);
+.pricing-cta {
+  margin-top: auto;
+  text-align: center;
 }
 
-.feature-list .material-icons.text-muted {
-  color: var(--text-secondary);
-}
-
-.pro-badge {
+.pricing-cta .btn {
   background: var(--button-primary-bg);
   color: var(--button-primary-text);
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-  white-space: nowrap;
-  align-self: center;
+  padding: 0.75rem 2rem;
+  width: 100%;
+  border-radius: var(--card-border-radius);
+  transition: transform 0.2s;
+}
+
+.pricing-cta .btn:hover {
+  transform: translateY(-2px);
 }
 
 @media (min-width: 768px) {
@@ -620,6 +628,11 @@ html, body {
 
   .pricing-card {
     padding: 3rem;
+  }
+
+  .pricing-cta .btn {
+    width: auto;
+    min-width: 200px;
   }
 }
 
@@ -1873,30 +1886,22 @@ document.addEventListener('DOMContentLoaded', function() {
   font-size: 1.25rem;
 }
 
-.pricing-action {
+.pricing-cta {
   margin-top: auto;
   text-align: center;
 }
 
-.start-free-btn {
+.pricing-cta .btn {
   background: var(--button-primary-bg);
   color: var(--button-primary-text);
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--card-border-radius);
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 0.75rem 2rem;
   width: 100%;
-  transition: transform 0.2s, background-color 0.2s;
-  text-decoration: none;
-  display: inline-block;
+  border-radius: var(--card-border-radius);
+  transition: transform 0.2s;
 }
 
-.start-free-btn:hover {
-  background: var(--bg-button-gradient);
-  color: var(--button-primary-text);
-  transform: translateY(-1px);
-  text-decoration: none;
+.pricing-cta .btn:hover {
+  transform: translateY(-2px);
 }
 
 @media (min-width: 768px) {
@@ -1908,7 +1913,7 @@ document.addEventListener('DOMContentLoaded', function() {
     padding: 3rem;
   }
 
-  .start-free-btn {
+  .pricing-cta .btn {
     width: auto;
     min-width: 200px;
   }
