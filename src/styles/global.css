@@ -41,7 +41,9 @@
 }
 
 /* Base Styles */
-html, body {
+html, 
+body,
+#root {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: system-ui, -apple-system, sans-serif;
@@ -49,7 +51,7 @@ html, body {
   margin: 0;
   padding: 0;
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
 }
 
 /* App Layout */
@@ -57,6 +59,7 @@ html, body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--bg-primary);
 }
 
 /* Container */
@@ -66,6 +69,7 @@ html, body {
   margin: 0 auto;
   padding: 1rem;
   margin-bottom: calc(var(--navbar-height) + 1rem);
+  flex: 1;
 }
 
 /* Header */
@@ -104,6 +108,13 @@ html, body {
   height: 100%;
   padding: 0;
   margin: 0;
+  list-style: none;
+}
+
+.nav-item {
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .nav-link {
@@ -115,6 +126,7 @@ html, body {
   color: var(--text-primary);
   opacity: var(--opacity-inactive);
   transition: opacity 0.2s ease;
+  text-decoration: none;
 }
 
 .nav-link.active {
@@ -125,6 +137,13 @@ html, body {
 .nav-link i {
   font-size: var(--font-size-xl);
   margin-bottom: 0.25rem;
+}
+
+/* Media Queries */
+@media (min-width: 768px) {
+  .container {
+    padding: 1.5rem;
+  }
 }
 
 /* Sidebar Menu */
@@ -164,11 +183,4 @@ html, body {
   border-radius: 4px;
   font-size: 0.875rem;
   font-weight: 600;
-}
-
-/* Media Queries */
-@media (min-width: 768px) {
-  .container {
-    padding: 1.5rem;
-  }
 }

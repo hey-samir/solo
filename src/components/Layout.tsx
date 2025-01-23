@@ -5,12 +5,12 @@ import Header from './Header'
 
 export default function Layout(): React.ReactElement {
   return (
-    <div className="app">
+    <>
       <Header />
       <main className="container">
         <Outlet />
       </main>
       <Navbar />
-    </div>
+    </>
   )
 }
