@@ -48,7 +48,6 @@ const corsOptions = {
       return;
     }
 
-    // In production, only allow specific origins
     const allowedDomains = [
       /\.repl\.co$/,
       /\.replit\.dev$/,
@@ -76,19 +75,17 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 
-// Serve static files from the dist directory in production
-if (process.env.NODE_ENV === 'production') {
-  const distPath = path.join(__dirname, '../../dist');
-  console.log('Serving static files from:', distPath);
-  app.use(express.static(distPath));
-}
+// Serve static files from the dist directory
+const distPath = path.join(__dirname, '../../dist');
+console.log('Serving static files from:', distPath);
+app.use(express.static(distPath));
 
 // API Routes
-const healthCheckHandler: RequestHandler = (_req: Request, res: Response) => {
+app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'healthy' });
-};
+});
 
-const getUserHandler: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+app.get('/api/user/:username', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const username = req.params.username;
     const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
@@ -108,38 +105,31 @@ const getUserHandler: RequestHandler = async (req: Request, res: Response, next:
   } catch (error) {
     next(error);
   }
-};
+});
 
-const getClimbsHandler: RequestHandler = async (_req: Request, res: Response, next: NextFunction) => {
+app.get('/api/climbs', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
   } catch (error) {
     next(error);
   }
-};
+});
 
-const getRoutesHandler: RequestHandler = async (_req: Request, res: Response, next: NextFunction) => {
+app.get('/api/routes', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
   } catch (error) {
     next(error);
   }
-};
+});
 
-app.get('/api/health', healthCheckHandler);
-app.get('/api/user/:username', getUserHandler);
-app.get('/api/climbs', getClimbsHandler);
-app.get('/api/routes', getRoutesHandler);
-
-// Catch-all route for SPA in production
-if (process.env.NODE_ENV === 'production') {
-  const serveIndexHandler: RequestHandler = (_req: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../../dist/index.html'));
-  };
-  app.get('*', serveIndexHandler);
-}
+// Catch-all route handler for the SPA
+app.get('*', (_req: Request, res: Response) => {
+  console.log('Handling route:', _req.url);
+  res.sendFile(path.join(distPath, 'index.html'));
+});
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
