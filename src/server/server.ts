@@ -1,12 +1,16 @@
-import express, { RequestHandler } from 'express';
-import cors from 'cors';
-import { json } from 'express';
-import dotenv from 'dotenv';
-import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import path from 'path';
-import { users, routes, climbs } from './db/schema';
-import { eq } from 'drizzle-orm';
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const { drizzle } = require('drizzle-orm/postgres-js');
+const postgres = require('postgres');
+const path = require('path');
+const { users, routes, climbs } = require('./db/schema');
+const { eq } = require('drizzle-orm');
+
+type RequestHandler = express.RequestHandler;
+type Request = express.Request;
+type Response = express.Response;
+type NextFunction = express.NextFunction;
 
 dotenv.config();
 
@@ -14,7 +18,7 @@ dotenv.config();
 const app = express();
 
 // Database setup
-let db: PostgresJsDatabase;
+let db;
 try {
   console.log('Connecting to database...');
   const client = postgres(process.env.DATABASE_URL!, {
@@ -67,7 +71,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(json({ limit: '10mb' }));
+app.use(express.json({ limit: '10mb' }));
 
 // Serve static files from the dist directory in production
 if (process.env.NODE_ENV === 'production') {
@@ -77,11 +81,11 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // API Routes
-const healthCheckHandler: RequestHandler = (_req, res) => {
+const healthCheckHandler: RequestHandler = (_req: Request, res: Response) => {
   res.json({ status: 'healthy' });
 };
 
-const getUserHandler: RequestHandler = async (req, res, next) => {
+const getUserHandler: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const username = req.params.username;
     const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
@@ -103,7 +107,7 @@ const getUserHandler: RequestHandler = async (req, res, next) => {
   }
 };
 
-const getClimbsHandler: RequestHandler = async (_req, res, next) => {
+const getClimbsHandler: RequestHandler = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
@@ -112,7 +116,7 @@ const getClimbsHandler: RequestHandler = async (_req, res, next) => {
   }
 };
 
-const getRoutesHandler: RequestHandler = async (_req, res, next) => {
+const getRoutesHandler: RequestHandler = async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
@@ -128,7 +132,7 @@ app.get('/api/routes', getRoutesHandler);
 
 // Catch-all route for SPA in production
 if (process.env.NODE_ENV === 'production') {
-  const serveIndexHandler: RequestHandler = (_req, res) => {
+  const serveIndexHandler: RequestHandler = (_req: Request, res: Response) => {
     res.sendFile(path.join(__dirname, '../../dist/index.html'));
   };
   app.get('*', serveIndexHandler);
@@ -138,9 +142,9 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-}).on('error', (error) => {
+}).on('error', (error: Error) => {
   console.error('Failed to start server:', error);
   process.exit(1);
 });
 
-export { db };
+module.exports = { db };

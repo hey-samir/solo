@@ -68,7 +68,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development ts-node src/server/server.ts"
+args = "NODE_ENV=development ts-node --transpileOnly src/server/server.ts"
 waitForPort = 5000
 
 [[ports]]
