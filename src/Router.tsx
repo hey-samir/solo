@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react'
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import { NotFound } from './pages/ErrorPage'
@@ -17,15 +17,6 @@ const Register = lazy(() => import('./pages/Register'))
 const Feedback = lazy(() => import('./pages/Feedback'))
 
 const Router: React.FC = () => {
-  const location = useLocation()
-
-  // Handle the initial path with query parameters
-  React.useEffect(() => {
-    if (location.search.includes('initialPath')) {
-      window.history.replaceState({}, '', '/about')
-    }
-  }, [location])
-
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
