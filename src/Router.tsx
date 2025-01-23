@@ -51,15 +51,7 @@ export default function Router(): React.ReactElement {
           }
         />
 
-        {/* Other routes */}
-        <Route
-          path="about"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <About />
-            </Suspense>
-          }
-        />
+        {/* Remove duplicate About route since it's now the index */}
         <Route
           path="home"
           element={

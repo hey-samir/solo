@@ -7,13 +7,14 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    allowedHosts: ['.replit.dev']
+    strictPort: true,
+    allowedHosts: 'all'
   },
   build: {
     outDir: 'dist',
     sourcemap: true
   },
-  base: '/',
+  base: './',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

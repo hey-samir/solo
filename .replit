@@ -17,25 +17,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Dev Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Development Server"
-
-[[workflows.workflow]]
-name = "Dev Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx vite --host 0.0.0.0"
 
 [[workflows.workflow]]
 name = "Development Server"
@@ -49,7 +31,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx vite --host 0.0.0.0 --port 3000"
+args = "npx vite --host 0.0.0.0 --port 3000 --strictPort"
 
 [[ports]]
 localPort = 3000

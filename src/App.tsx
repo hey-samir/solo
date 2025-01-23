@@ -8,9 +8,14 @@ const App: React.FC = () => {
   console.log('App component mounting...')  // Added mounting log
 
   React.useEffect(() => {
-    // Clean up any query parameters on mount
+    // Clean up any query parameters and handle initialPath
     const url = new URL(window.location.href)
-    if (url.search) {
+    const initialPath = url.searchParams.get('initialPath')
+
+    // Remove all query parameters and use initialPath if present
+    if (initialPath) {
+      window.history.replaceState({}, '', initialPath)
+    } else if (url.search) {
       window.history.replaceState({}, '', url.pathname)
     }
   }, [])
