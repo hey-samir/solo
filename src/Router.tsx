@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import React, { Suspense, lazy, useEffect } from 'react'
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import { NotFound } from './pages/ErrorPage'
@@ -17,6 +17,19 @@ const Register = lazy(() => import('./pages/Register'))
 const Feedback = lazy(() => import('./pages/Feedback'))
 
 const Router: React.FC = () => {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    // Handle initialization path and other special cases
+    const hasInitialPath = location.search.includes('initialPath')
+    const isRootPath = location.pathname === '/'
+
+    if (hasInitialPath || isRootPath) {
+      navigate('/about', { replace: true })
+    }
+  }, [location, navigate])
+
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -104,11 +117,9 @@ const Router: React.FC = () => {
           }
         />
 
-        {/* Root route redirects to About */}
+        {/* Root and fallback routes */}
         <Route index element={<Navigate to="/about" replace />} />
-
-        {/* 404 Route */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<Navigate to="/about" replace />} />
       </Route>
     </Routes>
   )

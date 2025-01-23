@@ -28,25 +28,9 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            console.log('proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Proxying:', req.method, req.url, 'to', proxyReq.path);
-          });
-        }
+        rewrite: (path) => path.replace(/^\/api/, '/api')
       }
-    },
-    allowedHosts: [
-      'localhost',
-      '127.0.0.1',
-      '.repl.co',
-      '.replit.dev',
-      '.repl.dev',
-      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev'
-    ]
+    }
   },
   build: {
     outDir: 'dist',
@@ -61,15 +45,17 @@ export default defineConfig({
           'vendor-charts': ['chart.js', 'react-chartjs-2'],
           'vendor-utils': ['axios', '@tanstack/react-query']
         },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
           const extType = assetInfo.name.split('.').at(1);
           if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
-            return 'assets/images/[name][extname]';
+            return 'assets/images/[name]-[hash][extname]';
           }
           if (/css/i.test(extType)) {
-            return 'assets/css/[name][extname]';
+            return 'assets/css/[name]-[hash][extname]';
           }
-          return 'assets/[name][extname]';
+          return 'assets/[name]-[hash][extname]';
         }
       }
     }
