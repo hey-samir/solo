@@ -44,8 +44,8 @@
 html, 
 body,
 #root {
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-text-size-adjust: 100%;
   margin: 0;
@@ -59,7 +59,8 @@ body,
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-primary);
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
 }
 
 /* Container */
@@ -79,6 +80,7 @@ body,
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
 .header-logo {
