@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import { NotFound } from './pages/ErrorPage'
@@ -16,14 +16,22 @@ const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const Feedback = lazy(() => import('./pages/Feedback'))
 
-console.log('Router component mounting...') // Add mounting log
-
-export default function Router(): React.ReactElement {
-  console.log('Router component rendering...') // Add rendering log
+const Router: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
+        {/* Redirect root to About */}
+        <Route index element={<Navigate to="/about" replace />} />
+
         {/* Public Routes */}
+        <Route
+          path="about"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <About />
+            </Suspense>
+          }
+        />
         <Route
           path="login"
           element={
@@ -40,18 +48,6 @@ export default function Router(): React.ReactElement {
             </Suspense>
           }
         />
-
-        {/* Make About the index (default) route */}
-        <Route
-          index
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <About />
-            </Suspense>
-          }
-        />
-
-        {/* Remove duplicate About route since it's now the index */}
         <Route
           path="home"
           element={
@@ -113,3 +109,5 @@ export default function Router(): React.ReactElement {
     </Routes>
   )
 }
+
+export default Router
