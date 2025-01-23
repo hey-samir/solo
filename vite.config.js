@@ -7,17 +7,21 @@ const replitDomain = process.env.REPL_SLUG && process.env.REPL_OWNER
   ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
   : undefined
 
+// Determine if we're in Replit's environment
+const isReplit = process.env.REPL_SLUG && process.env.REPL_OWNER
+
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true,
+    host: '0.0.0.0',
     port: 3000,
     strictPort: true,
-    hmr: {
+    hmr: isReplit ? {
       clientPort: 443,
       protocol: 'wss',
-      host: replitDomain
-    },
+      host: replitDomain,
+      timeout: 120000
+    } : true,
     watch: {
       usePolling: true,
       interval: 1000,
@@ -27,14 +31,13 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
+        ws: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     },
-    cors: {
-      origin: true,
-      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-      credentials: true
-    }
+    cors: true,
+    // Allow all hosts in development
+    allowedHosts: true
   },
   build: {
     outDir: 'dist',
@@ -53,9 +56,9 @@ export default defineConfig({
         chunkFileNames: (chunkInfo) => {
           const name = chunkInfo.name
           if (name.includes('node_modules')) {
-            return `assets/vendor-[name]-[hash].js`
+            return 'assets/vendor-[name]-[hash].js'
           }
-          return `assets/[name]-[hash].js`
+          return 'assets/[name]-[hash].js'
         },
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
@@ -76,7 +79,7 @@ export default defineConfig({
     terserOptions: {
       compress: {
         drop_console: false,
-        drop_debugger: false,
+        drop_debugger: true,
         pure_funcs: [],
         passes: 2
       },

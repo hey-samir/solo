@@ -4,6 +4,7 @@ import { json } from 'express';
 import dotenv from 'dotenv';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import path from 'path';
 import { users, routes, climbs } from './db/schema';
 import { eq } from 'drizzle-orm';
 
@@ -28,40 +29,28 @@ try {
   process.exit(1);
 }
 
-// CORS Configuration
+// Enhanced CORS Configuration for Replit
 const corsOptions = {
-  origin: function(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-
-    // Allow Replit domains and localhost
-    const allowedDomains = [
-      'localhost',
-      '.repl.co',
-      '.replit.dev',
-      'replit.dev',
-      '.picard.replit.dev'
-    ];
-
-    const isAllowed = allowedDomains.some(domain => 
-      origin.includes(domain) || 
-      origin.startsWith('http://localhost') || 
-      origin.endsWith('.repl.co')
-    );
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('CORS not allowed'));
-    }
-  },
+  origin: true, // Allow all origins in development
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400 // 24 hours
 };
 
 app.use(cors(corsOptions));
 app.use(json({ limit: '10mb' }));
+
+// Serve static files from the dist directory in production
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '../../dist');
+  app.use(express.static(distPath));
+
+  // Serve index.html for all routes not starting with /api
+  app.get(/^(?!\/api\/).*/, (_: Request, res: Response) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+}
 
 // API Routes
 app.get('/api/health', (_: Request, res: Response) => {
