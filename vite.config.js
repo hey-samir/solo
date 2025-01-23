@@ -27,18 +27,24 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        ws: true
+        ws: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api'),
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Proxying:', req.method, req.url, 'to', proxyReq.path);
+          });
+        }
       }
-    },
-    fs: {
-      strict: false
-    },
-    middlewareMode: false
+    }
   },
   build: {
     outDir: 'dist',
     sourcemap: true,
     minify: 'esbuild',
+    cssCodeSplit: false,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -46,6 +52,16 @@ export default defineConfig({
           'vendor-ui': ['@popperjs/core', 'bootstrap', '@coreui/coreui'],
           'vendor-charts': ['chart.js', 'react-chartjs-2'],
           'vendor-utils': ['axios', '@tanstack/react-query']
+        },
+        assetFileNames: (assetInfo) => {
+          const extType = assetInfo.name.split('.').at(1);
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
+            return 'assets/images/[name][extname]';
+          }
+          if (/css/i.test(extType)) {
+            return 'assets/css/[name][extname]';
+          }
+          return 'assets/[name][extname]';
         }
       }
     }

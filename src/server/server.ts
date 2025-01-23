@@ -70,13 +70,11 @@ const mimeTypes = {
   '.jpg': 'image/jpeg',
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
-  '.wav': 'audio/wav',
-  '.mp4': 'video/mp4',
   '.woff': 'application/font-woff',
-  '.ttf': 'application/font-ttf',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
   '.eot': 'application/vnd.ms-fontobject',
-  '.otf': 'application/font-otf',
-  '.wasm': 'application/wasm'
+  '.otf': 'font/otf'
 };
 
 // Serve static files with proper MIME types
@@ -86,8 +84,13 @@ app.use(express.static(distPath, {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = mimeTypes[ext] || 'application/octet-stream';
     res.setHeader('Content-Type', contentType);
-    // Add cache control headers
-    res.setHeader('Cache-Control', 'public, max-age=31536000');
+
+    // Cache control based on file type
+    if (ext === '.html') {
+      res.setHeader('Cache-Control', 'no-cache');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    }
   }
 }));
 
@@ -149,15 +152,17 @@ app.get('*', (req, res, next) => {
     return next();
   }
 
-  console.log('Serving index.html for path:', req.path);
+  const indexPath = path.join(distPath, 'index.html');
 
   // Send the index.html file with appropriate headers
   res.setHeader('Content-Type', 'text/html');
   res.setHeader('Cache-Control', 'no-cache');
-  res.sendFile(path.join(distPath, 'index.html'), err => {
+
+  res.sendFile(indexPath, (err) => {
     if (err) {
       console.error('Error sending index.html:', err);
-      next(err);
+      // Don't expose internal errors to client
+      res.status(500).send('Internal Server Error');
     }
   });
 });
