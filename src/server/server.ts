@@ -28,29 +28,39 @@ try {
   process.exit(1);
 }
 
-// Middleware
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://localhost:3000',
-  'http://0.0.0.0:3000'
-];
-
-app.use(cors({
-  origin: function(origin, callback) {
+// CORS Configuration
+const corsOptions = {
+  origin: function(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) === -1) {
-      // Allow Replit domains
-      if (origin.endsWith('.repl.co')) {
-        return callback(null, true);
-      }
-    }
-    return callback(null, true);
-  },
-  credentials: true
-}));
+    // Allow Replit domains and localhost
+    const allowedDomains = [
+      'localhost',
+      '.repl.co',
+      '.replit.dev',
+      'replit.dev',
+      '.picard.replit.dev'
+    ];
 
+    const isAllowed = allowedDomains.some(domain => 
+      origin.includes(domain) || 
+      origin.startsWith('http://localhost') || 
+      origin.endsWith('.repl.co')
+    );
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS not allowed'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(json({ limit: '10mb' }));
 
 // API Routes

@@ -2,14 +2,38 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
+// Get the Replit domain from environment variables
+const replitDomain = process.env.REPL_SLUG && process.env.REPL_OWNER
+  ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+  : undefined
+
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    host: true,
     port: 3000,
     strictPort: true,
     hmr: {
-      clientPort: 443
+      clientPort: 443,
+      protocol: 'wss',
+      host: replitDomain
+    },
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    },
+    cors: {
+      origin: true,
+      methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+      credentials: true
     }
   },
   build: {
@@ -51,9 +75,9 @@ export default defineConfig({
     },
     terserOptions: {
       compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        drop_console: false,
+        drop_debugger: false,
+        pure_funcs: [],
         passes: 2
       },
       format: {
