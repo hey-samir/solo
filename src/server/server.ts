@@ -53,7 +53,9 @@ const corsOptions = {
       /\.repl\.co$/,
       /\.replit\.dev$/,
       /^https?:\/\/localhost/,
-      /^https?:\/\/127\.0\.0\.1/
+      /^http?:\/\/localhost/,
+      /^https?:\/\/127\.0\.0\.1/,
+      /^http?:\/\/127\.0\.0\.1/
     ];
 
     const isAllowed = allowedDomains.some(domain => domain.test(origin));
@@ -66,7 +68,8 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
   maxAge: 86400 // 24 hours
 };
 

@@ -50,7 +50,14 @@ export default defineConfig({
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET,HEAD,PUT,PATCH,POST,DELETE',
       'Access-Control-Allow-Headers': 'Content-Type,Authorization'
-    }
+    },
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev',
+      '.repl.co',
+      '.replit.dev'
+    ]
   },
   build: {
     outDir: 'dist',
