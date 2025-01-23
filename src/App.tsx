@@ -1,15 +1,14 @@
 import React from 'react'
+import { BrowserRouter as Router } from 'react-router-dom'
+import AppRouter from './Router'
 
 const App: React.FC = () => {
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Solo - Quantify your Ascent</h1>
-      </header>
-      <main>
-        <p>Track your climbing progress and achieve new heights.</p>
-      </main>
-    </div>
+    <Router>
+      <div className="app">
+        <AppRouter />
+      </div>
+    </Router>
   )
 }
 

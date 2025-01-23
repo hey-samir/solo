@@ -5,6 +5,7 @@ import LoadingSpinner from './components/LoadingSpinner'
 
 // Lazy load components
 const Home = lazy(() => import('./pages/Home'))
+const About = lazy(() => import('./pages/About'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Sends = lazy(() => import('./pages/Sends'))
 const Sessions = lazy(() => import('./pages/Sessions'))
@@ -23,6 +24,14 @@ export default function Router(): React.ReactElement {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <Home />
+            </Suspense>
+          }
+        />
+        <Route
+          path="about"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <About />
             </Suspense>
           }
         />
