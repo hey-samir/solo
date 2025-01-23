@@ -6,7 +6,19 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+:root {
+  --solo-purple: #7442d6;
+  --solo-purple-rgb: 116, 66, 214;
+  --solo-purple-light: #9b75ff;
+  --bg-primary: #1e2638;
+  --bg-card: #4A5D79;
+  --text-primary: #ffffff;
+  --text-primary-rgb: 255, 255, 255;
+  --border-color: rgba(255, 255, 255, 0.1);
 }
 
 .app {
@@ -14,16 +26,82 @@ body {
   padding: 20px;
 }
 
-.app-header {
-  background-color: #7442d6;
-  padding: 20px;
-  color: white;
+/* Pricing Table Styles */
+.table-responsive {
+  width: 100%;
+  margin: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background-color: var(--bg-primary);
   border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-  margin: 0;
-  font-size: 2rem;
+.table-dark {
+  --bs-table-bg: transparent;
+}
+
+.table-dark td, 
+.table-dark th {
+  border-color: var(--border-color);
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: var(--text-primary);
+}
+
+.table-dark th {
+  vertical-align: top;
+}
+
+.pro-badge {
+  background: var(--solo-purple);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.btn-solo-purple {
+  background-color: var(--solo-purple);
+  color: white;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.btn-solo-purple:hover {
+  background-color: var(--solo-purple-light);
+  color: white;
+}
+
+.btn-outline-light {
+  border: 1px solid var(--text-primary);
+  color: var(--text-primary);
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.btn-outline-light:hover {
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-error {
+  color: #dc3545 !important;
+}
+
+.material-icons {
+  font-size: 1.25rem;
+  vertical-align: middle;
+}
+
+@media (min-width: 768px) {
+  .table th,
+  .table td {
+    font-size: 1rem;
+    padding: 1rem;
+  }
 }

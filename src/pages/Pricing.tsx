@@ -17,94 +17,75 @@ const Pricing: FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-8">Choose Your Plan</h1>
-      
-      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-        {/* Free Tier */}
-        <div className="pricing-card">
-          <div className="pricing-header">
-            <h2 className="text-2xl font-bold mb-2">Free</h2>
-            <p className="text-4xl font-bold mb-4">$0<span className="text-xl font-normal">/mo</span></p>
-            <p className="text-gray-600">Perfect for getting started</p>
-          </div>
-          
-          <div className="pricing-content">
-            <ul className="feature-list">
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Unlimited climb logging</span>
-              </li>
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Basic statistics</span>
-              </li>
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Route tracking</span>
-              </li>
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Community features</span>
-              </li>
-            </ul>
-            
-            <div className="pricing-cta">
-              <button 
-                onClick={() => navigate('/register')}
-                className="btn btn-outline-primary w-full"
-              >
-                Get Started
-              </button>
-            </div>
-          </div>
-        </div>
+      <h1 className="text-center mb-8">Choose Your Plan</h1>
 
-        {/* Pro Tier */}
-        <div className="pricing-card pro">
-          <div className="pricing-header">
-            <h2 className="text-2xl font-bold mb-2">Pro</h2>
-            <p className="text-4xl font-bold mb-4">$5<span className="text-xl font-normal">/mo</span></p>
-            <p className="text-gray-200">For serious climbers</p>
-          </div>
-          
-          <div className="pricing-content">
-            <ul className="feature-list">
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Everything in Free</span>
-              </li>
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Advanced analytics</span>
-              </li>
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Training plans</span>
-              </li>
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Video beta sharing</span>
-              </li>
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Progress tracking</span>
-              </li>
-              <li>
-                <i className="material-icons text-green-500">check_circle</i>
-                <span>Priority support</span>
-              </li>
-            </ul>
-            
-            <div className="pricing-cta">
-              <button 
-                onClick={handleUpgrade}
-                className="btn btn-primary w-full"
-              >
-                Upgrade to Pro
-              </button>
-            </div>
-          </div>
-        </div>
+      <div className="table-responsive">
+        <table className="table table-dark table-borderless mb-0">
+          <thead>
+            <tr>
+              <th style={{ width: '50%' }}>Features</th>
+              <th className="text-center" style={{ width: '25%' }}>
+                <h3 className="mb-2">Base</h3>
+                <div className="d-grid">
+                  <button 
+                    onClick={() => navigate('/register')}
+                    className="btn btn-outline-light"
+                  >
+                    Start Free
+                  </button>
+                </div>
+              </th>
+              <th className="text-center" style={{ width: '25%' }}>
+                <h3 className="mb-2"><span className="pro-badge">PRO</span></h3>
+                <div className="d-grid">
+                  <button 
+                    onClick={handleUpgrade}
+                    className="btn btn-solo-purple"
+                  >
+                    Start Free Trial
+                  </button>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Send Logging</td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            </tr>
+            <tr>
+              <td>Global Leaderboard</td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            </tr>
+            <tr>
+              <td>Session View</td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            </tr>
+            <tr>
+              <td>Stats Tracking</td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            </tr>
+            <tr>
+              <td>Ad-free Experience</td>
+              <td className="text-center"><i className="material-icons text-error">close</i></td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            </tr>
+            <tr>
+              <td>Custom Avatars</td>
+              <td className="text-center"><i className="material-icons text-error">close</i></td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            </tr>
+            <tr>
+              <td>Solo AI</td>
+              <td className="text-center"><i className="material-icons text-error">close</i></td>
+              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   )

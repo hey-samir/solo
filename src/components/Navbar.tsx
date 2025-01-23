@@ -1,22 +1,54 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 export default function Navbar(): React.ReactElement {
+  const location = useLocation()
+
   return (
-    <nav className="bg-purple-600 text-white shadow-lg">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
-          <Link to="/" className="text-xl font-bold">
-            Solo
-          </Link>
-          <div className="flex space-x-4">
-            <Link to="/profile" className="hover:text-purple-200">Profile</Link>
-            <Link to="/sends" className="hover:text-purple-200">Sends</Link>
-            <Link to="/sessions" className="hover:text-purple-200">Sessions</Link>
-            <Link to="/stats" className="hover:text-purple-200">Stats</Link>
-            <Link to="/standings" className="hover:text-purple-200">Standings</Link>
-          </div>
-        </div>
+    <nav className="navbar fixed-bottom">
+      <div className="container-fluid">
+        <ul className="navbar-nav w-100 d-flex flex-row justify-content-evenly">
+          <li className="nav-item">
+            <Link 
+              to="/squads" 
+              className={`nav-link ${location.pathname === '/squads' ? 'active' : ''}`}
+            >
+              <i className="material-icons">groups</i>
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link 
+              to="/standings" 
+              className={`nav-link ${location.pathname === '/standings' ? 'active' : ''}`}
+            >
+              <i className="material-icons">emoji_events</i>
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link 
+              to="/sends" 
+              className={`nav-link ${location.pathname === '/sends' ? 'active' : ''}`}
+            >
+              <i className="material-icons">arrow_circle_up</i>
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link 
+              to="/sessions" 
+              className={`nav-link ${location.pathname === '/sessions' ? 'active' : ''}`}
+            >
+              <i className="material-icons">calendar_today</i>
+            </Link>
+          </li>
+          <li className="nav-item">
+            <Link 
+              to="/stats" 
+              className={`nav-link ${location.pathname === '/stats' ? 'active' : ''}`}
+            >
+              <i className="material-icons">bar_chart</i>
+            </Link>
+          </li>
+        </ul>
       </div>
     </nav>
   )
