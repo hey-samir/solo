@@ -7,13 +7,17 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    strictPort: true
+    strictPort: true,
+    hmr: {
+      clientPort: 443
+    }
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: process.env.NODE_ENV === 'development',
     minify: 'terser',
     cssMinify: true,
+    assetsInlineLimit: 4096,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -38,6 +42,9 @@ export default defineConfig({
           if (/\.css$/.test(assetInfo.name)) {
             return 'assets/css/[name]-[hash][extname]'
           }
+          if (/\.(woff2?|eot|ttf|otf)$/.test(assetInfo.name)) {
+            return 'assets/fonts/[name]-[hash][extname]'
+          }
           return 'assets/[name]-[hash][extname]'
         }
       }
@@ -46,11 +53,13 @@ export default defineConfig({
       compress: {
         drop_console: true,
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug']
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+        passes: 2
       },
       format: {
         comments: false
-      }
+      },
+      ecma: 2020
     }
   },
   resolve: {

@@ -29,8 +29,25 @@ try {
 }
 
 // Middleware
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://localhost:3000',
+  'http://0.0.0.0:3000'
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://0.0.0.0:3000'],
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) === -1) {
+      // Allow Replit domains
+      if (origin.endsWith('.repl.co')) {
+        return callback(null, true);
+      }
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 
