@@ -1,19 +1,35 @@
-import React, { FC } from 'react'
+import { FC, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import type { AxiosResponse } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 interface LeaderboardEntry {
   username: string
-  totalAscents: number
+  totalSends: number
+  avgGrade: string
   totalPoints: number
 }
 
+interface CacheInfo {
+  isFromCache: boolean
+  timestamp: string | null
+}
+
 const Standings: FC = () => {
+  const [cacheInfo, setCacheInfo] = useState<CacheInfo>({
+    isFromCache: false,
+    timestamp: null
+  })
+
   const { data: leaderboard, isLoading } = useQuery<LeaderboardEntry[]>({
     queryKey: ['leaderboard'],
     queryFn: async () => {
-      const response = await client.get('/leaderboard')
+      const response: AxiosResponse = await client.get('/leaderboard')
+      // Check response headers for cache information
+      const timestamp = response.headers?.['x-cache-timestamp'] as string || null
+      const isFromCache = response.headers?.['x-data-source'] === 'cache'
+      setCacheInfo({ isFromCache, timestamp })
       return response.data
     }
   })
@@ -23,53 +39,56 @@ const Standings: FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="section-title">Global Rankings</h1>
+    <div className="container-fluid px-3">
+      <div className="card">
+        <div className="card-body p-0">
+          {/* Cache indicator */}
+          {cacheInfo.isFromCache && (
+            <div className="alert alert-info m-2">
+              <i className="material-icons align-middle">access_time</i>
+              <span>Viewing cached standings</span>
+              {cacheInfo.timestamp && (
+                <span className="ms-2 text-muted">
+                  Last updated: {new Date(cacheInfo.timestamp).toLocaleString()}
+                </span>
+              )}
+            </div>
+          )}
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Rank
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Climber
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total Ascents
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total Points
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {leaderboard?.map((entry, index) => (
-              <tr key={entry.username}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {index + 1}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  {entry.username}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {entry.totalAscents}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {entry.totalPoints}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+          <div className="table-responsive">
+            <table className="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th className="text-center">#</th>
+                  <th>Username</th>
+                  <th className="text-center">Sends</th>
+                  <th className="text-center">Grade</th>
+                  <th className="text-center">Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaderboard?.map((entry, index) => (
+                  <tr key={entry.username}>
+                    <td className="text-center">
+                      {index + 1 <= 3 ? (
+                        <span className="material-symbols-outlined">
+                          counter_{index + 1}
+                        </span>
+                      ) : (
+                        index + 1
+                      )}
+                    </td>
+                    <td>{entry.username}</td>
+                    <td className="text-center">{entry.totalSends}</td>
+                    <td className="text-center">{entry.avgGrade}</td>
+                    <td className="text-center">{entry.totalPoints}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-
-      {(!leaderboard || leaderboard.length === 0) && (
-        <p className="text-center text-gray-600 mt-8">
-          No climbers have recorded any ascents yet.
-        </p>
-      )}
     </div>
   )
 }
