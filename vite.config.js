@@ -38,7 +38,15 @@ export default defineConfig({
           });
         }
       }
-    }
+    },
+    allowedHosts: [
+      'localhost',
+      '127.0.0.1',
+      '.repl.co',
+      '.replit.dev',
+      '.repl.dev',
+      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev'
+    ]
   },
   build: {
     outDir: 'dist',
