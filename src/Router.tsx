@@ -12,6 +12,8 @@ const Sends = lazy(() => import('./pages/Sends'))
 const Sessions = lazy(() => import('./pages/Sessions'))
 const Stats = lazy(() => import('./pages/Stats'))
 const Standings = lazy(() => import('./pages/Standings'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
 
 console.log('Router component mounting...')
 
@@ -20,6 +22,25 @@ export default function Router(): React.ReactElement {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
+        {/* Public Routes */}
+        <Route
+          path="login"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Login />
+            </Suspense>
+          }
+        />
+        <Route
+          path="signup"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Register />
+            </Suspense>
+          }
+        />
+
+        {/* Protected Routes */}
         <Route
           index
           element={

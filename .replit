@@ -51,7 +51,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx vite --host 0.0.0.0 --port 3000"
-waitForPort = 3000
 
 [[ports]]
 localPort = 3000
