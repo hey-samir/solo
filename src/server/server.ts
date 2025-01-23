@@ -7,6 +7,11 @@ const path = require('path');
 const { users, routes, climbs } = require('./db/schema');
 const { eq } = require('drizzle-orm');
 
+type RequestHandler = express.RequestHandler;
+type Request = express.Request;
+type Response = express.Response;
+type NextFunction = express.NextFunction;
+
 dotenv.config();
 
 // Initialize express app
@@ -30,12 +35,14 @@ try {
 
 // CORS Configuration
 const corsOptions = {
-  origin: function(origin, callback) {
+  origin: function(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps, curl)
     if (!origin) {
       callback(null, true);
       return;
     }
 
+    // Allow all origins in development
     if (process.env.NODE_ENV === 'development') {
       callback(null, true);
       return;
@@ -62,7 +69,7 @@ const corsOptions = {
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400
+  maxAge: 86400 // 24 hours
 };
 
 app.use(cors(corsOptions));
@@ -74,11 +81,11 @@ console.log('Serving static files from:', distPath);
 app.use(express.static(distPath));
 
 // API Routes
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'healthy' });
 });
 
-app.get('/api/user/:username', async (req, res, next) => {
+app.get('/api/user/:username', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const username = req.params.username;
     const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
@@ -100,7 +107,7 @@ app.get('/api/user/:username', async (req, res, next) => {
   }
 });
 
-app.get('/api/climbs', async (_req, res, next) => {
+app.get('/api/climbs', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
@@ -109,7 +116,7 @@ app.get('/api/climbs', async (_req, res, next) => {
   }
 });
 
-app.get('/api/routes', async (_req, res, next) => {
+app.get('/api/routes', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
@@ -118,8 +125,9 @@ app.get('/api/routes', async (_req, res, next) => {
   }
 });
 
-// Catch-all route handler for client-side routing
-app.get('*', (_req, res) => {
+// Catch-all route handler for the SPA
+app.get('*', (_req: Request, res: Response) => {
+  console.log('Handling route:', _req.url);
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
@@ -127,7 +135,7 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-}).on('error', (error) => {
+}).on('error', (error: Error) => {
   console.error('Failed to start server:', error);
   process.exit(1);
 });

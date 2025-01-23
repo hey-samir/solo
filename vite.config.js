@@ -31,7 +31,18 @@ export default defineConfig({
         target: 'http://0.0.0.0:5000',
         changeOrigin: true,
         secure: false,
-        ws: true
+        ws: true,
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+            console.log('proxy error', err);
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+            console.log('Sending Request:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Received Response:', proxyRes.statusCode, req.url);
+          });
+        }
       }
     },
     cors: true,
@@ -46,8 +57,7 @@ export default defineConfig({
       '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev',
       '.repl.co',
       '.replit.dev'
-    ],
-    middlewareMode: false
+    ]
   },
   build: {
     outDir: 'dist',

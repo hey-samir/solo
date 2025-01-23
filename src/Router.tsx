@@ -21,7 +21,6 @@ const Router: React.FC = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
-        <Route index element={<Navigate to="/about" replace />} />
         <Route
           path="about"
           element={
@@ -104,6 +103,9 @@ const Router: React.FC = () => {
             </Suspense>
           }
         />
+
+        {/* Redirect root to About */}
+        <Route index element={<Navigate to="/about" replace />} />
 
         {/* 404 Route */}
         <Route path="*" element={<NotFound />} />
