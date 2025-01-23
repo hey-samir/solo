@@ -36,7 +36,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx vite --host 0.0.0.0"
-waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Development Server"

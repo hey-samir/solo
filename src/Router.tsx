@@ -16,10 +16,10 @@ const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
 const Feedback = lazy(() => import('./pages/Feedback'))
 
-console.log('Router component mounting...')
+console.log('Router component mounting...') // Add mounting log
 
 export default function Router(): React.ReactElement {
-  console.log('Router component rendering...')
+  console.log('Router component rendering...') // Add rendering log
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
