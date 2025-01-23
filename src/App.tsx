@@ -8,7 +8,11 @@ const App: React.FC = () => {
   console.log('App component mounting...')  // Added mounting log
 
   React.useEffect(() => {
-    console.log('App component mounted')
+    // Clean up any query parameters on mount
+    const url = new URL(window.location.href)
+    if (url.search) {
+      window.history.replaceState({}, '', url.pathname)
+    }
   }, [])
 
   return (

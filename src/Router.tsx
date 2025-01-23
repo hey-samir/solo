@@ -41,20 +41,30 @@ export default function Router(): React.ReactElement {
           }
         />
 
-        {/* Protected Routes */}
+        {/* Make About the index (default) route */}
         <Route
           index
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Home />
+              <About />
             </Suspense>
           }
         />
+
+        {/* Other routes */}
         <Route
           path="about"
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <About />
+            </Suspense>
+          }
+        />
+        <Route
+          path="home"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Home />
             </Suspense>
           }
         />
