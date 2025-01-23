@@ -1,8 +1,8 @@
-import express, { Request, Response } from 'express';
+import express, { RequestHandler } from 'express';
 import cors from 'cors';
 import { json } from 'express';
 import dotenv from 'dotenv';
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import path from 'path';
 import { users, routes, climbs } from './db/schema';
@@ -14,7 +14,7 @@ dotenv.config();
 const app = express();
 
 // Database setup
-let db;
+let db: PostgresJsDatabase;
 try {
   console.log('Connecting to database...');
   const client = postgres(process.env.DATABASE_URL!, {
@@ -29,9 +29,37 @@ try {
   process.exit(1);
 }
 
-// Enhanced CORS Configuration for Replit
+// CORS Configuration
 const corsOptions = {
-  origin: true, // Allow all origins in development
+  origin: function(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
+    // Allow requests with no origin (like mobile apps, curl)
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    // Allow all origins in development
+    if (process.env.NODE_ENV === 'development') {
+      callback(null, true);
+      return;
+    }
+
+    // In production, only allow specific origins
+    const allowedDomains = [
+      /\.repl\.co$/,
+      /\.replit\.dev$/,
+      /^https?:\/\/localhost/,
+      /^https?:\/\/127\.0\.0\.1/
+    ];
+
+    const isAllowed = allowedDomains.some(domain => domain.test(origin));
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('Blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -44,26 +72,23 @@ app.use(json({ limit: '10mb' }));
 // Serve static files from the dist directory in production
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(__dirname, '../../dist');
+  console.log('Serving static files from:', distPath);
   app.use(express.static(distPath));
-
-  // Serve index.html for all routes not starting with /api
-  app.get(/^(?!\/api\/).*/, (_: Request, res: Response) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
 }
 
 // API Routes
-app.get('/api/health', (_: Request, res: Response) => {
+const healthCheckHandler: RequestHandler = (_req, res) => {
   res.json({ status: 'healthy' });
-});
+};
 
-app.get('/api/user/:username', async (req: Request, res: Response) => {
+const getUserHandler: RequestHandler = async (req, res, next) => {
   try {
     const username = req.params.username;
     const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
 
     if (!user || user.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      res.status(404).json({ error: 'User not found' });
+      return;
     }
 
     res.json({
@@ -74,35 +99,45 @@ app.get('/api/user/:username', async (req: Request, res: Response) => {
       gymId: user[0].gymId
     });
   } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
-});
+};
 
-app.get('/api/climbs', async (_: Request, res: Response) => {
+const getClimbsHandler: RequestHandler = async (_req, res, next) => {
   try {
     const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
   } catch (error) {
-    console.error('Error fetching climbs:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
-});
+};
 
-app.get('/api/routes', async (_: Request, res: Response) => {
+const getRoutesHandler: RequestHandler = async (_req, res, next) => {
   try {
     const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
   } catch (error) {
-    console.error('Error fetching routes:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
-});
+};
+
+app.get('/api/health', healthCheckHandler);
+app.get('/api/user/:username', getUserHandler);
+app.get('/api/climbs', getClimbsHandler);
+app.get('/api/routes', getRoutesHandler);
+
+// Catch-all route for SPA in production
+if (process.env.NODE_ENV === 'production') {
+  const serveIndexHandler: RequestHandler = (_req, res) => {
+    res.sendFile(path.join(__dirname, '../../dist/index.html'));
+  };
+  app.get('*', serveIndexHandler);
+}
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
 }).on('error', (error) => {
   console.error('Failed to start server:', error);
   process.exit(1);
