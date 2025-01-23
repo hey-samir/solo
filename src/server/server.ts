@@ -1,8 +1,7 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { json } from 'express';
 import dotenv from 'dotenv';
-import path from 'path';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { users, routes, climbs } from './db/schema';
@@ -13,7 +12,7 @@ dotenv.config();
 // Initialize express app
 const app = express();
 
-// Database setup with connection pooling optimized for concurrent users
+// Database setup
 let db;
 try {
   console.log('Connecting to database...');
@@ -31,9 +30,7 @@ try {
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? 'https://solo-climbing.repl.co'
-    : 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'http://0.0.0.0:3000'],
   credentials: true
 }));
 
@@ -85,17 +82,6 @@ app.get('/api/routes', async (_: Request, res: Response) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-// For production, serve static files from the dist directory
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../dist'), {
-    maxAge: '1h'
-  }));
-
-  app.get('*', (_: Request, res: Response) => {
-    res.sendFile(path.join(__dirname, '../../dist/index.html'));
-  });
-}
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 

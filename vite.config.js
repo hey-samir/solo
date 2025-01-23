@@ -7,7 +7,10 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    strictPort: true
+    strictPort: true,
+    hmr: {
+      host: 'localhost'
+    }
   },
   build: {
     outDir: 'dist',
@@ -17,9 +20,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['@popperjs/core', 'bootstrap', '@coreui/coreui'],
-          charts: ['chart.js', 'react-chartjs-2']
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@popperjs/core', 'bootstrap', '@coreui/coreui'],
+          'vendor-charts': ['chart.js', 'react-chartjs-2'],
+          'vendor-utils': ['axios', '@tanstack/react-query']
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
@@ -33,7 +37,6 @@ export default defineConfig({
       }
     }
   },
-  base: '/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -42,6 +45,6 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom']
+    include: ['react', 'react-dom', 'react-router-dom', 'chart.js', '@tanstack/react-query']
   }
 })
