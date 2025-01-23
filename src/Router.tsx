@@ -20,6 +20,9 @@ const Router: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
+        {/* Redirect root to About */}
+        <Route index element={<Navigate to="/about" replace />} />
+
         {/* Public Routes */}
         <Route
           path="about"
@@ -103,9 +106,6 @@ const Router: React.FC = () => {
             </Suspense>
           }
         />
-
-        {/* Redirect root to About */}
-        <Route index element={<Navigate to="/about" replace />} />
 
         {/* 404 Route */}
         <Route path="*" element={<NotFound />} />

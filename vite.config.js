@@ -57,7 +57,8 @@ export default defineConfig({
       '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev',
       '.repl.co',
       '.replit.dev'
-    ]
+    ],
+    middlewareMode: false
   },
   build: {
     outDir: 'dist',
