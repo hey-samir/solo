@@ -7,13 +7,13 @@ export default function Navbar(): React.ReactElement {
   return (
     <nav className="navbar fixed-bottom">
       <div className="container-fluid">
-        <ul className="navbar-nav w-100 d-flex flex-row justify-content-evenly">
+        <ul className="navbar-nav">
           <li className="nav-item">
             <Link 
-              to="/squads" 
-              className={`nav-link ${location.pathname === '/squads' ? 'active' : ''}`}
+              to="/profile" 
+              className={`nav-link ${location.pathname === '/profile' ? 'active' : ''}`}
             >
-              <i className="material-icons">groups</i>
+              <i className="material-icons">person</i>
             </Link>
           </li>
           <li className="nav-item">

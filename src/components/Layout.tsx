@@ -1,14 +1,16 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 import Navbar from './Navbar'
+import Header from './Header'
 
 export default function Layout(): React.ReactElement {
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
-      <main className="container mx-auto px-4 py-8">
+    <div className="app">
+      <Header />
+      <main className="container">
         <Outlet />
       </main>
+      <Navbar />
     </div>
   )
 }
