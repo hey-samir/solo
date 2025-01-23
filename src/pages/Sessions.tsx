@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -22,8 +22,16 @@ interface ClimbsByDate {
   [date: string]: Climb[]
 }
 
+type SortKey = 'color' | 'grade' | 'status' | 'tries' | 'rating' | 'points'
+type SortDirection = 'asc' | 'desc'
+
 const Sessions: FC = () => {
-  const { data: climbs, isLoading } = useQuery<Climb[]>({
+  const [sortConfig, setSortConfig] = useState<{key: SortKey, direction: SortDirection}>({ 
+    key: 'color', 
+    direction: 'asc' 
+  })
+
+  const { data: climbs, isLoading, error } = useQuery<Climb[]>({
     queryKey: ['climbs'],
     queryFn: async () => {
       const response = await client.get('/climbs')
@@ -33,6 +41,30 @@ const Sessions: FC = () => {
 
   if (isLoading) {
     return <LoadingSpinner />
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-600 mt-8">
+        Error loading climbing sessions. Please try again later.
+      </div>
+    )
+  }
+
+  const getColorHex = (color: string): string => {
+    const colorMap: Record<string, string> = {
+      'White': '#FFFFFF',
+      'Pink': '#FF69B4',
+      'Blue': '#0000FF',
+      'Black': '#000000',
+      'Orange': '#FFA500',
+      'Purple': '#800080',
+      'Green': '#008000',
+      'Red': '#FF0000',
+      'Yellow': '#FFFF00',
+      'Teal': '#008080'
+    }
+    return colorMap[color] || '#CCCCCC'
   }
 
   // Group climbs by date
@@ -45,49 +77,124 @@ const Sessions: FC = () => {
     return acc
   }, {}) || {}
 
+  const sortClimbs = (climbs: Climb[]) => {
+    return [...climbs].sort((a, b) => {
+      let comparison = 0
+      switch (sortConfig.key) {
+        case 'color':
+          comparison = a.route.color.localeCompare(b.route.color)
+          break
+        case 'grade':
+          comparison = a.route.grade.localeCompare(b.route.grade)
+          break
+        case 'status':
+          comparison = Number(b.status) - Number(a.status)
+          break
+        case 'tries':
+          comparison = a.tries - b.tries
+          break
+        case 'rating':
+          comparison = a.rating - b.rating
+          break
+        case 'points':
+          comparison = a.points - b.points
+          break
+        default:
+          return 0
+      }
+      return sortConfig.direction === 'asc' ? comparison : -comparison
+    })
+  }
+
+  const handleSort = (key: SortKey) => {
+    setSortConfig(current => ({
+      key,
+      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc'
+    }))
+  }
+
+  const renderSortIcon = (key: SortKey) => {
+    if (sortConfig.key !== key) return null
+    return (
+      <span className="ml-1">
+        {sortConfig.direction === 'asc' ? '↑' : '↓'}
+      </span>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="section-title">Your Climbing Sessions</h1>
+      <h1 className="text-2xl font-bold mb-6">Your Climbing Sessions</h1>
 
       {Object.entries(climbsByDate).map(([date, sessionClimbs]) => (
         <div key={date} className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">{date}</h2>
-          <div className="space-y-4">
-            {sessionClimbs.map((climb) => (
-              <div key={climb.id} className="climb-card">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="font-medium text-gray-900">
-                      Grade {climb.route.grade}
-                    </span>
-                    <span className="mx-2 text-gray-400">|</span>
-                    <span className="text-gray-600">
-                      {climb.route.color}
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className={`font-medium ${climb.status ? 'text-green-600' : 'text-red-600'}`}>
-                      {climb.status ? 'Send' : 'Attempt'}
-                    </span>
-                    <span className="mx-2 text-gray-400">|</span>
-                    <span className="text-purple-600 font-medium">
-                      {climb.points} pts
-                    </span>
-                  </div>
-                </div>
-                {climb.notes && (
-                  <p className="mt-2 text-gray-600 text-sm">{climb.notes}</p>
-                )}
-              </div>
-            ))}
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border border-gray-200">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('color')}>
+                    Color {renderSortIcon('color')}
+                  </th>
+                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('grade')}>
+                    Grade {renderSortIcon('grade')}
+                  </th>
+                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('status')}>
+                    Status {renderSortIcon('status')}
+                  </th>
+                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('tries')}>
+                    # Tries {renderSortIcon('tries')}
+                  </th>
+                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('rating')}>
+                    Stars {renderSortIcon('rating')}
+                  </th>
+                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('points')}>
+                    Points {renderSortIcon('points')}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortClimbs(sessionClimbs).map((climb) => (
+                  <tr key={climb.id} className="border-t border-gray-100 hover:bg-gray-50">
+                    <td className="px-4 py-2">
+                      <div className="flex items-center">
+                        <span 
+                          className="w-4 h-4 rounded-full mr-2" 
+                          style={{ 
+                            backgroundColor: getColorHex(climb.route.color),
+                            border: climb.route.color === 'White' ? '1px solid #ccc' : 'none'
+                          }}
+                        />
+                        {climb.route.color}
+                      </div>
+                    </td>
+                    <td className="px-4 py-2">{climb.route.grade}</td>
+                    <td className="px-4 py-2">
+                      <span className={`font-medium ${climb.status ? 'text-green-600' : 'text-red-600'}`}>
+                        {climb.status ? 'Send' : 'Attempt'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2">{climb.tries}</td>
+                    <td className="px-4 py-2">{climb.rating}/5</td>
+                    <td className="px-4 py-2">
+                      <span className="text-purple-600 font-medium">
+                        {climb.points} pts
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          
         </div>
       ))}
 
       {Object.keys(climbsByDate).length === 0 && (
-        <p className="text-center text-gray-600 mt-8">
-          No climbing sessions recorded yet.
-        </p>
+        <div className="text-center my-5">
+          <h4 className="mb-4">Enter your first climb to see Sessions</h4>
+          <a href="/sends" className="btn btn-primary">Back to Sends</a>
+        </div>
       )}
     </div>
   )

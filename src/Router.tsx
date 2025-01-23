@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
+import { NotFound } from './pages/ErrorPage'
 
 // Lazy load components
 const Home = lazy(() => import('./pages/Home'))
@@ -75,14 +76,7 @@ export default function Router(): React.ReactElement {
             </Suspense>
           }
         />
-        <Route
-          path="*"
-          element={
-            <div className="text-center py-8">
-              <h1 className="text-2xl font-bold">404 - Page Not Found</h1>
-            </div>
-          }
-        />
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )
