@@ -71,7 +71,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development node --loader ts-node/esm src/server/server.ts"
+args = "npx tsc -p tsconfig.server.json && node dist/server/server.js"
 waitForPort = 5000
 
 [[workflows.workflow]]
