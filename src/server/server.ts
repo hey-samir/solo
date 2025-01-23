@@ -81,6 +81,11 @@ console.log('Serving static files from:', distPath);
 app.use(express.static(distPath));
 
 // API Routes
+// Add redirect for root path to /about
+app.get('/', (_req: Request, res: Response) => {
+  res.redirect('/about');
+});
+
 app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'healthy' });
 });
