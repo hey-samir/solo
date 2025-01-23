@@ -32,7 +32,7 @@ try {
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://solo-climbing.repl.co', 'http://localhost:3000']
+    ? 'https://solo-climbing.repl.co'
     : 'http://localhost:3000',
   credentials: true
 }));
@@ -66,7 +66,7 @@ app.get('/api/user/:username', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/climbs', async (req: Request, res: Response) => {
+app.get('/api/climbs', async (_: Request, res: Response) => {
   try {
     const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
@@ -76,7 +76,7 @@ app.get('/api/climbs', async (req: Request, res: Response) => {
   }
 });
 
-app.get('/api/routes', async (req: Request, res: Response) => {
+app.get('/api/routes', async (_: Request, res: Response) => {
   try {
     const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
@@ -88,12 +88,12 @@ app.get('/api/routes', async (req: Request, res: Response) => {
 
 // For production, serve static files from the dist directory
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('dist', {
+  app.use(express.static(path.join(__dirname, '../../dist'), {
     maxAge: '1h'
   }));
 
   app.get('*', (_: Request, res: Response) => {
-    res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+    res.sendFile(path.join(__dirname, '../../dist/index.html'));
   });
 }
 
