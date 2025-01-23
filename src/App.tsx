@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom'
 import Router from './Router'
 
 console.log('App component mounting...')
+console.log('Environment:', process.env.NODE_ENV)
+console.log('API URL:', process.env.VITE_API_URL)
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,6 +14,11 @@ const queryClient = new QueryClient({
       retry: 1,
     },
   },
+})
+
+// Add global error handler for uncaught errors
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('Unhandled promise rejection:', event.reason)
 })
 
 function App(): React.ReactElement {

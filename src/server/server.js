@@ -22,21 +22,18 @@ try {
   process.exit(1);
 }
 
-// Allow all origins in development for Replit environment
+// CORS configuration based on environment
 app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: process.env.NODE_ENV === 'production' ? '*' : 'http://localhost:3000',
+  credentials: true
 }));
 
 app.use(express.json({ limit: '10mb' }));
 
-// Static file serving configuration
+// Serve static files with caching and proper MIME types
 const distPath = path.join(process.cwd(), 'dist');
 console.log('Static directory path:', distPath);
 
-// Serve static files with proper MIME types
 app.use(express.static(distPath, {
   maxAge: '1h', // Cache static assets for 1 hour
   setHeaders: (res, filePath) => {
@@ -54,15 +51,26 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint
+// API Routes
 app.get('/api/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
 
-// Basic API endpoints
+// User endpoint with proper error handling
 app.get('/api/user/:username', async (req, res) => {
   try {
     const username = req.params.username;
+    if (username === 'me') {
+      // Handle current user case
+      return res.json({
+        id: req.user.id,
+        username: 'testuser',
+        profilePhoto: null,
+        memberSince: new Date().toISOString(),
+        gymId: req.user.gymId
+      });
+    }
+
     const users = await db.query.users.findMany({
       where: (users, { eq }) => eq(users.username, username),
       limit: 1
@@ -86,10 +94,66 @@ app.get('/api/user/:username', async (req, res) => {
   }
 });
 
+// Mock endpoints for development
+app.get('/api/user/me/stats', (req, res) => {
+  res.json({
+    totalAscents: 25,
+    totalSends: 20,
+    totalPoints: 1000,
+    avgGrade: 'V5'
+  });
+});
+
+app.get('/api/climbs', (req, res) => {
+  res.json([
+    {
+      id: 1,
+      routeId: 1,
+      status: true,
+      rating: 4,
+      tries: 2,
+      notes: "Great route!",
+      points: 100,
+      createdAt: new Date().toISOString(),
+      route: {
+        color: "Blue",
+        grade: "V4"
+      }
+    }
+  ]);
+});
+
+app.get('/api/routes', (req, res) => {
+  res.json([
+    {
+      id: 1,
+      routeId: "R001",
+      color: "Blue",
+      grade: "V4",
+      rating: 4,
+      dateSet: new Date().toISOString()
+    }
+  ]);
+});
+
+app.get('/api/leaderboard', (req, res) => {
+  res.json([
+    {
+      username: "testuser",
+      totalAscents: 25,
+      totalPoints: 1000
+    }
+  ]);
+});
+
 // Serve index.html for all non-API routes to support client-side routing
-app.get('*', (req, res) => {
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+
   console.log('Serving index.html for path:', req.path);
-  res.sendFile(path.join(distPath, 'index.html'), (err) => {
+  res.sendFile(path.join(distPath, 'index.html'), err => {
     if (err) {
       console.error('Error sending index.html:', err);
       res.status(500).send('Error loading application');
