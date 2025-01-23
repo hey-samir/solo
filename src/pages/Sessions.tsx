@@ -3,19 +3,21 @@ import { useQuery } from '@tanstack/react-query'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 
+interface Route {
+  color: string
+  grade: string
+}
+
 interface Climb {
   id: number
   routeId: number
   status: boolean
   rating: number
   tries: number
-  notes: string
+  notes: string | null
   points: number
   createdAt: string
-  route: {
-    color: string
-    grade: string
-  }
+  route: Route
 }
 
 interface ClimbsByDate {
@@ -26,12 +28,17 @@ type SortKey = 'color' | 'grade' | 'status' | 'tries' | 'rating' | 'points'
 type SortDirection = 'asc' | 'desc'
 
 const Sessions: FC = () => {
-  const [sortConfig, setSortConfig] = useState<{key: SortKey, direction: SortDirection}>({ 
-    key: 'color', 
-    direction: 'asc' 
+  const [sortConfig, setSortConfig] = useState<{
+    key: SortKey
+    direction: SortDirection
+    date: string | null
+  }>({
+    key: 'color',
+    direction: 'asc',
+    date: null
   })
 
-  const { data: climbs, isLoading, error } = useQuery<Climb[]>({
+  const { data: climbs, isLoading } = useQuery<Climb[]>({
     queryKey: ['climbs'],
     queryFn: async () => {
       const response = await client.get('/climbs')
@@ -41,14 +48,6 @@ const Sessions: FC = () => {
 
   if (isLoading) {
     return <LoadingSpinner />
-  }
-
-  if (error) {
-    return (
-      <div className="text-center text-red-600 mt-8">
-        Error loading climbing sessions. Please try again later.
-      </div>
-    )
   }
 
   const getColorHex = (color: string): string => {
@@ -106,15 +105,19 @@ const Sessions: FC = () => {
     })
   }
 
-  const handleSort = (key: SortKey) => {
+  const handleSort = (key: SortKey, date: string) => {
     setSortConfig(current => ({
       key,
-      direction: current.key === key && current.direction === 'asc' ? 'desc' : 'asc'
+      direction: 
+        current.key === key && current.date === date && current.direction === 'asc' 
+          ? 'desc' 
+          : 'asc',
+      date
     }))
   }
 
-  const renderSortIcon = (key: SortKey) => {
-    if (sortConfig.key !== key) return null
+  const renderSortIcon = (key: SortKey, date: string) => {
+    if (sortConfig.key !== key || sortConfig.date !== date) return null
     return (
       <span className="ml-1">
         {sortConfig.direction === 'asc' ? '↑' : '↓'}
@@ -130,26 +133,44 @@ const Sessions: FC = () => {
         <div key={date} className="mb-8">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">{date}</h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200">
+            <table className="min-w-full bg-white border border-gray-200 rounded-lg">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('color')}>
-                    Color {renderSortIcon('color')}
+                  <th 
+                    className="px-4 py-2 cursor-pointer" 
+                    onClick={() => handleSort('color', date)}
+                  >
+                    Color {renderSortIcon('color', date)}
                   </th>
-                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('grade')}>
-                    Grade {renderSortIcon('grade')}
+                  <th 
+                    className="px-4 py-2 cursor-pointer" 
+                    onClick={() => handleSort('grade', date)}
+                  >
+                    Grade {renderSortIcon('grade', date)}
                   </th>
-                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('status')}>
-                    Status {renderSortIcon('status')}
+                  <th 
+                    className="px-4 py-2 cursor-pointer" 
+                    onClick={() => handleSort('status', date)}
+                  >
+                    Status {renderSortIcon('status', date)}
                   </th>
-                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('tries')}>
-                    # Tries {renderSortIcon('tries')}
+                  <th 
+                    className="px-4 py-2 cursor-pointer" 
+                    onClick={() => handleSort('tries', date)}
+                  >
+                    # Tries {renderSortIcon('tries', date)}
                   </th>
-                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('rating')}>
-                    Stars {renderSortIcon('rating')}
+                  <th 
+                    className="px-4 py-2 cursor-pointer" 
+                    onClick={() => handleSort('rating', date)}
+                  >
+                    Stars {renderSortIcon('rating', date)}
                   </th>
-                  <th className="px-4 py-2 cursor-pointer" onClick={() => handleSort('points')}>
-                    Points {renderSortIcon('points')}
+                  <th 
+                    className="px-4 py-2 cursor-pointer" 
+                    onClick={() => handleSort('points', date)}
+                  >
+                    Points {renderSortIcon('points', date)}
                   </th>
                 </tr>
               </thead>
@@ -186,14 +207,18 @@ const Sessions: FC = () => {
               </tbody>
             </table>
           </div>
-          
         </div>
       ))}
 
       {Object.keys(climbsByDate).length === 0 && (
-        <div className="text-center my-5">
-          <h4 className="mb-4">Enter your first climb to see Sessions</h4>
-          <a href="/sends" className="btn btn-primary">Back to Sends</a>
+        <div className="text-center my-8">
+          <h4 className="text-xl text-gray-600 mb-4">Enter your first climb to see Sessions</h4>
+          <a 
+            href="/sends" 
+            className="inline-block bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
+          >
+            Back to Sends
+          </a>
         </div>
       )}
     </div>

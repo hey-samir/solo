@@ -44,19 +44,6 @@ interface Stats {
   avgAttemptsPerClimb: number
 }
 
-interface ChartData {
-  labels: string[]
-  data: number[]
-}
-
-interface TimeSeriesData {
-  labels: string[]
-  datasets: {
-    label: string
-    data: number[]
-  }[]
-}
-
 const Stats: FC = () => {
   const [activeTab, setActiveTab] = useState<'metrics' | 'trends'>('metrics')
 
@@ -83,7 +70,8 @@ const Stats: FC = () => {
   return (
     <div className="container stats-container">
       {/* Main Content Pills */}
-      <ul className="nav nav-pills stats-pills mb-4 sticky-top" role="tablist" style={{ top: 0, zIndex: 1020, backgroundColor: '#212529' }}>
+      <ul className="nav nav-pills stats-pills mb-4 sticky-top" role="tablist" 
+          style={{ top: 0, zIndex: 1020, backgroundColor: '#212529' }}>
         <li className="nav-item" role="presentation">
           <button 
             className={`nav-link ${activeTab === 'metrics' ? 'active' : ''}`}
@@ -110,254 +98,242 @@ const Stats: FC = () => {
         {/* Metrics Tab */}
         {activeTab === 'metrics' && (
           <div className="row row-cols-1 row-cols-md-2 g-2 mb-4">
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.totalAscents}</div>
-                <div className="metric-label">Total Ascents</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.totalSends}</div>
-                <div className="metric-label">Total Sends</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.avgGrade}</div>
-                <div className="metric-label">Avg Grade</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.avgSentGrade}</div>
-                <div className="metric-label">Avg. Sent Grade</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.totalPoints}</div>
-                <div className="metric-label">Total Points</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.avgPointsPerClimb}</div>
-                <div className="metric-label">Avg Pts / Ascent</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.successRate}%</div>
-                <div className="metric-label">Send Rate</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.successRatePerSession}%</div>
-                <div className="metric-label">Session Send Rate</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.climbsPerSession}</div>
-                <div className="metric-label">Ascents / Session</div>
-              </div>
-            </div>
-            <div className="col-6 mb-2">
-              <div className="metric-card" style={{ height: '100px' }}>
-                <div className="metric-value">{stats?.avgAttemptsPerClimb}</div>
-                <div className="metric-label">Tries / Ascent</div>
-              </div>
-            </div>
+            <MetricCard
+              value={stats?.totalAscents}
+              label="Total Ascents"
+            />
+            <MetricCard
+              value={stats?.totalSends}
+              label="Total Sends"
+            />
+            <MetricCard
+              value={stats?.avgGrade}
+              label="Avg Grade"
+            />
+            <MetricCard
+              value={stats?.avgSentGrade}
+              label="Avg. Sent Grade"
+            />
+            <MetricCard
+              value={stats?.totalPoints}
+              label="Total Points"
+            />
+            <MetricCard
+              value={stats?.avgPointsPerClimb}
+              label="Avg Pts / Ascent"
+            />
+            <MetricCard
+              value={`${stats?.successRate}%`}
+              label="Send Rate"
+            />
+            <MetricCard
+              value={`${stats?.successRatePerSession}%`}
+              label="Session Send Rate"
+            />
+            <MetricCard
+              value={stats?.climbsPerSession}
+              label="Ascents / Session"
+            />
+            <MetricCard
+              value={stats?.avgAttemptsPerClimb}
+              label="Tries / Ascent"
+            />
           </div>
         )}
 
         {/* Trends Tab */}
         {activeTab === 'trends' && chartData && (
           <div>
-            {/* Route Mix */}
-            <div className="card mb-4">
-              <div className="card-header bg-transparent">
-                <h5 className="card-title mb-0">Route Mix</h5>
-              </div>
-              <div className="card-body">
-                <div style={{ height: '300px', width: '100%' }}>
-                  <Doughnut
-                    data={{
-                      labels: chartData.ascentsByDifficulty.labels,
-                      datasets: [{
-                        data: chartData.ascentsByDifficulty.data,
-                        backgroundColor: chartData.ascentsByDifficulty.labels.map(getGradeColor)
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: 'right'
-                        }
+            <ChartCard
+              title="Route Mix"
+              chart={
+                <Doughnut
+                  data={{
+                    labels: chartData.ascentsByDifficulty.labels,
+                    datasets: [{
+                      data: chartData.ascentsByDifficulty.data,
+                      backgroundColor: chartData.ascentsByDifficulty.labels.map(getGradeColor)
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'right'
                       }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+                    }
+                  }}
+                />
+              }
+            />
 
-            {/* Sends by Date */}
-            <div className="card mb-4">
-              <div className="card-header bg-transparent">
-                <h5 className="card-title mb-0">Sends</h5>
-              </div>
-              <div className="card-body">
-                <div style={{ height: '300px', width: '100%' }}>
-                  <Bar
-                    data={{
-                      labels: chartData.sendsByDate.labels.map(formatDate),
-                      datasets: [
-                        {
-                          label: 'Sends',
-                          data: chartData.sendsByDate.sends,
-                          backgroundColor: '#7442d6',
-                          stack: 'combined'
-                        },
-                        {
-                          label: 'Attempts',
-                          data: chartData.sendsByDate.attempts,
-                          backgroundColor: '#6c757d',
-                          stack: 'combined'
-                        }
-                      ]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          stacked: true
-                        },
-                        x: {
-                          stacked: true
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Send Rate Over Time */}
-            <div className="card mb-4">
-              <div className="card-header bg-transparent">
-                <h5 className="card-title mb-0">Send Rate</h5>
-              </div>
-              <div className="card-body">
-                <div style={{ height: '300px', width: '100%' }}>
-                  <Line
-                    data={{
-                      labels: chartData.metricsOverTime.labels.map(formatDate),
-                      datasets: [{
-                        label: 'Send Rate',
-                        data: chartData.metricsOverTime.metrics[0].data,
-                        borderColor: '#7442d6',
-                        backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          max: 100
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Routes per Session */}
-            <div className="card mb-4">
-              <div className="card-header bg-transparent">
-                <h5 className="card-title mb-0">Routes per Session</h5>
-              </div>
-              <div className="card-body">
-                <div style={{ height: '300px', width: '100%' }}>
-                  <Line
-                    data={{
-                      labels: chartData.climbsPerSession.labels.map(formatDate),
-                      datasets: [{
-                        label: 'Routes',
-                        data: chartData.climbsPerSession.data,
-                        borderColor: '#7442d6',
-                        backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: {
-                          beginAtZero: true
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Send Rate by Color */}
-            <div className="card mb-4">
-              <div className="card-header bg-transparent">
-                <h5 className="card-title mb-0">Send Rate by Color</h5>
-              </div>
-              <div className="card-body">
-                <div style={{ height: '300px', width: '100%' }}>
-                  <Bar
-                    data={{
-                      labels: chartData.sendRateByColor.labels,
-                      datasets: [{
-                        data: chartData.sendRateByColor.data,
-                        backgroundColor: '#7442d6'
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          max: 100,
-                          ticks: {
-                            callback: (value) => `${value}%`
-                          }
-                        }
+            <ChartCard
+              title="Sends"
+              chart={
+                <Bar
+                  data={{
+                    labels: chartData.sendsByDate.labels.map(formatDate),
+                    datasets: [
+                      {
+                        label: 'Sends',
+                        data: chartData.sendsByDate.sends,
+                        backgroundColor: '#7442d6',
+                        stack: 'combined'
                       },
-                      plugins: {
-                        legend: {
-                          display: false
+                      {
+                        label: 'Attempts',
+                        data: chartData.sendsByDate.attempts,
+                        backgroundColor: '#6c757d',
+                        stack: 'combined'
+                      }
+                    ]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        stacked: true
+                      },
+                      x: {
+                        stacked: true
+                      }
+                    }
+                  }}
+                />
+              }
+            />
+
+            <ChartCard
+              title="Send Rate"
+              chart={
+                <Line
+                  data={{
+                    labels: chartData.metricsOverTime.labels.map(formatDate),
+                    datasets: [{
+                      label: 'Send Rate',
+                      data: chartData.metricsOverTime.metrics[0].data,
+                      borderColor: '#7442d6',
+                      backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                      fill: true,
+                      tension: 0.4
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        max: 100
+                      }
+                    }
+                  }}
+                />
+              }
+            />
+
+            <ChartCard
+              title="Routes per Session"
+              chart={
+                <Line
+                  data={{
+                    labels: chartData.climbsPerSession.labels.map(formatDate),
+                    datasets: [{
+                      label: 'Routes',
+                      data: chartData.climbsPerSession.data,
+                      borderColor: '#7442d6',
+                      backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                      fill: true,
+                      tension: 0.4
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }}
+                />
+              }
+            />
+
+            <ChartCard
+              title="Send Rate by Color"
+              chart={
+                <Bar
+                  data={{
+                    labels: chartData.sendRateByColor.labels,
+                    datasets: [{
+                      data: chartData.sendRateByColor.data,
+                      backgroundColor: '#7442d6'
+                    }]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                          callback: (value) => `${value}%`
                         }
                       }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+                    },
+                    plugins: {
+                      legend: {
+                        display: false
+                      }
+                    }
+                  }}
+                />
+              }
+            />
           </div>
         )}
       </div>
     </div>
   )
 }
+
+// Helper Components
+interface MetricCardProps {
+  value: number | string | undefined
+  label: string
+}
+
+const MetricCard: FC<MetricCardProps> = ({ value, label }) => (
+  <div className="col-6 mb-2">
+    <div className="metric-card" style={{ height: '100px' }}>
+      <div className="metric-value">{value ?? 0}</div>
+      <div className="metric-label">{label}</div>
+    </div>
+  </div>
+)
+
+interface ChartCardProps {
+  title: string
+  chart: React.ReactNode
+}
+
+const ChartCard: FC<ChartCardProps> = ({ title, chart }) => (
+  <div className="card mb-4">
+    <div className="card-header bg-transparent">
+      <h5 className="card-title mb-0">{title}</h5>
+    </div>
+    <div className="card-body">
+      <div style={{ height: '300px', width: '100%' }}>
+        {chart}
+      </div>
+    </div>
+  </div>
+)
 
 // Helper functions
 const formatDate = (dateString: string) => {

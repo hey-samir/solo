@@ -14,6 +14,7 @@ const Stats = lazy(() => import('./pages/Stats'))
 const Standings = lazy(() => import('./pages/Standings'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
+const Feedback = lazy(() => import('./pages/Feedback'))
 
 console.log('Router component mounting...')
 
@@ -54,6 +55,14 @@ export default function Router(): React.ReactElement {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <About />
+            </Suspense>
+          }
+        />
+        <Route
+          path="feedback"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Feedback />
             </Suspense>
           }
         />
