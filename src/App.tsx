@@ -2,20 +2,13 @@ import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import AppRouter from './Router'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import './styles/global.css'  // Load our custom styles last to override Bootstrap
+import './styles/global.css'
 
 const App: React.FC = () => {
-  console.log('App component mounting...')  // Added mounting log
-
   React.useEffect(() => {
-    // Clean up any query parameters and handle initialPath
+    // Simplified URL cleanup - just remove any query parameters
     const url = new URL(window.location.href)
-    const initialPath = url.searchParams.get('initialPath')
-
-    // Remove all query parameters and use initialPath if present
-    if (initialPath) {
-      window.history.replaceState({}, '', initialPath)
-    } else if (url.search) {
+    if (url.search) {
       window.history.replaceState({}, '', url.pathname)
     }
   }, [])

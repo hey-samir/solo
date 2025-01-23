@@ -14,7 +14,7 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true
   },
-  base: './',
+  base: '/',  
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
