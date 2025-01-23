@@ -31,14 +31,7 @@ try {
 // CORS Configuration
 const corsOptions = {
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl)
-    if (!origin) {
-      callback(null, true);
-      return;
-    }
-
-    // Allow all origins in development
-    if (process.env.NODE_ENV === 'development') {
+    if (!origin || process.env.NODE_ENV === 'development') {
       callback(null, true);
       return;
     }
@@ -53,12 +46,7 @@ const corsOptions = {
     ];
 
     const isAllowed = allowedDomains.some(domain => domain.test(origin));
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.log('Blocked origin:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
+    callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -72,15 +60,34 @@ app.use(express.json({ limit: '10mb' }));
 const distPath = path.join(__dirname, '../../dist');
 console.log('Static files path:', distPath);
 
+// MIME type mapping
+const mimeTypes = {
+  '.html': 'text/html',
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.wav': 'audio/wav',
+  '.mp4': 'video/mp4',
+  '.woff': 'application/font-woff',
+  '.ttf': 'application/font-ttf',
+  '.eot': 'application/vnd.ms-fontobject',
+  '.otf': 'application/font-otf',
+  '.wasm': 'application/wasm'
+};
+
 // Serve static files with proper MIME types
 app.use(express.static(distPath, {
   index: false, // Don't serve index.html for /
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
+  setHeaders: (res, filePath) => {
+    const ext = path.extname(filePath).toLowerCase();
+    const contentType = mimeTypes[ext] || 'application/octet-stream';
+    res.setHeader('Content-Type', contentType);
+    // Add cache control headers
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
   }
 }));
 
@@ -89,6 +96,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'healthy' });
 });
 
+// User routes
 app.get('/api/user/:username', async (req, res, next) => {
   try {
     const username = req.params.username;
@@ -107,32 +115,57 @@ app.get('/api/user/:username', async (req, res, next) => {
       gymId: user[0].gymId
     });
   } catch (error) {
+    console.error('Error fetching user:', error);
     next(error);
   }
 });
 
+// Climbs routes
 app.get('/api/climbs', async (_req, res, next) => {
   try {
     const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
   } catch (error) {
+    console.error('Error fetching climbs:', error);
     next(error);
   }
 });
 
+// Routes routes
 app.get('/api/routes', async (_req, res, next) => {
   try {
     const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
   } catch (error) {
+    console.error('Error fetching routes:', error);
     next(error);
   }
 });
 
-// Catch-all route handler for the SPA - MUST be after API routes
-app.get('*', (req, res) => {
+// Catch-all route handler for the SPA
+app.get('*', (req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith('/api/')) {
+    return next();
+  }
+
   console.log('Serving index.html for path:', req.path);
-  res.sendFile(path.join(distPath, 'index.html'));
+
+  // Send the index.html file with appropriate headers
+  res.setHeader('Content-Type', 'text/html');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.sendFile(path.join(distPath, 'index.html'), err => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      next(err);
+    }
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 const PORT = process.env.PORT || 5000;
@@ -145,5 +178,4 @@ app.listen(PORT, '0.0.0.0', () => {
   process.exit(1);
 });
 
-// Export using CommonJS
 module.exports = { db };
