@@ -7,6 +7,8 @@ interface Route {
   id: number
   color: string
   grade: string
+  wall_sector: string
+  anchor_number: number
 }
 
 interface SendFormData {
@@ -15,6 +17,20 @@ interface SendFormData {
   status: boolean
   rating: number
   notes: string
+}
+
+// Color to hex mapping for route colors
+const colorToHex: Record<string, string> = {
+  'White': '#FFFFFF',
+  'Pink': '#FF69B4',
+  'Blue': '#0000FF',
+  'Black': '#000000',
+  'Orange': '#FFA500',
+  'Purple': '#800080',
+  'Green': '#008000',
+  'Red': '#FF0000',
+  'Yellow': '#FFFF00',
+  'Teal': '#008080'
 }
 
 const Sends: FC = () => {
@@ -50,24 +66,45 @@ const Sends: FC = () => {
     }
   })
 
+  // Points calculation function
+  const calculatePoints = (grade: string, rating: number, status: boolean, tries: number) => {
+    if (!grade) return 0;
+    const [_, mainGrade, subGrade] = grade.match(/5\.(\d+)([a-d])?/) || [null, '0', ''];
+
+    const basePoints: Record<string, number> = {
+      '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
+      '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
+    }
+
+    const subGradeMultiplier: Record<string, number> = {
+      'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
+    }
+
+    const base = (basePoints[mainGrade] || 0) * (subGradeMultiplier[subGrade] || 1);
+    const starMultiplier = Math.max(0.1, rating / 3);
+    const statusMultiplier = status ? 1 : 0.5;
+    const triesMultiplier = Math.max(0.1, 1 / Math.sqrt(tries));
+
+    return Math.round(base * starMultiplier * statusMultiplier * triesMultiplier);
+  }
+
   if (isLoading) {
     return <LoadingSpinner />
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    sendMutation.mutate(formData)
-  }
-
-  const handleRatingChange = (newRating: number) => {
-    setFormData(prev => ({ ...prev, rating: newRating }))
-  }
+  const selectedRoute = routes?.find(r => r.id === formData.route_id);
+  const points = selectedRoute 
+    ? calculatePoints(selectedRoute.grade, formData.rating, formData.status, formData.tries)
+    : 0;
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="card">
         <div className="card-body p-0">
-          <form onSubmit={handleSubmit} className="w-100">
+          <form onSubmit={(e) => {
+            e.preventDefault()
+            sendMutation.mutate(formData)
+          }} className="w-100">
             <table className="table table-form w-100">
               <tbody>
                 <tr>
@@ -77,7 +114,7 @@ const Sends: FC = () => {
                   <td className="form-input-cell">
                     <select 
                       className="form-select form-select-lg custom-select"
-                      value={formData.route_id}
+                      value={formData.route_id || ''}
                       onChange={(e) => setFormData(prev => ({ ...prev, route_id: Number(e.target.value) }))}
                       required
                     >
@@ -88,7 +125,11 @@ const Sends: FC = () => {
                           value={route.id}
                           className="route-option"
                         >
-                          {route.color} {route.grade}
+                          <span 
+                            className="color-dot" 
+                            style={{ backgroundColor: colorToHex[route.color] || '#FFFFFF' }}
+                          />
+                          {route.wall_sector} - {route.anchor_number} - {route.color} {route.grade}
                         </option>
                       ))}
                     </select>
@@ -126,7 +167,7 @@ const Sends: FC = () => {
                         onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.checked }))}
                       />
                       <label className="form-check-label">
-                        {formData.status ? 'Sent' : 'Attempt'}
+                        {formData.status ? 'Sent' : 'Attempted'}
                       </label>
                     </div>
                   </td>
@@ -142,7 +183,7 @@ const Sends: FC = () => {
                           <i
                             key={star}
                             className={`rating-star bi bi-star-fill ${star <= formData.rating ? 'active' : ''}`}
-                            onClick={() => handleRatingChange(star)}
+                            onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
                           />
                         ))}
                       </div>
@@ -170,10 +211,10 @@ const Sends: FC = () => {
                 className="btn btn-primary btn-lg w-100"
                 disabled={sendMutation.isPending}
               >
-                {sendMutation.isPending ? 'Sending...' : 'Send'}
+                {sendMutation.isPending ? 'Sending...' : formData.status ? 'Send' : 'Log'}
               </button>
-              <div id="pointsEstimate" className="text-white mt-3 text-center fs-6">
-                Points: {formData.status ? formData.rating * 10 : formData.rating * 5}
+              <div className="text-white mt-3 text-center fs-6">
+                Points: {points}
               </div>
             </div>
           </form>
