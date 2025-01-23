@@ -71,8 +71,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsc -p tsconfig.server.json && node dist/server/server.js"
-waitForPort = 5000
+args = "NODE_ENV=development npx tsx src/server/server.ts"
 
 [[workflows.workflow]]
 name = "Database Migrations"

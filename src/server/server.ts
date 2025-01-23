@@ -1,11 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const path = require('path');
-const postgres = require('postgres');
-const { drizzle } = require('drizzle-orm/postgres-js');
-const schema = require('./db/schema');
-const { eq } = require('drizzle-orm');
+import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { users, routes, climbs } from './db/schema.js';
+import { eq } from 'drizzle-orm';
 
 dotenv.config();
 
@@ -13,10 +14,10 @@ dotenv.config();
 const app = express();
 
 // Database setup
-let db;
+let db: PostgresJsDatabase;
 try {
   console.log('Connecting to database...');
-  const client = postgres(process.env.DATABASE_URL, {
+  const client = postgres(process.env.DATABASE_URL!, {
     max: 20,
     idle_timeout: 30,
     connect_timeout: 10,
@@ -29,8 +30,8 @@ try {
 }
 
 // CORS Configuration
-const corsOptions = {
-  origin: function(origin, callback) {
+const corsOptions: cors.CorsOptions = {
+  origin: function(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
     if (!origin || process.env.NODE_ENV === 'development') {
       callback(null, true);
       return;
@@ -56,12 +57,16 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 
+// Get directory name for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 // Serve static files from the dist directory
 const distPath = path.join(__dirname, '../../dist');
 console.log('Static files path:', distPath);
 
 // MIME type mapping
-const mimeTypes = {
+const mimeTypes: Record<string, string> = {
   '.html': 'text/html',
   '.js': 'application/javascript',
   '.css': 'text/css',
@@ -80,7 +85,7 @@ const mimeTypes = {
 // Serve static files with proper MIME types
 app.use(express.static(distPath, {
   index: false,
-  setHeaders: (res, filePath) => {
+  setHeaders: (res: Response, filePath: string) => {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = mimeTypes[ext] || 'application/octet-stream';
     res.setHeader('Content-Type', contentType);
@@ -94,15 +99,15 @@ app.use(express.static(distPath, {
 }));
 
 // API Routes
-app.get('/api/health', (_req, res) => {
+app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'healthy' });
 });
 
 // User routes
-app.get('/api/user/:username', async (req, res, next) => {
+app.get('/api/user/:username', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const username = req.params.username;
-    const user = await db.select().from(schema.users).where(eq(schema.users.username, username)).limit(1);
+    const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
 
     if (!user || user.length === 0) {
       res.status(404).json({ error: 'User not found' });
@@ -123,9 +128,9 @@ app.get('/api/user/:username', async (req, res, next) => {
 });
 
 // Climbs routes
-app.get('/api/climbs', async (_req, res, next) => {
+app.get('/api/climbs', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const userClimbs = await db.select().from(schema.climbs);
+    const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
   } catch (error) {
     console.error('Error fetching climbs:', error);
@@ -134,9 +139,9 @@ app.get('/api/climbs', async (_req, res, next) => {
 });
 
 // Routes routes
-app.get('/api/routes', async (_req, res, next) => {
+app.get('/api/routes', async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const userRoutes = await db.select().from(schema.routes);
+    const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
   } catch (error) {
     console.error('Error fetching routes:', error);
@@ -145,7 +150,7 @@ app.get('/api/routes', async (_req, res, next) => {
 });
 
 // Catch-all route handler for the SPA
-app.get('*', (req, res, next) => {
+app.get('*', (req: Request, res: Response, next: NextFunction) => {
   // Skip API routes
   if (req.path.startsWith('/api/')) {
     return next();
@@ -165,7 +170,7 @@ app.get('*', (req, res, next) => {
 });
 
 // Error handling middleware
-app.use((err, _req, res, _next) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Server error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
@@ -180,4 +185,4 @@ app.listen(PORT, '0.0.0.0', () => {
   process.exit(1);
 });
 
-module.exports = { db };
+export { db };
