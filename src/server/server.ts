@@ -70,8 +70,19 @@ app.use(express.json({ limit: '10mb' }));
 
 // Serve static files from the dist directory
 const distPath = path.join(__dirname, '../../dist');
-console.log('Serving static files from:', distPath);
-app.use(express.static(distPath));
+console.log('Static files path:', distPath);
+
+// Serve static files with proper MIME types
+app.use(express.static(distPath, {
+  index: false, // Don't serve index.html for /
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+  }
+}));
 
 // API Routes
 app.get('/api/health', (_req, res) => {
@@ -119,7 +130,8 @@ app.get('/api/routes', async (_req, res, next) => {
 });
 
 // Catch-all route handler for the SPA - MUST be after API routes
-app.get('*', (_req, res) => {
+app.get('*', (req, res) => {
+  console.log('Serving index.html for path:', req.path);
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
@@ -127,6 +139,7 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  console.log('Static files being served from:', distPath);
 }).on('error', (error) => {
   console.error('Failed to start server:', error);
   process.exit(1);
