@@ -24,14 +24,16 @@ const productionOptimizations = {
   modulePreload: true,
   rollupOptions: {
     output: {
-      manualChunks: {
-        'vendor': ['react', 'react-dom', 'react-router-dom'],
-        'ui': ['@popperjs/core', 'bootstrap', '@coreui/coreui'],
-        'chart': ['chart.js', 'react-chartjs-2'],
-        'utils': ['axios', '@tanstack/react-query']
+      manualChunks: (id) => {
+        if (id.includes('node_modules')) {
+          if (id.includes('react')) return 'vendor-react'
+          if (id.includes('chart.js')) return 'vendor-chart'
+          if (id.includes('bootstrap') || id.includes('@popperjs') || id.includes('@coreui')) return 'vendor-ui'
+          return 'vendor'
+        }
       },
-      chunkFileNames: 'assets/js/[name]-[hash].js',
-      entryFileNames: 'assets/js/[name]-[hash].js',
+      chunkFileNames: 'assets/[name]-[hash].js',
+      entryFileNames: 'assets/[name]-[hash].js',
       assetFileNames: (assetInfo) => {
         const extType = assetInfo.name.split('.').at(1)
         if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
@@ -40,10 +42,7 @@ const productionOptimizations = {
         if (/css/i.test(extType)) {
           return 'assets/css/[name]-[hash][extname]'
         }
-        if (/woff2?|ttf|eot|otf/i.test(extType)) {
-          return 'assets/fonts/[name]-[hash][extname]'
-        }
-        return 'assets/other/[name]-[hash][extname]'
+        return 'assets/[name]-[hash][extname]'
       }
     }
   }
@@ -66,18 +65,9 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        ws: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api')
+        ws: true
       }
-    },
-    allowedHosts: [
-      'localhost',
-      '127.0.0.1',
-      '.repl.co',
-      '.replit.dev',
-      '.repl.dev',
-      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev'
-    ]
+    }
   },
   build: {
     outDir: 'dist',

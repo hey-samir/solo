@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
+import compression from 'compression';
 import { users, routes, climbs } from './db/schema.js';
 import { eq } from 'drizzle-orm';
 
@@ -28,6 +29,9 @@ try {
   console.error('Database connection failed:', error);
   process.exit(1);
 }
+
+// Enable compression for all responses
+app.use(compression());
 
 // CORS Configuration
 const corsOptions: cors.CorsOptions = {
@@ -82,19 +86,30 @@ const mimeTypes: Record<string, string> = {
   '.otf': 'font/otf'
 };
 
-// Serve static files with proper MIME types
+// Function to set cache control headers based on file type
+const setCacheControl = (res: Response, ext: string) => {
+  if (ext === '.html' || ext === '.json') {
+    // No cache for HTML and JSON files
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  } else if (ext.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+    // Cache static assets for 1 week
+    res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+  } else {
+    // Default cache for 1 day
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+  }
+};
+
+// Serve static files with proper MIME types and cache control
 app.use(express.static(distPath, {
   index: false,
   setHeaders: (res: Response, filePath: string) => {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = mimeTypes[ext] || 'application/octet-stream';
     res.setHeader('Content-Type', contentType);
-
-    if (ext === '.html') {
-      res.setHeader('Cache-Control', 'no-cache');
-    } else {
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-    }
+    setCacheControl(res, ext);
   }
 }));
 

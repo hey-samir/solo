@@ -27,6 +27,7 @@
     "bootstrap": "^5.3.3",
     "bootstrap-slider": "^11.0.2",
     "chart.js": "^4.4.7",
+    "compression": "^1.7.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "drizzle-kit": "^0.30.2",
