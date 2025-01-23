@@ -1,6 +1,6 @@
 import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
-import AppRouter from './Router.tsx'
+import AppRouter from './Router'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './styles/global.css'
 

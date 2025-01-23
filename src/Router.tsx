@@ -104,7 +104,7 @@ const Router: React.FC = () => {
           }
         />
 
-        {/* Redirect root to About */}
+        {/* Root route redirects to About */}
         <Route index element={<Navigate to="/about" replace />} />
 
         {/* 404 Route */}

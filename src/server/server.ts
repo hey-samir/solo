@@ -1,16 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const { drizzle } = require('drizzle-orm/postgres-js');
 const postgres = require('postgres');
-const path = require('path');
 const { users, routes, climbs } = require('./db/schema');
 const { eq } = require('drizzle-orm');
-
-type RequestHandler = express.RequestHandler;
-type Request = express.Request;
-type Response = express.Response;
-type NextFunction = express.NextFunction;
 
 dotenv.config();
 
@@ -21,7 +16,7 @@ const app = express();
 let db;
 try {
   console.log('Connecting to database...');
-  const client = postgres(process.env.DATABASE_URL!, {
+  const client = postgres(process.env.DATABASE_URL, {
     max: 20,
     idle_timeout: 30,
     connect_timeout: 10,
@@ -35,7 +30,7 @@ try {
 
 // CORS Configuration
 const corsOptions = {
-  origin: function(origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) {
+  origin: function(origin, callback) {
     // Allow requests with no origin (like mobile apps, curl)
     if (!origin) {
       callback(null, true);
@@ -68,8 +63,6 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400 // 24 hours
 };
 
 app.use(cors(corsOptions));
@@ -81,11 +74,11 @@ console.log('Serving static files from:', distPath);
 app.use(express.static(distPath));
 
 // API Routes
-app.get('/api/health', (_req: Request, res: Response) => {
+app.get('/api/health', (_req, res) => {
   res.json({ status: 'healthy' });
 });
 
-app.get('/api/user/:username', async (req: Request, res: Response, next: NextFunction) => {
+app.get('/api/user/:username', async (req, res, next) => {
   try {
     const username = req.params.username;
     const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
@@ -107,7 +100,7 @@ app.get('/api/user/:username', async (req: Request, res: Response, next: NextFun
   }
 });
 
-app.get('/api/climbs', async (_req: Request, res: Response, next: NextFunction) => {
+app.get('/api/climbs', async (_req, res, next) => {
   try {
     const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
@@ -116,7 +109,7 @@ app.get('/api/climbs', async (_req: Request, res: Response, next: NextFunction) 
   }
 });
 
-app.get('/api/routes', async (_req: Request, res: Response, next: NextFunction) => {
+app.get('/api/routes', async (_req, res, next) => {
   try {
     const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
@@ -125,19 +118,19 @@ app.get('/api/routes', async (_req: Request, res: Response, next: NextFunction) 
   }
 });
 
-// Catch-all route handler for the SPA
-app.get('*', (_req: Request, res: Response) => {
-  console.log('Handling route:', _req.url);
+// Catch-all route handler for the SPA - MUST be after API routes
+app.get('*', (_req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-}).on('error', (error: Error) => {
+}).on('error', (error) => {
   console.error('Failed to start server:', error);
   process.exit(1);
 });
 
+// Export using CommonJS
 module.exports = { db };
