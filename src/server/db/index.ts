@@ -1,6 +1,6 @@
-const { drizzle } = require('drizzle-orm/postgres-js');
-const postgres = require('postgres');
-const schema = require('./schema');
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import schema from './schema';
 
 // Define database configuration type
 interface DatabaseConfig {
@@ -29,4 +29,5 @@ const client = postgres(connectionString, config);
 // Create the database instance
 const db = drizzle(client, { schema });
 
-module.exports = { db };
+export { db };
+export type { DatabaseConfig };

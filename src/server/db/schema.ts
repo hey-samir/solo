@@ -1,6 +1,6 @@
-const { pgTable, serial, text, timestamp, integer, boolean } = require('drizzle-orm/pg-core');
+import { pgTable, serial, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
 
-interface User {
+export interface User {
   id: number;
   username: string;
   email: string;
@@ -10,7 +10,7 @@ interface User {
   gymId?: number;
 }
 
-interface Route {
+export interface Route {
   id: number;
   routeId: string;
   color?: string;
@@ -20,7 +20,7 @@ interface Route {
   gymId: number;
 }
 
-interface Climb {
+export interface Climb {
   id: number;
   userId: number;
   routeId: number;
@@ -32,7 +32,7 @@ interface Climb {
   createdAt: Date;
 }
 
-const users = pgTable('user', {
+export const users = pgTable('user', {
   id: serial('id').primaryKey(),
   username: text('username').notNull().unique(),
   email: text('email').notNull().unique(),
@@ -42,7 +42,7 @@ const users = pgTable('user', {
   gymId: integer('gym_id')
 });
 
-const routes = pgTable('route', {
+export const routes = pgTable('route', {
   id: serial('id').primaryKey(),
   routeId: text('route_id').notNull(),
   color: text('color'),
@@ -52,7 +52,7 @@ const routes = pgTable('route', {
   gymId: integer('gym_id').notNull()
 });
 
-const climbs = pgTable('climb', {
+export const climbs = pgTable('climb', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull(),
   routeId: integer('route_id').notNull(),
@@ -64,7 +64,7 @@ const climbs = pgTable('climb', {
   createdAt: timestamp('created_at').defaultNow()
 });
 
-module.exports = {
+export default {
   users,
   routes,
   climbs
