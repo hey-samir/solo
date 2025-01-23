@@ -18,9 +18,9 @@ let db;
 try {
   console.log('Connecting to database...');
   const client = postgres(process.env.DATABASE_URL!, {
-    max: 20, // Maximum number of connections
-    idle_timeout: 30, // Close idle connections after 30 seconds
-    connect_timeout: 10, // Connection timeout after 10 seconds
+    max: 20,
+    idle_timeout: 30,
+    connect_timeout: 10,
   });
   db = drizzle(client);
   console.log('Database connection successful');
@@ -31,31 +31,19 @@ try {
 
 // Middleware
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? false : 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://solo-climbing.repl.co', 'http://localhost:3000']
+    : 'http://localhost:3000',
   credentials: true
 }));
 
 app.use(json({ limit: '10mb' }));
-app.use(express.static('dist', {
-  maxAge: '1h' // Cache static assets for 1 hour
-}));
 
-// Simple auth middleware for development
-app.use((req: Request, _: Response, next: NextFunction) => {
-  // Add a mock user for development
-  req.user = {
-    id: 1,
-    gymId: 1
-  };
-  next();
-});
-
-// Health check endpoint
+// API Routes
 app.get('/api/health', (_: Request, res: Response) => {
   res.json({ status: 'healthy' });
 });
 
-// User endpoint with proper error handling and types
 app.get('/api/user/:username', async (req: Request, res: Response) => {
   try {
     const username = req.params.username;
@@ -78,14 +66,9 @@ app.get('/api/user/:username', async (req: Request, res: Response) => {
   }
 });
 
-// Climbs endpoint with proper error handling and types
 app.get('/api/climbs', async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const userClimbs = await db.select().from(climbs).where(eq(climbs.userId, req.user.id));
+    const userClimbs = await db.select().from(climbs);
     res.json(userClimbs);
   } catch (error) {
     console.error('Error fetching climbs:', error);
@@ -93,14 +76,9 @@ app.get('/api/climbs', async (req: Request, res: Response) => {
   }
 });
 
-// Routes endpoint with proper error handling and types
 app.get('/api/routes', async (req: Request, res: Response) => {
   try {
-    if (!req.user?.id) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const userRoutes = await db.select().from(routes).where(eq(routes.gymId, req.user.gymId!));
+    const userRoutes = await db.select().from(routes);
     res.json(userRoutes);
   } catch (error) {
     console.error('Error fetching routes:', error);
@@ -108,18 +86,19 @@ app.get('/api/routes', async (req: Request, res: Response) => {
   }
 });
 
-// Serve React app for non-API routes
-app.get('*', (_: Request, res: Response) => {
-  if (app.get('env') === 'production') {
+// For production, serve static files from the dist directory
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static('dist', {
+    maxAge: '1h'
+  }));
+
+  app.get('*', (_: Request, res: Response) => {
     res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
-  } else {
-    res.redirect('http://localhost:3000');
-  }
-});
+  });
+}
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
 
-// Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 }).on('error', (error) => {

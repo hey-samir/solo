@@ -4,7 +4,7 @@ import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import { NotFound } from './pages/ErrorPage'
 
-// Lazy load components
+// Lazy load components for better performance
 const Home = lazy(() => import('./pages/Home'))
 const About = lazy(() => import('./pages/About'))
 const Profile = lazy(() => import('./pages/Profile'))
@@ -20,9 +20,6 @@ const Router: React.FC = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        {/* Redirect root to About */}
-        <Route index element={<Navigate to="/about" replace />} />
-
         {/* Public Routes */}
         <Route
           path="about"
@@ -48,19 +45,13 @@ const Router: React.FC = () => {
             </Suspense>
           }
         />
+
+        {/* Authenticated Routes */}
         <Route
           path="home"
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <Home />
-            </Suspense>
-          }
-        />
-        <Route
-          path="feedback"
-          element={
-            <Suspense fallback={<LoadingSpinner />}>
-              <Feedback />
             </Suspense>
           }
         />
@@ -104,6 +95,19 @@ const Router: React.FC = () => {
             </Suspense>
           }
         />
+        <Route
+          path="feedback"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Feedback />
+            </Suspense>
+          }
+        />
+
+        {/* Redirect root to About */}
+        <Route index element={<Navigate to="/about" replace />} />
+
+        {/* 404 Route */}
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
