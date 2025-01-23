@@ -5,7 +5,7 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "flask"
-run = ["sh", "-c", "npx vite build && NODE_ENV=production node src/server/server.js"]
+run = ["sh", "-c", "NODE_ENV=production npx vite build && node src/server/server.js"]
 
 [workflows]
 runButton = "Project"
@@ -31,7 +31,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx vite build && NODE_ENV=production node src/server/server.js"
+args = "NODE_ENV=production npx vite build && node src/server/server.js"
 waitForPort = 5000
 
 [[ports]]
