@@ -129,8 +129,8 @@ const Router: React.FC = () => {
         />
 
         {/* Root and fallback routes */}
-        <Route index element={<Navigate to="/about" replace />} />
-        <Route path="*" element={<Navigate to="/about" replace />} />
+        <Route index element={<Navigate to={isAuthenticated ? "/home" : "/about"} replace />} />
+        <Route path="*" element={<Navigate to={isAuthenticated ? "/home" : "/about"} replace />} />
       </Route>
     </Routes>
   )

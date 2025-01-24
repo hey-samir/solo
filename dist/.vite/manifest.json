@@ -15,7 +15,7 @@
     "name": "vendor"
   },
   "index.html": {
-    "file": "assets/index.Dv-sRyDC.js",
+    "file": "assets/index.IlIzE3wi.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
@@ -48,7 +48,7 @@
     ]
   },
   "src/pages/Feedback.tsx": {
-    "file": "assets/Feedback.BZYGoVwO.js",
+    "file": "assets/Feedback.-CabRWiH.js",
     "name": "Feedback",
     "src": "src/pages/Feedback.tsx",
     "isDynamicEntry": true,
@@ -67,7 +67,7 @@
     ]
   },
   "src/pages/Login.tsx": {
-    "file": "assets/Login.Dt5h9lfW.js",
+    "file": "assets/Login.DJNIMBqn.js",
     "name": "Login",
     "src": "src/pages/Login.tsx",
     "isDynamicEntry": true,
@@ -77,7 +77,7 @@
     ]
   },
   "src/pages/Profile.tsx": {
-    "file": "assets/Profile.D9KomZbv.js",
+    "file": "assets/Profile.CtXQSil2.js",
     "name": "Profile",
     "src": "src/pages/Profile.tsx",
     "isDynamicEntry": true,
@@ -87,7 +87,7 @@
     ]
   },
   "src/pages/Register.tsx": {
-    "file": "assets/Register.D7G6rhhk.js",
+    "file": "assets/Register.Bgasrzr3.js",
     "name": "Register",
     "src": "src/pages/Register.tsx",
     "isDynamicEntry": true,
@@ -97,7 +97,7 @@
     ]
   },
   "src/pages/Sends.tsx": {
-    "file": "assets/Sends.54Pbnywm.js",
+    "file": "assets/Sends.CueU5NfH.js",
     "name": "Sends",
     "src": "src/pages/Sends.tsx",
     "isDynamicEntry": true,
@@ -107,7 +107,7 @@
     ]
   },
   "src/pages/Sessions.tsx": {
-    "file": "assets/Sessions.CwgGPmp5.js",
+    "file": "assets/Sessions.DC6nitNs.js",
     "name": "Sessions",
     "src": "src/pages/Sessions.tsx",
     "isDynamicEntry": true,
@@ -117,7 +117,7 @@
     ]
   },
   "src/pages/Standings.tsx": {
-    "file": "assets/Standings.CVfKB90U.js",
+    "file": "assets/Standings.B6bvJ7y6.js",
     "name": "Standings",
     "src": "src/pages/Standings.tsx",
     "isDynamicEntry": true,
@@ -127,7 +127,7 @@
     ]
   },
   "src/pages/Stats.tsx": {
-    "file": "assets/Stats.BP95lbne.js",
+    "file": "assets/Stats.C429d4M8.js",
     "name": "Stats",
     "src": "src/pages/Stats.tsx",
     "isDynamicEntry": true,

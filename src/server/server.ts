@@ -51,11 +51,9 @@ app.use(cors(corsOptions));
 // Parse JSON requests
 app.use(express.json({ limit: '10mb' }));
 
-// Get directory name for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../../');
-const distPath = path.join(projectRoot, 'dist');
+// Set up static file serving
+const workspaceDir = process.cwd();
+const distPath = path.join(workspaceDir, 'dist');
 
 console.log('Environment:', process.env.NODE_ENV);
 console.log('Static files path:', distPath);
@@ -64,8 +62,7 @@ console.log('Static files path:', distPath);
 app.use(express.static(distPath, {
   maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
   etag: true,
-  lastModified: true,
-  index: 'index.html' // Explicitly set index.html as the default file
+  lastModified: true
 }));
 
 // API Routes
@@ -225,17 +222,25 @@ app.get('*', (req: Request, res: Response) => {
   }
 
   const indexPath = path.join(distPath, 'index.html');
-  console.log('Serving index.html for path:', req.path);
-  console.log('Index path:', indexPath);
 
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Error serving index.html:', err);
-      console.error('Index path attempted:', indexPath);
-      console.error('Current directory:', __dirname);
-      res.status(500).send('Error serving application');
+  try {
+    if (!require('fs').existsSync(indexPath)) {
+      console.error('index.html not found at:', indexPath);
+      console.error('Current working directory:', workspaceDir);
+      console.error('Dist path:', distPath);
+      console.error('Available files in workspace:', require('fs').readdirSync(workspaceDir));
+      if (require('fs').existsSync(distPath)) {
+        console.error('Available files in dist:', require('fs').readdirSync(distPath));
+      }
+      res.status(500).send('Application files not found. Please ensure the application is built properly.');
+      return;
     }
-  });
+
+    res.sendFile(indexPath);
+  } catch (error) {
+    console.error('Error serving index.html:', error);
+    res.status(500).send('Error serving application files');
+  }
 });
 
 // Error handling middleware
