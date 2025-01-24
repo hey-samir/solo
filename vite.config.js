@@ -12,8 +12,8 @@ const isReplit = process.env.REPL_SLUG && process.env.REPL_OWNER
 
 export default defineConfig({
   plugins: [react()],
-  root: '.',
-  base: '/',
+  root: process.cwd(), // Explicitly set root directory
+  base: '', // Empty base for relative paths
   publicDir: 'public',
   build: {
     outDir: 'dist',
@@ -26,19 +26,24 @@ export default defineConfig({
     manifest: true,
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html')
+        main: path.resolve(process.cwd(), 'index.html')
       },
       output: {
-        manualChunks: {
-          'vendor': [
-            'react',
-            'react-dom',
-            'react-router-dom',
-            '@tanstack/react-query'
-          ],
-          'chart': ['chart.js', 'react-chartjs-2'],
-          'ui': ['@coreui/coreui', '@popperjs/core', 'bootstrap']
+        // Ensure proper code splitting
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'vendor-react'
+            if (id.includes('chart.js')) return 'vendor-chart'
+            return 'vendor'
+          }
         }
+      }
+    },
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: false,
+        drop_debugger: true
       }
     }
   },

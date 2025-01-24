@@ -7,7 +7,7 @@ import postgres from 'postgres';
 import compression from 'compression';
 import { users, routes, climbs } from './db/schema.js';
 import { eq, desc, sql } from 'drizzle-orm';
-import fs from 'fs'; // Import fs module
+import fs from 'fs';
 
 dotenv.config();
 
@@ -26,7 +26,7 @@ try {
     max: 20,
     idle_timeout: 30,
     connect_timeout: 10,
-    max_lifetime: 60 * 30 // 30 minutes
+    max_lifetime: 60 * 30
   });
 
   db = drizzle(client);
@@ -51,23 +51,46 @@ app.use(cors(corsOptions));
 // Parse JSON requests
 app.use(express.json({ limit: '10mb' }));
 
-// Serve static files and handle client-side routing
-const distPath = path.join(process.cwd(), 'dist');
+// Static file serving configuration
+const distPath = path.resolve(process.cwd(), 'dist');
 console.log('Static files will be served from:', distPath);
 
-// Serve static files with aggressive caching for assets
-app.use(
-  express.static(distPath, {
-    maxAge: '1h',
-    etag: true,
-    lastModified: true,
-    index: false // Disable auto-serving of index.html
-  })
-);
+// Wait for dist directory to be available
+let retries = 0;
+const maxRetries = 10;
+const retryInterval = 1000; // 1 second
+
+function waitForDistDirectory(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const checkDist = () => {
+      if (fs.existsSync(distPath)) {
+        console.log('Found dist directory at:', distPath);
+        const distContents = fs.readdirSync(distPath);
+        console.log('Contents of dist directory:', distContents);
+        resolve();
+      } else {
+        retries++;
+        console.log(`Waiting for dist directory... (attempt ${retries}/${maxRetries})`);
+        if (retries >= maxRetries) {
+          reject(new Error('Dist directory not found after maximum retries'));
+        } else {
+          setTimeout(checkDist, retryInterval);
+        }
+      }
+    };
+    checkDist();
+  });
+}
+
+// Serve static files with proper configuration
+app.use(express.static(distPath, {
+  index: false, // Don't auto-serve index.html
+  maxAge: '1d' // Add cache control
+}));
 
 // API Routes
 app.get('/api/health', (_req: Request, res: Response) => {
-  res.json({ 
+  res.json({
     status: 'healthy',
     mode: process.env.NODE_ENV,
     timestamp: new Date().toISOString()
@@ -110,9 +133,9 @@ app.get('/api/user/:userId/stats', async (req: Request<{ userId: string }>, res:
       totalPoints: userClimbs.reduce((sum, c) => sum + (c.points || 0), 0),
       avgGrade: calculateAverageGrade(userClimbs),
       avgSentGrade: calculateAverageGrade(userClimbs.filter(c => c.status === true)),
-      avgPointsPerClimb: userClimbs.length ? 
+      avgPointsPerClimb: userClimbs.length ?
         userClimbs.reduce((sum, c) => sum + (c.points || 0), 0) / userClimbs.length : 0,
-      successRate: userClimbs.length ? 
+      successRate: userClimbs.length ?
         (userClimbs.filter(c => c.status === true).length / userClimbs.length) * 100 : 0,
       successRatePerSession: calculateSuccessRatePerSession(userClimbs),
       climbsPerSession: calculateClimbsPerSession(userClimbs),
@@ -189,61 +212,28 @@ app.get('/api/standings', async (_req: Request, res: Response): Promise<void> =>
   }
 });
 
-// Catch-all route for client-side routing
-app.get('/*', (req: Request, res: Response) => {
+// Catch-all route handler for client-side routing
+app.get('*', (req: Request, res: Response) => {
   // Skip API routes
-  if (req.path.startsWith('/api')) {
+  if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Not Found' });
   }
 
-  // Check if the requested path exists as a static file
-  const filePath = path.join(distPath, req.path);
-  if (req.path !== '/' && fs.existsSync(filePath)) {
-    return res.sendFile(filePath);
-  }
-
-  // Otherwise serve index.html for client-side routing
   const indexPath = path.join(distPath, 'index.html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Error sending index.html:', err);
-      res.status(500).send(`
-        <!DOCTYPE html>
-        <html>
-          <head><title>Error</title></head>
-          <body>
-            <h1>Application Error</h1>
-            <p>The application failed to load. Please try again later.</p>
-          </body>
-        </html>
-      `);
+  console.log('Request path:', req.path);
+  console.log('Looking for index.html at:', indexPath);
+
+  try {
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      res.status(500).send('Application error: index.html not found. Please ensure the build is complete.');
     }
-  });
+  } catch (error) {
+    console.error('Error serving index.html:', error);
+    res.status(500).send('Application error: Failed to load application');
+  }
 });
-
-// Helper functions for stats calculations
-function calculateAverageGrade(climbs: any[]): string {
-  if (!climbs.length) return '--';
-  // Implementation depends on your grade system
-  return 'V4'; // Placeholder
-}
-
-function calculateSuccessRatePerSession(climbs: any[]): number {
-  if (!climbs.length) return 0;
-  // Group by session and calculate success rate
-  return 75; // Placeholder
-}
-
-function calculateClimbsPerSession(climbs: any[]): number {
-  if (!climbs.length) return 0;
-  // Group by session and calculate average
-  return 8; // Placeholder
-}
-
-function calculateAverageAttempts(climbs: any[]): number {
-  if (!climbs.length) return 0;
-  return climbs.reduce((sum, c) => sum + (c.tries || 1), 0) / climbs.length;
-}
 
 // Error handling middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -253,21 +243,52 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 
 const PORT = Number(process.env.PORT) || 5000;
 
-// Start server with explicit host binding
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-}).on('error', (error) => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
+// Start server with dist directory check
+async function startServer() {
+  try {
+    await waitForDistDirectory();
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
-});
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+    }).on('error', (error) => {
+      console.error('Failed to start server:', error);
+      process.exit(1);
+    });
+
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM received. Shutting down gracefully...');
+      server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+      });
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 export { db };
+
+function calculateAverageGrade(climbs: any[]): number {
+  //Implementation for calculateAverageGrade
+  return 0;
+}
+
+function calculateSuccessRatePerSession(climbs: any[]): number {
+  //Implementation for calculateSuccessRatePerSession
+  return 0;
+}
+
+function calculateClimbsPerSession(climbs: any[]): number {
+  //Implementation for calculateClimbsPerSession
+  return 0;
+}
+
+function calculateAverageAttempts(climbs: any[]): number {
+  //Implementation for calculateAverageAttempts
+  return 0;
+}

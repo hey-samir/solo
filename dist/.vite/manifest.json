@@ -1,0 +1,172 @@
+{
+  "_vendor-BPV6_s6f.css": {
+    "file": "assets/vendor-BPV6_s6f.css",
+    "src": "_vendor-BPV6_s6f.css"
+  },
+  "_vendor-chart-BLvGLuzR.js": {
+    "file": "assets/vendor-chart-BLvGLuzR.js",
+    "name": "vendor-chart",
+    "imports": [
+      "_vendor-m8_k2utT.js"
+    ]
+  },
+  "_vendor-m8_k2utT.js": {
+    "file": "assets/vendor-m8_k2utT.js",
+    "name": "vendor",
+    "css": [
+      "assets/vendor-BPV6_s6f.css"
+    ]
+  },
+  "_vendor-react-CtadRSyQ.js": {
+    "file": "assets/vendor-react-CtadRSyQ.js",
+    "name": "vendor-react",
+    "imports": [
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "index.html": {
+    "file": "assets/main-dRjaChud.js",
+    "name": "main",
+    "src": "index.html",
+    "isEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ],
+    "dynamicImports": [
+      "src/pages/Home.tsx",
+      "src/pages/About.tsx",
+      "src/pages/Profile.tsx",
+      "src/pages/Sends.tsx",
+      "src/pages/Sessions.tsx",
+      "src/pages/Stats.tsx",
+      "src/pages/Standings.tsx",
+      "src/pages/Login.tsx",
+      "src/pages/Register.tsx",
+      "src/pages/Feedback.tsx"
+    ],
+    "css": [
+      "assets/main-CotTBvDA.css"
+    ]
+  },
+  "src/pages/About.tsx": {
+    "file": "assets/About-DqXkdE7V.js",
+    "name": "About",
+    "src": "src/pages/About.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Feedback.tsx": {
+    "file": "assets/Feedback-DfWQvPCA.js",
+    "name": "Feedback",
+    "src": "src/pages/Feedback.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "index.html",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Home.tsx": {
+    "file": "assets/Home-Cqg6GhfP.js",
+    "name": "Home",
+    "src": "src/pages/Home.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Login.tsx": {
+    "file": "assets/Login-UOvSKLcR.js",
+    "name": "Login",
+    "src": "src/pages/Login.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "index.html",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Profile.tsx": {
+    "file": "assets/Profile-D6VimvDU.js",
+    "name": "Profile",
+    "src": "src/pages/Profile.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "index.html",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Register.tsx": {
+    "file": "assets/Register-BQ-Tl8py.js",
+    "name": "Register",
+    "src": "src/pages/Register.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "index.html",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Sends.tsx": {
+    "file": "assets/Sends-CXpwonDZ.js",
+    "name": "Sends",
+    "src": "src/pages/Sends.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "index.html",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Sessions.tsx": {
+    "file": "assets/Sessions-CL0Ildah.js",
+    "name": "Sessions",
+    "src": "src/pages/Sessions.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "index.html",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Standings.tsx": {
+    "file": "assets/Standings-De9ziSqP.js",
+    "name": "Standings",
+    "src": "src/pages/Standings.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "index.html",
+      "_vendor-m8_k2utT.js",
+      "_vendor-chart-BLvGLuzR.js"
+    ]
+  },
+  "src/pages/Stats.tsx": {
+    "file": "assets/Stats-TFOqTDUf.js",
+    "name": "Stats",
+    "src": "src/pages/Stats.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "_vendor-react-CtadRSyQ.js",
+      "_vendor-chart-BLvGLuzR.js",
+      "index.html",
+      "_vendor-m8_k2utT.js"
+    ]
+  }
+}
