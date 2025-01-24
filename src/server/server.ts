@@ -47,18 +47,27 @@ app.use(express.json({ limit: '10mb' }));
 // Get directory name for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '../../');
+const distPath = path.join(projectRoot, 'dist');
 
-// Configure static file serving
-const distPath = path.join(__dirname, '../../dist');
+// Log environment and paths
 console.log(`Server running in ${process.env.NODE_ENV} mode`);
-console.log('Static files being served from:', distPath);
+console.log('Project root:', projectRoot);
+console.log('Static files path:', distPath);
 
-// Serve static files with proper caching
-app.use(express.static(distPath, {
-  maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
-  etag: true,
-  lastModified: true
-}));
+// Create dist directory if it doesn't exist in development
+if (process.env.NODE_ENV === 'development' && !fs.existsSync(distPath)) {
+  fs.mkdirSync(distPath, { recursive: true });
+}
+
+// Serve static files with proper caching if dist directory exists
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath, {
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
+    etag: true,
+    lastModified: true
+  }));
+}
 
 // API Routes
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -101,16 +110,18 @@ app.use('*', (req: Request, res: Response) => {
 
   const indexPath = path.join(distPath, 'index.html');
 
-  // Debug logging
-  console.log('Request path:', req.originalUrl);
-  console.log('Serving index.html from:', indexPath);
-  console.log('Index exists:', fs.existsSync(indexPath));
-
-  if (!fs.existsSync(indexPath)) {
-    return res.status(404).send('Application not built. Please run npm run build first.');
+  // Return a more helpful message if the build hasn't completed
+  if (!fs.existsSync(distPath) || !fs.existsSync(indexPath)) {
+    console.log('Waiting for production build to complete...');
+    return res.status(503).send('Application is building. Please try again in a moment.');
   }
 
-  res.sendFile(indexPath);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading application');
+    }
+  });
 });
 
 // Error handling middleware
