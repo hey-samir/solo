@@ -17,29 +17,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Build"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Database Migrations"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
+args = "Production Build"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
 args = "API Server"
-
-[[workflows.workflow]]
-name = "Production Build"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "rm -rf dist && NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
 name = "Database Migrations"
@@ -56,6 +42,20 @@ task = "shell.exec"
 args = "npx drizzle-kit generate:pg && ts-node src/server/db/migrate.ts"
 
 [[workflows.workflow]]
+name = "Production Build"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rm -rf dist && NODE_ENV=production npx vite build"
+
+[[workflows.workflow]]
 name = "API Server"
 author = "agent"
 
@@ -67,7 +67,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development npx tsx src/server/server.ts"
+args = "NODE_ENV=production npx tsx src/server/server.ts"
 waitForPort = 5000
 
 [[ports]]

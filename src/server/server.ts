@@ -33,14 +33,16 @@ try {
 // Enable compression for all responses
 app.use(compression());
 
-// CORS Configuration
-app.use(cors({
+// CORS Configuration - Allow all origins in development
+const corsOptions = {
   origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 
+// Parse JSON requests
 app.use(express.json({ limit: '10mb' }));
 
 // Get directory name for ES modules
@@ -49,16 +51,17 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '../../');
 const distPath = path.join(projectRoot, 'dist');
 
-// Serve static files from dist directory
+console.log('Static files path:', distPath);
+
+// Serve static files with proper caching
 app.use(express.static(distPath, {
   maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
   etag: true,
-  lastModified: true,
-  index: false
+  lastModified: true
 }));
 
 // API Routes
-app.get('/api/health', (_req: Request, res: Response): void => {
+app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ 
     status: 'healthy',
     mode: process.env.NODE_ENV,
@@ -208,38 +211,49 @@ function calculateAverageAttempts(climbs: any[]): number {
   return climbs.reduce((sum, c) => sum + (c.tries || 1), 0) / climbs.length;
 }
 
-// SPA fallback - handle all non-API routes
-app.get('*', (req: Request, res: Response): void => {
+// SPA fallback - handle client-side routing
+app.get('*', (req: Request, res: Response) => {
   // Skip API routes
-  if (req.originalUrl.startsWith('/api/')) {
+  if (req.path.startsWith('/api/')) {
     res.status(404).json({ error: 'API endpoint not found' });
     return;
   }
 
-  // Serve index.html for client-side routing
-  res.sendFile(path.join(distPath, 'index.html'), {
-    maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
-    lastModified: true,
-    etag: true,
-    headers: {
-      'Cache-Control': process.env.NODE_ENV === 'production' ? 'public, max-age=31536000' : 'no-cache'
+  console.log('Serving index.html for path:', req.path);
+
+  const indexPath = path.join(distPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error serving index.html:', err);
+      res.status(500).send('Error serving application');
     }
   });
 });
 
 // Error handling middleware
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Server error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
 
 const PORT = Number(process.env.PORT) || 5000;
 
-app.listen(PORT, '0.0.0.0', () => {
+// Start server with explicit host binding
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  console.log(`Static files being served from: ${distPath}`);
 }).on('error', (error) => {
   console.error('Failed to start server:', error);
   process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
 
 export { db };
