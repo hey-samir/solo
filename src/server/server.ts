@@ -39,19 +39,33 @@ const corsOptions: cors.CorsOptions = {
     const allowedDomains = [
       /\.repl\.co$/,
       /\.replit\.dev$/,
+      /\.repl\.dev$/,
       /^https?:\/\/localhost/,
       /^http?:\/\/localhost/,
       /^https?:\/\/127\.0\.0\.1/,
-      /^http?:\/\/127\.0\.0\.1/
+      /^http?:\/\/127\.0\.0\.1/,
+      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev'
     ];
 
+    // Always allow in development mode or if there's no origin (like direct file access)
     if (!origin || process.env.NODE_ENV === 'development') {
       callback(null, true);
       return;
     }
 
-    const isAllowed = allowedDomains.some(domain => domain.test(origin));
-    callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+    // Check if the origin matches any of our allowed domains
+    const isAllowed = allowedDomains.some(domain => {
+      if (typeof domain === 'string') {
+        return domain === origin;
+      }
+      return domain.test(origin);
+    });
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'), false);
+    }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
