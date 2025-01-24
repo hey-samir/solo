@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
+import { useAuth } from './contexts/AuthContext'
 
 // Lazy load components for better performance
 const Home = lazy(() => import('./pages/Home'))
@@ -16,6 +17,16 @@ const Register = lazy(() => import('./pages/Register'))
 const Feedback = lazy(() => import('./pages/Feedback'))
 
 const Router: React.FC = () => {
+  const { isAuthenticated } = useAuth()
+
+  // Helper component for protected routes
+  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    if (!isAuthenticated) {
+      return <Navigate to="/login" replace />
+    }
+    return <>{children}</>
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -45,12 +56,14 @@ const Router: React.FC = () => {
           }
         />
 
-        {/* Authenticated Routes */}
+        {/* Protected Routes */}
         <Route
           path="home"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Home />
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -58,7 +71,9 @@ const Router: React.FC = () => {
           path="profile/:username?"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Profile />
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -66,7 +81,9 @@ const Router: React.FC = () => {
           path="sends"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Sends />
+              <ProtectedRoute>
+                <Sends />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -74,7 +91,9 @@ const Router: React.FC = () => {
           path="sessions"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Sessions />
+              <ProtectedRoute>
+                <Sessions />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -82,7 +101,9 @@ const Router: React.FC = () => {
           path="stats"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Stats />
+              <ProtectedRoute>
+                <Stats />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -90,7 +111,9 @@ const Router: React.FC = () => {
           path="standings"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Standings />
+              <ProtectedRoute>
+                <Standings />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -98,7 +121,9 @@ const Router: React.FC = () => {
           path="feedback"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Feedback />
+              <ProtectedRoute>
+                <Feedback />
+              </ProtectedRoute>
             </Suspense>
           }
         />

@@ -53,7 +53,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "rm -rf dist && NODE_ENV=production DEBUG=vite:* npx vite build --debug"
+args = "rm -rf dist && NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
 name = "API Server"
@@ -68,6 +68,7 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=production npx tsx src/server/server.ts"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3000

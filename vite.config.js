@@ -23,28 +23,20 @@ const productionOptimizations = {
   cssCodeSplit: true,
   modulePreload: true,
   rollupOptions: {
-    input: path.resolve(__dirname, 'index.html'),
     output: {
-      manualChunks: (id) => {
-        if (id.includes('node_modules')) {
-          if (id.includes('react')) return 'vendor-react'
-          if (id.includes('chart.js')) return 'vendor-chart'
-          if (id.includes('bootstrap') || id.includes('@popperjs') || id.includes('@coreui')) return 'vendor-ui'
-          return 'vendor'
-        }
+      manualChunks: {
+        'vendor': [
+          'react',
+          'react-dom',
+          'react-router-dom',
+          '@tanstack/react-query'
+        ],
+        'chart': ['chart.js', 'react-chartjs-2'],
+        'ui': ['@coreui/coreui', '@popperjs/core', 'bootstrap']
       },
-      chunkFileNames: 'assets/[name]-[hash].js',
-      entryFileNames: 'assets/[name]-[hash].js',
-      assetFileNames: (assetInfo) => {
-        const extType = assetInfo.name.split('.').at(1)
-        if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(extType)) {
-          return 'assets/images/[name]-[hash][extname]'
-        }
-        if (/css/i.test(extType)) {
-          return 'assets/css/[name]-[hash][extname]'
-        }
-        return 'assets/[name]-[hash][extname]'
-      }
+      chunkFileNames: 'assets/[name].[hash].js',
+      entryFileNames: 'assets/[name].[hash].js',
+      assetFileNames: 'assets/[name].[hash][extname]'
     }
   }
 }
@@ -52,7 +44,7 @@ const productionOptimizations = {
 export default defineConfig({
   plugins: [react()],
   root: process.cwd(),
-  base: './',
+  base: '/',
   publicDir: 'public',
   server: {
     host: '0.0.0.0',
@@ -61,8 +53,7 @@ export default defineConfig({
     hmr: isReplit ? {
       clientPort: 443,
       protocol: 'wss',
-      host: replitDomain,
-      timeout: 120000
+      host: replitDomain
     } : true,
     proxy: {
       '/api': {
@@ -80,7 +71,8 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: process.env.NODE_ENV !== 'production',
+    sourcemap: false,
+    target: 'esnext',
     reportCompressedSize: true,
     chunkSizeWarningLimit: 1000,
     assetsInlineLimit: 4096,
