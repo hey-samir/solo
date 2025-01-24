@@ -7,6 +7,7 @@ import postgres from 'postgres';
 import compression from 'compression';
 import { users, routes, climbs } from './db/schema.js';
 import { eq, desc, sql } from 'drizzle-orm';
+import fs from 'fs'; // Import fs module
 
 dotenv.config();
 
@@ -50,11 +51,19 @@ app.use(cors(corsOptions));
 // Parse JSON requests
 app.use(express.json({ limit: '10mb' }));
 
-// Serve static files from the dist directory
+// Serve static files and handle client-side routing
 const distPath = path.join(process.cwd(), 'dist');
 console.log('Static files will be served from:', distPath);
 
-app.use(express.static(distPath));
+// Serve static files with aggressive caching for assets
+app.use(
+  express.static(distPath, {
+    maxAge: '1h',
+    etag: true,
+    lastModified: true,
+    index: false // Disable auto-serving of index.html
+  })
+);
 
 // API Routes
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -180,18 +189,37 @@ app.get('/api/standings', async (_req: Request, res: Response): Promise<void> =>
   }
 });
 
-// All other routes serve index.html for client-side routing
-app.get('*', (_req: Request, res: Response) => {
+// Catch-all route for client-side routing
+app.get('/*', (req: Request, res: Response) => {
+  // Skip API routes
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'Not Found' });
+  }
+
+  // Check if the requested path exists as a static file
+  const filePath = path.join(distPath, req.path);
+  if (req.path !== '/' && fs.existsSync(filePath)) {
+    return res.sendFile(filePath);
+  }
+
+  // Otherwise serve index.html for client-side routing
   const indexPath = path.join(distPath, 'index.html');
-  console.log('Serving index.html from:', indexPath);
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error('Error sending index.html:', err);
-      res.status(500).send('Error loading application');
+      res.status(500).send(`
+        <!DOCTYPE html>
+        <html>
+          <head><title>Error</title></head>
+          <body>
+            <h1>Application Error</h1>
+            <p>The application failed to load. Please try again later.</p>
+          </body>
+        </html>
+      `);
     }
   });
 });
-
 
 // Helper functions for stats calculations
 function calculateAverageGrade(climbs: any[]): string {

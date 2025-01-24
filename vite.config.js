@@ -12,31 +12,9 @@ const isReplit = process.env.REPL_SLUG && process.env.REPL_OWNER
 
 export default defineConfig({
   plugins: [react()],
-  root: process.cwd(),
+  root: '.',
   base: '/',
   publicDir: 'public',
-  server: {
-    host: '0.0.0.0',
-    port: 5000,
-    strictPort: true,
-    hmr: isReplit ? {
-      clientPort: 443,
-      protocol: 'wss',
-      host: replitDomain
-    } : true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false,
-        ws: true
-      }
-    }
-  },
-  preview: {
-    port: 5000,
-    strictPort: true
-  },
   build: {
     outDir: 'dist',
     emptyOutDir: true,
@@ -63,6 +41,28 @@ export default defineConfig({
         }
       }
     }
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 5000,
+    strictPort: true,
+    hmr: isReplit ? {
+      clientPort: 443,
+      protocol: 'wss',
+      host: replitDomain
+    } : true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+        ws: true
+      }
+    }
+  },
+  preview: {
+    port: 5000,
+    strictPort: true
   },
   resolve: {
     alias: {
