@@ -36,11 +36,6 @@ app.use(compression());
 // CORS Configuration
 const corsOptions: cors.CorsOptions = {
   origin: function(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    if (!origin || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-      return;
-    }
-
     const allowedDomains = [
       /\.repl\.co$/,
       /\.replit\.dev$/,
@@ -49,6 +44,11 @@ const corsOptions: cors.CorsOptions = {
       /^https?:\/\/127\.0\.0\.1/,
       /^http?:\/\/127\.0\.0\.1/
     ];
+
+    if (!origin || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+      return;
+    }
 
     const isAllowed = allowedDomains.some(domain => domain.test(origin));
     callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
@@ -65,9 +65,14 @@ app.use(express.json({ limit: '10mb' }));
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Serve static files from the dist directory
-const distPath = path.join(__dirname, '../../dist');
-console.log('Static files path:', distPath);
+// Configure static file serving based on environment
+const isDevelopment = process.env.NODE_ENV === 'development';
+const distPath = isDevelopment 
+  ? path.join(__dirname, '../../dist') // Development build path
+  : path.join(__dirname, '../../dist'); // Production build path
+
+console.log(`Server running in ${process.env.NODE_ENV} mode`);
+console.log('Static files being served from:', distPath);
 
 // MIME type mapping
 const mimeTypes: Record<string, string> = {
@@ -86,19 +91,22 @@ const mimeTypes: Record<string, string> = {
   '.otf': 'font/otf'
 };
 
-// Function to set cache control headers based on file type
+// Function to set cache control headers based on environment and file type
 const setCacheControl = (res: Response, ext: string) => {
-  if (ext === '.html' || ext === '.json') {
-    // No cache for HTML and JSON files
+  if (isDevelopment) {
+    // No cache in development
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-  } else if (ext.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
-    // Cache static assets for 1 week
-    res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
   } else {
-    // Default cache for 1 day
-    res.setHeader('Cache-Control', 'public, max-age=86400');
+    // Production caching strategy
+    if (ext === '.html' || ext === '.json') {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    } else if (ext.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=86400');
+    }
   }
 };
 
@@ -115,7 +123,11 @@ app.use(express.static(distPath, {
 
 // API Routes
 app.get('/api/health', (_req: Request, res: Response) => {
-  res.json({ status: 'healthy' });
+  res.json({ 
+    status: 'healthy',
+    mode: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // User routes
@@ -142,39 +154,17 @@ app.get('/api/user/:username', async (req: Request, res: Response, next: NextFun
   }
 });
 
-// Climbs routes
-app.get('/api/climbs', async (_req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userClimbs = await db.select().from(climbs);
-    res.json(userClimbs);
-  } catch (error) {
-    console.error('Error fetching climbs:', error);
-    next(error);
-  }
-});
-
-// Routes routes
-app.get('/api/routes', async (_req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userRoutes = await db.select().from(routes);
-    res.json(userRoutes);
-  } catch (error) {
-    console.error('Error fetching routes:', error);
-    next(error);
-  }
-});
-
 // Catch-all route handler for the SPA
-app.get('*', (req: Request, res: Response, next: NextFunction) => {
+app.get('*', (req: Request, res: Response) => {
   // Skip API routes
   if (req.path.startsWith('/api/')) {
-    return next();
+    return res.status(404).json({ error: 'API endpoint not found' });
   }
 
   const indexPath = path.join(distPath, 'index.html');
 
   res.setHeader('Content-Type', 'text/html');
-  res.setHeader('Cache-Control', 'no-cache');
+  setCacheControl(res, '.html');
 
   res.sendFile(indexPath, (err) => {
     if (err) {

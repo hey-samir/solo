@@ -44,6 +44,7 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx vite --port 3000"
+waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Production Build"
@@ -72,6 +73,7 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development npx tsx src/server/server.ts"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Database Migrations"
