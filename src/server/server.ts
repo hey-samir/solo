@@ -2,7 +2,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import compression from 'compression';
@@ -51,19 +50,11 @@ app.use(cors(corsOptions));
 // Parse JSON requests
 app.use(express.json({ limit: '10mb' }));
 
-// Set up static file serving
-const workspaceDir = process.cwd();
-const distPath = path.join(workspaceDir, 'dist');
+// Serve static files from the dist directory
+const distPath = path.join(process.cwd(), 'dist');
+console.log('Static files will be served from:', distPath);
 
-console.log('Environment:', process.env.NODE_ENV);
-console.log('Static files path:', distPath);
-
-// Serve static files with proper caching
-app.use(express.static(distPath, {
-  maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
-  etag: true,
-  lastModified: true
-}));
+app.use(express.static(distPath));
 
 // API Routes
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -75,7 +66,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 });
 
 // User routes
-app.get('/api/user/:username', async (req: Request, res: Response): Promise<void> => {
+app.get('/api/user/:username', async (req: Request, res: Response) => {
   try {
     const username = req.params.username;
     const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
@@ -189,6 +180,19 @@ app.get('/api/standings', async (_req: Request, res: Response): Promise<void> =>
   }
 });
 
+// All other routes serve index.html for client-side routing
+app.get('*', (_req: Request, res: Response) => {
+  const indexPath = path.join(distPath, 'index.html');
+  console.log('Serving index.html from:', indexPath);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading application');
+    }
+  });
+});
+
+
 // Helper functions for stats calculations
 function calculateAverageGrade(climbs: any[]): string {
   if (!climbs.length) return '--';
@@ -213,36 +217,6 @@ function calculateAverageAttempts(climbs: any[]): number {
   return climbs.reduce((sum, c) => sum + (c.tries || 1), 0) / climbs.length;
 }
 
-// SPA fallback - handle client-side routing
-app.get('*', (req: Request, res: Response) => {
-  // Skip API routes
-  if (req.path.startsWith('/api/')) {
-    res.status(404).json({ error: 'API endpoint not found' });
-    return;
-  }
-
-  const indexPath = path.join(distPath, 'index.html');
-
-  try {
-    if (!require('fs').existsSync(indexPath)) {
-      console.error('index.html not found at:', indexPath);
-      console.error('Current working directory:', workspaceDir);
-      console.error('Dist path:', distPath);
-      console.error('Available files in workspace:', require('fs').readdirSync(workspaceDir));
-      if (require('fs').existsSync(distPath)) {
-        console.error('Available files in dist:', require('fs').readdirSync(distPath));
-      }
-      res.status(500).send('Application files not found. Please ensure the application is built properly.');
-      return;
-    }
-
-    res.sendFile(indexPath);
-  } catch (error) {
-    console.error('Error serving index.html:', error);
-    res.status(500).send('Error serving application files');
-  }
-});
-
 // Error handling middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Server error:', err);
@@ -254,7 +228,6 @@ const PORT = Number(process.env.PORT) || 5000;
 // Start server with explicit host binding
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-  console.log(`Static files being served from: ${distPath}`);
 }).on('error', (error) => {
   console.error('Failed to start server:', error);
   process.exit(1);

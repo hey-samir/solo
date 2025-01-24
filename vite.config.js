@@ -10,37 +10,6 @@ const replitDomain = process.env.REPL_SLUG && process.env.REPL_OWNER
 // Determine if we're in Replit's environment
 const isReplit = process.env.REPL_SLUG && process.env.REPL_OWNER
 
-// Define production optimizations
-const productionOptimizations = {
-  minify: 'terser',
-  terserOptions: {
-    compress: {
-      drop_console: process.env.NODE_ENV === 'production',
-      drop_debugger: process.env.NODE_ENV === 'production'
-    }
-  },
-  cssMinify: true,
-  cssCodeSplit: true,
-  modulePreload: true,
-  rollupOptions: {
-    output: {
-      manualChunks: {
-        'vendor': [
-          'react',
-          'react-dom',
-          'react-router-dom',
-          '@tanstack/react-query'
-        ],
-        'chart': ['chart.js', 'react-chartjs-2'],
-        'ui': ['@coreui/coreui', '@popperjs/core', 'bootstrap']
-      },
-      chunkFileNames: 'assets/[name].[hash].js',
-      entryFileNames: 'assets/[name].[hash].js',
-      assetFileNames: 'assets/[name].[hash][extname]'
-    }
-  }
-}
-
 export default defineConfig({
   plugins: [react()],
   root: process.cwd(),
@@ -77,7 +46,23 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     assetsInlineLimit: 4096,
     manifest: true,
-    ...productionOptimizations
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html')
+      },
+      output: {
+        manualChunks: {
+          'vendor': [
+            'react',
+            'react-dom',
+            'react-router-dom',
+            '@tanstack/react-query'
+          ],
+          'chart': ['chart.js', 'react-chartjs-2'],
+          'ui': ['@coreui/coreui', '@popperjs/core', 'bootstrap']
+        }
+      }
+    }
   },
   resolve: {
     alias: {
@@ -85,9 +70,5 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@pages': path.resolve(__dirname, './src/pages')
     }
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom'],
-    exclude: ['@coreui/coreui']
   }
 })

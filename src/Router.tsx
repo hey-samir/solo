@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
+import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './contexts/AuthContext'
 
 // Lazy load components for better performance
@@ -18,14 +19,6 @@ const Feedback = lazy(() => import('./pages/Feedback'))
 
 const Router: React.FC = () => {
   const { isAuthenticated } = useAuth()
-
-  // Helper component for protected routes
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    if (!isAuthenticated) {
-      return <Navigate to="/login" replace />
-    }
-    return <>{children}</>
-  }
 
   return (
     <Routes>
