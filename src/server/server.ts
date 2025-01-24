@@ -8,6 +8,7 @@ import postgres from 'postgres';
 import compression from 'compression';
 import { users, routes, climbs } from './db/schema.js';
 import { eq } from 'drizzle-orm';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -81,58 +82,14 @@ const __dirname = path.dirname(__filename);
 
 // Configure static file serving based on environment
 const isDevelopment = process.env.NODE_ENV === 'development';
-const distPath = isDevelopment 
-  ? path.join(__dirname, '../../dist') // Development build path
-  : path.join(__dirname, '../../dist'); // Production build path
+const distPath = path.join(__dirname, '../../dist');
 
 console.log(`Server running in ${process.env.NODE_ENV} mode`);
 console.log('Static files being served from:', distPath);
+console.log('Directory exists:', fs.existsSync(distPath));
 
-// MIME type mapping
-const mimeTypes: Record<string, string> = {
-  '.html': 'text/html',
-  '.js': 'application/javascript',
-  '.css': 'text/css',
-  '.json': 'application/json',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.woff': 'application/font-woff',
-  '.woff2': 'font/woff2',
-  '.ttf': 'font/ttf',
-  '.eot': 'application/vnd.ms-fontobject',
-  '.otf': 'font/otf'
-};
-
-// Function to set cache control headers based on environment and file type
-const setCacheControl = (res: Response, ext: string) => {
-  if (isDevelopment) {
-    // No cache in development
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-  } else {
-    // Production caching strategy
-    if (ext === '.html' || ext === '.json') {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    } else if (ext.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=604800, immutable');
-    } else {
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-    }
-  }
-};
-
-// Serve static files with proper MIME types and cache control
-app.use(express.static(distPath, {
-  setHeaders: (res: Response, filePath: string) => {
-    const ext = path.extname(filePath).toLowerCase();
-    const contentType = mimeTypes[ext] || 'application/octet-stream';
-    res.setHeader('Content-Type', contentType);
-    setCacheControl(res, ext);
-  }
-}));
+// Serve static files first
+app.use(express.static(distPath));
 
 // API Routes
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -167,14 +124,23 @@ app.get('/api/user/:username', async (req: Request, res: Response, next: NextFun
   }
 });
 
-// Serve index.html for all non-API routes to support client-side routing
+// Serve index.html for all non-API routes (SPA fallback)
 app.get('*', (req: Request, res: Response) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
-  console.log('Serving index.html for path:', req.path); // Debug log
-  res.sendFile(path.join(distPath, 'index.html'));
+  const indexPath = path.join(distPath, 'index.html');
+  console.log('Serving index.html for path:', req.path);
+  console.log('Index path:', indexPath);
+  console.log('Index exists:', fs.existsSync(indexPath));
+
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading application');
+    }
+  });
 });
 
 
