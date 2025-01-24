@@ -52,7 +52,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    port: 3000,
+    port: 5000,
     strictPort: true,
     hmr: isReplit ? {
       clientPort: 443,
@@ -70,16 +70,8 @@ export default defineConfig({
     }
   },
   preview: {
-    port: 3000,
-    strictPort: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false,
-        ws: true
-      }
-    }
+    port: 5000,
+    strictPort: true
   },
   build: {
     outDir: 'dist',

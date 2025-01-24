@@ -17,10 +17,6 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Development Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Production Build"
 
 [[workflows.workflow.tasks]]
@@ -30,21 +26,6 @@ args = "API Server"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Database Migrations"
-
-[[workflows.workflow]]
-name = "Development Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx vite --port 3000"
-waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Production Build"

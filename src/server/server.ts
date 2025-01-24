@@ -54,18 +54,24 @@ const distPath = path.join(projectRoot, 'dist');
 console.log(`Server running in ${process.env.NODE_ENV} mode`);
 console.log('Project root:', projectRoot);
 console.log('Static files path:', distPath);
+console.log('Dist directory exists:', fs.existsSync(distPath));
 
-// Create dist directory if it doesn't exist in development
-if (process.env.NODE_ENV === 'development' && !fs.existsSync(distPath)) {
-  fs.mkdirSync(distPath, { recursive: true });
-}
+// Function to check if dist directory and index.html exist
+const isDistReady = () => {
+  const indexPath = path.join(distPath, 'index.html');
+  const exists = fs.existsSync(distPath) && fs.existsSync(indexPath);
+  console.log('Checking dist directory:', exists ? 'ready' : 'not ready');
+  return exists;
+};
 
-// Serve static files with proper caching if dist directory exists
-if (fs.existsSync(distPath)) {
+// Serve static files with proper caching
+if (isDistReady()) {
+  console.log('Serving static files from:', distPath);
   app.use(express.static(distPath, {
     maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
     etag: true,
-    lastModified: true
+    lastModified: true,
+    index: false // We'll handle index.html separately
   }));
 }
 
@@ -74,7 +80,8 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ 
     status: 'healthy',
     mode: process.env.NODE_ENV,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    distReady: isDistReady()
   });
 });
 
@@ -101,25 +108,35 @@ app.get('/api/user/:username', async (req: Request, res: Response, next: NextFun
   }
 });
 
-// SPA fallback - serve index.html for all non-API routes
-app.use('*', (req: Request, res: Response) => {
+// SPA fallback - handle all non-API routes
+app.get('*', (req: Request, res: Response, next: NextFunction) => {
   // Skip API routes
   if (req.originalUrl.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
-  const indexPath = path.join(distPath, 'index.html');
-
-  // Return a more helpful message if the build hasn't completed
-  if (!fs.existsSync(distPath) || !fs.existsSync(indexPath)) {
+  // Check if dist is ready
+  if (!isDistReady()) {
     console.log('Waiting for production build to complete...');
-    return res.status(503).send('Application is building. Please try again in a moment.');
+    return res.status(503).send(
+      'Application is building. Please try again in a moment. If this persists, the build may have failed.'
+    );
   }
 
-  res.sendFile(indexPath, (err) => {
+  const indexPath = path.join(distPath, 'index.html');
+
+  // Send index.html with appropriate headers
+  res.sendFile(indexPath, {
+    maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
+    lastModified: true,
+    etag: true,
+    headers: {
+      'Cache-Control': process.env.NODE_ENV === 'production' ? 'public, max-age=31536000' : 'no-cache'
+    }
+  }, (err) => {
     if (err) {
       console.error('Error sending index.html:', err);
-      res.status(500).send('Error loading application');
+      next(err);
     }
   });
 });
@@ -134,6 +151,7 @@ const PORT = Number(process.env.PORT) || 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  console.log('Dist status:', isDistReady() ? 'ready' : 'waiting for build');
 }).on('error', (error) => {
   console.error('Failed to start server:', error);
   process.exit(1);
