@@ -35,61 +35,30 @@ try {
 app.use(compression());
 
 // CORS Configuration
-const corsOptions: cors.CorsOptions = {
-  origin: function(origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    const allowedDomains = [
-      /\.repl\.co$/,
-      /\.replit\.dev$/,
-      /\.repl\.dev$/,
-      /^https?:\/\/localhost/,
-      /^http?:\/\/localhost/,
-      /^https?:\/\/127\.0\.0\.1/,
-      /^http?:\/\/127\.0\.0\.1/,
-      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev'
-    ];
-
-    // Always allow in development mode or if there's no origin (like direct file access)
-    if (!origin || process.env.NODE_ENV === 'development') {
-      callback(null, true);
-      return;
-    }
-
-    // Check if the origin matches any of our allowed domains
-    const isAllowed = allowedDomains.some(domain => {
-      if (typeof domain === 'string') {
-        return domain === origin;
-      }
-      return domain.test(origin);
-    });
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'), false);
-    }
-  },
+app.use(cors({
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-};
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
 
-app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 
 // Get directory name for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configure static file serving based on environment
-const isDevelopment = process.env.NODE_ENV === 'development';
+// Configure static file serving
 const distPath = path.join(__dirname, '../../dist');
-
 console.log(`Server running in ${process.env.NODE_ENV} mode`);
 console.log('Static files being served from:', distPath);
-console.log('Directory exists:', fs.existsSync(distPath));
 
-// Serve static files first
-app.use(express.static(distPath));
+// Serve static files with proper caching
+app.use(express.static(distPath, {
+  maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
+  etag: true,
+  lastModified: true
+}));
 
 // API Routes
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -119,30 +88,30 @@ app.get('/api/user/:username', async (req: Request, res: Response, next: NextFun
       gymId: user[0].gymId
     });
   } catch (error) {
-    console.error('Error fetching user:', error);
     next(error);
   }
 });
 
-// Serve index.html for all non-API routes (SPA fallback)
-app.get('*', (req: Request, res: Response) => {
-  if (req.path.startsWith('/api/')) {
+// SPA fallback - serve index.html for all non-API routes
+app.use('*', (req: Request, res: Response) => {
+  // Skip API routes
+  if (req.originalUrl.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
   const indexPath = path.join(distPath, 'index.html');
-  console.log('Serving index.html for path:', req.path);
-  console.log('Index path:', indexPath);
+
+  // Debug logging
+  console.log('Request path:', req.originalUrl);
+  console.log('Serving index.html from:', indexPath);
   console.log('Index exists:', fs.existsSync(indexPath));
 
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Error sending index.html:', err);
-      res.status(500).send('Error loading application');
-    }
-  });
-});
+  if (!fs.existsSync(indexPath)) {
+    return res.status(404).send('Application not built. Please run npm run build first.');
+  }
 
+  res.sendFile(indexPath);
+});
 
 // Error handling middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
@@ -154,7 +123,6 @@ const PORT = Number(process.env.PORT) || 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-  console.log('Static files being served from:', distPath);
 }).on('error', (error) => {
   console.error('Failed to start server:', error);
   process.exit(1);

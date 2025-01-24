@@ -67,15 +67,19 @@ export default defineConfig({
         secure: false,
         ws: true
       }
-    },
-    allowedHosts: [
-      'localhost',
-      '127.0.0.1',
-      '.repl.co',
-      '.replit.dev',
-      '.repl.dev',
-      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev'
-    ]
+    }
+  },
+  preview: {
+    port: 3000,
+    strictPort: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+        secure: false,
+        ws: true
+      }
+    }
   },
   build: {
     outDir: 'dist',
