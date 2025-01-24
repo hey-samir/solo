@@ -23,6 +23,7 @@ const productionOptimizations = {
   cssCodeSplit: true,
   modulePreload: true,
   rollupOptions: {
+    input: path.resolve(__dirname, 'index.html'),
     output: {
       manualChunks: (id) => {
         if (id.includes('node_modules')) {
@@ -50,6 +51,9 @@ const productionOptimizations = {
 
 export default defineConfig({
   plugins: [react()],
+  root: process.cwd(),
+  base: './',
+  publicDir: 'public',
   server: {
     host: '0.0.0.0',
     port: 5000,
@@ -79,6 +83,8 @@ export default defineConfig({
     sourcemap: process.env.NODE_ENV !== 'production',
     reportCompressedSize: true,
     chunkSizeWarningLimit: 1000,
+    assetsInlineLimit: 4096,
+    manifest: true,
     ...productionOptimizations
   },
   resolve: {

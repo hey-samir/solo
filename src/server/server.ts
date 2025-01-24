@@ -17,12 +17,18 @@ const app = express();
 // Database setup
 let db: PostgresJsDatabase;
 try {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is not set');
+  }
+
   console.log('Connecting to database...');
-  const client = postgres(process.env.DATABASE_URL!, {
+  const client = postgres(process.env.DATABASE_URL, {
     max: 20,
     idle_timeout: 30,
     connect_timeout: 10,
+    max_lifetime: 60 * 30 // 30 minutes
   });
+
   db = drizzle(client);
   console.log('Database connection successful');
 } catch (error) {
@@ -33,9 +39,9 @@ try {
 // Enable compression for all responses
 app.use(compression());
 
-// CORS Configuration - Allow all origins in development
+// CORS Configuration
 const corsOptions = {
-  origin: true,
+  origin: process.env.NODE_ENV === 'production' ? false : true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -51,13 +57,15 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '../../');
 const distPath = path.join(projectRoot, 'dist');
 
+console.log('Environment:', process.env.NODE_ENV);
 console.log('Static files path:', distPath);
 
 // Serve static files with proper caching
 app.use(express.static(distPath, {
   maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
   etag: true,
-  lastModified: true
+  lastModified: true,
+  index: 'index.html' // Explicitly set index.html as the default file
 }));
 
 // API Routes
@@ -70,8 +78,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 });
 
 // User routes
-type UserParams = { username: string };
-app.get<UserParams>('/api/user/:username', async (req: Request<UserParams>, res: Response): Promise<void> => {
+app.get('/api/user/:username', async (req: Request, res: Response): Promise<void> => {
   try {
     const username = req.params.username;
     const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
@@ -123,8 +130,7 @@ app.get('/api/user/:userId/stats', async (req: Request<{ userId: string }>, res:
 });
 
 // Routes routes
-type RoutesQuery = { gymId?: string };
-app.get<{}, {}, {}, RoutesQuery>('/api/routes', async (req: Request<{}, {}, {}, RoutesQuery>, res: Response): Promise<void> => {
+app.get('/api/routes', async (req: Request<{}, {}, {}, { gymId?: string }>, res: Response): Promise<void> => {
   try {
     const gymId = req.query.gymId;
     if (!gymId) {
@@ -144,8 +150,7 @@ app.get<{}, {}, {}, RoutesQuery>('/api/routes', async (req: Request<{}, {}, {}, 
 });
 
 // Climbs routes
-type ClimbsQuery = { userId?: string };
-app.get<{}, {}, {}, ClimbsQuery>('/api/climbs', async (req: Request<{}, {}, {}, ClimbsQuery>, res: Response): Promise<void> => {
+app.get('/api/climbs', async (req: Request<{}, {}, {}, { userId?: string }>, res: Response): Promise<void> => {
   try {
     const userId = req.query.userId;
     if (!userId) {
@@ -219,12 +224,15 @@ app.get('*', (req: Request, res: Response) => {
     return;
   }
 
-  console.log('Serving index.html for path:', req.path);
-
   const indexPath = path.join(distPath, 'index.html');
+  console.log('Serving index.html for path:', req.path);
+  console.log('Index path:', indexPath);
+
   res.sendFile(indexPath, (err) => {
     if (err) {
       console.error('Error serving index.html:', err);
+      console.error('Index path attempted:', indexPath);
+      console.error('Current directory:', __dirname);
       res.status(500).send('Error serving application');
     }
   });
