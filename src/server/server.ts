@@ -1,8 +1,8 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import compression from 'compression';
 import { users, routes, climbs } from './db/schema.js';
@@ -11,110 +11,40 @@ import fs from 'fs';
 
 dotenv.config();
 
-// Initialize express app
 const app = express();
 
 // Database setup
-let db: PostgresJsDatabase;
-try {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is not set');
-  }
-
-  console.log('Connecting to database...');
-  const client = postgres(process.env.DATABASE_URL, {
-    max: 20,
-    idle_timeout: 30,
-    connect_timeout: 10,
-    max_lifetime: 60 * 30
-  });
-
-  db = drizzle(client);
-  console.log('Database connection successful');
-} catch (error) {
-  console.error('Database connection failed:', error);
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL environment variable is not set');
   process.exit(1);
 }
 
-// Enable compression for all responses
+const client = postgres(process.env.DATABASE_URL);
+const db = drizzle(client);
+
+// Middleware
 app.use(compression());
+app.use(cors());
+app.use(express.json());
 
-// CORS Configuration
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? false : true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-app.use(cors(corsOptions));
-
-// Parse JSON requests
-app.use(express.json({ limit: '10mb' }));
-
-// Static file serving configuration
+// Static files setup
 const distPath = path.resolve(process.cwd(), 'dist');
-console.log('Static files will be served from:', distPath);
+console.log('Static files directory:', distPath);
+app.use(express.static(distPath));
 
-// Wait for dist directory to be available
-let retries = 0;
-const maxRetries = 10;
-const retryInterval = 1000; // 1 second
-
-function waitForDistDirectory(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const checkDist = () => {
-      if (fs.existsSync(distPath)) {
-        console.log('Found dist directory at:', distPath);
-        const distContents = fs.readdirSync(distPath);
-        console.log('Contents of dist directory:', distContents);
-        resolve();
-      } else {
-        retries++;
-        console.log(`Waiting for dist directory... (attempt ${retries}/${maxRetries})`);
-        if (retries >= maxRetries) {
-          reject(new Error('Dist directory not found after maximum retries'));
-        } else {
-          setTimeout(checkDist, retryInterval);
-        }
-      }
-    };
-    checkDist();
-  });
-}
-
-// Serve static files with proper configuration
-app.use(express.static(distPath, {
-  index: false, // Don't auto-serve index.html
-  maxAge: '1d' // Add cache control
-}));
-
-// API Routes
-app.get('/api/health', (_req: Request, res: Response) => {
-  res.json({
-    status: 'healthy',
-    mode: process.env.NODE_ENV,
-    timestamp: new Date().toISOString()
-  });
+// Health check
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// User routes
-app.get('/api/user/:username', async (req: Request, res: Response) => {
+// API Routes
+app.get('/api/user/:username', async (req, res) => {
   try {
-    const username = req.params.username;
-    const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
-
+    const user = await db.select().from(users).where(eq(users.username, req.params.username)).limit(1);
     if (!user || user.length === 0) {
-      res.status(404).json({ error: 'User not found' });
-      return;
+      return res.status(404).json({ error: 'User not found' });
     }
-
-    res.json({
-      id: user[0].id,
-      username: user[0].username,
-      profilePhoto: user[0].profilePhoto,
-      memberSince: user[0].memberSince,
-      gymId: user[0].gymId
-    });
+    res.json(user[0]);
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -122,7 +52,7 @@ app.get('/api/user/:username', async (req: Request, res: Response) => {
 });
 
 // User Stats
-app.get('/api/user/:userId/stats', async (req: Request<{ userId: string }>, res: Response): Promise<void> => {
+app.get('/api/user/:userId/stats', async (req, res) => {
   try {
     const userId = parseInt(req.params.userId);
     const userClimbs = await db.select().from(climbs).where(eq(climbs.userId, userId));
@@ -150,7 +80,7 @@ app.get('/api/user/:userId/stats', async (req: Request<{ userId: string }>, res:
 });
 
 // Routes routes
-app.get('/api/routes', async (req: Request<{}, {}, {}, { gymId?: string }>, res: Response): Promise<void> => {
+app.get('/api/routes', async (req, res) => {
   try {
     const gymId = req.query.gymId;
     if (!gymId) {
@@ -170,7 +100,7 @@ app.get('/api/routes', async (req: Request<{}, {}, {}, { gymId?: string }>, res:
 });
 
 // Climbs routes
-app.get('/api/climbs', async (req: Request<{}, {}, {}, { userId?: string }>, res: Response): Promise<void> => {
+app.get('/api/climbs', async (req, res) => {
   try {
     const userId = req.query.userId;
     if (!userId) {
@@ -191,7 +121,7 @@ app.get('/api/climbs', async (req: Request<{}, {}, {}, { userId?: string }>, res
 });
 
 // Standings route
-app.get('/api/standings', async (_req: Request, res: Response): Promise<void> => {
+app.get('/api/standings', async (_req, res) => {
   try {
     const standings = await db
       .select({
@@ -212,64 +142,31 @@ app.get('/api/standings', async (_req: Request, res: Response): Promise<void> =>
   }
 });
 
-// Catch-all route handler for client-side routing
-app.get('*', (req: Request, res: Response) => {
-  // Skip API routes
+// Serve index.html for all non-API routes (SPA support)
+app.get('*', (req, res) => {
   if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'Not Found' });
+    return res.status(404).json({ error: 'API endpoint not found' });
   }
 
   const indexPath = path.join(distPath, 'index.html');
-  console.log('Request path:', req.path);
-  console.log('Looking for index.html at:', indexPath);
-
-  try {
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      res.status(500).send('Application error: index.html not found. Please ensure the build is complete.');
-    }
-  } catch (error) {
-    console.error('Error serving index.html:', error);
-    res.status(500).send('Application error: Failed to load application');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(500).send('Application error: index.html not found');
   }
 });
 
-// Error handling middleware
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+// Error handler
+app.use((err, _req, res, _next) => {
   console.error('Server error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });
 
-const PORT = Number(process.env.PORT) || 5000;
-
-// Start server with dist directory check
-async function startServer() {
-  try {
-    await waitForDistDirectory();
-
-    const server = app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-    }).on('error', (error) => {
-      console.error('Failed to start server:', error);
-      process.exit(1);
-    });
-
-    // Graceful shutdown
-    process.on('SIGTERM', () => {
-      console.log('SIGTERM received. Shutting down gracefully...');
-      server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-      });
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-}
-
-startServer();
+// Start server
+const port = Number(process.env.PORT || 5000);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
+});
 
 export { db };
 

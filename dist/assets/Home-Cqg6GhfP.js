@@ -1,1 +1,0 @@
-import{j as t}from"./vendor-react-CtadRSyQ.js";import"./vendor-m8_k2utT.js";import"./vendor-chart-BLvGLuzR.js";const e=()=>t.jsx("div",{className:"container mx-auto px-4 py-8",children:t.jsx("div",{className:"text-center",children:t.jsx("h1",{className:"text-4xl font-bold text-gray-900 mb-8",children:"Solo - Quantify your Ascent"})})});export{e as default};

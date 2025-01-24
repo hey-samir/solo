@@ -12,38 +12,16 @@ const isReplit = process.env.REPL_SLUG && process.env.REPL_OWNER
 
 export default defineConfig({
   plugins: [react()],
-  root: process.cwd(), // Explicitly set root directory
-  base: '', // Empty base for relative paths
+  root: process.cwd(),
+  base: '/', // Set base to root
   publicDir: 'public',
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    sourcemap: false,
-    target: 'esnext',
-    reportCompressedSize: true,
-    chunkSizeWarningLimit: 1000,
-    assetsInlineLimit: 4096,
     manifest: true,
     rollupOptions: {
       input: {
         main: path.resolve(process.cwd(), 'index.html')
-      },
-      output: {
-        // Ensure proper code splitting
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react')) return 'vendor-react'
-            if (id.includes('chart.js')) return 'vendor-chart'
-            return 'vendor'
-          }
-        }
-      }
-    },
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: false,
-        drop_debugger: true
       }
     }
   },
@@ -55,15 +33,7 @@ export default defineConfig({
       clientPort: 443,
       protocol: 'wss',
       host: replitDomain
-    } : true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false,
-        ws: true
-      }
-    }
+    } : true
   },
   preview: {
     port: 5000,
