@@ -126,7 +126,6 @@ const setCacheControl = (res: Response, ext: string) => {
 
 // Serve static files with proper MIME types and cache control
 app.use(express.static(distPath, {
-  index: false,
   setHeaders: (res: Response, filePath: string) => {
     const ext = path.extname(filePath).toLowerCase();
     const contentType = mimeTypes[ext] || 'application/octet-stream';
@@ -168,25 +167,16 @@ app.get('/api/user/:username', async (req: Request, res: Response, next: NextFun
   }
 });
 
-// Catch-all route handler for the SPA
+// Serve index.html for all non-API routes to support client-side routing
 app.get('*', (req: Request, res: Response) => {
-  // Skip API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
-  const indexPath = path.join(distPath, 'index.html');
-
-  res.setHeader('Content-Type', 'text/html');
-  setCacheControl(res, '.html');
-
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Error sending index.html:', err);
-      res.status(500).send('Internal Server Error');
-    }
-  });
+  console.log('Serving index.html for path:', req.path); // Debug log
+  res.sendFile(path.join(distPath, 'index.html'));
 });
+
 
 // Error handling middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
