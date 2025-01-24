@@ -6,9 +6,8 @@ import { fileURLToPath } from 'url';
 import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import compression from 'compression';
-import { users, routes, climbs, feedback, feedbackVotes, routeGrades, gyms } from './db/schema.js';
+import { users, routes, climbs } from './db/schema.js';
 import { eq, desc, sql } from 'drizzle-orm';
-import fs from 'fs';
 
 dotenv.config();
 
@@ -50,22 +49,13 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '../../');
 const distPath = path.join(projectRoot, 'dist');
 
-// Check dist directory only once at startup
-const distReady = (() => {
-  const exists = fs.existsSync(distPath) && fs.existsSync(path.join(distPath, 'index.html'));
-  console.log(`Dist directory status: ${exists ? 'ready' : 'not ready'}`);
-  return exists;
-})();
-
-// Serve static files if dist is ready
-if (distReady) {
-  app.use(express.static(distPath, {
-    maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
-    etag: true,
-    lastModified: true,
-    index: false
-  }));
-}
+// Serve static files from dist directory
+app.use(express.static(distPath, {
+  maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
+  etag: true,
+  lastModified: true,
+  index: false
+}));
 
 // API Routes
 app.get('/api/health', (_req: Request, res: Response): void => {
@@ -194,30 +184,6 @@ app.get('/api/standings', async (_req: Request, res: Response): Promise<void> =>
   }
 });
 
-// Feedback routes
-app.get('/api/feedback', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const sort = req.query.sort === 'top' ? 'votes' : 'new';
-
-    const feedbackItems = sort === 'votes' 
-      ? await db
-          .select()
-          .from(feedback)
-          .leftJoin(feedbackVotes, eq(feedback.id, feedbackVotes.feedbackId))
-          .groupBy(feedback.id)
-          .orderBy(desc(sql`COUNT(${feedbackVotes.id})`))
-      : await db
-          .select()
-          .from(feedback)
-          .orderBy(desc(feedback.createdAt));
-
-    res.json(feedbackItems);
-  } catch (error) {
-    console.error('Error fetching feedback:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
 // Helper functions for stats calculations
 function calculateAverageGrade(climbs: any[]): string {
   if (!climbs.length) return '--';
@@ -250,13 +216,7 @@ app.get('*', (req: Request, res: Response): void => {
     return;
   }
 
-  if (!distReady) {
-    res.status(503).send(
-      'Application is building. Please try again in a moment.'
-    );
-    return;
-  }
-
+  // Serve index.html for client-side routing
   res.sendFile(path.join(distPath, 'index.html'), {
     maxAge: process.env.NODE_ENV === 'production' ? '1y' : 0,
     lastModified: true,
