@@ -27,10 +27,24 @@ app.use(compression());
 app.use(cors());
 app.use(express.json());
 
-// Static files setup
-const distPath = path.resolve(process.cwd(), 'dist');
+// Static files setup - Update to use absolute path
+const distPath = path.join(process.cwd(), 'dist');
 console.log('Static files directory:', distPath);
-app.use(express.static(distPath));
+
+// Check if dist directory exists and log its contents
+if (fs.existsSync(distPath)) {
+  console.log('Dist directory contents:', fs.readdirSync(distPath));
+} else {
+  console.error('Dist directory not found at:', distPath);
+}
+
+// Serve static files - index.html will be served from root
+app.use(express.static(distPath, {
+  index: false, // Don't auto-serve index.html
+  maxAge: '1h',
+  etag: true,
+  lastModified: true
+}));
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -144,14 +158,28 @@ app.get('/api/standings', async (_req, res) => {
 
 // Serve index.html for all non-API routes (SPA support)
 app.get('*', (req, res) => {
+  // Skip API routes
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
+  // Log the request details
+  console.log('Serving index.html for path:', req.path);
+
   const indexPath = path.join(distPath, 'index.html');
+
+  // Check if index.html exists and log its status
   if (fs.existsSync(indexPath)) {
-    res.sendFile(indexPath);
+    console.log('Found index.html at:', indexPath);
+    res.setHeader('Content-Type', 'text/html');
+    res.sendFile(indexPath, (err) => {
+      if (err) {
+        console.error('Error sending index.html:', err);
+        res.status(500).send('Error loading application');
+      }
+    });
   } else {
+    console.error('index.html not found at:', indexPath);
     res.status(500).send('Application error: index.html not found');
   }
 });

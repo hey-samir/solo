@@ -27,6 +27,10 @@ args = "Production Build"
 task = "workflow.run"
 args = "API Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build and Serve"
+
 [[workflows.workflow]]
 name = "Database Migrations"
 author = "agent"
@@ -53,7 +57,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "rm -rf dist && NODE_ENV=production npx vite build"
+args = "echo \"Removing old workflow\""
 
 [[workflows.workflow]]
 name = "API Server"
@@ -67,7 +71,21 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production PORT=5000 npx tsx src/server/server.ts"
+args = "echo \"Removing old workflow\""
+
+[[workflows.workflow]]
+name = "Build and Serve"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rm -rf dist/* && NODE_ENV=production npx vite build && npx vite preview --port 5000 --host --strictPort"
 waitForPort = 5000
 
 [[ports]]
