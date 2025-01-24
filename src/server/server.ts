@@ -7,7 +7,7 @@ import { drizzle, PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import compression from 'compression';
 import { users, routes, climbs } from './db/schema.js';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import fs from 'fs';
 
 dotenv.config();
@@ -86,14 +86,13 @@ app.get('/api/health', (_req: Request, res: Response) => {
 });
 
 // User routes
-app.get('/api/user/:username', async (req: Request, res: Response, next: NextFunction) => {
+app.get('/api/user/:username', async (req: Request, res: Response) => {
   try {
     const username = req.params.username;
     const user = await db.select().from(users).where(eq(users.username, username)).limit(1);
 
     if (!user || user.length === 0) {
-      res.status(404).json({ error: 'User not found' });
-      return;
+      return res.status(404).json({ error: 'User not found' });
     }
 
     res.json({
@@ -104,12 +103,52 @@ app.get('/api/user/:username', async (req: Request, res: Response, next: NextFun
       gymId: user[0].gymId
     });
   } catch (error) {
-    next(error);
+    console.error('Error fetching user:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Routes routes
+app.get('/api/routes', async (req: Request, res: Response) => {
+  try {
+    const gymId = req.query.gymId;
+    if (!gymId) {
+      return res.json([]);
+    }
+
+    const gymRoutes = await db.select()
+      .from(routes)
+      .where(eq(routes.gymId, Number(gymId)));
+
+    res.json(gymRoutes);
+  } catch (error) {
+    console.error('Error fetching routes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Climbs routes
+app.get('/api/climbs', async (req: Request, res: Response) => {
+  try {
+    const userId = req.query.userId;
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    const userClimbs = await db.select()
+      .from(climbs)
+      .where(eq(climbs.userId, Number(userId)))
+      .orderBy(desc(climbs.createdAt));
+
+    res.json(userClimbs);
+  } catch (error) {
+    console.error('Error fetching climbs:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
 // SPA fallback - handle all non-API routes
-app.get('*', (req: Request, res: Response, next: NextFunction) => {
+app.get('*', (req: Request, res: Response) => {
   // Skip API routes
   if (req.originalUrl.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
@@ -132,11 +171,6 @@ app.get('*', (req: Request, res: Response, next: NextFunction) => {
     etag: true,
     headers: {
       'Cache-Control': process.env.NODE_ENV === 'production' ? 'public, max-age=31536000' : 'no-cache'
-    }
-  }, (err) => {
-    if (err) {
-      console.error('Error sending index.html:', err);
-      next(err);
     }
   });
 });

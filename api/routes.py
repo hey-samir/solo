@@ -3,6 +3,15 @@ from flask_login import current_user, login_required
 from . import bp
 from models import User, Route, Climb
 from database import db
+from datetime import datetime
+
+@bp.route('/health')
+def health_check():
+    """API health check endpoint"""
+    return jsonify({
+        'status': 'healthy',
+        'timestamp': datetime.now().isoformat()
+    })
 
 @bp.route('/user/<username>')
 def get_user(username):
@@ -27,11 +36,11 @@ def get_routes():
     try:
         if not current_user.gym_id:
             return jsonify([])
-            
+
         routes = Route.query \
             .filter(Route.gym_id == current_user.gym_id) \
             .all()
-            
+
         return jsonify([{
             'id': route.id,
             'route_id': route.route_id,
@@ -52,7 +61,7 @@ def get_climbs():
             .filter(Climb.user_id == current_user.id) \
             .order_by(Climb.created_at.desc()) \
             .all()
-            
+
         return jsonify([{
             'id': climb.id,
             'route_id': climb.route_id,
@@ -65,3 +74,13 @@ def get_climbs():
         } for climb in climbs])
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+# Error handlers
+@bp.errorhandler(404)
+def not_found_error(error):
+    return jsonify({'error': 'Not found'}), 404
+
+@bp.errorhandler(500)
+def internal_error(error):
+    db.session.rollback()
+    return jsonify({'error': 'Internal server error'}), 500

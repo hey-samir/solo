@@ -1,7 +1,7 @@
 import os
 import logging
 from datetime import timedelta
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
@@ -24,8 +24,8 @@ def create_app(test_config=None):
     """Application factory function"""
     app = Flask(__name__, 
                 template_folder='templates',
-                static_folder='static',
-                static_url_path='/static')
+                static_folder='dist',
+                static_url_path='')
     logger.info("Creating Flask application")
 
     if test_config is None:
@@ -96,6 +96,19 @@ def create_app(test_config=None):
         app.register_blueprint(api_bp)
 
         logger.info("Successfully registered blueprints")
+
+        # Serve React app for non-API routes
+        @app.route('/', defaults={'path': ''})
+        @app.route('/<path:path>')
+        def serve(path):
+            if path.startswith('api/'):
+                return {"error": "Not Found"}, 404
+
+            if path and os.path.exists(os.path.join(app.static_folder, path)):
+                return send_from_directory(app.static_folder, path)
+
+            # Always return index.html for client-side routing
+            return send_from_directory(app.static_folder, 'index.html')
 
     return app
 
