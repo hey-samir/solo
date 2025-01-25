@@ -33,24 +33,67 @@ app.use(express.json());
 const distPath = path.resolve(process.cwd(), 'dist');
 console.log('Static files directory:', distPath);
 
-// Verify dist directory contents
-if (fs.existsSync(distPath)) {
-  console.log('Dist directory contents:', fs.readdirSync(distPath));
-  console.log('Assets directory contents:', fs.readdirSync(path.join(distPath, 'assets')));
-} else {
-  console.error('Dist directory not found at:', distPath);
+// Function to check if build is complete
+function isBuildComplete(): boolean {
+  try {
+    const indexPath = path.join(distPath, 'index.html');
+    if (!fs.existsSync(indexPath)) return false;
+    const assetsDir = path.join(distPath, 'assets');
+    if (!fs.existsSync(assetsDir)) return false;
+    const dirContents = fs.readdirSync(assetsDir);
+    return dirContents.some(file => file.includes('main') && file.endsWith('.js'));
+  } catch (error) {
+    console.error('Error checking build completion:', error);
+    return false;
+  }
 }
 
-// Serve static files with proper MIME types
+// Function to wait for build completion
+async function waitForBuild(maxAttempts: number = 30, interval: number = 1000): Promise<boolean> {
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    console.log(`Checking for build completion (attempt ${attempts + 1}/${maxAttempts})...`);
+
+    if (isBuildComplete()) {
+      console.log('Build files found! Dist contents:', fs.readdirSync(distPath));
+      const assetsDir = path.join(distPath, 'assets');
+      console.log('Assets directory contents:', fs.readdirSync(assetsDir));
+      return true;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, interval));
+    attempts++;
+  }
+
+  console.error('Build files not found after maximum attempts');
+  return false;
+}
+
+// Create dist directory if it doesn't exist
+if (!fs.existsSync(distPath)) {
+  console.log('Creating dist directory...');
+  fs.mkdirSync(distPath, { recursive: true });
+} else {
+  console.log('Dist directory exists, contents:', fs.readdirSync(distPath));
+}
+
+// Configure static file serving with proper MIME types
 app.use(express.static(distPath, {
   index: false,
   maxAge: '1h',
   etag: true,
   lastModified: true,
   setHeaders: (res: Response, filePath: string) => {
+    // Set appropriate content types
     if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
+    } else if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (filePath.endsWith('.html')) {
+      res.setHeader('Content-Type', 'text/html');
     }
+    // Ensure CORS and caching headers
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Cache-Control', 'no-cache');
   }
@@ -95,9 +138,9 @@ router.get('/user/:userId/stats', async (req: Request<UserIdParams>, res: Respon
       totalPoints: userClimbs.reduce((sum, c) => sum + (c.points || 0), 0),
       avgGrade: calculateAverageGrade(userClimbs),
       avgSentGrade: calculateAverageGrade(userClimbs.filter(c => c.status === true)),
-      avgPointsPerClimb: userClimbs.length ? 
+      avgPointsPerClimb: userClimbs.length ?
         userClimbs.reduce((sum, c) => sum + (c.points || 0), 0) / userClimbs.length : 0,
-      successRate: userClimbs.length ? 
+      successRate: userClimbs.length ?
         (userClimbs.filter(c => c.status === true).length / userClimbs.length) * 100 : 0,
       successRatePerSession: calculateSuccessRatePerSession(userClimbs),
       climbsPerSession: calculateClimbsPerSession(userClimbs),
@@ -177,43 +220,60 @@ router.get('/standings', async (_req: Request, res: Response) => {
 // Mount API routes
 app.use('/api', router);
 
-// Serve index.html for all non-API routes (SPA support)
-app.get('*', (req: Request, res: Response) => {
+// Update the catch-all route to handle build status
+app.get('*', async (req: Request, res: Response) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
-  console.log('Serving index.html for path:', req.path);
-  const indexPath = path.join(distPath, 'index.html');
+  // Wait for build to complete if necessary
+  if (!isBuildComplete()) {
+    const buildReady = await waitForBuild();
+    if (!buildReady) {
+      return res.status(503).send('Application is building. Please refresh in a moment...');
+    }
+  }
 
-  if (fs.existsSync(indexPath)) {
-    console.log('Found index.html at:', indexPath);
-    res.setHeader('Content-Type', 'text/html');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.sendFile(indexPath, (err) => {
-      if (err) {
-        console.error('Error sending index.html:', err);
-        res.status(500).send('Error loading application');
+  const indexPath = path.join(distPath, 'index.html');
+  console.log('Serving index.html for path:', req.path);
+
+  try {
+    // Verify the file exists and is readable
+    await fs.promises.access(indexPath, fs.constants.R_OK);
+    console.log('Successfully verified access to index.html');
+    res.sendFile(indexPath, {
+      headers: {
+        'Content-Type': 'text/html',
+        'Cache-Control': 'no-cache'
       }
     });
-  } else {
-    console.error('index.html not found at:', indexPath);
-    res.status(500).send('Application error: index.html not found');
+  } catch (error) {
+    console.error('Error accessing index.html:', error);
+    res.status(503).send('Application is still initializing. Please refresh in a moment...');
   }
 });
 
 // Error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Server error:', err);
-  console.error('Stack trace:', err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
 
 // Start server
 const port = Number(process.env.PORT || 5000);
-app.listen(port, '0.0.0.0', () => {
-  console.log(`Server running on port ${port}`);
-  console.log(`Static files being served from: ${distPath}`);
+
+// Only start the server after checking build status
+console.log('Waiting for build to complete before starting server...');
+waitForBuild().then((buildReady) => {
+  if (buildReady) {
+    app.listen(port, '0.0.0.0', () => {
+      console.log(`Server running on port ${port}`);
+      console.log(`Static files being served from: ${distPath}`);
+    });
+  } else {
+    console.error('Failed to start server: Build files not found');
+    process.exit(1);
+  }
 });
 
 // Helper functions

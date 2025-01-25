@@ -15,17 +15,23 @@ name = "Project"
 mode = "parallel"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Database Migrations"
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "API Server"
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rm -rf dist/* && NODE_ENV=production npx vite build && NODE_ENV=development npx tsx watch src/server/server.ts"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Production Build"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Server"
 
 [[workflows.workflow]]
 name = "Database Migrations"
@@ -53,7 +59,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development npx tsx watch src/server/server.ts"
+args = "npm run build && NODE_ENV=development npx tsx watch src/server/server.ts"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -69,6 +75,35 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "rm -rf dist/* && NODE_ENV=production npx vite build"
+
+[[workflows.workflow]]
+name = "Build"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production npx vite build"
+
+[[workflows.workflow]]
+name = "Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development npx tsx watch src/server/server.ts"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3000
