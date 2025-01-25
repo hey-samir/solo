@@ -27,11 +27,7 @@ args = "rm -rf dist/* && NODE_ENV=production npx vite build && NODE_ENV=developm
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Build"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Server"
+args = "Build and Serve"
 
 [[workflows.workflow]]
 name = "Database Migrations"
@@ -63,20 +59,6 @@ args = "npm run build && NODE_ENV=development npx tsx watch src/server/server.ts
 waitForPort = 5000
 
 [[workflows.workflow]]
-name = "Production Build"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "rm -rf dist/* && NODE_ENV=production npx vite build"
-
-[[workflows.workflow]]
 name = "Build"
 author = "agent"
 
@@ -91,7 +73,7 @@ task = "shell.exec"
 args = "NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
-name = "Server"
+name = "Build and Serve"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -102,7 +84,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development npx tsx watch src/server/server.ts"
+args = "rm -rf dist/* && NODE_ENV=production npx vite build && NODE_ENV=development npx tsx watch src/server/server.ts"
 waitForPort = 5000
 
 [[ports]]

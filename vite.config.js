@@ -14,6 +14,11 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(process.cwd(), 'index.html')
+      },
+      output: {
+        manualChunks: {
+          'vendor': ['react', 'react-dom', 'react-router-dom']
+        }
       }
     }
   },
@@ -24,6 +29,12 @@ export default defineConfig({
     cors: true,
     hmr: {
       host: 'localhost'
+    },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true
+      }
     }
   },
   preview: {
@@ -40,5 +51,13 @@ export default defineConfig({
       '.replit.dev',
       '.repl.co'
     ]
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@pages': path.resolve(__dirname, 'src/pages'),
+      '@api': path.resolve(__dirname, 'src/api')
+    }
   }
 })

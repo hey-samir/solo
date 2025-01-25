@@ -1,24 +1,32 @@
 {
-  "_useMutation-DcVecQgX.js": {
-    "file": "assets/useMutation-DcVecQgX.js",
+  "_useMutation-BfrJs9KZ.js": {
+    "file": "assets/useMutation-BfrJs9KZ.js",
     "name": "useMutation",
     "imports": [
-      "index.html",
-      "_useQuery-CAd84lJj.js"
+      "_vendor-DaUdUtt_.js",
+      "_useQuery-DTYHEBGi.js"
     ]
   },
-  "_useQuery-CAd84lJj.js": {
-    "file": "assets/useQuery-CAd84lJj.js",
+  "_useQuery-DTYHEBGi.js": {
+    "file": "assets/useQuery-DTYHEBGi.js",
     "name": "useQuery",
     "imports": [
+      "_vendor-DaUdUtt_.js",
       "index.html"
     ]
   },
+  "_vendor-DaUdUtt_.js": {
+    "file": "assets/vendor-DaUdUtt_.js",
+    "name": "vendor"
+  },
   "index.html": {
-    "file": "assets/main-CddQ54kG.js",
+    "file": "assets/main-Boez7aCd.js",
     "name": "main",
     "src": "index.html",
     "isEntry": true,
+    "imports": [
+      "_vendor-DaUdUtt_.js"
+    ],
     "dynamicImports": [
       "src/pages/Home.tsx",
       "src/pages/About.tsx",
@@ -36,102 +44,112 @@
     ]
   },
   "src/pages/About.tsx": {
-    "file": "assets/About-CErNeYZX.js",
+    "file": "assets/About-Cx27xw59.js",
     "name": "About",
     "src": "src/pages/About.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "index.html"
+      "index.html",
+      "_vendor-DaUdUtt_.js"
     ]
   },
   "src/pages/Feedback.tsx": {
-    "file": "assets/Feedback-CoFTwcHZ.js",
+    "file": "assets/Feedback-BrGtW_XO.js",
     "name": "Feedback",
     "src": "src/pages/Feedback.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CAd84lJj.js",
-      "_useMutation-DcVecQgX.js"
+      "_vendor-DaUdUtt_.js",
+      "_useQuery-DTYHEBGi.js",
+      "_useMutation-BfrJs9KZ.js"
     ]
   },
   "src/pages/Home.tsx": {
-    "file": "assets/Home-Tkn5l1uI.js",
+    "file": "assets/Home-CP286nBz.js",
     "name": "Home",
     "src": "src/pages/Home.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "index.html"
+      "index.html",
+      "_vendor-DaUdUtt_.js"
     ]
   },
   "src/pages/Login.tsx": {
-    "file": "assets/Login-BFvbpEOd.js",
+    "file": "assets/Login-B23Sn5f8.js",
     "name": "Login",
     "src": "src/pages/Login.tsx",
     "isDynamicEntry": true,
     "imports": [
-      "index.html"
+      "index.html",
+      "_vendor-DaUdUtt_.js"
     ]
   },
   "src/pages/Profile.tsx": {
-    "file": "assets/Profile-BFTCCD1S.js",
+    "file": "assets/Profile-CUsC4Rt3.js",
     "name": "Profile",
     "src": "src/pages/Profile.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CAd84lJj.js"
+      "_useQuery-DTYHEBGi.js",
+      "_vendor-DaUdUtt_.js"
     ]
   },
   "src/pages/Register.tsx": {
-    "file": "assets/Register-DetwkQ43.js",
+    "file": "assets/Register--PV2Ry2x.js",
     "name": "Register",
     "src": "src/pages/Register.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CAd84lJj.js"
+      "_vendor-DaUdUtt_.js",
+      "_useQuery-DTYHEBGi.js"
     ]
   },
   "src/pages/Sends.tsx": {
-    "file": "assets/Sends-Couh32ja.js",
+    "file": "assets/Sends-DIy6Hp21.js",
     "name": "Sends",
     "src": "src/pages/Sends.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CAd84lJj.js",
-      "_useMutation-DcVecQgX.js"
+      "_vendor-DaUdUtt_.js",
+      "_useQuery-DTYHEBGi.js",
+      "_useMutation-BfrJs9KZ.js"
     ]
   },
   "src/pages/Sessions.tsx": {
-    "file": "assets/Sessions-BTeCzMZ2.js",
+    "file": "assets/Sessions-DPAMkGzZ.js",
     "name": "Sessions",
     "src": "src/pages/Sessions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CAd84lJj.js"
+      "_vendor-DaUdUtt_.js",
+      "_useQuery-DTYHEBGi.js"
     ]
   },
   "src/pages/Standings.tsx": {
-    "file": "assets/Standings-3ZDtzuHE.js",
+    "file": "assets/Standings-DW5UjvhQ.js",
     "name": "Standings",
     "src": "src/pages/Standings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CAd84lJj.js"
+      "_vendor-DaUdUtt_.js",
+      "_useQuery-DTYHEBGi.js"
     ]
   },
   "src/pages/Stats.tsx": {
-    "file": "assets/Stats-BgmuGa80.js",
+    "file": "assets/Stats-BQHrj1J5.js",
     "name": "Stats",
     "src": "src/pages/Stats.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CAd84lJj.js"
+      "_vendor-DaUdUtt_.js",
+      "_useQuery-DTYHEBGi.js"
     ]
   }
 }
