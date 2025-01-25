@@ -4,21 +4,104 @@ import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
 
-// Lazy load components for better performance
-const Home = lazy(() => import('./pages/Home'))
-const About = lazy(() => import('./pages/About'))
-const Login = lazy(() => import('./pages/Login'))
-const Register = lazy(() => import('./pages/Register'))
-const Squads = lazy(() => import('./pages/Squads'))
-const Standings = lazy(() => import('./pages/Standings'))
-const Sends = lazy(() => import('./pages/Sends'))
-const Sessions = lazy(() => import('./pages/Sessions'))
-const Stats = lazy(() => import('./pages/Stats'))
-const Profile = lazy(() => import('./pages/Profile'))
-const Pricing = lazy(() => import('./pages/Pricing'))
-const Feedback = lazy(() => import('./pages/Feedback'))
+// Add debug logging
+const withDebugLogging = (Component: React.ComponentType, name: string) => {
+  return function DebugWrapper(props: any) {
+    console.log(`Rendering ${name} component`);
+    return <Component {...props} />;
+  };
+};
+
+// Lazy load components with debug logging
+const Home = lazy(() => {
+  console.log('Loading Home component');
+  return import('./pages/Home').then(module => {
+    console.log('Home component loaded');
+    return { default: withDebugLogging(module.default, 'Home') };
+  });
+});
+
+const About = lazy(() => {
+  console.log('Loading About component');
+  return import('./pages/About').then(module => {
+    console.log('About component loaded');
+    return { default: withDebugLogging(module.default, 'About') };
+  });
+});
+
+const Login = lazy(() => {
+  console.log('Loading Login component');
+  return import('./pages/Login').then(module => {
+    console.log('Login component loaded');
+    return { default: withDebugLogging(module.default, 'Login') };
+  });
+});
+const Register = lazy(() => {
+  console.log('Loading Register component');
+  return import('./pages/Register').then(module => {
+    console.log('Register component loaded');
+    return { default: withDebugLogging(module.default, 'Register') };
+  });
+});
+const Squads = lazy(() => {
+  console.log('Loading Squads component');
+  return import('./pages/Squads').then(module => {
+    console.log('Squads component loaded');
+    return { default: withDebugLogging(module.default, 'Squads') };
+  });
+});
+const Standings = lazy(() => {
+  console.log('Loading Standings component');
+  return import('./pages/Standings').then(module => {
+    console.log('Standings component loaded');
+    return { default: withDebugLogging(module.default, 'Standings') };
+  });
+});
+const Sends = lazy(() => {
+  console.log('Loading Sends component');
+  return import('./pages/Sends').then(module => {
+    console.log('Sends component loaded');
+    return { default: withDebugLogging(module.default, 'Sends') };
+  });
+});
+const Sessions = lazy(() => {
+  console.log('Loading Sessions component');
+  return import('./pages/Sessions').then(module => {
+    console.log('Sessions component loaded');
+    return { default: withDebugLogging(module.default, 'Sessions') };
+  });
+});
+const Stats = lazy(() => {
+  console.log('Loading Stats component');
+  return import('./pages/Stats').then(module => {
+    console.log('Stats component loaded');
+    return { default: withDebugLogging(module.default, 'Stats') };
+  });
+});
+const Profile = lazy(() => {
+  console.log('Loading Profile component');
+  return import('./pages/Profile').then(module => {
+    console.log('Profile component loaded');
+    return { default: withDebugLogging(module.default, 'Profile') };
+  });
+});
+const Pricing = lazy(() => {
+  console.log('Loading Pricing component');
+  return import('./pages/Pricing').then(module => {
+    console.log('Pricing component loaded');
+    return { default: withDebugLogging(module.default, 'Pricing') };
+  });
+});
+const Feedback = lazy(() => {
+  console.log('Loading Feedback component');
+  return import('./pages/Feedback').then(module => {
+    console.log('Feedback component loaded');
+    return { default: withDebugLogging(module.default, 'Feedback') };
+  });
+});
 
 const Router: React.FC = () => {
+  console.log('Router component rendering');
   return (
     <Routes>
       <Route element={<Layout />}>

@@ -27,7 +27,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'healthy' });
 });
 
-// Static file handling with explicit MIME types
+// Static file handling with explicit MIME types and debugging
 app.use('/', express.static(distPath, {
   index: false, // Disable auto-serving of index.html
   setHeaders: (res, filePath) => {
@@ -40,9 +40,9 @@ app.use('/', express.static(distPath, {
   }
 }));
 
-// Catch-all route for SPA
+// Catch-all route for SPA with detailed debugging
 app.get('*', (req, res) => {
-  console.log('Serving index.html for path:', req.path);
+  console.log('Catch-all route hit for path:', req.path);
   const indexPath = path.join(distPath, 'index.html');
 
   // Check if index.html exists
@@ -52,6 +52,8 @@ app.get('*', (req, res) => {
       if (err) {
         console.error('Error sending index.html:', err);
         res.status(500).send('Error loading application');
+      } else {
+        console.log('Successfully served index.html');
       }
     });
   } else {
