@@ -4,16 +4,16 @@ import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 
 // Lazy load components for better performance
-const Home = lazy(() => import('@/pages/Home'))
-const About = lazy(() => import('@/pages/About'))
-const Login = lazy(() => import('@/pages/Login'))
-const Register = lazy(() => import('@/pages/Register'))
-const Squads = lazy(() => import('@/pages/Squads'))
-const Standings = lazy(() => import('@/pages/Standings'))
-const Sends = lazy(() => import('@/pages/Sends'))
-const Sessions = lazy(() => import('@/pages/Sessions'))
-const Stats = lazy(() => import('@/pages/Stats'))
-const Profile = lazy(() => import('@/pages/Profile'))
+const Home = lazy(() => import('./pages/Home'))
+const About = lazy(() => import('./pages/About'))
+const Login = lazy(() => import('./pages/Login'))
+const Register = lazy(() => import('./pages/Register'))
+const Squads = lazy(() => import('./pages/Squads'))
+const Standings = lazy(() => import('./pages/Standings'))
+const Sends = lazy(() => import('./pages/Sends'))
+const Sessions = lazy(() => import('./pages/Sessions'))
+const Stats = lazy(() => import('./pages/Stats'))
+const Profile = lazy(() => import('./pages/Profile'))
 
 const Router: React.FC = () => {
   return (
