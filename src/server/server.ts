@@ -27,23 +27,33 @@ app.use(compression());
 app.use(cors());
 app.use(express.json());
 
-// Static files setup - Update to use absolute path
-const distPath = path.join(process.cwd(), 'dist');
+// Static files setup with absolute path
+const distPath = path.resolve(process.cwd(), 'dist');
 console.log('Static files directory:', distPath);
 
-// Check if dist directory exists and log its contents
+// Verify dist directory contents
 if (fs.existsSync(distPath)) {
   console.log('Dist directory contents:', fs.readdirSync(distPath));
+  console.log('Assets directory contents:', fs.readdirSync(path.join(distPath, 'assets')));
 } else {
   console.error('Dist directory not found at:', distPath);
 }
 
-// Serve static files - index.html will be served from root
+// Serve static files with proper MIME types
 app.use(express.static(distPath, {
-  index: false, // Don't auto-serve index.html
+  index: false, // Don't serve index.html automatically
   maxAge: '1h',
   etag: true,
-  lastModified: true
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    // Set proper content type for JavaScript files
+    if (filePath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+    // Set CORS headers for all static files
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'no-cache');
+  }
 }));
 
 // Health check
@@ -163,15 +173,15 @@ app.get('*', (req, res) => {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
-  // Log the request details
+  // Log request details
   console.log('Serving index.html for path:', req.path);
 
   const indexPath = path.join(distPath, 'index.html');
 
-  // Check if index.html exists and log its status
   if (fs.existsSync(indexPath)) {
     console.log('Found index.html at:', indexPath);
     res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(indexPath, (err) => {
       if (err) {
         console.error('Error sending index.html:', err);
@@ -184,9 +194,10 @@ app.get('*', (req, res) => {
   }
 });
 
-// Error handler
+// Error handler with detailed logging
 app.use((err, _req, res, _next) => {
   console.error('Server error:', err);
+  console.error('Stack trace:', err.stack);
   res.status(500).json({ error: 'Internal server error' });
 });
 
@@ -194,6 +205,7 @@ app.use((err, _req, res, _next) => {
 const port = Number(process.env.PORT || 5000);
 app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
+  console.log(`Static files being served from: ${distPath}`);
 });
 
 export { db };

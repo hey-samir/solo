@@ -21,15 +21,15 @@ args = "Database Migrations"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Build"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "API Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Build and Serve"
+args = "Production Build"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Preview Server"
 
 [[workflows.workflow]]
 name = "Database Migrations"
@@ -46,20 +46,6 @@ task = "shell.exec"
 args = "npx drizzle-kit generate:pg && ts-node src/server/db/migrate.ts"
 
 [[workflows.workflow]]
-name = "Production Build"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "rm -rf dist/* && NODE_ENV=production npx vite build"
-
-[[workflows.workflow]]
 name = "API Server"
 author = "agent"
 
@@ -74,7 +60,7 @@ task = "shell.exec"
 args = "echo \"Removing old workflow\""
 
 [[workflows.workflow]]
-name = "Build and Serve"
+name = "Production Build"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -85,7 +71,21 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npx vite preview --host --port 5000"
+args = "rm -rf dist/* && NODE_ENV=production npx vite build"
+
+[[workflows.workflow]]
+name = "Preview Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx vite preview --host --port 5000"
 waitForPort = 5000
 
 [[ports]]

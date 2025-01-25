@@ -11,16 +11,9 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     manifest: true,
-    assetsDir: 'assets',
     rollupOptions: {
       input: {
         main: path.resolve(process.cwd(), 'index.html')
-      },
-      output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-chart': ['chart.js', 'react-chartjs-2']
-        }
       }
     }
   },
@@ -29,37 +22,23 @@ export default defineConfig({
     port: 5000,
     strictPort: true,
     cors: true,
-    headers: {
-      "Cache-Control": "no-store",
-      "Access-Control-Allow-Origin": "*"
-    },
-    allowedHosts: [
-      'localhost',
-      '.replit.dev',
-      '.repl.co'
-    ]
+    hmr: {
+      host: 'localhost'
+    }
   },
   preview: {
     port: 5000,
     host: true,
     strictPort: true,
+    cors: true,
     headers: {
-      "Cache-Control": "no-store",
       "Access-Control-Allow-Origin": "*",
-      "Cross-Origin-Opener-Policy": "same-origin",
-      "Cross-Origin-Embedder-Policy": "require-corp"
+      "Cache-Control": "no-store"
     },
     allowedHosts: [
       'localhost',
       '.replit.dev',
       '.repl.co'
     ]
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@pages': path.resolve(__dirname, './src/pages')
-    }
   }
 })
