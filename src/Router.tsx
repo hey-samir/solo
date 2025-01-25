@@ -2,6 +2,7 @@ import React, { Suspense, lazy } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
+import ProtectedRoute from './components/ProtectedRoute'
 
 // Lazy load components for better performance
 const Home = lazy(() => import('./pages/Home'))
@@ -15,6 +16,7 @@ const Sessions = lazy(() => import('./pages/Sessions'))
 const Stats = lazy(() => import('./pages/Stats'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Pricing = lazy(() => import('./pages/Pricing'))
+const Feedback = lazy(() => import('./pages/Feedback'))
 
 const Router: React.FC = () => {
   return (
@@ -54,6 +56,14 @@ const Router: React.FC = () => {
           }
         />
         <Route
+          path="feedback"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Feedback />
+            </Suspense>
+          }
+        />
+        <Route
           path="home"
           element={
             <Suspense fallback={<LoadingSpinner />}>
@@ -62,12 +72,14 @@ const Router: React.FC = () => {
           }
         />
 
-        {/* Bottom Nav Routes */}
+        {/* Semi-Protected Routes (Viewable but with limited functionality) */}
         <Route
           path="squads"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Squads />
+              <ProtectedRoute requireAuth={false}>
+                <Squads />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -75,7 +87,9 @@ const Router: React.FC = () => {
           path="standings"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Standings />
+              <ProtectedRoute requireAuth={false}>
+                <Standings />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -83,15 +97,21 @@ const Router: React.FC = () => {
           path="sends"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Sends />
+              <ProtectedRoute requireAuth={false}>
+                <Sends />
+              </ProtectedRoute>
             </Suspense>
           }
         />
+
+        {/* Protected Routes (Require Authentication) */}
         <Route
           path="sessions"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Sessions />
+              <ProtectedRoute>
+                <Sessions />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -99,7 +119,9 @@ const Router: React.FC = () => {
           path="stats"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Stats />
+              <ProtectedRoute>
+                <Stats />
+              </ProtectedRoute>
             </Suspense>
           }
         />
@@ -107,7 +129,9 @@ const Router: React.FC = () => {
           path="profile"
           element={
             <Suspense fallback={<LoadingSpinner />}>
-              <Profile />
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
             </Suspense>
           }
         />

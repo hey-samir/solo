@@ -4,10 +4,31 @@ import cors from 'cors';
 import session from 'express-session';
 import passport from './middleware/auth';
 import authRoutes from './routes/auth';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './db/schema';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
-const distPath = path.resolve(process.cwd(), 'dist');
+
+// Database setup
+let db;
+try {
+  console.log('Connecting to database...');
+  const client = postgres(process.env.DATABASE_URL!, {
+    max: 20,
+    idle_timeout: 30,
+    connect_timeout: 10,
+  });
+  db = drizzle(client);
+  console.log('Database connection successful');
+} catch (error) {
+  console.error('Database connection failed:', error);
+  process.exit(1);
+}
 
 // CORS Configuration
 const corsOptions = {
@@ -62,6 +83,7 @@ app.get('/api/health', (_req: Request, res: Response) => {
 });
 
 // Serve static files with proper error handling
+const distPath = path.resolve(process.cwd(), 'dist');
 app.use(express.static(distPath, {
   fallthrough: true // Allow falling through to next middleware if file not found
 }));
@@ -90,4 +112,4 @@ if (require.main === module) {
   });
 }
 
-export { app };
+export { app, db };

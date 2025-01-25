@@ -4,9 +4,10 @@ import LoadingSpinner from './LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
+  requireAuth?: boolean;
 }
 
-const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
@@ -14,7 +15,8 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     return <LoadingSpinner />;
   }
 
-  if (!isAuthenticated) {
+  // If authentication is required and user is not authenticated
+  if (requireAuth && !isAuthenticated) {
     // Redirect to login page while saving the attempted url
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
