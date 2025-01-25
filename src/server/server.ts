@@ -5,6 +5,7 @@ import fs from 'fs';
 const app = express();
 const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
 const distPath = path.resolve(process.cwd(), 'dist');
+const assetsPath = path.resolve(process.cwd(), 'attached_assets');
 
 // Basic health check endpoint
 app.get('/api/health', (_req: Request, res: Response) => {
@@ -12,6 +13,18 @@ app.get('/api/health', (_req: Request, res: Response) => {
 });
 
 console.log('Setting up static file serving from:', distPath);
+console.log('Setting up assets serving from:', assetsPath);
+
+// Serve attached_assets directory
+app.use('/attached_assets', express.static(assetsPath, {
+  index: false,
+  setHeaders: (res: Response, filePath: string) => {
+    const ext = path.extname(filePath).toLowerCase();
+    if (['.png', '.jpg', '.jpeg', '.gif', '.svg'].includes(ext)) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year for images
+    }
+  }
+}));
 
 // Serve static files with proper MIME types
 app.use(express.static(distPath, {
@@ -19,7 +32,7 @@ app.use(express.static(distPath, {
   setHeaders: (res: Response, filePath: string) => {
     const ext = path.extname(filePath).toLowerCase();
     // Set cache control for static assets
-    if (ext === '.js' || ext === '.css' || ext === '.png' || ext === '.jpg' || ext === '.svg') {
+    if (ext === '.js' || ext === '.css' || ['png', '.jpg', '.jpeg', '.gif', '.svg'].includes(ext)) {
       res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year
     } else {
       res.setHeader('Cache-Control', 'no-cache');
@@ -59,18 +72,16 @@ app.get('*', (req: Request, res: Response) => {
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${port}`);
   console.log('Static files directory:', distPath);
+  console.log('Assets directory:', assetsPath);
 
   try {
     const files = fs.readdirSync(distPath);
     console.log('Available files:', files);
 
-    const assetsPath = path.join(distPath, 'assets');
-    if (fs.existsSync(assetsPath)) {
-      const assetFiles = fs.readdirSync(assetsPath);
-      console.log('Assets directory contents:', assetFiles);
-    }
+    const assetFiles = fs.readdirSync(assetsPath);
+    console.log('Assets directory contents:', assetFiles);
   } catch (error) {
-    console.error('Error reading dist directory:', error);
+    console.error('Error reading directories:', error);
   }
 });
 

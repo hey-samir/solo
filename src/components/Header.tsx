@@ -9,13 +9,13 @@ const Header: React.FC = () => {
   return (
     <>
       <header className="bg-solo-purple">
-        <div className="header-container d-flex justify-content-between align-items-center">
-          <Link to="/sends" className="d-inline-block">
+        <div className="header-container d-flex justify-content-between align-items-center px-3 py-2">
+          <Link to="/about" className="d-inline-block">
             <img 
-              src="/static/images/solo-clear.png"
+              src="/attached_assets/solo.png"
               alt="Solo Logo" 
               className="header-logo"
-              height="50"
+              style={{ height: '40px', width: 'auto' }}
             />
           </Link>
           <div className="d-flex align-items-center">
