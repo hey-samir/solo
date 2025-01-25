@@ -30,7 +30,8 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        ws: true
+        ws: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
       },
       '/auth': {
         target: 'http://localhost:5000',
@@ -38,11 +39,20 @@ export default defineConfig({
         secure: false,
         ws: true
       }
-    }
+    },
+    cors: true
   },
   preview: {
     port: 3000,
     host: true,
     strictPort: true
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@pages': path.resolve(__dirname, './src/pages'),
+      '@api': path.resolve(__dirname, './src/api')
+    }
   }
 })
