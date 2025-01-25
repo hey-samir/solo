@@ -10,22 +10,33 @@ const assetsPath = path.resolve(process.cwd(), 'attached_assets');
 // CORS Configuration
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    if (!origin || process.env.NODE_ENV === 'development') {
+    // Always allow in development mode
+    if (process.env.NODE_ENV === 'development') {
       callback(null, true);
       return;
     }
+
+    // Production allowed domains
     const allowedDomains = [
       /\.repl\.co$/,
       /\.replit\.dev$/,
-      /^https?:\/\/localhost/,
-      /^http?:\/\/localhost/
+      /^https?:\/\/localhost/
     ];
+
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
     const isAllowed = allowedDomains.some(domain => domain.test(origin));
     callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
+// Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 
@@ -49,13 +60,22 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Only start the server if this file is being run directly
+// Start server only if this file is being run directly
 if (require.main === module) {
-  app.listen(port, '0.0.0.0', () => {
+  const server = app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${port}`);
   }).on('error', (error) => {
     console.error('Server failed to start:', error);
     process.exit(1);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+      console.log('HTTP server closed');
+      process.exit(0);
+    });
   });
 }
 

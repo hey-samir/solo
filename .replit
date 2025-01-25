@@ -11,22 +11,6 @@ run = ["sh", "-c", "NODE_ENV=production npx vite build && node src/server/server
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development npx tsx watch src/server/server.ts"
-waitForPort = 5000
-
-[[workflows.workflow]]
 name = "Database Migrations"
 author = "agent"
 
@@ -39,21 +23,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx drizzle-kit generate:pg && ts-node src/server/db/migrate.ts"
-
-[[workflows.workflow]]
-name = "API Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run build && NODE_ENV=development npx tsx watch src/server/server.ts"
-waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Build"
@@ -70,7 +39,7 @@ task = "shell.exec"
 args = "NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
-name = "Server"
+name = "API Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -96,7 +65,31 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "npx vite --port 3000"
+waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx concurrently \"NODE_ENV=development npx tsx watch src/server/server.ts\" \"npx vite --port 3000\""
 waitForPort = 3000
 
 [[ports]]
