@@ -57,7 +57,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo \"Removing old workflow\""
+args = "ts-node src/server/server.ts"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Production Build"

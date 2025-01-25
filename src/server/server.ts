@@ -1,4 +1,5 @@
-import express from 'express';
+import express, { Request, Response, NextFunction, Router } from 'express';
+import { ParamsDictionary } from 'express-serve-static-core';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -12,6 +13,7 @@ import fs from 'fs';
 dotenv.config();
 
 const app = express();
+const router = Router();
 
 // Database setup
 if (!process.env.DATABASE_URL) {
@@ -41,28 +43,35 @@ if (fs.existsSync(distPath)) {
 
 // Serve static files with proper MIME types
 app.use(express.static(distPath, {
-  index: false, // Don't serve index.html automatically
+  index: false,
   maxAge: '1h',
   etag: true,
   lastModified: true,
-  setHeaders: (res, filePath) => {
-    // Set proper content type for JavaScript files
+  setHeaders: (res: Response, filePath: string) => {
     if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
     }
-    // Set CORS headers for all static files
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Cache-Control', 'no-cache');
   }
 }));
 
+// API Routes
+interface UserParams extends ParamsDictionary {
+  username: string;
+}
+
+interface UserIdParams extends ParamsDictionary {
+  userId: string;
+}
+
 // Health check
-app.get('/api/health', (_req, res) => {
+router.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// API Routes
-app.get('/api/user/:username', async (req, res) => {
+// User routes
+router.get('/user/:username', async (req: Request<UserParams>, res: Response) => {
   try {
     const user = await db.select().from(users).where(eq(users.username, req.params.username)).limit(1);
     if (!user || user.length === 0) {
@@ -75,8 +84,7 @@ app.get('/api/user/:username', async (req, res) => {
   }
 });
 
-// User Stats
-app.get('/api/user/:userId/stats', async (req, res) => {
+router.get('/user/:userId/stats', async (req: Request<UserIdParams>, res: Response) => {
   try {
     const userId = parseInt(req.params.userId);
     const userClimbs = await db.select().from(climbs).where(eq(climbs.userId, userId));
@@ -87,9 +95,9 @@ app.get('/api/user/:userId/stats', async (req, res) => {
       totalPoints: userClimbs.reduce((sum, c) => sum + (c.points || 0), 0),
       avgGrade: calculateAverageGrade(userClimbs),
       avgSentGrade: calculateAverageGrade(userClimbs.filter(c => c.status === true)),
-      avgPointsPerClimb: userClimbs.length ?
+      avgPointsPerClimb: userClimbs.length ? 
         userClimbs.reduce((sum, c) => sum + (c.points || 0), 0) / userClimbs.length : 0,
-      successRate: userClimbs.length ?
+      successRate: userClimbs.length ? 
         (userClimbs.filter(c => c.status === true).length / userClimbs.length) * 100 : 0,
       successRatePerSession: calculateSuccessRatePerSession(userClimbs),
       climbsPerSession: calculateClimbsPerSession(userClimbs),
@@ -104,7 +112,7 @@ app.get('/api/user/:userId/stats', async (req, res) => {
 });
 
 // Routes routes
-app.get('/api/routes', async (req, res) => {
+router.get('/routes', async (req: Request, res: Response) => {
   try {
     const gymId = req.query.gymId;
     if (!gymId) {
@@ -124,7 +132,7 @@ app.get('/api/routes', async (req, res) => {
 });
 
 // Climbs routes
-app.get('/api/climbs', async (req, res) => {
+router.get('/climbs', async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId;
     if (!userId) {
@@ -145,7 +153,7 @@ app.get('/api/climbs', async (req, res) => {
 });
 
 // Standings route
-app.get('/api/standings', async (_req, res) => {
+router.get('/standings', async (_req: Request, res: Response) => {
   try {
     const standings = await db
       .select({
@@ -166,16 +174,16 @@ app.get('/api/standings', async (_req, res) => {
   }
 });
 
+// Mount API routes
+app.use('/api', router);
+
 // Serve index.html for all non-API routes (SPA support)
-app.get('*', (req, res) => {
-  // Skip API routes
+app.get('*', (req: Request, res: Response) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
-  // Log request details
   console.log('Serving index.html for path:', req.path);
-
   const indexPath = path.join(distPath, 'index.html');
 
   if (fs.existsSync(indexPath)) {
@@ -194,8 +202,8 @@ app.get('*', (req, res) => {
   }
 });
 
-// Error handler with detailed logging
-app.use((err: any, _req: any, res: any, _next: any) => {
+// Error handler
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Server error:', err);
   console.error('Stack trace:', err.stack);
   res.status(500).json({ error: 'Internal server error' });
@@ -208,24 +216,33 @@ app.listen(port, '0.0.0.0', () => {
   console.log(`Static files being served from: ${distPath}`);
 });
 
-export { db };
-
+// Helper functions
 function calculateAverageGrade(climbs: any[]): number {
-  //Implementation for calculateAverageGrade
-  return 0;
+  return climbs.reduce((sum, climb) => sum + climb.gradeId, 0) / climbs.length || 0;
 }
 
 function calculateSuccessRatePerSession(climbs: any[]): number {
-  //Implementation for calculateSuccessRatePerSession
-  return 0;
+  if (!climbs.length) return 0;
+  const sessions = new Map();
+  climbs.forEach(climb => {
+    const date = new Date(climb.createdAt).toDateString();
+    const session = sessions.get(date) || { total: 0, success: 0 };
+    session.total++;
+    if (climb.status) session.success++;
+    sessions.set(date, session);
+  });
+  return Array.from(sessions.values())
+    .reduce((sum, session) => sum + (session.success / session.total), 0) / sessions.size * 100;
 }
 
 function calculateClimbsPerSession(climbs: any[]): number {
-  //Implementation for calculateClimbsPerSession
-  return 0;
+  if (!climbs.length) return 0;
+  const sessions = new Set(climbs.map(climb => new Date(climb.createdAt).toDateString()));
+  return climbs.length / sessions.size;
 }
 
 function calculateAverageAttempts(climbs: any[]): number {
-  //Implementation for calculateAverageAttempts
-  return 0;
+  return climbs.reduce((sum, climb) => sum + climb.tries, 0) / climbs.length || 0;
 }
+
+export { app, db };
