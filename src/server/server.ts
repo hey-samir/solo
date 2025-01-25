@@ -9,7 +9,6 @@ import compression from 'compression';
 dotenv.config();
 
 const app = express();
-const port = Number(process.env.PORT) || 5000;
 
 // Basic middleware setup
 app.use(morgan('dev')); // Logging
@@ -54,30 +53,13 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   });
 });
 
-// Start server with proper error handling
-if (require.main === module) {
-  const server = app.listen(port, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${port} in ${process.env.NODE_ENV || 'development'} mode`);
-  });
-
-  server.on('error', (error: NodeJS.ErrnoException) => {
-    if (error.code === 'EADDRINUSE') {
-      console.error(`Port ${port} is already in use`);
-      process.exit(1);
-    } else {
-      console.error('Server failed to start:', error);
-      process.exit(1);
-    }
-  });
-
-  // Handle graceful shutdown
-  process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received: closing HTTP server');
-    server.close(() => {
-      console.log('HTTP server closed');
-      process.exit(0);
-    });
-  });
-}
+// Start server
+const PORT = parseInt(process.env.PORT || '5000', 10);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+}).on('error', (error: NodeJS.ErrnoException) => {
+  console.error('Server failed to start:', error);
+  process.exit(1);
+});
 
 export { app };
