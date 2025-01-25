@@ -43,6 +43,10 @@ var postgres = require('postgres');
 var drizzle = require('drizzle-orm/postgres-js').drizzle;
 var schema = require('./db/schema');
 var eq = require('drizzle-orm').eq;
+const session = require('express-session');
+const passport = require('./middleware/auth').default;
+const authRoutes = require('./routes/auth').default;
+
 dotenv.config();
 // Initialize express app
 var app = express();
@@ -86,6 +90,21 @@ var corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
+// Session configuration
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+}));
+// Initialize Passport and restore authentication state from session
+app.use(passport.initialize());
+app.use(passport.session());
+// Auth routes
+app.use('/auth', authRoutes);
 // Serve static files from the dist directory
 var distPath = path.join(__dirname, '../../dist');
 console.log('Static files path:', distPath);
