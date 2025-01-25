@@ -3,7 +3,7 @@
     "target": "ES2020",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
-    "moduleResolution": "Bundler",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -15,10 +15,10 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@pages/*": ["src/pages/*"],
-      "@api/*": ["src/api/*"]
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@pages/*": ["./src/pages/*"],
+      "@api/*": ["./src/api/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
