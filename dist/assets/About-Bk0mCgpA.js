@@ -14,4 +14,3 @@ import{j as e}from"./index-e4rImrZW.js";const o=()=>e.jsxs("div",{className:"con
     • Stars: Your rating of the route quality
     • Date: When you climbed the route
     • Session: Which climbing session it belongs to`}];export{o as default};
-//# sourceMappingURL=About-Bk0mCgpA.js.map

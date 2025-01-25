@@ -13,6 +13,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     manifest: true,
+    assetsDir: 'assets',
     rollupOptions: {
       output: {
         manualChunks: undefined
