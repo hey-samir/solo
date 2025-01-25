@@ -19,12 +19,15 @@ const Pricing = lazy(() => import('./pages/Pricing'))
 const Feedback = lazy(() => import('./pages/Feedback'))
 
 const Router: React.FC = () => {
-  console.log('Router rendering...') // Add debug log
-
   return (
     <Routes>
       <Route element={<Layout />}>
         {/* Public Routes */}
+        <Route path="/" element={
+          <Suspense fallback={<LoadingSpinner />}>
+            <About />
+          </Suspense>
+        } />
         <Route path="/about" element={
           <Suspense fallback={<LoadingSpinner />}>
             <About />
@@ -102,9 +105,8 @@ const Router: React.FC = () => {
           </Suspense>
         } />
 
-        {/* Root and fallback routes */}
-        <Route index element={<Navigate to="/about" replace />} />
-        <Route path="*" element={<Navigate to="/about" replace />} />
+        {/* Catch all route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
   )

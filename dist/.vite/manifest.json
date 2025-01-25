@@ -1,21 +1,21 @@
 {
-  "_useMutation-DAQl2rDR.js": {
-    "file": "assets/useMutation-DAQl2rDR.js",
+  "_useMutation-DafD2ZRv.js": {
+    "file": "assets/useMutation-DafD2ZRv.js",
     "name": "useMutation",
     "imports": [
       "index.html",
-      "_useQuery-CSznpydk.js"
+      "_useQuery-DE8jeJnh.js"
     ]
   },
-  "_useQuery-CSznpydk.js": {
-    "file": "assets/useQuery-CSznpydk.js",
+  "_useQuery-DE8jeJnh.js": {
+    "file": "assets/useQuery-DE8jeJnh.js",
     "name": "useQuery",
     "imports": [
       "index.html"
     ]
   },
   "index.html": {
-    "file": "assets/main-DohFXRKT.js",
+    "file": "assets/main-B8_Mm_QN.js",
     "name": "main",
     "src": "index.html",
     "isEntry": true,
@@ -38,7 +38,7 @@
     ]
   },
   "src/pages/About.tsx": {
-    "file": "assets/About-DimOjQYK.js",
+    "file": "assets/About-BQd3mUR4.js",
     "name": "About",
     "src": "src/pages/About.tsx",
     "isDynamicEntry": true,
@@ -47,18 +47,18 @@
     ]
   },
   "src/pages/Feedback.tsx": {
-    "file": "assets/Feedback-DR1_VkzG.js",
+    "file": "assets/Feedback-CsSy9tyq.js",
     "name": "Feedback",
     "src": "src/pages/Feedback.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CSznpydk.js",
-      "_useMutation-DAQl2rDR.js"
+      "_useQuery-DE8jeJnh.js",
+      "_useMutation-DafD2ZRv.js"
     ]
   },
   "src/pages/Home.tsx": {
-    "file": "assets/Home-CuB2s7nc.js",
+    "file": "assets/Home-CplmYFHm.js",
     "name": "Home",
     "src": "src/pages/Home.tsx",
     "isDynamicEntry": true,
@@ -67,7 +67,7 @@
     ]
   },
   "src/pages/Login.tsx": {
-    "file": "assets/Login-aqoTVYH2.js",
+    "file": "assets/Login-B4zOfIWq.js",
     "name": "Login",
     "src": "src/pages/Login.tsx",
     "isDynamicEntry": true,
@@ -76,7 +76,7 @@
     ]
   },
   "src/pages/Pricing.tsx": {
-    "file": "assets/Pricing-C38nrofL.js",
+    "file": "assets/Pricing-Dyg8i2Em.js",
     "name": "Pricing",
     "src": "src/pages/Pricing.tsx",
     "isDynamicEntry": true,
@@ -85,48 +85,48 @@
     ]
   },
   "src/pages/Profile.tsx": {
-    "file": "assets/Profile-7mJ2esOm.js",
+    "file": "assets/Profile-DVSOptWV.js",
     "name": "Profile",
     "src": "src/pages/Profile.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CSznpydk.js"
+      "_useQuery-DE8jeJnh.js"
     ]
   },
   "src/pages/Register.tsx": {
-    "file": "assets/Register-CNqnoIiI.js",
+    "file": "assets/Register-Cpr6DE1i.js",
     "name": "Register",
     "src": "src/pages/Register.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CSznpydk.js"
+      "_useQuery-DE8jeJnh.js"
     ]
   },
   "src/pages/Sends.tsx": {
-    "file": "assets/Sends-jjg4XA_8.js",
+    "file": "assets/Sends-D9eV6iTy.js",
     "name": "Sends",
     "src": "src/pages/Sends.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CSznpydk.js",
-      "_useMutation-DAQl2rDR.js"
+      "_useQuery-DE8jeJnh.js",
+      "_useMutation-DafD2ZRv.js"
     ]
   },
   "src/pages/Sessions.tsx": {
-    "file": "assets/Sessions-qRuXfv5h.js",
+    "file": "assets/Sessions-FsvSRTZW.js",
     "name": "Sessions",
     "src": "src/pages/Sessions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CSznpydk.js"
+      "_useQuery-DE8jeJnh.js"
     ]
   },
   "src/pages/Squads.tsx": {
-    "file": "assets/Squads-CStFhiEB.js",
+    "file": "assets/Squads-BznFQyst.js",
     "name": "Squads",
     "src": "src/pages/Squads.tsx",
     "isDynamicEntry": true,
@@ -135,23 +135,23 @@
     ]
   },
   "src/pages/Standings.tsx": {
-    "file": "assets/Standings-xuQBD-gX.js",
+    "file": "assets/Standings-B_94Ss-W.js",
     "name": "Standings",
     "src": "src/pages/Standings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CSznpydk.js"
+      "_useQuery-DE8jeJnh.js"
     ]
   },
   "src/pages/Stats.tsx": {
-    "file": "assets/Stats-DK_qUeyf.js",
+    "file": "assets/Stats-BBj8JFcQ.js",
     "name": "Stats",
     "src": "src/pages/Stats.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-CSznpydk.js"
+      "_useQuery-DE8jeJnh.js"
     ]
   }
 }

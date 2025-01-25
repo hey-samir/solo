@@ -9,12 +9,14 @@ dotenv.config();
 const app = express();
 const port = Number(process.env.PORT) || 5000;
 
-// Basic middleware
+// CORS Configuration with proper origins
 app.use(cors({
   origin: process.env.NODE_ENV === 'development' 
     ? ['http://localhost:3000'] 
     : ['https://gosolo.nyc', /\.repl\.co$/, /\.replit\.dev$/],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -27,7 +29,7 @@ if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(__dirname, '../../dist');
   app.use(express.static(distPath));
 
-  // SPA fallback
+  // SPA fallback for production
   app.get('*', (_req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
