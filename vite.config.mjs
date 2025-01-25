@@ -22,9 +22,12 @@ export default defineConfig({
     }
   },
   server: {
-    host: true,
+    host: '0.0.0.0',
     port: 3000,
-    strictPort: true,
+    strictPort: false,
+    hmr: {
+      clientPort: 443
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
@@ -44,8 +47,8 @@ export default defineConfig({
   },
   preview: {
     port: 3000,
-    host: true,
-    strictPort: true
+    host: '0.0.0.0',
+    strictPort: false
   },
   resolve: {
     alias: {
