@@ -1,10 +1,18 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import client from '../api/client';
 
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  profilePhoto?: string;
+  memberSince: Date;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
-  user: any | null;
-  logout: () => void;
+  user: User | null;
+  logout: () => Promise<void>;
   loading: boolean;
 }
 
@@ -20,15 +28,17 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const response = await client.get('/auth/current-user');
-        setUser(response.data);
-        setIsAuthenticated(true);
+        if (response.data) {
+          setUser(response.data);
+          setIsAuthenticated(true);
+        }
       } catch (error) {
         setUser(null);
         setIsAuthenticated(false);
@@ -45,6 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       await client.get('/auth/logout');
       setUser(null);
       setIsAuthenticated(false);
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
     }

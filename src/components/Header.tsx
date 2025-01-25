@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, user, logout } = useAuth()
 
   const handleLogout = async () => {
     await logout();
@@ -46,7 +46,7 @@ const Header: React.FC = () => {
         </div>
         <div className="offcanvas-body px-3 pt-0">
           <div className="list-group list-group-flush">
-            {isAuthenticated && (
+            {isAuthenticated && user && (
               <Link 
                 to="/profile"
                 className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
@@ -72,25 +72,7 @@ const Header: React.FC = () => {
               <i className="material-icons">rate_review</i>
               <span className="ms-3">Feedback</span>
             </Link>
-            <Link 
-              to="/pricing"
-              className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <i className="material-icons">star</i>
-              <span className="ms-3 d-flex align-items-center">
-                Solo <span className="pro-badge ms-1">PRO</span>
-              </span>
-            </Link>
-            {isAuthenticated ? (
-              <button
-                onClick={handleLogout}
-                className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
-              >
-                <i className="material-icons">logout</i>
-                <span className="ms-3">Logout</span>
-              </button>
-            ) : (
+            {!isAuthenticated ? (
               <Link
                 to="/login"
                 className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
@@ -99,6 +81,26 @@ const Header: React.FC = () => {
                 <i className="material-icons">login</i>
                 <span className="ms-3">Login</span>
               </Link>
+            ) : (
+              <>
+                <Link 
+                  to="/pricing"
+                  className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <i className="material-icons">star</i>
+                  <span className="ms-3 d-flex align-items-center">
+                    Solo <span className="pro-badge ms-1">PRO</span>
+                  </span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
+                >
+                  <i className="material-icons">logout</i>
+                  <span className="ms-3">Logout</span>
+                </button>
+              </>
             )}
           </div>
         </div>

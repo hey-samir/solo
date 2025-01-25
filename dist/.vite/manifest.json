@@ -1,13 +1,13 @@
 {
-  "_useQuery-ChFaondW.js": {
-    "file": "assets/useQuery-ChFaondW.js",
+  "_useQuery-CrhzBI2S.js": {
+    "file": "assets/useQuery-CrhzBI2S.js",
     "name": "useQuery",
     "imports": [
       "index.html"
     ]
   },
   "index.html": {
-    "file": "assets/main-BY03o5tl.js",
+    "file": "assets/main-CddT-xoj.js",
     "name": "main",
     "src": "index.html",
     "isEntry": true,
@@ -29,7 +29,7 @@
     ]
   },
   "src/pages/About.tsx": {
-    "file": "assets/About-Ciz9PwGe.js",
+    "file": "assets/About-Bz4L0KQc.js",
     "name": "About",
     "src": "src/pages/About.tsx",
     "isDynamicEntry": true,
@@ -38,7 +38,7 @@
     ]
   },
   "src/pages/Home.tsx": {
-    "file": "assets/Home-BazCsV74.js",
+    "file": "assets/Home-0BTBzoLf.js",
     "name": "Home",
     "src": "src/pages/Home.tsx",
     "isDynamicEntry": true,
@@ -47,7 +47,7 @@
     ]
   },
   "src/pages/Login.tsx": {
-    "file": "assets/Login-Q75xZeyT.js",
+    "file": "assets/Login-Ci-190XV.js",
     "name": "Login",
     "src": "src/pages/Login.tsx",
     "isDynamicEntry": true,
@@ -56,7 +56,7 @@
     ]
   },
   "src/pages/Pricing.tsx": {
-    "file": "assets/Pricing-DvS0wlGN.js",
+    "file": "assets/Pricing-BH-7vUjx.js",
     "name": "Pricing",
     "src": "src/pages/Pricing.tsx",
     "isDynamicEntry": true,
@@ -65,47 +65,47 @@
     ]
   },
   "src/pages/Profile.tsx": {
-    "file": "assets/Profile-CREwhQaS.js",
+    "file": "assets/Profile-DRRFwLWD.js",
     "name": "Profile",
     "src": "src/pages/Profile.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-ChFaondW.js"
+      "_useQuery-CrhzBI2S.js"
     ]
   },
   "src/pages/Register.tsx": {
-    "file": "assets/Register-DVoepW6L.js",
+    "file": "assets/Register-MaymzppX.js",
     "name": "Register",
     "src": "src/pages/Register.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-ChFaondW.js"
+      "_useQuery-CrhzBI2S.js"
     ]
   },
   "src/pages/Sends.tsx": {
-    "file": "assets/Sends-DP05ujaF.js",
+    "file": "assets/Sends-BpaHeuOJ.js",
     "name": "Sends",
     "src": "src/pages/Sends.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-ChFaondW.js"
+      "_useQuery-CrhzBI2S.js"
     ]
   },
   "src/pages/Sessions.tsx": {
-    "file": "assets/Sessions-DlKbMRYc.js",
+    "file": "assets/Sessions-BJtkBdzJ.js",
     "name": "Sessions",
     "src": "src/pages/Sessions.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-ChFaondW.js"
+      "_useQuery-CrhzBI2S.js"
     ]
   },
   "src/pages/Squads.tsx": {
-    "file": "assets/Squads-SLCJ73jt.js",
+    "file": "assets/Squads-BcwNA2ex.js",
     "name": "Squads",
     "src": "src/pages/Squads.tsx",
     "isDynamicEntry": true,
@@ -114,23 +114,23 @@
     ]
   },
   "src/pages/Standings.tsx": {
-    "file": "assets/Standings-DzNim9Fp.js",
+    "file": "assets/Standings-DLjQKXWt.js",
     "name": "Standings",
     "src": "src/pages/Standings.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-ChFaondW.js"
+      "_useQuery-CrhzBI2S.js"
     ]
   },
   "src/pages/Stats.tsx": {
-    "file": "assets/Stats-DyEPXxtv.js",
+    "file": "assets/Stats-BQj8qdJG.js",
     "name": "Stats",
     "src": "src/pages/Stats.tsx",
     "isDynamicEntry": true,
     "imports": [
       "index.html",
-      "_useQuery-ChFaondW.js"
+      "_useQuery-CrhzBI2S.js"
     ]
   }
 }
