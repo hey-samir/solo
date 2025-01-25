@@ -14,6 +14,7 @@ const Sends = lazy(() => import('./pages/Sends'))
 const Sessions = lazy(() => import('./pages/Sessions'))
 const Stats = lazy(() => import('./pages/Stats'))
 const Profile = lazy(() => import('./pages/Profile'))
+const Pricing = lazy(() => import('./pages/Pricing'))
 
 const Router: React.FC = () => {
   return (
@@ -41,6 +42,14 @@ const Router: React.FC = () => {
           element={
             <Suspense fallback={<LoadingSpinner />}>
               <Register />
+            </Suspense>
+          }
+        />
+        <Route
+          path="pricing"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <Pricing />
             </Suspense>
           }
         />

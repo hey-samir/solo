@@ -39,21 +39,6 @@ task = "shell.exec"
 args = "NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
-name = "API Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development npx tsx watch src/server/server.ts"
-waitForPort = 5000
-
-[[workflows.workflow]]
 name = "Development Server"
 author = "agent"
 
@@ -77,6 +62,14 @@ author = "agent"
 task = "workflow.run"
 args = "Project"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "API Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development Server"
+
 [[workflows.workflow]]
 name = "Project"
 author = "agent"
@@ -87,10 +80,20 @@ agentRequireRestartOnSave = false
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
 
+[[workflows.workflow]]
+name = "API Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx concurrently \"NODE_ENV=development npx tsx watch src/server/server.ts\" \"npx vite --port 3000\""
-waitForPort = 3000
+args = "NODE_ENV=development npx tsx watch src/server/server.ts"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3000
