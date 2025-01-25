@@ -5,7 +5,7 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   root: process.cwd(),
-  base: './',
+  base: '/',
   publicDir: 'public',
   build: {
     outDir: 'dist',
@@ -15,18 +15,45 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: path.resolve(process.cwd(), 'index.html')
+      },
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-chart': ['chart.js', 'react-chartjs-2']
+        }
       }
     }
   },
   server: {
-    host: '0.0.0.0',
+    host: true,
     port: 5000,
-    strictPort: true
+    strictPort: true,
+    cors: true,
+    headers: {
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*"
+    },
+    allowedHosts: [
+      'localhost',
+      '.replit.dev',
+      '.repl.co'
+    ]
   },
   preview: {
     port: 5000,
-    host: '0.0.0.0',
-    strictPort: true
+    host: true,
+    strictPort: true,
+    headers: {
+      "Cache-Control": "no-store",
+      "Access-Control-Allow-Origin": "*",
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp"
+    },
+    allowedHosts: [
+      'localhost',
+      '.replit.dev',
+      '.repl.co'
+    ]
   },
   resolve: {
     alias: {

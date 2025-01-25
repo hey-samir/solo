@@ -85,7 +85,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npx vite preview --host 0.0.0.0 --port 5000"
+args = "NODE_ENV=production npx vite preview --host --port 5000"
 waitForPort = 5000
 
 [[ports]]
