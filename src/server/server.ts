@@ -195,7 +195,7 @@ app.get('*', (req, res) => {
 });
 
 // Error handler with detailed logging
-app.use((err, _req, res, _next) => {
+app.use((err: any, _req: any, res: any, _next: any) => {
   console.error('Server error:', err);
   console.error('Stack trace:', err.stack);
   res.status(500).json({ error: 'Internal server error' });
