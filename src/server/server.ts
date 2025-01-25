@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? ['https://gosolo.nyc', /\.repl\.co$/, /\.replit\.dev$/]
-    : ['http://localhost:3000', /\.repl\.co$/, /\.replit\.dev$/],
+    : true,
   credentials: true
 }));
 
@@ -23,20 +23,39 @@ app.get('/api/health', (_req, res) => {
 
 // Serve static files from the dist directory
 const distPath = path.join(__dirname, '../../dist');
+console.log('Serving static files from:', distPath);
+
+// Serve static files with proper mime types
 app.use(express.static(distPath, {
-  index: false // Don't serve index.html for every request
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+  }
 }));
 
-// SPA fallback - must come after static file serving
-app.get('*', (_req, res) => {
+// API routes go here (before the catch-all)
+app.get('/api/*', (_req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
+// SPA catch-all route - must be last
+app.get('*', (req, res) => {
+  console.log('Serving index.html for path:', req.path);
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-// Ensure PORT is properly typed
 const PORT = Number(process.env.PORT) || 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  console.log('Application URLs:');
+  console.log(`- Local: http://localhost:${PORT}`);
+  console.log(`- Network: http://0.0.0.0:${PORT}`);
 });
 
 export { app };
