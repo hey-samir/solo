@@ -1,81 +1,85 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="sends-container">
-    <div class="card w-100">
-        <div class="card-body p-0">
-                <form action="{{ url_for('routes.sends') }}" method="POST" id="ascentForm" class="w-100">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <table class="table table-form w-100">
-                        <tbody>
-                            <tr>
-                                <td class="form-label-cell"><label class="form-label required-field">Route</label></td>
-                                <td class="form-input-cell">
-                                    <select class="form-select form-select-lg custom-select" name="route_id" required>
-                                        <option value="" selected disabled>Select a route</option>
-                                        {% for route in routes %}
-                                        <option value="{{ route.id }}" 
-                                                data-color="{{ route.color }}"
-                                                data-grade="{{ route.grade }}"
-                                                class="route-option">
-                                            <span class="color-dot"></span>
-                                            {{ route.color }} {{ route.grade }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="form-label-cell"><label class="form-label required-field">Tries</label></td>
-                                <td class="form-input-cell">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <input type="range" name="tries" id="triesSlider"
-                                               data-slider-min="1" 
-                                               data-slider-max="10" 
-                                               data-slider-step="1" 
-                                               data-slider-value="1"/>
-                                        <span id="triesCounter" class="text-white">1</span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="form-label-cell"><label class="form-label required-field">Status</label></td>
-                                <td class="form-input-cell">
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input custom-switch" type="checkbox" role="switch" id="statusToggle" name="status" checked>
-                                        <label class="form-check-label" for="statusToggle" id="statusLabel">Sent</label>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="form-label-cell"><label class="form-label required-field">Stars</label></td>
-                                <td class="form-input-cell">
-                                    <div class="rating-container">
-                                        <input type="hidden" name="rating" id="ratingInput" value="3">
-                                        <div class="rating">
-                                            <i class="rating-star bi bi-star-fill"></i>
-                                            <i class="rating-star bi bi-star-fill"></i>
-                                            <i class="rating-star bi bi-star-fill"></i>
-                                            <i class="rating-star bi bi-star-fill"></i>
-                                            <i class="rating-star bi bi-star-fill"></i>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="form-label-cell"><label class="form-label">Notes</label></td>
-                                <td class="form-input-cell">
-                                    <textarea class="form-control form-control-lg" name="notes" rows="3"></textarea>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="px-3 pb-3 w-100">
-                        <button type="submit" class="btn btn-primary btn-lg w-100">Send</button>
-                        <div id="pointsEstimate" class="text-white mt-3 text-center fs-6">Points: 0</div>
+<div class="w-full max-w-7xl mx-auto px-4 py-4 mb-navbar">
+    <div class="bg-bg-card rounded-card shadow-card">
+        <div class="p-0">
+            <form action="{{ url_for('routes.sends') }}" method="POST" id="ascentForm" class="w-full">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="divide-y divide-border-default">
+                    <div class="p-4 space-y-4">
+                        <!-- Route Selection -->
+                        <div class="flex flex-col space-y-2">
+                            <label class="text-text-muted font-semibold text-sm after:content-['*'] after:text-solo-purple after:ml-1">Route</label>
+                            <select name="route_id" required 
+                                    class="w-full bg-bg-primary text-text-primary border border-border-default rounded-card px-4 py-3 focus:border-solo-purple focus:ring-1 focus:ring-solo-purple">
+                                <option value="" selected disabled>Select a route</option>
+                                {% for route in routes %}
+                                <option value="{{ route.id }}" 
+                                        data-color="{{ route.color }}"
+                                        data-grade="{{ route.grade }}"
+                                        class="flex items-center py-2">
+                                    <span class="inline-block w-3 h-3 rounded-full border border-border-default mr-2"></span>
+                                    {{ route.color }} {{ route.grade }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Tries Counter -->
+                        <div class="flex flex-col space-y-2">
+                            <label class="text-text-muted font-semibold text-sm after:content-['*'] after:text-solo-purple after:ml-1">Tries</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="range" name="tries" id="triesSlider"
+                                       class="w-48 accent-solo-purple"
+                                       min="1" max="10" step="1" value="1"/>
+                                <span id="triesCounter" class="text-text-primary">1</span>
+                            </div>
+                        </div>
+
+                        <!-- Status Toggle -->
+                        <div class="flex flex-col space-y-2">
+                            <label class="text-text-muted font-semibold text-sm after:content-['*'] after:text-solo-purple after:ml-1">Status</label>
+                            <div class="flex items-center">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="status" id="statusToggle" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-solo-purple rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-solo-purple"></div>
+                                    <span id="statusLabel" class="ms-3 text-text-primary">Sent</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Rating Stars -->
+                        <div class="flex flex-col space-y-2">
+                            <label class="text-text-muted font-semibold text-sm after:content-['*'] after:text-solo-purple after:ml-1">Stars</label>
+                            <div class="flex items-center">
+                                <input type="hidden" name="rating" id="ratingInput" value="3">
+                                <div class="rating flex space-x-1">
+                                    {% for _ in range(5) %}
+                                    <i class="rating-star bi bi-star-fill text-2xl text-solo-purple cursor-pointer"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="flex flex-col space-y-2">
+                            <label class="text-text-muted font-semibold text-sm">Notes</label>
+                            <textarea name="notes" rows="3" 
+                                      class="w-full bg-bg-primary text-text-primary border border-border-default rounded-card px-4 py-3 focus:border-solo-purple focus:ring-1 focus:ring-solo-purple"></textarea>
+                        </div>
                     </div>
-                </form>
-            </div>
+
+                    <!-- Submit Button -->
+                    <div class="p-4">
+                        <button type="submit" 
+                                class="w-full bg-solo-purple hover:bg-solo-purple-light text-text-primary font-semibold py-3 px-4 rounded-card transition-colors">
+                            Send
+                        </button>
+                        <div id="pointsEstimate" class="mt-3 text-center text-text-primary text-sm">Points: 0</div>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -84,95 +88,5 @@
 {% block scripts %}
 <!-- Add Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
-<!-- Add Bootstrap Slider -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js"></script>
 <script src="{{ url_for('static', filename='js/sends.js') }}"></script>
-
-<style>
-.custom-select {
-    height: auto !important;
-    padding: 0.75rem !important;
-    font-size: 1.1rem !important;
-}
-
-.form-select {
-    background-color: #2b2b2b;
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    min-height: 3rem;
-}
-
-.form-select option {
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    font-size: 1.1rem;
-}
-
-.route-option {
-    position: relative;
-    padding-left: 25px !important;
-}
-
-.custom-switch {
-    background-color: #7442d6 !important;
-    border-color: #7442d6 !important;
-}
-
-.custom-switch:checked {
-    background-color: #7442d6 !important;
-    border-color: #7442d6 !important;
-}
-
-.rating-star {
-    cursor: pointer;
-    font-size: 1.5rem;
-    color: #6c757d;
-}
-
-.rating-star.active {
-    color: #7442d6 !important;
-}
-
-.color-dot {
-    display: inline-block;
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-    margin-right: 0.5rem;
-    margin-left: -25px; /* Adjust position */
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background-color: #7442d6; /*Placeholder color, needs JS to set actual color */
-
-}
-
-.table-form {
-    margin-bottom: 0;
-}
-
-.form-input-cell {
-    width: 100%;
-}
-
-.form-label-cell {
-    width: 90px;
-    min-width: 90px;
-    font-size: 1.1rem;
-    font-weight: 500;
-    white-space: nowrap;
-    padding-right: 0.75rem;
-    color: #fff;
-}
-
-.btn-primary {
-    background-color: #7442d6;
-    border-color: #7442d6;
-}
-
-.btn-primary:hover {
-    background-color: #5f35b5;
-    border-color: #5f35b5;
-}
-</style>
 {% endblock %}
