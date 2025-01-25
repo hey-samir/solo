@@ -36,9 +36,16 @@ app.get('/api/health', (_req, res) => {
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
   const distPath = path.join(__dirname, '../../dist');
-  app.use(express.static(distPath));
+  console.log('Static files path:', distPath);
 
-  // SPA fallback
+  // Serve static files with caching headers
+  app.use(express.static(distPath, {
+    maxAge: '1h',
+    etag: true,
+    lastModified: true
+  }));
+
+  // SPA fallback - ensure this comes after static file serving
   app.get('*', (_req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });

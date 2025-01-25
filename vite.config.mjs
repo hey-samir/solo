@@ -24,18 +24,25 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    strictPort: true, // Force the specified port
+    strictPort: true,
     hmr: {
-      clientPort: 443 // Required for Replit
+      clientPort: 443,
+      protocol: 'wss',
+      host: '0.0.0.0'
     },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        secure: false
       }
+    },
+    watch: {
+      usePolling: true
     }
+  },
+  css: {
+    devSourcemap: true,
   },
   resolve: {
     alias: {
