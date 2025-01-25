@@ -50,7 +50,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx vite --port 3000"
+args = "NODE_ENV=development node --experimental-import-meta-resolve --experimental-json-modules ./node_modules/vite/bin/vite.js --port 3000"
 waitForPort = 3000
 
 [[workflows.workflow]]
