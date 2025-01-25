@@ -7,7 +7,8 @@
     "moduleResolution": "NodeNext",
     "allowJs": true,
     "target": "ES2020",
-    "lib": ["ES2020"]
+    "lib": ["ES2020"],
+    "types": ["node"]
   },
   "include": ["src/server/**/*"],
   "exclude": ["node_modules"]

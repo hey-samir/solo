@@ -1,18 +1,12 @@
 [project]
 name = "repl-nix-climbingtracker"
 version = "0.1.0"
-description = "Add your description here"
+description = "Solo - A climbing performance tracking application"
 requires-python = ">=3.11"
 dependencies = [
-    "email-validator>=2.2.0",
     "pillow>=11.0.0",
     "psycopg2-binary>=2.9.10",
-    "sqlalchemy>=2.0.36",
-    "svgwrite>=1.4.3",
-    "oauthlib>=3.2.2",
     "requests>=2.32.3",
-    "twilio>=9.4.1",
-    "trafilatura>=2.0.0",
     "qrcode[pil]>=8.0",
     "gunicorn>=23.0.0",
 ]

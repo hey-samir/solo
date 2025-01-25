@@ -27,10 +27,6 @@ args = "API Server"
 task = "workflow.run"
 args = "Production Build"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Preview Server"
-
 [[workflows.workflow]]
 name = "Database Migrations"
 author = "agent"
@@ -57,7 +53,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "ts-node src/server/server.ts"
+args = "NODE_ENV=development npx tsx watch src/server/server.ts"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -73,21 +69,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "rm -rf dist/* && NODE_ENV=production npx vite build"
-
-[[workflows.workflow]]
-name = "Preview Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx vite preview --host --port 5000"
-waitForPort = 5000
 
 [[ports]]
 localPort = 3000
