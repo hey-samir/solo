@@ -3,7 +3,7 @@ import client from '../api/client';
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (token: string) => void;
+  user: any | null;
   logout: () => void;
   loading: boolean;
 }
@@ -20,32 +20,38 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setIsAuthenticated(true);
-    }
-    setLoading(false);
+    const checkAuth = async () => {
+      try {
+        const response = await client.get('/auth/current-user');
+        setUser(response.data);
+        setIsAuthenticated(true);
+      } catch (error) {
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
   }, []);
 
-  const login = (token: string) => {
-    localStorage.setItem('authToken', token);
-    client.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    setIsAuthenticated(true);
-  };
-
-  const logout = () => {
-    localStorage.removeItem('authToken');
-    delete client.defaults.headers.common['Authorization'];
-    setIsAuthenticated(false);
+  const logout = async () => {
+    try {
+      await client.get('/auth/logout');
+      setUser(null);
+      setIsAuthenticated(false);
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, loading }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

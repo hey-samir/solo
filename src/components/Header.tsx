@@ -1,10 +1,15 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../contexts/AuthContext'
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { isAuthenticated, logout } = useAuth()
+
+  const handleLogout = async () => {
+    await logout();
+    setIsMenuOpen(false);
+  };
 
   return (
     <>
@@ -41,14 +46,16 @@ const Header: React.FC = () => {
         </div>
         <div className="offcanvas-body px-3 pt-0">
           <div className="list-group list-group-flush">
-            <Link 
-              to="/profile"
-              className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              <i className="material-icons">mood</i>
-              <span className="ms-3">Profile</span>
-            </Link>
+            {isAuthenticated && (
+              <Link 
+                to="/profile"
+                className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <i className="material-icons">mood</i>
+                <span className="ms-3">Profile</span>
+              </Link>
+            )}
             <Link 
               to="/about"
               className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
@@ -77,10 +84,7 @@ const Header: React.FC = () => {
             </Link>
             {isAuthenticated ? (
               <button
-                onClick={() => {
-                  logout()
-                  setIsMenuOpen(false)
-                }}
+                onClick={handleLogout}
                 className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
               >
                 <i className="material-icons">logout</i>
