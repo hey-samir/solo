@@ -57,7 +57,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo \"Removing old workflow\""
+args = "rm -rf dist/* && NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
 name = "API Server"
@@ -85,7 +85,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "rm -rf dist/* && NODE_ENV=production npx vite build && npx vite preview --port 5000 --host --strictPort"
+args = "NODE_ENV=production npx vite preview --host 0.0.0.0 --port 5000"
 waitForPort = 5000
 
 [[ports]]
