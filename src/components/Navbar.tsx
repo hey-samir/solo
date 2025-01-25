@@ -13,8 +13,7 @@ export default function Navbar(): React.ReactElement {
               to="/squads" 
               className={`nav-link ${location.pathname === '/squads' ? 'active' : ''}`}
             >
-              <i className="material-icons">group</i>
-              <span className="nav-label">Squads</span>
+              <i className="material-icons" style={{ fontSize: '28px' }}>group</i>
             </Link>
           </li>
           <li className="nav-item">
@@ -22,8 +21,7 @@ export default function Navbar(): React.ReactElement {
               to="/standings" 
               className={`nav-link ${location.pathname === '/standings' ? 'active' : ''}`}
             >
-              <i className="material-icons">emoji_events</i>
-              <span className="nav-label">Standings</span>
+              <i className="material-icons" style={{ fontSize: '28px' }}>emoji_events</i>
             </Link>
           </li>
           <li className="nav-item">
@@ -31,8 +29,7 @@ export default function Navbar(): React.ReactElement {
               to="/sends" 
               className={`nav-link ${location.pathname === '/sends' ? 'active' : ''}`}
             >
-              <i className="material-icons">arrow_circle_up</i>
-              <span className="nav-label">Sends</span>
+              <i className="material-icons" style={{ fontSize: '28px' }}>arrow_circle_up</i>
             </Link>
           </li>
           <li className="nav-item">
@@ -40,8 +37,7 @@ export default function Navbar(): React.ReactElement {
               to="/sessions" 
               className={`nav-link ${location.pathname === '/sessions' ? 'active' : ''}`}
             >
-              <i className="material-icons">calendar_today</i>
-              <span className="nav-label">Sessions</span>
+              <i className="material-icons" style={{ fontSize: '28px' }}>calendar_today</i>
             </Link>
           </li>
           <li className="nav-item">
@@ -49,8 +45,7 @@ export default function Navbar(): React.ReactElement {
               to="/stats" 
               className={`nav-link ${location.pathname === '/stats' ? 'active' : ''}`}
             >
-              <i className="material-icons">bar_chart</i>
-              <span className="nav-label">Stats</span>
+              <i className="material-icons" style={{ fontSize: '28px' }}>bar_chart</i>
             </Link>
           </li>
         </ul>

@@ -4,7 +4,7 @@
     "name": "vendor"
   },
   "index.html": {
-    "file": "assets/main-B3lbjd2v.js",
+    "file": "assets/main-BJ4XlHwS.js",
     "name": "main",
     "src": "index.html",
     "isEntry": true,
@@ -22,7 +22,7 @@
     ]
   },
   "src/pages/About.tsx": {
-    "file": "assets/About-Dj35PTC_.js",
+    "file": "assets/About-6jl7TfBk.js",
     "name": "About",
     "src": "src/pages/About.tsx",
     "isDynamicEntry": true,
@@ -32,7 +32,7 @@
     ]
   },
   "src/pages/Home.tsx": {
-    "file": "assets/Home-B5XIceXo.js",
+    "file": "assets/Home-X8_rwtMR.js",
     "name": "Home",
     "src": "src/pages/Home.tsx",
     "isDynamicEntry": true,
@@ -42,7 +42,7 @@
     ]
   },
   "src/pages/Login.tsx": {
-    "file": "assets/Login-DGw766WP.js",
+    "file": "assets/Login-ByWoRLAL.js",
     "name": "Login",
     "src": "src/pages/Login.tsx",
     "isDynamicEntry": true,
@@ -52,7 +52,7 @@
     ]
   },
   "src/pages/Register.tsx": {
-    "file": "assets/Register-yQiaN2bD.js",
+    "file": "assets/Register-DkN7-8lO.js",
     "name": "Register",
     "src": "src/pages/Register.tsx",
     "isDynamicEntry": true,
