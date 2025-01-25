@@ -8,13 +8,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Simple CORS setup with specific origins for better security
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://gosolo.nyc', /\.repl\.co$/, /\.replit\.dev$/]
-    : true,
-  credentials: true
-}));
+// Simple CORS setup for development
+app.use(cors());
 
 // Health check
 app.get('/api/health', (_req, res) => {
@@ -23,18 +18,19 @@ app.get('/api/health', (_req, res) => {
 
 // Serve static files from the dist directory
 const distPath = path.join(__dirname, '../../dist');
-console.log('Serving static files from:', distPath);
+console.log('Static files served from:', distPath);
 
-// Serve static files with proper mime types
-app.use(express.static(distPath, {
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
+// Serve static files
+app.use('/', express.static(distPath, {
+  setHeaders: (res, filePath) => {
+    // Set correct MIME types
+    if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.css')) {
+    } else if (filePath.endsWith('.css')) {
       res.setHeader('Content-Type', 'text/css');
     }
+    // Enable caching for static assets
+    res.setHeader('Cache-Control', 'public, max-age=31536000');
   }
 }));
 
@@ -45,17 +41,14 @@ app.get('/api/*', (_req, res) => {
 
 // SPA catch-all route - must be last
 app.get('*', (req, res) => {
-  console.log('Serving index.html for path:', req.path);
+  console.log('Serving index.html for:', req.path);
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
 const PORT = Number(process.env.PORT) || 5000;
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-  console.log('Application URLs:');
-  console.log(`- Local: http://localhost:${PORT}`);
-  console.log(`- Network: http://0.0.0.0:${PORT}`);
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
 
 export { app };
