@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import cors from 'cors';
+import fs from 'fs';
 
 const app = express();
 const port = process.env.PORT ? parseInt(process.env.PORT) : 5000;
@@ -45,19 +46,34 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// Serve static files and handle SPA routing
-app.use(express.static(distPath));
-app.use('/attached_assets', express.static(assetsPath));
+// Serve static files with proper error handling
+app.use(express.static(distPath, {
+  fallthrough: true // Allow falling through to next middleware if file not found
+}));
+app.use('/attached_assets', express.static(assetsPath, {
+  fallthrough: true
+}));
 
-// SPA fallback
-app.get('*', (_req: Request, res: Response) => {
-  res.sendFile(path.join(distPath, 'index.html'));
+// SPA fallback with proper file existence check
+app.get('*', (req: Request, res: Response) => {
+  const indexPath = path.join(distPath, 'index.html');
+
+  // Check if index.html exists before attempting to send it
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    console.warn(`Index file not found at ${indexPath}`);
+    res.status(404).send('Application not built. Please run npm run build first.');
+  }
 });
 
 // Error handling
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Server error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  res.status(500).json({ 
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  });
 });
 
 // Start server only if this file is being run directly
