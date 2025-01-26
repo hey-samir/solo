@@ -12,7 +12,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    strictPort: false, // Allow fallback ports
+    strictPort: true,
     hmr: {
       clientPort: process.env.REPL_SLUG ? 443 : 3000,
       protocol: process.env.REPL_SLUG ? 'wss' : 'ws',
@@ -29,8 +29,8 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     },
-    // IMPORTANT: This allowedHosts configuration is required for Replit environment
-    // DO NOT REMOVE OR MODIFY - It ensures proper host access in Replit's infrastructure
+    // IMPORTANT: DO NOT REMOVE OR MODIFY - Required for Replit environment
+    // This configuration ensures proper host access in Replit's infrastructure
     allowedHosts: [
       'localhost',
       '0.0.0.0',
