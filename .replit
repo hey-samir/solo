@@ -55,8 +55,8 @@ waitForPort = 3003
 
 [[workflows.workflow]]
 name = "Project"
+author = "agent"
 mode = "parallel"
-author = "agent"
 
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
@@ -65,19 +65,12 @@ agentRequireRestartOnSave = false
 task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx concurrently \"NODE_ENV=development tsx src/server/server.ts\" \"NODE_ENV=development npx vite --port 3003 --host\""
-waitForPort = 3003
-
-[[workflows.workflow]]
-name = "Project"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
+task = "workflow.run"
+args = "Start Backend"
 
 [[workflows.workflow.tasks]]
-task = "packager.installForAll"
+task = "workflow.run"
+args = "Start Frontend"
 
 [[workflows.workflow]]
 name = "Production Build"
@@ -94,7 +87,7 @@ task = "shell.exec"
 args = "NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
-name = "Backend Server"
+name = "Start Backend"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -106,7 +99,22 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "tsx src/server/server.ts"
-waitForPort = 3001
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start Frontend"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "vite --port 3003 --host"
+waitForPort = 3003
 
 [[ports]]
 localPort = 3000
