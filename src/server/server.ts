@@ -15,84 +15,133 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configure CORS to allow requests from development server
-const corsOptions = process.env.NODE_ENV === 'development' 
-  ? {
-      origin: [
-        'http://localhost:3003',
-        'http://0.0.0.0:3003',
-        'https://solo.nyc',
-        /.+\.replit\.dev$/,
-        /.+\.repl\.co$/,
-        process.env.REPL_SLUG ? `https://${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : null,
-        process.env.REPL_SLUG ? `https://${process.env.REPL_ID}-00-*.picard.replit.dev` : null
-      ].filter(Boolean),
+// CORS Configuration - Handle Replit domains
+const corsOptions = process.env.NODE_ENV === 'production' 
+  ? { 
+      origin: true, // Allow all origins in production
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization']
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
     }
-  : { 
-      origin: true, // Allow all origins in production
-      credentials: true 
-    };
+  : {
+      origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+          console.log('Incoming request origin:', origin);
+          if (!origin) {
+              callback(null, true);
+              return;
+          }
+          const allowedDomains = [
+              'https://gosolo.nyc',
+              /\.repl\.co$/,
+              /\.replit\.dev$/,
+              /-\d{2}-[a-z0-9]+\..*\.replit\.dev$/, // Match Replit dev URLs
+              process.env.REPL_SLUG ? new RegExp(`${process.env.REPL_SLUG}.*\\.replit\\.dev$`) : null,
+          ].filter(Boolean);
+
+          const isAllowed = allowedDomains.some(domain => { 
+              return typeof domain === 'string' ? domain === origin : domain.test(origin); 
+          });
+
+          if (debug) {
+              console.log('Checking origin:', origin);
+              console.log('Allowed?', isAllowed);
+          }
+
+          callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+      },
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  };
 
 if (debug) {
-  console.log('CORS configuration:', corsOptions);
+    console.log('CORS configuration:', corsOptions);
 }
 
 app.use(cors(corsOptions));
+app.use(express.json({ limit: '10mb' }));
 
 // Get the absolute path to the dist directory
 const distPath = path.join(__dirname, '../../dist');
 console.log('Static files path:', distPath);
 
-// Add logging middleware in development
-if (debug) {
-  app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
-    console.log('Headers:', req.headers);
+// Add debug middleware
+app.use((req, res, next) => {
+    if (debug) {
+        console.log(`${req.method} ${req.path}`);
+        console.log('Headers:', req.headers);
+    }
     next();
-  });
-}
-
-// First handle API routes
-app.get('/api/health', (_req, res) => {
-  if (debug) console.log('Health check endpoint called');
-  res.json({ status: 'healthy' });
 });
 
-// Then serve static files
+// API routes
+app.get('/api/health', (_req, res) => {
+    if (debug) console.log('Health check endpoint called');
+    res.json({ status: 'healthy' });
+});
+
+// Serve static files with explicit MIME types and caching headers
 app.use(express.static(distPath, {
-  fallthrough: true,
-  setHeaders: (res, filePath) => {
-    // Set cache headers for assets
-    if (filePath.includes('assets')) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+        // Set appropriate MIME types
+        if (filePath.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        } else if (filePath.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+        } else if (filePath.endsWith('.html')) {
+            res.setHeader('Content-Type', 'text/html');
+        }
+
+        // Set caching headers
+        if (filePath.includes('/assets/')) {
+            // Cache assets for 1 year
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+        } else {
+            // Don't cache HTML files
+            res.setHeader('Cache-Control', 'no-cache');
+        }
     }
-  }
 }));
 
-// Finally, handle SPA routes
-app.get('*', (req, res) => {
-  // Skip API routes
-  if (req.path.startsWith('/api')) {
-    return res.status(404).send('Not found');
-  }
-  if (debug) console.log('SPA route hit:', req.path);
-  res.sendFile(path.join(distPath, 'index.html'));
+// SPA fallback - Must be after static files middleware
+app.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+
+    if (debug) console.log('SPA route hit:', req.path);
+    res.sendFile(path.join(distPath, 'index.html'), err => {
+        if (err) {
+            console.error('Error sending index.html:', err);
+            res.status(500).send('Error loading application');
+        }
+    });
+});
+
+// Error handling middleware
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error('Server error:', err);
+    res.status(500).json({ error: 'Internal server error' });
 });
 
 const PORT = 3001;
 const HOST = '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-  if (debug) {
     console.log('Server configuration:');
     console.log('- Port:', PORT);
     console.log('- Environment:', process.env.NODE_ENV);
     console.log('- Static path:', distPath);
-  }
+    console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+
+    if (debug) {
+        console.log('Replit environment:');
+        console.log('- REPL_SLUG:', process.env.REPL_SLUG);
+        console.log('- REPLIT_DB_URL:', process.env.REPLIT_DB_URL ? 'Set' : 'Not set');
+    }
 });
 
 export { app };
