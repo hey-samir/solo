@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 // Configure CORS to allow requests from development server
 const corsOptions = {
   origin: process.env.NODE_ENV === 'development' 
-    ? ['http://localhost:3002', 'https://solo.nyc', /.+\.replit\.dev$/, /.+\.repl\.co$/]
+    ? ['http://localhost:3000', 'http://localhost:3001', 'https://solo.nyc', /.+\.replit\.dev$/, /.+\.repl\.co$/]
     : true,
   credentials: true
 };
@@ -65,39 +65,49 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-// Use a different port if the default is busy
-const PORT = process.env.PORT ? parseInt(process.env.PORT) : 5000;
+// Primary and fallback ports configuration
+const PRIMARY_PORT = 5000;
+const FALLBACK_PORT = 5001;
 const HOST = '0.0.0.0';
 
-// Add error handling for already in use port
-const server = app.listen(PORT, HOST)
-  .on('error', (error: any) => {
-    console.error('Server startup error:', error);
-    if (error.code === 'EADDRINUSE') {
-      console.error(`Port ${PORT} is already in use. Trying alternative port...`);
-      // Try alternative port
-      app.listen(5001, HOST, () => {
-        console.log(`Server running on alternative port 5001`);
+function startServer(port: number) {
+  return new Promise((resolve, reject) => {
+    const server = app.listen(port, HOST)
+      .on('error', (error: any) => {
+        if (error.code === 'EADDRINUSE') {
+          console.log(`Port ${port} is already in use, will try fallback`);
+          reject(error);
+        } else {
+          console.error('Server error:', error);
+          reject(error);
+        }
+      })
+      .on('listening', () => {
+        console.log(`Server running on http://${HOST}:${port} in ${process.env.NODE_ENV || 'development'} mode`);
+        if (debug) {
+          console.log('Server configuration:');
+          console.log('- Port:', port);
+          console.log('- Environment:', process.env.NODE_ENV);
+          console.log('- Static path:', distPath);
+        }
+        resolve(server);
       });
-    }
-  })
-  .on('listening', () => {
-    console.log(`Server running on http://${HOST}:${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-    if (debug) {
-      console.log('Server configuration:');
-      console.log('- Port:', PORT);
-      console.log('- Environment:', process.env.NODE_ENV);
-      console.log('- Static path:', distPath);
-    }
   });
+}
+
+// Try primary port first, then fallback
+startServer(PRIMARY_PORT).catch(() => {
+  console.log(`Trying fallback port ${FALLBACK_PORT}`);
+  startServer(FALLBACK_PORT).catch((error) => {
+    console.error('Failed to start server on both ports:', error);
+    process.exit(1);
+  });
+});
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM signal received: closing HTTP server');
-  server.close(() => {
-    console.log('HTTP server closed');
-    process.exit(0);
-  });
+  process.exit(0);
 });
 
 export { app };

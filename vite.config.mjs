@@ -11,13 +11,13 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    port: 3002,
+    port: 3000,
     strictPort: false, // Allow fallback ports
     hmr: {
-      clientPort: process.env.REPL_SLUG ? 443 : 3002,
+      clientPort: process.env.REPL_SLUG ? 443 : 3000,
       protocol: process.env.REPL_SLUG ? 'wss' : 'ws',
       host: process.env.REPL_SLUG ? 
-        `${process.env.REPL_ID}-${process.env.REPL_SLUG}-3002.${process.env.REPL_OWNER}.repl.co` : 
+        `${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : 
         'localhost',
     },
     proxy: {
@@ -29,7 +29,8 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     },
-    // Comprehensive host allowlist
+    // IMPORTANT: This allowedHosts configuration is required for Replit environment
+    // DO NOT REMOVE OR MODIFY - It ensures proper host access in Replit's infrastructure
     allowedHosts: [
       'localhost',
       '0.0.0.0',
@@ -37,8 +38,8 @@ export default defineConfig({
       '.replit.dev',
       '.repl.dev',
       '.picard.replit.dev',
-      process.env.REPL_SLUG ? `${process.env.REPL_ID}-${process.env.REPL_SLUG}-3002.${process.env.REPL_OWNER}.repl.co` : undefined,
-      'all' // Fallback to allow all hosts
+      process.env.REPL_SLUG ? `${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : undefined,
+      process.env.REPL_SLUG ? `${process.env.REPL_ID}-00-*.picard.replit.dev` : undefined
     ].filter(Boolean)
   },
   resolve: {
