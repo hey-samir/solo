@@ -16,12 +16,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Configure CORS to allow requests from development server
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'development' 
-    ? ['http://localhost:3003', 'http://0.0.0.0:3003', 'https://solo.nyc', /.+\.replit\.dev$/, /.+\.repl\.co$/]
-    : true,
-  credentials: true
-};
+const corsOptions = process.env.NODE_ENV === 'development' 
+  ? {
+      origin: [
+        'http://localhost:3003',
+        'http://0.0.0.0:3003',
+        'https://solo.nyc',
+        /.+\.replit\.dev$/,
+        /.+\.repl\.co$/,
+        process.env.REPL_SLUG ? `https://${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : null,
+        process.env.REPL_SLUG ? `https://${process.env.REPL_ID}-00-*.picard.replit.dev` : null
+      ].filter(Boolean),
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization']
+    }
+  : { 
+      origin: true, // Allow all origins in production
+      credentials: true 
+    };
 
 if (debug) {
   console.log('CORS configuration:', corsOptions);
@@ -29,7 +42,7 @@ if (debug) {
 
 app.use(cors(corsOptions));
 
-// Explicitly set the dist path
+// Get the absolute path to the dist directory
 const distPath = path.join(__dirname, '../../dist');
 console.log('Static files path:', distPath);
 
@@ -63,13 +76,13 @@ app.use(express.static(distPath, {
 app.get('*', (req, res) => {
   // Skip API routes
   if (req.path.startsWith('/api')) {
-    return res.status(404).send(); //Return 404 if path starts with /api
+    return res.status(404).send('Not found');
   }
   if (debug) console.log('SPA route hit:', req.path);
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-const PORT = 3001; // Changed from 5000 to 3001
+const PORT = 3001;
 const HOST = '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
