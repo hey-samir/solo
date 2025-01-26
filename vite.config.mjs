@@ -12,11 +12,10 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3002,
-    strictPort: true,
+    strictPort: false, // Allow fallback ports
     hmr: {
       clientPort: process.env.REPL_SLUG ? 443 : 3002,
       protocol: process.env.REPL_SLUG ? 'wss' : 'ws',
-      // Use the full Replit domain for HMR in production
       host: process.env.REPL_SLUG ? 
         `${process.env.REPL_ID}-${process.env.REPL_SLUG}-3002.${process.env.REPL_OWNER}.repl.co` : 
         'localhost',
@@ -29,7 +28,18 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
-    }
+    },
+    // Comprehensive host allowlist
+    allowedHosts: [
+      'localhost',
+      '0.0.0.0',
+      '.repl.co',
+      '.replit.dev',
+      '.repl.dev',
+      '.picard.replit.dev',
+      process.env.REPL_SLUG ? `${process.env.REPL_ID}-${process.env.REPL_SLUG}-3002.${process.env.REPL_OWNER}.repl.co` : undefined,
+      'all' // Fallback to allow all hosts
+    ].filter(Boolean)
   },
   resolve: {
     alias: {
