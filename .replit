@@ -72,15 +72,11 @@ args = "Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "API Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Production Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Server"
+args = "API Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -91,21 +87,6 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
-
-[[workflows.workflow]]
-name = "API Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development node src/server/server.js"
-waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Production Build"
@@ -122,7 +103,7 @@ task = "shell.exec"
 args = "NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
-name = "Production Server"
+name = "API Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -133,8 +114,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production PORT=3000 node src/server/server.js"
-waitForPort = 3000
+args = "NODE_ENV=development node src/server/server.js"
+waitForPort = 5000
 
 [[ports]]
 localPort = 3000

@@ -6,10 +6,6 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const replitDevDomain = process.env.REPL_SLUG 
-  ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
-  : 'http://localhost:3002'
-
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -20,11 +16,14 @@ export default defineConfig({
     hmr: {
       clientPort: process.env.REPL_SLUG ? 443 : 3002,
       protocol: process.env.REPL_SLUG ? 'wss' : 'ws',
-      host: process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : 'localhost',
+      // Use the full Replit domain for HMR in production
+      host: process.env.REPL_SLUG ? 
+        `${process.env.REPL_ID}-${process.env.REPL_SLUG}-3002.${process.env.REPL_OWNER}.repl.co` : 
+        'localhost',
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://0.0.0.0:5000',
         changeOrigin: true,
         secure: false,
         ws: true,
