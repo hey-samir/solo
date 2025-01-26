@@ -15,51 +15,11 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS Configuration - Handle Replit domains
-const corsOptions = process.env.NODE_ENV === 'production' 
-  ? { 
-      origin: true, // Allow all origins in production
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-    }
-  : {
-      origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-          console.log('Incoming request origin:', origin);
-          if (!origin) {
-              callback(null, true);
-              return;
-          }
-          const allowedDomains = [
-              'https://gosolo.nyc',
-              /\.repl\.co$/,
-              /\.replit\.dev$/,
-              /-\d{2}-[a-z0-9]+\..*\.replit\.dev$/, // Match Replit dev URLs
-              process.env.REPL_SLUG ? new RegExp(`${process.env.REPL_SLUG}.*\\.replit\\.dev$`) : null,
-          ].filter(Boolean);
-
-          const isAllowed = allowedDomains.some(domain => { 
-              return typeof domain === 'string' ? domain === origin : domain.test(origin); 
-          });
-
-          if (debug) {
-              console.log('Checking origin:', origin);
-              console.log('Allowed?', isAllowed);
-          }
-
-          callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
-  };
-
-if (debug) {
-    console.log('CORS configuration:', corsOptions);
-}
-
-app.use(cors(corsOptions));
-app.use(express.json({ limit: '10mb' }));
+// Simple CORS configuration
+app.use(cors({
+  origin: true,
+  credentials: true
+}));
 
 // Get the absolute path to the dist directory
 const distPath = path.join(__dirname, '../../dist');
@@ -127,7 +87,7 @@ app.use((err: Error, req: express.Request, res: express.Response, next: express.
     res.status(500).json({ error: 'Internal server error' });
 });
 
-const PORT = 3001;
+const PORT = Number(process.env.PORT) || 3001;
 const HOST = '0.0.0.0';
 
 app.listen(PORT, HOST, () => {

@@ -10,40 +10,24 @@ const __dirname = path.dirname(__filename)
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    host: true,
     port: 3003,
     strictPort: true,
     hmr: {
-      clientPort: process.env.REPL_SLUG ? 443 : 3003,
-      protocol: process.env.REPL_SLUG ? 'wss' : 'ws',
+      clientPort: 443,
+      protocol: 'wss',
       host: process.env.REPL_SLUG ? 
         `${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : 
-        'localhost',
+        'localhost'
     },
     proxy: {
       '/api': {
-        target: 'http://0.0.0.0:3001', // Updated to match new backend port
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
-        ws: true,
-        rewrite: (path) => path.replace(/^\/api/, '')
+        ws: true
       }
-    },
-    // IMPORTANT: DO NOT REMOVE - Required for Replit environment
-    // This configuration ensures proper host access in Replit's infrastructure
-    allowedHosts: [
-      'localhost',
-      '0.0.0.0',
-      '.repl.co',
-      '.replit.dev',
-      '.repl.dev',
-      '.picard.replit.dev',
-      // Dynamic Replit domains - DO NOT REMOVE
-      process.env.REPL_SLUG ? `${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : undefined,
-      process.env.REPL_SLUG ? `${process.env.REPL_ID}-00-*.picard.replit.dev` : undefined,
-      // Allow all subdomains of replit.dev
-      '*.replit.dev'
-    ].filter(Boolean)
+    }
   },
   resolve: {
     alias: {
@@ -57,15 +41,9 @@ export default defineConfig({
     sourcemap: true,
     outDir: 'dist',
     assetsDir: 'assets',
-    emptyOutDir: true,
-    rollupOptions: {
-      input: {
-        main: path.resolve(__dirname, 'index.html')
-      }
-    }
+    emptyOutDir: true
   },
   define: {
-    'process.env.VITE_API_URL': JSON.stringify(process.env.REPL_SLUG ? '/api' : 'http://localhost:3001/api'),
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
   }
 })

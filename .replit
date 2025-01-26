@@ -58,25 +58,16 @@ name = "Project"
 mode = "parallel"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Project"
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Development Server"
+task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Production Build"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Backend Server"
+task = "shell.exec"
+args = "npx concurrently \"NODE_ENV=development tsx src/server/server.ts\" \"NODE_ENV=development npx vite --port 3003 --host\""
+waitForPort = 3003
 
 [[workflows.workflow]]
 name = "Project"
