@@ -6,6 +6,10 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
+const replitDevDomain = process.env.REPL_SLUG 
+  ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+  : 'http://localhost:3002'
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -14,17 +18,17 @@ export default defineConfig({
     port: 3002,
     strictPort: true,
     hmr: {
-      clientPort: 443, // Force HMR through HTTPS for Replit
-      host: process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.id.repl.co` : 'localhost'
+      clientPort: process.env.REPL_SLUG ? 443 : 3002,
+      protocol: process.env.REPL_SLUG ? 'wss' : 'ws',
+      host: process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : 'localhost',
     },
     proxy: {
       '/api': {
-        target: process.env.NODE_ENV === 'production' 
-          ? 'http://localhost:3000'
-          : 'http://localhost:5000',
+        target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        ws: true
+        ws: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
   },
@@ -46,5 +50,9 @@ export default defineConfig({
         main: path.resolve(__dirname, 'index.html')
       }
     }
+  },
+  define: {
+    'process.env.VITE_API_URL': JSON.stringify(process.env.REPL_SLUG ? '/api' : 'http://localhost:5000/api'),
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
   }
 })

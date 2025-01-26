@@ -1,10 +1,8 @@
 import axios from 'axios'
 
 // In production, API requests will be made to the same origin
-// In development, we'll use the Replit environment
-const baseURL = process.env.NODE_ENV === 'production' 
-  ? '/api'
-  : `${window.location.protocol}//${window.location.hostname}:5000/api`
+// In development, we'll use the Vite dev server proxy
+const baseURL = '/api'
 
 console.log('API base URL:', baseURL)
 
