@@ -14,12 +14,14 @@ export default defineConfig({
     port: 3002,
     strictPort: true,
     hmr: {
-      port: 3002,
-      overlay: true,
+      clientPort: 443, // Force HMR through HTTPS for Replit
+      host: process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.id.repl.co` : 'localhost'
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: process.env.NODE_ENV === 'production' 
+          ? 'http://localhost:3000'
+          : 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
         ws: true

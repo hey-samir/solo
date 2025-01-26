@@ -94,21 +94,40 @@ app.get('/api/health', (_req, res) => {
     res.json({ status: 'healthy' });
 });
 
-// Serve static files with proper MIME types
+// Serve static files with explicit MIME types and caching headers
 app.use(express.static(distPath, {
-    setHeaders: (res, path) => {
-        if (path.endsWith('.js')) {
-            res.set('Content-Type', 'application/javascript');
-        } else if (path.endsWith('.css')) {
-            res.set('Content-Type', 'text/css');
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+        // Set appropriate MIME types
+        if (filePath.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        } else if (filePath.endsWith('.css')) {
+            res.setHeader('Content-Type', 'text/css');
+        } else if (filePath.endsWith('.html')) {
+            res.setHeader('Content-Type', 'text/html');
+        }
+
+        // Set caching headers
+        if (filePath.includes('/assets/')) {
+            // Cache assets for 1 year
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+        } else {
+            // Don't cache HTML files
+            res.setHeader('Cache-Control', 'no-cache');
         }
     }
 }));
 
-// SPA fallback - Handle all non-API routes
-app.get(/^(?!\/api\/).*/, (req, res) => {
+// SPA fallback - Must be after static files middleware
+app.get('*', (req, res) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+
     if (debug) console.log('SPA route hit:', req.path);
-    res.sendFile(path.join(distPath, 'index.html'), (err) => {
+    res.sendFile(path.join(distPath, 'index.html'), err => {
         if (err) {
             console.error('Error sending index.html:', err);
             res.status(500).send('Error loading application');
