@@ -22,7 +22,7 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://0.0.0.0:5000',
+        target: 'http://0.0.0.0:3001', // Updated to match new backend port
         changeOrigin: true,
         secure: false,
         ws: true,
@@ -65,7 +65,7 @@ export default defineConfig({
     }
   },
   define: {
-    'process.env.VITE_API_URL': JSON.stringify(process.env.REPL_SLUG ? '/api' : 'http://localhost:5000/api'),
+    'process.env.VITE_API_URL': JSON.stringify(process.env.REPL_SLUG ? '/api' : 'http://localhost:3001/api'),
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
   }
 })

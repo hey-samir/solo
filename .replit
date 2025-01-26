@@ -76,7 +76,7 @@ args = "Production Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start application"
+args = "Backend Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -103,7 +103,7 @@ task = "shell.exec"
 args = "NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
-name = "Start application"
+name = "Backend Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -114,8 +114,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development npx vite --port 3000 --host"
-waitForPort = 3000
+args = "tsx src/server/server.ts"
+waitForPort = 3001
 
 [[ports]]
 localPort = 3000

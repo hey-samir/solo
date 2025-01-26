@@ -33,38 +33,43 @@ app.use(cors(corsOptions));
 const distPath = path.join(__dirname, '../../dist');
 console.log('Static files path:', distPath);
 
+// Add logging middleware in development
+if (debug) {
+  app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path}`);
+    console.log('Headers:', req.headers);
+    next();
+  });
+}
+
 // First handle API routes
 app.get('/api/health', (_req, res) => {
   if (debug) console.log('Health check endpoint called');
   res.json({ status: 'healthy' });
 });
 
-// Static file handling with explicit MIME types
+// Then serve static files
 app.use(express.static(distPath, {
   fallthrough: true,
   setHeaders: (res, filePath) => {
+    // Set cache headers for assets
     if (filePath.includes('assets')) {
       res.setHeader('Cache-Control', 'public, max-age=31536000');
     }
   }
 }));
 
-// Add logging middleware
-app.use((req, res, next) => {
-  if (debug) {
-    console.log(`${req.method} ${req.url}`);
-    console.log('Headers:', req.headers);
-  }
-  next();
-});
-
-// SPA fallback
+// Finally, handle SPA routes
 app.get('*', (req, res) => {
-  if (debug) console.log('Fallback route hit:', req.url);
+  // Skip API routes
+  if (req.path.startsWith('/api')) {
+    return res.status(404).send(); //Return 404 if path starts with /api
+  }
+  if (debug) console.log('SPA route hit:', req.path);
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-const PORT = 5000;
+const PORT = 3001; // Changed from 5000 to 3001
 const HOST = '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
