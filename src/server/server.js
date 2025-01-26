@@ -60,71 +60,80 @@ app.use(session({
     }
 }));
 
-
-// Serve static files from the dist directory
-var distPath = path.join(__dirname, '../../dist');
+// Get the absolute path to the dist directory
+const distPath = path.resolve(__dirname, '../../dist');
 console.log('Static files path:', distPath);
 
-app.use(express.static(distPath, {
-    fallthrough: true // Allow falling through to next middleware if file not found
-}));
-
-// Debug logging middleware
+// Add debug middleware
 app.use((req, res, next) => {
     if (debug) {
-        console.log(`${req.method} ${req.url}`);
+        console.log(`${req.method} ${req.path}`);
         console.log('Headers:', req.headers);
     }
     next();
 });
 
-// API health check
-app.get('/api/health', function (_req, res) {
-    console.log('Health check endpoint called');
+// API routes
+app.get('/api/health', (_req, res) => {
+    if (debug) console.log('Health check endpoint called');
     res.json({ status: 'healthy' });
 });
 
-// User routes
-app.get('/api/user/:username', function (req, res, next) { 
-    res.json({message: "User routes are not yet implemented"})
+app.get('/api/user/:username', (req, res) => { 
+    res.json({message: "User routes are not yet implemented"});
 }); 
 
-// Climbs routes
-app.get('/api/climbs', function (_req, res, next) { 
-    res.json({message: "Climbs routes are not yet implemented"})
+app.get('/api/climbs', (_req, res) => { 
+    res.json({message: "Climbs routes are not yet implemented"});
 });
 
-// Routes routes
-app.get('/api/routes', function (_req, res, next) { 
-    res.json({message: "Routes routes are not yet implemented"})
+app.get('/api/routes', (_req, res) => { 
+    res.json({message: "Routes routes are not yet implemented"});
 });
 
-// SPA fallback
-app.get('*', function (req, res) {
-    console.log('Fallback route hit:', req.url);
-    res.sendFile(path.join(distPath, 'index.html'));
+// Serve static files with proper MIME types
+app.use(express.static(distPath, {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+            res.set('Content-Type', 'application/javascript');
+        } else if (path.endsWith('.css')) {
+            res.set('Content-Type', 'text/css');
+        }
+    }
+}));
+
+// Handle all other routes for SPA
+app.get('*', (req, res) => {
+    if (debug) {
+        console.log('SPA route hit:', req.path);
+    }
+    res.sendFile(path.join(distPath, 'index.html'), (err) => {
+        if (err) {
+            console.error('Error sending index.html:', err);
+            res.status(500).send('Error loading application');
+        }
+    });
 });
 
-// Error handling
-app.use(function (err, _req, res, _next) {
+// Error handling middleware
+app.use((err, req, res, next) => {
     console.error('Server error:', err);
     res.status(500).json({ error: 'Internal server error' });
 });
 
-var PORT = Number(process.env.PORT) || 5000;
+const PORT = Number(process.env.PORT) || 5000;
 
-// Start server with detailed logging
 try {
-    app.listen(PORT, '0.0.0.0', function () {
+    app.listen(PORT, '0.0.0.0', () => {
         console.log('Server configuration:');
         console.log('- Port:', PORT);
         console.log('- Environment:', process.env.NODE_ENV);
         console.log('- Static path:', distPath);
         console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
-    }).on('error', function (error) {
+    }).on('error', (error) => {
         console.error('Server startup error:', error);
         if (error.code === 'EADDRINUSE') {
-            console.error(`Port ${PORT} is already in use. Please ensure no other process is using this port.`);
+            console.error(`Port ${PORT} is already in use`);
             process.exit(1);
         } else {
             console.error('Failed to start server:', error);

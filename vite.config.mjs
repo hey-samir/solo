@@ -28,16 +28,21 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@pages': path.resolve(__dirname, './src/pages'),
+      '@api': path.resolve(__dirname, './src/api')
     }
   },
   build: {
     sourcemap: true,
     outDir: 'dist',
+    assetsDir: 'assets',
+    emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: path.resolve(__dirname, 'index.html'),
-      },
-    },
+        main: path.resolve(__dirname, 'index.html')
+      }
+    }
   }
 })
