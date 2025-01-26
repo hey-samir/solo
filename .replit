@@ -50,8 +50,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "VITE_API_URL=http://localhost:5000 npx vite --port 3001"
-waitForPort = 3001
+args = "DEBUG=vite:* VITE_API_URL=http://localhost:5000 npx vite --port 3002"
+waitForPort = 3002
 
 [[workflows.workflow]]
 name = "Project"
@@ -106,6 +106,10 @@ externalPort = 80
 [[ports]]
 localPort = 3001
 externalPort = 3001
+
+[[ports]]
+localPort = 3002
+externalPort = 3002
 
 [[ports]]
 localPort = 5000
