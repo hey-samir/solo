@@ -14,62 +14,27 @@ app.use(cors());
 const distPath = path.join(__dirname, '../../dist');
 console.log('Static files path:', distPath);
 
-// Verify dist directory exists and show contents
-try {
-  const files = fs.readdirSync(distPath);
-  console.log('Contents of dist directory:', files);
-} catch (error) {
-  console.error('Error reading dist directory:', error);
-}
-
 // First handle API routes
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'healthy' });
 });
 
 // Static file handling with explicit MIME types and debugging
-app.use('/', express.static(distPath, {
-  index: false, // Disable auto-serving of index.html
-  setHeaders: (res, filePath) => {
-    console.log('Serving static file:', filePath);
-    if (filePath.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (filePath.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
+app.use(express.static(distPath, {
+  fallthrough: true // Allow falling through to next middleware if file not found
 }));
 
-// Catch-all route for SPA with detailed debugging
-app.get('*', (req, res) => {
-  console.log('Catch-all route hit for path:', req.path);
-  const indexPath = path.join(distPath, 'index.html');
-
-  // Check if index.html exists
-  if (fs.existsSync(indexPath)) {
-    console.log('index.html found, serving...');
-    res.sendFile(indexPath, (err) => {
-      if (err) {
-        console.error('Error sending index.html:', err);
-        res.status(500).send('Error loading application');
-      } else {
-        console.log('Successfully served index.html');
-      }
-    });
-  } else {
-    console.error('index.html not found at:', indexPath);
-    res.status(404).send('index.html not found');
-  }
+// SPA fallback
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 const PORT = Number(process.env.PORT) || 5000;
-
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
-});
-
-server.on('error', (error) => {
-  console.error('Server error:', error);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+}).on('error', function (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
 });
 
 export { app };
