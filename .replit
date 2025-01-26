@@ -50,8 +50,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "DEBUG=vite:* NODE_ENV=development npx vite --port 3002 --host"
-waitForPort = 3002
+args = "NODE_ENV=development npx vite --port 3003 --host"
+waitForPort = 3003
 
 [[workflows.workflow]]
 name = "Project"

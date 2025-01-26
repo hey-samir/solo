@@ -11,10 +11,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    port: 3000,
+    port: 3003,
     strictPort: true,
     hmr: {
-      clientPort: process.env.REPL_SLUG ? 443 : 3000,
+      clientPort: process.env.REPL_SLUG ? 443 : 3003,
       protocol: process.env.REPL_SLUG ? 'wss' : 'ws',
       host: process.env.REPL_SLUG ? 
         `${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : 
@@ -29,7 +29,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     },
-    // IMPORTANT: DO NOT REMOVE OR MODIFY - Required for Replit environment
+    // IMPORTANT: DO NOT REMOVE - Required for Replit environment
     // This configuration ensures proper host access in Replit's infrastructure
     allowedHosts: [
       'localhost',
@@ -38,8 +38,11 @@ export default defineConfig({
       '.replit.dev',
       '.repl.dev',
       '.picard.replit.dev',
+      // Dynamic Replit domains - DO NOT REMOVE
       process.env.REPL_SLUG ? `${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : undefined,
-      process.env.REPL_SLUG ? `${process.env.REPL_ID}-00-*.picard.replit.dev` : undefined
+      process.env.REPL_SLUG ? `${process.env.REPL_ID}-00-*.picard.replit.dev` : undefined,
+      // Allow all subdomains of replit.dev
+      '*.replit.dev'
     ].filter(Boolean)
   },
   resolve: {
