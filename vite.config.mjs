@@ -8,30 +8,10 @@ const __dirname = path.dirname(__filename)
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',
-  build: {
-    outDir: 'dist',
-    emptyOutDir: true,
-    manifest: true,
-    assetsDir: 'assets',
-    rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
-    }
-  },
   server: {
     host: '0.0.0.0',
-    port: 3001,
-    strictPort: true,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false,
-        ws: true
-      }
-    }
+    port: 3000,
+    strictPort: true
   },
   resolve: {
     alias: {

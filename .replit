@@ -50,7 +50,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development npx vite"
+args = "VITE_API_URL=http://localhost:5000 npx vite --port 3001"
 waitForPort = 3001
 
 [[workflows.workflow]]
@@ -96,7 +96,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development npx tsx src/server/server.ts"
+args = "NODE_ENV=development node src/server/server.js"
 waitForPort = 5000
 
 [[ports]]
