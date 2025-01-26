@@ -18,7 +18,7 @@ var app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS Configuration - More permissive in production
+// CORS Configuration - Handle Replit domains
 const corsOptions = process.env.NODE_ENV === 'production' 
   ? { 
       origin: true, // Allow all origins in production
@@ -29,7 +29,7 @@ const corsOptions = process.env.NODE_ENV === 'production'
   : {
       origin: function (origin, callback) {
           console.log('Incoming request origin:', origin);
-          if (!origin || process.env.NODE_ENV === 'development') {
+          if (!origin) {
               callback(null, true);
               return;
           }
@@ -37,11 +37,19 @@ const corsOptions = process.env.NODE_ENV === 'production'
               'https://gosolo.nyc',
               /\.repl\.co$/,
               /\.replit\.dev$/,
-              /^https?:\/\/localhost/,
-          ];
+              /-\d{2}-[a-z0-9]+\..*\.replit\.dev$/, // Match Replit dev URLs
+              process.env.REPL_SLUG ? new RegExp(`${process.env.REPL_SLUG}.*\\.replit\\.dev$`) : null,
+          ].filter(Boolean);
+
           var isAllowed = allowedDomains.some(function (domain) { 
               return typeof domain === 'string' ? domain === origin : domain.test(origin); 
           });
+
+          if (debug) {
+              console.log('Checking origin:', origin);
+              console.log('Allowed?', isAllowed);
+          }
+
           callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
       },
       credentials: true,
@@ -124,6 +132,12 @@ try {
         console.log('- Environment:', process.env.NODE_ENV);
         console.log('- Static path:', distPath);
         console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+
+        if (debug) {
+            console.log('Replit environment:');
+            console.log('- REPL_SLUG:', process.env.REPL_SLUG);
+            console.log('- REPLIT_DB_URL:', process.env.REPLIT_DB_URL ? 'Set' : 'Not set');
+        }
     });
 
     // Graceful shutdown
