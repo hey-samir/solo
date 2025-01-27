@@ -39,7 +39,15 @@ export default defineConfig({
           });
         }
       }
-    }
+    },
+    // Allow all Replit domains
+    allowedHosts: [
+      'localhost',
+      '.repl.co',
+      '.replit.dev',
+      '.repl.co.internal',
+      '.repl.dev.internal'
+    ]
   },
   resolve: {
     alias: {
