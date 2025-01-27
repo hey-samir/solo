@@ -10,11 +10,12 @@ const __dirname = path.dirname(__filename)
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    host: true,
     port: 3003,
     strictPort: true,
     hmr: {
       clientPort: 443,
+      protocol: 'wss',
       host: process.env.REPL_SLUG ? 
         `${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co` :
         'localhost'
@@ -25,6 +26,7 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
         ws: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
         configure: (proxy, _options) => {
           proxy.on('error', (err, _req, _res) => {
             console.log('proxy error', err);
@@ -59,6 +61,7 @@ export default defineConfig({
     }
   },
   define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+    'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:5000')
   }
 })

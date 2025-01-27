@@ -1,13 +1,13 @@
 import axios from 'axios'
 
-// In production, API requests will be made to the same origin
-// In development, we'll use the Vite dev server proxy
 const baseURL = process.env.NODE_ENV === 'production' 
   ? '/api'
-  : `http://${window.location.hostname}:5000`
+  : 'http://localhost:5000'
 
-console.log('API base URL:', baseURL)
-console.log('Environment:', process.env.NODE_ENV)
+console.log('API client configuration:')
+console.log('- Environment:', process.env.NODE_ENV)
+console.log('- Base URL:', baseURL)
+console.log('- Origin:', window.location.origin)
 
 const client = axios.create({
   baseURL,
@@ -21,7 +21,7 @@ const client = axios.create({
 client.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error)
+    console.error('API Error:', error.response?.data || error.message)
     if (error.response?.status === 401) {
       // Handle unauthorized access
       window.location.href = '/login'
