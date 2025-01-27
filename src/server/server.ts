@@ -80,13 +80,19 @@ app.use(express.static(distPath, {
   }
 }));
 
-// SPA fallback
-app.get('*', (req, res, next) => {
+// Handle all routes for the SPA - This should be after static files but before API routes
+app.get('/*', (req, res, next) => {
+  // Skip API routes
   if (req.path.startsWith('/api/')) {
     return next();
   }
   if (debug) console.log('SPA route hit:', req.path);
-  res.sendFile(path.join(distPath, 'index.html'));
+  res.sendFile(path.join(distPath, 'index.html'), err => {
+    if (err) {
+      console.error('Error sending index.html:', err);
+      res.status(500).send('Error loading application');
+    }
+  });
 });
 
 const PORT = Number(process.env.PORT) || 5000;
