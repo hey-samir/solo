@@ -15,9 +15,8 @@ export default defineConfig({
     strictPort: true,
     hmr: {
       clientPort: 443,
-      protocol: 'wss',
       host: process.env.REPL_SLUG ? 
-        `${process.env.REPL_ID}.${process.env.REPL_OWNER}.repl.co` : 
+        `${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co` :
         'localhost'
     },
     proxy: {
@@ -42,7 +41,12 @@ export default defineConfig({
     sourcemap: true,
     outDir: 'dist',
     assetsDir: 'assets',
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV)

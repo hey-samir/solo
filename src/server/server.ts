@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS Configuration - Handle Replit domains
+// CORS Configuration - Handle Replit domains and development server
 const corsOptions = {
   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
     console.log('Incoming request origin:', origin);
@@ -23,6 +23,8 @@ const corsOptions = {
       return;
     }
     const allowedDomains = [
+      'http://localhost:3003',
+      `http://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`,
       /\.repl\.co$/,
       /\.replit\.dev$/,
       /-\d{2}-[a-z0-9]+\..*\.replit\.dev$/,
@@ -30,7 +32,7 @@ const corsOptions = {
     ].filter(Boolean);
 
     const isAllowed = allowedDomains.some(domain => {
-      return typeof domain === 'string' ? domain === origin : domain.test(origin);
+      return typeof domain === 'string' ? domain === origin : domain?.test(origin);
     });
 
     if (debug) {
@@ -49,7 +51,7 @@ app.use(cors(corsOptions));
 
 // Session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: process.env.SESSION_SECRET || 'dev-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -74,7 +76,7 @@ app.use((req, res, next) => {
 // API routes
 app.get('/api/health', (_req, res) => {
   if (debug) console.log('Health check endpoint called');
-  res.json({ status: 'healthy' });
+  res.json({ status: 'healthy', environment: process.env.NODE_ENV });
 });
 
 // Serve static files
@@ -92,18 +94,23 @@ app.get('*', (req, res) => {
 const PORT = Number(process.env.PORT) || 5000;
 const HOST = '0.0.0.0';
 
-app.listen(PORT, HOST, () => {
-  console.log('Server configuration:');
-  console.log('- Port:', PORT);
-  console.log('- Environment:', process.env.NODE_ENV);
-  console.log('- Static path:', distPath);
-  console.log(`Server running at http://${HOST}:${PORT}`);
+try {
+  app.listen(PORT, HOST, () => {
+    console.log('Server configuration:');
+    console.log('- Port:', PORT);
+    console.log('- Environment:', process.env.NODE_ENV);
+    console.log('- Static path:', distPath);
+    console.log(`Server running at http://${HOST}:${PORT}`);
 
-  if (debug) {
-    console.log('Replit environment:');
-    console.log('- REPL_SLUG:', process.env.REPL_SLUG);
-    console.log('- REPLIT_DB_URL:', process.env.REPLIT_DB_URL ? 'Set' : 'Not set');
-  }
-});
+    if (debug) {
+      console.log('Replit environment:');
+      console.log('- REPL_SLUG:', process.env.REPL_SLUG);
+      console.log('- REPLIT_DB_URL:', process.env.REPLIT_DB_URL ? 'Set' : 'Not set');
+    }
+  });
+} catch (error) {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+}
 
 export { app };

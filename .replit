@@ -98,7 +98,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "tsx src/server/server.ts"
+args = "NODE_ENV=development tsx src/server/server.ts"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -113,7 +113,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "vite --port 3003 --host"
+args = "NODE_ENV=development vite --port 3003 --host"
 waitForPort = 3003
 
 [[ports]]
