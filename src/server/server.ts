@@ -14,40 +14,22 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS Configuration - Handle Replit domains and development server
+// CORS Configuration
 const corsOptions = {
-  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-    console.log('Incoming request origin:', origin);
-    if (!origin) {
-      callback(null, true);
-      return;
-    }
-    const allowedDomains = [
-      'http://localhost:3003',
-      `http://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`,
-      /\.repl\.co$/,
-      /\.replit\.dev$/,
-      /-\d{2}-[a-z0-9]+\..*\.replit\.dev$/,
-      process.env.REPL_SLUG ? new RegExp(`${process.env.REPL_SLUG}.*\\.replit\\.dev$`) : null,
-    ].filter(Boolean);
-
-    const isAllowed = allowedDomains.some(domain => {
-      return typeof domain === 'string' ? domain === origin : domain?.test(origin);
-    });
-
-    if (debug) {
-      console.log('Checking origin:', origin);
-      console.log('Allowed?', isAllowed);
-    }
-
-    callback(null, true); // Allow all origins during development
-  },
+  origin: process.env.NODE_ENV === 'production' 
+    ? true // Allow all origins in production
+    : ['http://localhost:3003', `https://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
+if (debug) {
+  console.log('CORS configuration:', corsOptions);
+}
+
 app.use(cors(corsOptions));
+app.use(express.json({ limit: '10mb' }));
 
 // Session configuration
 app.use(session({
@@ -61,10 +43,10 @@ app.use(session({
 }));
 
 // Get the absolute path to the dist directory
-const distPath = path.join(__dirname, '../../dist');
+const distPath = path.resolve(__dirname, '../../dist');
 console.log('Static files path:', distPath);
 
-// Add debug middleware
+// Debug middleware
 app.use((req, res, next) => {
   if (debug) {
     console.log(`${req.method} ${req.path}`);
@@ -79,13 +61,29 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'healthy', environment: process.env.NODE_ENV });
 });
 
-// Serve static files
-app.use(express.static(distPath));
+// Serve static files with proper MIME types and cache control
+app.use(express.static(distPath, {
+  etag: true,
+  lastModified: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    } else if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+
+    if (filePath.includes('/assets/')) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
+    } else {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 // SPA fallback
-app.get('*', (req, res) => {
+app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/')) {
-    return;
+    return next();
   }
   if (debug) console.log('SPA route hit:', req.path);
   res.sendFile(path.join(distPath, 'index.html'));
