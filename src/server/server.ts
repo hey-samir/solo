@@ -1,13 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import session from 'express-session';
 
-// Add debug logging
+// Debug mode
 const debug = process.env.NODE_ENV !== 'production';
-if (debug) {
-  console.log('Starting server in debug mode');
-  console.log('Environment:', process.env.NODE_ENV);
-}
+console.log('Starting server in debug mode');
+console.log('Environment:', process.env.NODE_ENV);
 
 const app = express();
 
@@ -15,10 +14,48 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Simple CORS configuration
-app.use(cors({
-  origin: true,
-  credentials: true
+// CORS Configuration - Handle Replit domains
+const corsOptions = {
+  origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+    console.log('Incoming request origin:', origin);
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+    const allowedDomains = [
+      /\.repl\.co$/,
+      /\.replit\.dev$/,
+      /-\d{2}-[a-z0-9]+\..*\.replit\.dev$/,
+      process.env.REPL_SLUG ? new RegExp(`${process.env.REPL_SLUG}.*\\.replit\\.dev$`) : null,
+    ].filter(Boolean);
+
+    const isAllowed = allowedDomains.some(domain => {
+      return typeof domain === 'string' ? domain === origin : domain.test(origin);
+    });
+
+    if (debug) {
+      console.log('Checking origin:', origin);
+      console.log('Allowed?', isAllowed);
+    }
+
+    callback(null, true); // Allow all origins during development
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+};
+
+app.use(cors(corsOptions));
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // Get the absolute path to the dist directory
@@ -27,81 +64,46 @@ console.log('Static files path:', distPath);
 
 // Add debug middleware
 app.use((req, res, next) => {
-    if (debug) {
-        console.log(`${req.method} ${req.path}`);
-        console.log('Headers:', req.headers);
-    }
-    next();
+  if (debug) {
+    console.log(`${req.method} ${req.path}`);
+    console.log('Headers:', req.headers);
+  }
+  next();
 });
 
 // API routes
 app.get('/api/health', (_req, res) => {
-    if (debug) console.log('Health check endpoint called');
-    res.json({ status: 'healthy' });
+  if (debug) console.log('Health check endpoint called');
+  res.json({ status: 'healthy' });
 });
 
-// Serve static files with explicit MIME types and caching headers
-app.use(express.static(distPath, {
-    etag: true,
-    lastModified: true,
-    setHeaders: (res, filePath) => {
-        // Set appropriate MIME types
-        if (filePath.endsWith('.js')) {
-            res.setHeader('Content-Type', 'application/javascript');
-        } else if (filePath.endsWith('.css')) {
-            res.setHeader('Content-Type', 'text/css');
-        } else if (filePath.endsWith('.html')) {
-            res.setHeader('Content-Type', 'text/html');
-        }
+// Serve static files
+app.use(express.static(distPath));
 
-        // Set caching headers
-        if (filePath.includes('/assets/')) {
-            // Cache assets for 1 year
-            res.setHeader('Cache-Control', 'public, max-age=31536000');
-        } else {
-            // Don't cache HTML files
-            res.setHeader('Cache-Control', 'no-cache');
-        }
-    }
-}));
-
-// SPA fallback - Must be after static files middleware
-app.get('*', (req, res, next) => {
-    // Skip API routes
-    if (req.path.startsWith('/api/')) {
-        return next();
-    }
-
-    if (debug) console.log('SPA route hit:', req.path);
-    res.sendFile(path.join(distPath, 'index.html'), err => {
-        if (err) {
-            console.error('Error sending index.html:', err);
-            res.status(500).send('Error loading application');
-        }
-    });
-});
-
-// Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error('Server error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+// SPA fallback
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return;
+  }
+  if (debug) console.log('SPA route hit:', req.path);
+  res.sendFile(path.join(distPath, 'index.html'));
 });
 
 const PORT = Number(process.env.PORT) || 5000;
 const HOST = '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
-    console.log('Server configuration:');
-    console.log('- Port:', PORT);
-    console.log('- Environment:', process.env.NODE_ENV);
-    console.log('- Static path:', distPath);
-    console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode`);
+  console.log('Server configuration:');
+  console.log('- Port:', PORT);
+  console.log('- Environment:', process.env.NODE_ENV);
+  console.log('- Static path:', distPath);
+  console.log(`Server running at http://${HOST}:${PORT}`);
 
-    if (debug) {
-        console.log('Replit environment:');
-        console.log('- REPL_SLUG:', process.env.REPL_SLUG);
-        console.log('- REPLIT_DB_URL:', process.env.REPLIT_DB_URL ? 'Set' : 'Not set');
-    }
+  if (debug) {
+    console.log('Replit environment:');
+    console.log('- REPL_SLUG:', process.env.REPL_SLUG);
+    console.log('- REPLIT_DB_URL:', process.env.REPLIT_DB_URL ? 'Set' : 'Not set');
+  }
 });
 
 export { app };
