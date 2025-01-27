@@ -7,9 +7,9 @@ const Layout: React.FC = () => {
   console.log('Layout component rendering...') // Add debugging log
 
   return (
-    <div className="app">
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="container">
+      <main className="flex-grow container mx-auto px-4 py-8">
         <Outlet />
       </main>
       <Navbar />

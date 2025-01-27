@@ -16,7 +16,7 @@ export default defineConfig({
     hmr: {
       clientPort: 443,
       protocol: 'wss',
-      host: process.env.REPL_SLUG ? 
+      host: process.env.REPL_ID ? 
         `${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co` :
         'localhost'
     },
@@ -25,19 +25,7 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        ws: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            console.log('proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response:', proxyRes.statusCode, req.url);
-          });
-        }
+        ws: true
       }
     },
     // Allow all Replit domains
@@ -46,7 +34,8 @@ export default defineConfig({
       '.repl.co',
       '.replit.dev',
       '.repl.co.internal',
-      '.repl.dev.internal'
+      '.repl.dev.internal',
+      '.picard.replit.dev'
     ]
   },
   resolve: {
@@ -61,13 +50,9 @@ export default defineConfig({
     sourcemap: true,
     outDir: 'dist',
     assetsDir: 'assets',
-    emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks: undefined
-      }
-    }
+    emptyOutDir: true
   },
+  base: '/',
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     'process.env.VITE_API_URL': JSON.stringify(process.env.VITE_API_URL || 'http://localhost:5000')

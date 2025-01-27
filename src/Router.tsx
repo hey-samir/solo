@@ -1,103 +1,69 @@
-import React, { Suspense, lazy } from 'react'
+import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
 
-// Lazy load components
-const Home = lazy(() => import('./pages/Home'))
-const About = lazy(() => import('./pages/About'))
-const Login = lazy(() => import('./pages/Login'))
-const Register = lazy(() => import('./pages/Register'))
-const Squads = lazy(() => import('./pages/Squads'))
-const Standings = lazy(() => import('./pages/Standings'))
-const Sends = lazy(() => import('./pages/Sends'))
-const Sessions = lazy(() => import('./pages/Sessions'))
-const Stats = lazy(() => import('./pages/Stats'))
-const Profile = lazy(() => import('./pages/Profile'))
-const Pricing = lazy(() => import('./pages/Pricing'))
-const Feedback = lazy(() => import('./pages/Feedback'))
+// Import pages directly for debugging
+import Home from './pages/Home'
+import About from './pages/About'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Squads from './pages/Squads'
+import Standings from './pages/Standings'
+import Sends from './pages/Sends'
+import Sessions from './pages/Sessions'
+import Stats from './pages/Stats'
+import Profile from './pages/Profile'
+import Pricing from './pages/Pricing'
+import Feedback from './pages/Feedback'
 
 const Router: React.FC = () => {
+  console.log('Router rendering...') // Debug log
+
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
-        <Route index element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <Home />
-          </Suspense>
-        } />
-        <Route path="/about" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <About />
-          </Suspense>
-        } />
-        <Route path="/login" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <Login />
-          </Suspense>
-        } />
-        <Route path="/signup" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <Register />
-          </Suspense>
-        } />
-        <Route path="/pricing" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <Pricing />
-          </Suspense>
-        } />
-        <Route path="/feedback" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <Feedback />
-          </Suspense>
-        } />
+        <Route index element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Register />} />
+        <Route path="/pricing" element={<Pricing />} />
+        <Route path="/feedback" element={<Feedback />} />
 
         {/* Semi-Protected Routes */}
         <Route path="/squads" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProtectedRoute requireAuth={false}>
-              <Squads />
-            </ProtectedRoute>
-          </Suspense>
+          <ProtectedRoute requireAuth={false}>
+            <Squads />
+          </ProtectedRoute>
         } />
         <Route path="/standings" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProtectedRoute requireAuth={false}>
-              <Standings />
-            </ProtectedRoute>
-          </Suspense>
+          <ProtectedRoute requireAuth={false}>
+            <Standings />
+          </ProtectedRoute>
         } />
         <Route path="/sends" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProtectedRoute requireAuth={false}>
-              <Sends />
-            </ProtectedRoute>
-          </Suspense>
+          <ProtectedRoute requireAuth={false}>
+            <Sends />
+          </ProtectedRoute>
         } />
 
         {/* Protected Routes */}
         <Route path="/sessions" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProtectedRoute>
-              <Sessions />
-            </ProtectedRoute>
-          </Suspense>
+          <ProtectedRoute>
+            <Sessions />
+          </ProtectedRoute>
         } />
         <Route path="/stats" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProtectedRoute>
-              <Stats />
-            </ProtectedRoute>
-          </Suspense>
+          <ProtectedRoute>
+            <Stats />
+          </ProtectedRoute>
         } />
         <Route path="/profile" element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          </Suspense>
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
         } />
 
         {/* Catch all route */}
