@@ -13,10 +13,10 @@ export interface User {
 export interface Route {
   id: number;
   routeId: string;
-  color?: string;
-  grade?: string;
-  rating?: number;
-  dateSet?: Date;
+  color: string;
+  grade: string;
+  rating: number;
+  dateSet: Date;
   gymId: number;
 }
 
@@ -24,15 +24,15 @@ export interface Climb {
   id: number;
   userId: number;
   routeId: number;
-  status?: boolean;
-  rating?: number;
-  tries?: number;
-  notes?: string;
-  points?: number;
+  status: boolean;
+  rating: number;
+  tries: number;
+  notes: string | null;
+  points: number;
   createdAt: Date;
 }
 
-export const users = pgTable('user', {
+export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   username: text('username').notNull().unique(),
   email: text('email').notNull().unique(),
@@ -42,25 +42,25 @@ export const users = pgTable('user', {
   gymId: integer('gym_id')
 });
 
-export const routes = pgTable('route', {
+export const routes = pgTable('routes', {
   id: serial('id').primaryKey(),
   routeId: text('route_id').notNull(),
-  color: text('color'),
-  grade: text('grade'),
-  rating: integer('rating'),
-  dateSet: timestamp('date_set'),
+  color: text('color').notNull(),
+  grade: text('grade').notNull(),
+  rating: integer('rating').notNull(),
+  dateSet: timestamp('date_set').notNull(),
   gymId: integer('gym_id').notNull()
 });
 
-export const climbs = pgTable('climb', {
+export const climbs = pgTable('climbs', {
   id: serial('id').primaryKey(),
   userId: integer('user_id').notNull(),
   routeId: integer('route_id').notNull(),
-  status: boolean('status'),
-  rating: integer('rating'),
-  tries: integer('tries'),
+  status: boolean('status').notNull(),
+  rating: integer('rating').notNull(),
+  tries: integer('tries').notNull(),
   notes: text('notes'),
-  points: integer('points'),
+  points: integer('points').notNull(),
   createdAt: timestamp('created_at').defaultNow()
 });
 
