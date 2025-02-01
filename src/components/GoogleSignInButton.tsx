@@ -1,18 +1,39 @@
 import React from 'react';
+import { useGoogleLogin } from '@react-oauth/google';
+import { useNavigate } from 'react-router-dom';
 
 const GoogleSignInButton: React.FC = () => {
-  const handleGoogleSignIn = () => {
-    // Use window.location.origin to get the current domain
-    const apiUrl = process.env.NODE_ENV === 'production'
-      ? 'https://gosolo.nyc/auth/google'
-      : `${window.location.origin}/api/auth/google`;
+  const navigate = useNavigate();
 
-    window.location.href = apiUrl;
-  };
+  const login = useGoogleLogin({
+    onSuccess: async (response) => {
+      try {
+        // Send the access token to your backend
+        const result = await fetch('/api/auth/google/callback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            access_token: response.access_token 
+          }),
+        });
+
+        if (result.ok) {
+          navigate('/profile'); // Redirect to profile page after successful login
+        } else {
+          console.error('Failed to authenticate with backend');
+        }
+      } catch (error) {
+        console.error('Error during authentication:', error);
+      }
+    },
+    onError: () => console.error('Login Failed'),
+  });
 
   return (
     <button
-      onClick={handleGoogleSignIn}
+      onClick={() => login()}
       className="btn-google"
       type="button"
     >

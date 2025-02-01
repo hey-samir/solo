@@ -23,7 +23,7 @@ google_auth = Blueprint("google_auth", __name__)
 def login():
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
-    callback_url = f"{PRODUCTION_URL}{CALLBACK_PATH}" if os.environ.get("NODE_ENV") == "production" else request.base_url.replace("http://", "https://") + "/callback"
+    callback_url = request.base_url.replace("http://", "https://") + "/callback"
 
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
@@ -38,7 +38,7 @@ def callback():
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     token_endpoint = google_provider_cfg["token_endpoint"]
 
-    callback_url = f"{PRODUCTION_URL}{CALLBACK_PATH}" if os.environ.get("NODE_ENV") == "production" else request.base_url.replace("http://", "https://")
+    callback_url = request.base_url.replace("http://", "https://")
 
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
@@ -54,6 +54,7 @@ def callback():
     )
 
     client.parse_request_body_response(json.dumps(token_response.json()))
+
     userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
     uri, headers, body = client.add_token(userinfo_endpoint)
     userinfo_response = requests.get(uri, headers=headers, data=body)

@@ -61,14 +61,34 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'healthy', environment: process.env.NODE_ENV });
 });
 
-// Handle Google Auth redirect
-app.get('/api/auth/google', (req, res) => {
-  const flaskAuthUrl = process.env.NODE_ENV === 'production'
-    ? 'https://gosolo.nyc/auth/google'
-    : `http://localhost:5000/auth/google`;
+// Handle Google Auth callback
+app.post('/api/auth/google/callback', async (req, res) => {
+  try {
+    const { access_token } = req.body;
 
-  if (debug) console.log('Redirecting to Flask auth:', flaskAuthUrl);
-  res.redirect(flaskAuthUrl);
+    // Get user info from Google
+    const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to get user info from Google');
+    }
+
+    const userData = await response.json();
+
+    // Create or update user session
+    req.session.user = {
+      email: userData.email,
+      name: userData.given_name,
+      picture: userData.picture,
+    };
+
+    res.json({ success: true, user: req.session.user });
+  } catch (error) {
+    console.error('Google auth callback error:', error);
+    res.status(500).json({ success: false, error: 'Authentication failed' });
+  }
 });
 
 // Serve static files with proper MIME types and cache control
