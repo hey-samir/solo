@@ -17,12 +17,10 @@ const TEST_USER = {
 const ROUTE_COLORS = ['Red', 'Blue', 'Green', 'Yellow', 'White', 'Black', 'Purple', 'Orange'];
 const ROUTE_GRADES = ['5.8', '5.9', '5.10a', '5.10b', '5.10c', '5.10d', '5.11a', '5.11b', '5.11c'];
 
-let currentRouteNumber = 1;
-
-async function addRandomSend(userId: number, date: Date) {
+async function addRandomSend(userId: number, date: Date, routeNumber: number) {
   try {
-    // Create a route with all required fields and ensure unique route_id
-    const routeId = `TR-${String(currentRouteNumber++).padStart(3, '0')}`;
+    // Create a route with all required fields
+    const routeId = `TR-${String(routeNumber).padStart(3, '0')}`;
     const [route] = await db.insert(routes).values({
       route_id: routeId,
       color: ROUTE_COLORS[Math.floor(Math.random() * ROUTE_COLORS.length)],
@@ -90,23 +88,45 @@ async function seedTestData() {
       console.log('Created test user:', TEST_USER.username);
     }
 
-    // Create sample sends for the last 7 days
-    const now = new Date();
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
-      const sendsCount = Math.floor(Math.random() * 5) + 1; // 1-5 sends per day
+    try {
+      // First, delete all climbs for this user
+      console.log('Cleaning up existing climbs...');
+      await db.delete(climbs)
+        .where(eq(climbs.user_id, user.id));
 
-      for (let j = 0; j < sendsCount; j++) {
-        await addRandomSend(user.id, date);
+      // Then, delete all routes for gym_id 1 (demo gym)
+      console.log('Cleaning up existing routes...');
+      await db.delete(routes)
+        .where(eq(routes.gym_id, 1));
+
+      console.log('Creating new demo sends...');
+      let routeCounter = 1;
+      // Create sample sends for the last 7 days with more variety
+      const now = new Date();
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+        // Generate 5-10 sends per day
+        const sendsCount = Math.floor(Math.random() * 6) + 5;
+
+        console.log(`Adding ${sendsCount} sends for ${date.toLocaleDateString()}...`);
+
+        for (let j = 0; j < sendsCount; j++) {
+          await addRandomSend(user.id, date, routeCounter++);
+        }
       }
-    }
 
-    console.log('\nTest Data Summary:');
-    console.log('Test User:', TEST_USER.username);
-    console.log('Password:', TEST_USER.password);
-    console.log('Email:', TEST_USER.email);
-    console.log('Gym:', TEST_USER.gym);
-    console.log('User Type:', TEST_USER.user_type);
+      console.log('\nTest Data Summary:');
+      console.log('Test User:', TEST_USER.username);
+      console.log('Password:', TEST_USER.password);
+      console.log('Email:', TEST_USER.email);
+      console.log('Gym:', TEST_USER.gym);
+      console.log('User Type:', TEST_USER.user_type);
+      console.log('\nSuccessfully added demo sends across 7 days');
+
+    } catch (error) {
+      console.error('Error during data cleanup/creation:', error);
+      throw error;
+    }
 
   } catch (error) {
     console.error('Error seeding test data:', error);
