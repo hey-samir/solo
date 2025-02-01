@@ -1,9 +1,18 @@
 import React from 'react';
 
 const GoogleSignInButton: React.FC = () => {
+  const handleGoogleSignIn = () => {
+    // Use window.location.origin to get the current domain
+    const apiUrl = process.env.NODE_ENV === 'production'
+      ? 'https://gosolo.nyc/auth/google'
+      : `${window.location.origin}/api/auth/google`;
+
+    window.location.href = apiUrl;
+  };
+
   return (
     <button
-      onClick={() => window.location.href = '/auth/google'}
+      onClick={handleGoogleSignIn}
       className="btn-google"
       type="button"
     >
