@@ -26,13 +26,13 @@ export const useAuth = () => {
   return context;
 };
 
-// Development mock user
-const mockUser = {
-  id: 1,
-  username: 'DemoUser',
-  email: 'demo@example.com',
+// Development demo user matching our seeded data
+const demoUser = {
+  id: 4, // From our SQL query
+  username: 'gosolonyc',
+  email: 'demo@soloapp.dev',
   memberSince: new Date(),
-  profilePhoto: null
+  profilePhoto: '/static/images/avatar-purple.svg'
 };
 
 // Toggle this flag to enable/disable authentication
@@ -40,14 +40,14 @@ const BYPASS_AUTH = true;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(BYPASS_AUTH);
-  const [user, setUser] = useState<User | null>(BYPASS_AUTH ? mockUser : null);
+  const [user, setUser] = useState<User | null>(BYPASS_AUTH ? demoUser : null);
   const [loading, setLoading] = useState(!BYPASS_AUTH);
 
   useEffect(() => {
     const checkAuth = async () => {
       if (BYPASS_AUTH) {
         setIsAuthenticated(true);
-        setUser(mockUser);
+        setUser(demoUser);
         setLoading(false);
         return;
       }
