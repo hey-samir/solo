@@ -43,13 +43,13 @@ const Router: React.FC = () => {
             <Standings />
           </ProtectedRoute>
         } />
+
+        {/* Protected Routes */}
         <Route path="/sends" element={
-          <ProtectedRoute requireAuth={false}>
+          <ProtectedRoute>
             <Sends />
           </ProtectedRoute>
         } />
-
-        {/* Protected Routes */}
         <Route path="/sessions" element={
           <ProtectedRoute>
             <Sessions />
