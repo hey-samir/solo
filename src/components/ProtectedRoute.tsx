@@ -11,6 +11,13 @@ const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) =
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
+  // Development flag to bypass authentication
+  const BYPASS_AUTH = true;
+
+  if (BYPASS_AUTH) {
+    return <>{children}</>;
+  }
+
   if (loading) {
     return <LoadingSpinner />;
   }

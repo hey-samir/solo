@@ -1,7 +1,6 @@
-import React, { FC, useState, useEffect } from 'react'
+import React, { FC } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 interface User {
@@ -37,27 +36,17 @@ const Profile: FC = () => {
   const { username } = useParams()
   const isOwnProfile = !username // If no username provided, viewing own profile
 
-  // For development/debugging, use mock data when authentication is disabled
-  const ENABLE_AUTH = false
-
+  // Always use mock data in development
   const { data: user, isLoading: userLoading } = useQuery<User>({
     queryKey: ['user', username],
-    queryFn: async () => {
-      if (!ENABLE_AUTH) return mockUser
-      const response = await client.get(`/user/${username || 'me'}`)
-      return response.data
-    },
-    enabled: !!username || isOwnProfile
+    queryFn: async () => mockUser,
+    enabled: true
   })
 
   const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
     queryKey: ['user-stats', username],
-    queryFn: async () => {
-      if (!ENABLE_AUTH) return mockStats
-      const response = await client.get(`/user/${username || 'me'}/stats`)
-      return response.data
-    },
-    enabled: !!user
+    queryFn: async () => mockStats,
+    enabled: true
   })
 
   if (userLoading || statsLoading) {
