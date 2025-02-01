@@ -10,10 +10,8 @@ const Login: React.FC = () => {
             Login
           </h2>
         </div>
-        <div className="mt-8">
-          <div className="flex flex-col items-center">
-            <GoogleSignInButton />
-          </div>
+        <div className="mt-8 space-y-6">
+          <GoogleSignInButton />
         </div>
       </div>
     </div>

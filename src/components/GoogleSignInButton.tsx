@@ -2,9 +2,10 @@ import React from 'react';
 
 const GoogleSignInButton: React.FC = () => {
   return (
-    <a
-      href="/auth/google"
-      className="flex items-center justify-center gap-2 px-6 py-3 text-white bg-solo-purple rounded-lg hover:bg-opacity-90 transition-colors w-full"
+    <button
+      onClick={() => window.location.href = '/auth/google'}
+      className="w-full flex items-center justify-center gap-2 px-6 py-3 text-white bg-solo-purple rounded-lg hover:bg-opacity-90 transition-colors"
+      type="button"
     >
       <svg className="w-5 h-5" viewBox="0 0 24 24">
         <path
@@ -13,7 +14,7 @@ const GoogleSignInButton: React.FC = () => {
         />
       </svg>
       Sign in with Google
-    </a>
+    </button>
   );
 };
 

@@ -13,7 +13,8 @@ GOOGLE_CLIENT_SECRET = os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 # Configure redirect URL for Google OAuth
-DEV_REDIRECT_URL = f'https://{os.environ["REPL_SLUG"]}.{os.environ["REPL_OWNER"]}.repl.co/google_login/callback'
+PRODUCTION_URL = "https://gosolo.nyc"
+CALLBACK_PATH = "/auth/google/callback"
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 google_auth = Blueprint("google_auth", __name__)
@@ -22,9 +23,11 @@ google_auth = Blueprint("google_auth", __name__)
 def login():
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+    callback_url = f"{PRODUCTION_URL}{CALLBACK_PATH}" if os.environ.get("NODE_ENV") == "production" else request.base_url.replace("http://", "https://") + "/callback"
+
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url.replace("http://", "https://") + "/callback",
+        redirect_uri=callback_url,
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
@@ -35,10 +38,12 @@ def callback():
     google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
     token_endpoint = google_provider_cfg["token_endpoint"]
 
+    callback_url = f"{PRODUCTION_URL}{CALLBACK_PATH}" if os.environ.get("NODE_ENV") == "production" else request.base_url.replace("http://", "https://")
+
     token_url, headers, body = client.prepare_token_request(
         token_endpoint,
         authorization_response=request.url.replace("http://", "https://"),
-        redirect_url=request.base_url.replace("http://", "https://"),
+        redirect_url=callback_url,
         code=code,
     )
     token_response = requests.post(
