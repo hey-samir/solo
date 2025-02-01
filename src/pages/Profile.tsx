@@ -26,7 +26,7 @@ const mockUser: User = {
   id: 1,
   username: "gosolonyc",
   name: "Solo",
-  profilePhoto: "/static/images/avatars/purple-solo.png",
+  profilePhoto: "https://ui-avatars.com/api/?name=Solo&background=7442d6&color=fff",
   memberSince: "2025-01-01T00:00:00.000Z",
   gymId: 1,
   gym: {
@@ -69,6 +69,12 @@ const Profile: FC = () => {
     )
   }
 
+  // Helper function to generate fallback avatar URL
+  const getAvatarUrl = (user: User) => {
+    if (user.profilePhoto) return user.profilePhoto;
+    // Generate a UI Avatar with user's name and Solo brand color
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=7442d6&color=fff`;
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -78,7 +84,7 @@ const Profile: FC = () => {
           <div className="col-md-3 col-12 mb-4 mb-md-0">
             <div className="profile-photo-container">
               <img
-                src={user.profilePhoto || '/static/images/avatars/purple-solo.png'}
+                src={getAvatarUrl(user)}
                 alt={`${user.name}'s profile`}
                 className="profile-photo"
               />
