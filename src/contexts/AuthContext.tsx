@@ -26,13 +26,32 @@ export const useAuth = () => {
   return context;
 };
 
+// Development mock user
+const mockUser = {
+  id: 1,
+  username: 'DemoUser',
+  email: 'demo@example.com',
+  memberSince: new Date(),
+  profilePhoto: null
+};
+
+// Toggle this flag to enable/disable authentication
+const BYPASS_AUTH = true;
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(BYPASS_AUTH);
+  const [user, setUser] = useState<User | null>(BYPASS_AUTH ? mockUser : null);
+  const [loading, setLoading] = useState(!BYPASS_AUTH);
 
   useEffect(() => {
     const checkAuth = async () => {
+      if (BYPASS_AUTH) {
+        setIsAuthenticated(true);
+        setUser(mockUser);
+        setLoading(false);
+        return;
+      }
+
       try {
         const response = await client.get('/auth/current-user');
         if (response.data) {
@@ -51,6 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const logout = async () => {
+    if (BYPASS_AUTH) {
+      console.log('Logout bypassed in development mode');
+      return;
+    }
+
     try {
       await client.get('/auth/logout');
       setUser(null);
