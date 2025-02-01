@@ -2,11 +2,11 @@ import json
 import os
 
 import requests
-from app import db
 from flask import Blueprint, redirect, request, url_for
 from flask_login import login_required, login_user, logout_user
-from models import User
 from oauthlib.oauth2 import WebApplicationClient
+from models import User
+from app import db
 
 GOOGLE_CLIENT_ID = os.environ["GOOGLE_OAUTH_CLIENT_ID"]
 GOOGLE_CLIENT_SECRET = os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]

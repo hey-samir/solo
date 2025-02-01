@@ -11,15 +11,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-#This section is removed because we are no longer using Flask
-#try:
-#    from app import create_app
-#    app = create_app()
-#    logger.info("Successfully imported app and db")
-#except Exception as e:
-#    logger.error(f"Failed to import app: {str(e)}", exc_info=True)
-#    sys.exit(1)
+try:
+    from app import app
+    logger.info("Successfully imported app")
+except Exception as e:
+    logger.error(f"Failed to import app: {str(e)}", exc_info=True)
+    sys.exit(1)
 
-#This section is removed because we are no longer using Flask
-#if __name__ == "__main__":
-#    app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5001, debug=True)
