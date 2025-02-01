@@ -31,6 +31,7 @@
     "@types/passport-local": "^1.0.38",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@vercel/postgres": "^0.10.0",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",

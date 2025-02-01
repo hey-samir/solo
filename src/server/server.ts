@@ -4,6 +4,7 @@ import path from 'path';
 import session from 'express-session';
 import compression from 'compression';
 import morgan from 'morgan';
+import { sql } from '@vercel/postgres';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -53,7 +54,7 @@ app.use(express.static(distPath, {
   }
 }));
 
-// Updated Google Auth callback handler with proper error handling
+// Updated Google Auth callback handler with user existence check
 app.post('/api/auth/google/callback', async (req, res) => {
   try {
     const { access_token } = req.body;
@@ -82,16 +83,29 @@ app.post('/api/auth/google/callback', async (req, res) => {
       });
     }
 
-    // For now, treat all users as new users since we haven't implemented user storage yet
-    res.json({
-      success: true,
-      isNewUser: true,
-      user: {
-        email: userData.email,
-        name: userData.given_name || userData.name,
-        picture: userData.picture
-      }
-    });
+    try {
+      // Check if user exists in database
+      const result = await sql`
+        SELECT id, email, username 
+        FROM users 
+        WHERE email = ${userData.email}
+      `;
+
+      const userExists = result.rows.length > 0;
+
+      res.json({
+        success: true,
+        isNewUser: !userExists,
+        user: {
+          email: userData.email,
+          name: userData.given_name || userData.name,
+          picture: userData.picture
+        }
+      });
+    } catch (dbError) {
+      console.error('Database error:', dbError);
+      throw new Error('Failed to check user existence');
+    }
   } catch (error) {
     console.error('Google auth callback error:', error);
     res.status(500).json({

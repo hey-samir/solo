@@ -8,7 +8,6 @@ const GoogleSignInButton: React.FC = () => {
   const login = useGoogleLogin({
     onSuccess: async (response) => {
       try {
-        // Send the access token to your backend
         const result = await fetch('/api/auth/google/callback', {
           method: 'POST',
           headers: {
@@ -25,11 +24,18 @@ const GoogleSignInButton: React.FC = () => {
         }
 
         const data = await result.json();
+
         if (data.success) {
           if (data.isNewUser) {
             // Redirect to registration with pre-filled data
-            navigate(`/register?name=${encodeURIComponent(data.user.name)}&email=${encodeURIComponent(data.user.email)}`);
+            const params = new URLSearchParams({
+              name: data.user.name,
+              email: data.user.email,
+              picture: data.user.picture || ''
+            });
+            navigate(`/register?${params.toString()}`);
           } else {
+            // Existing user - redirect to profile
             navigate('/profile');
           }
         } else {
