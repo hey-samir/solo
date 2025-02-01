@@ -28,16 +28,17 @@ const GoogleSignInButton: React.FC = () => {
         console.log('Backend response:', data);
 
         if (data.success) {
-          if (data.isNewUser) {
+          if (data.isNewUser || data.needsProfile) {
             // Redirect to registration with pre-filled data
             const params = new URLSearchParams({
-              name: data.user.name,
               email: data.user.email,
-              picture: data.user.picture || ''
+              name: data.user.name || '',
+              picture: data.user.picture || '',
+              isNewUser: data.isNewUser.toString()
             });
             navigate(`/register?${params.toString()}`);
           } else {
-            // Check session establishment
+            // Verify session and redirect to profile
             console.log('Verifying session...');
             const statusCheck = await fetch('/api/auth/status', {
               credentials: 'include'

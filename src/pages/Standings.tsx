@@ -3,39 +3,40 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosResponse } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
-
-interface LeaderboardEntry {
-  username: string
-  totalSends: number
-  avgGrade: string
-  totalPoints: number
-}
-
-interface CacheInfo {
-  isFromCache: boolean
-  timestamp: string | null
-}
+import type { Standing } from '../types'
 
 const Standings: FC = () => {
-  const [cacheInfo, setCacheInfo] = useState<CacheInfo>({
+  const [cacheInfo, setCacheInfo] = useState<{
+    isFromCache: boolean
+    timestamp: string | null
+  }>({
     isFromCache: false,
     timestamp: null
   })
 
-  const { data: leaderboard, isLoading } = useQuery<LeaderboardEntry[]>({
+  const { data: leaderboard, isLoading, error } = useQuery<Standing[]>({
     queryKey: ['leaderboard'],
     queryFn: async () => {
-      const response: AxiosResponse = await client.get('/leaderboard')
-      // Check response headers for cache information
-      const timestamp = response.headers?.['x-cache-timestamp'] as string || null
-      const isFromCache = response.headers?.['x-data-source'] === 'cache'
-      setCacheInfo({ isFromCache, timestamp })
-      return response.data
+      try {
+        const response: AxiosResponse = await client.get('/api/leaderboard')
+        // Check response headers for cache information
+        const timestamp = response.headers?.['x-cache-timestamp'] as string || null
+        const isFromCache = response.headers?.['x-data-source'] === 'cache'
+        setCacheInfo({ isFromCache, timestamp })
+        return response.data || [] // Ensure we always return an array
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error)
+        return [] // Return empty array on error
+      }
     }
   })
 
   if (isLoading) {
     return <LoadingSpinner />
+  }
+
+  if (error) {
+    return <div className="alert alert-danger">Error loading standings</div>
   }
 
   return (
@@ -67,7 +68,7 @@ const Standings: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {leaderboard?.map((entry, index) => (
+                {(leaderboard || []).map((entry, index) => (
                   <tr key={entry.username}>
                     <td className="text-center">
                       {index + 1 <= 3 ? (

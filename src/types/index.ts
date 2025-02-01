@@ -3,6 +3,7 @@ export interface User {
   username: string;
   email: string;
   createdAt: string;
+  profileCompleted?: boolean;
 }
 
 export interface Send {
@@ -26,8 +27,9 @@ export interface Standing {
   userId: number;
   username: string;
   totalSends: number;
-  averageGrade: string;
-  rank: number;
+  avgGrade: string;
+  totalPoints: number;
+  rank?: number;
 }
 
 export interface Stats {
@@ -36,6 +38,8 @@ export interface Stats {
   bestGrade: string;
   totalSessions: number;
   averageSessionDuration: number;
+  labels?: string[];
+  data?: number[];
 }
 
 export interface ErrorPageProps {

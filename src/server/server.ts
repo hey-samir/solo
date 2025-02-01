@@ -84,7 +84,6 @@ app.use(express.static(distPath, {
   }
 }));
 
-// Updated Google Auth callback handler
 app.post('/api/auth/google/callback', async (req, res) => {
   try {
     const { access_token } = req.body;
@@ -114,38 +113,40 @@ app.post('/api/auth/google/callback', async (req, res) => {
     }
 
     try {
-      // Check if user exists in database
+      // Check if user exists and has complete profile
       const result = await db.query(
-        'SELECT id, email, username FROM users WHERE email = $1',
+        'SELECT id, email, username, profile_completed FROM users WHERE email = $1',
         [userData.email]
       );
 
       const userExists = result.rows.length > 0;
+      const profileCompleted = userExists && result.rows[0].profile_completed;
 
-      // Set user in session if exists
-      if (userExists) {
+      if (userExists && profileCompleted) {
+        // Set user in session
         req.session.user = {
           id: result.rows[0].id,
           email: result.rows[0].email,
-          username: result.rows[0].username
+          username: result.rows[0].username,
+          profileCompleted: true
         };
 
-        // Save session explicitly
         await new Promise((resolve, reject) => {
           req.session.save((err) => {
             if (err) reject(err);
             resolve(true);
           });
         });
-
-        // Set a response header to indicate successful session creation
-        res.setHeader('X-Session-Created', 'true');
       }
 
       res.json({
         success: true,
         isNewUser: !userExists,
-        user: userExists ? req.session.user : {
+        needsProfile: userExists && !profileCompleted,
+        user: userExists ? {
+          ...req.session.user,
+          needsProfile: !profileCompleted
+        } : {
           email: userData.email,
           name: userData.given_name || userData.name,
           picture: userData.picture
