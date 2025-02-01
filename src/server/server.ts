@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 // CORS Configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://gosolo.nyc', 'https://www.gosolo.nyc'] // Allow gosolo.nyc and www.gosolo.nyc in production
+    ? ['https://gosolo.nyc', 'https://www.gosolo.nyc']
     : ['http://localhost:3003', `https://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -59,6 +59,16 @@ app.use((req, res, next) => {
 app.get('/api/health', (_req, res) => {
   if (debug) console.log('Health check endpoint called');
   res.json({ status: 'healthy', environment: process.env.NODE_ENV });
+});
+
+// Handle Google Auth redirect
+app.get('/api/auth/google', (req, res) => {
+  const flaskAuthUrl = process.env.NODE_ENV === 'production'
+    ? 'https://gosolo.nyc/auth/google'
+    : `http://localhost:5000/auth/google`;
+
+  if (debug) console.log('Redirecting to Flask auth:', flaskAuthUrl);
+  res.redirect(flaskAuthUrl);
 });
 
 // Serve static files with proper MIME types and cache control
