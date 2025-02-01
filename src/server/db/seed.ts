@@ -8,7 +8,8 @@ const TEST_USER = {
   email: 'demo@soloapp.dev',
   password: 'demo123', // This is just for testing
   gym: 'Movement Gowanus',
-  profilePhoto: '/static/images/avatar-purple.svg'
+  profilePhoto: '/static/images/avatar-purple.svg',
+  userType: 'demo' // Set user type as demo
 };
 
 // Sample route colors and grades for variety
@@ -16,16 +17,16 @@ const ROUTE_COLORS = ['Red', 'Blue', 'Green', 'Yellow', 'White', 'Black', 'Purpl
 const ROUTE_GRADES = ['5.8', '5.9', '5.10a', '5.10b', '5.10c', '5.10d', '5.11a', '5.11b', '5.11c'];
 
 // Function to generate a random send for a specific date
-export async function addRandomSend(userId: number, date: Date) {
+async function addRandomSend(userId: number, date: Date) {
   try {
-    // First, ensure we have a route to attach the send to
+    // First, create a route
     const [route] = await db.insert(routes).values({
-      routeId: `TR-${Math.floor(Math.random() * 1000)}`,
+      route_id: `TR-${Math.floor(Math.random() * 1000)}`,
       color: ROUTE_COLORS[Math.floor(Math.random() * ROUTE_COLORS.length)],
       grade: ROUTE_GRADES[Math.floor(Math.random() * ROUTE_GRADES.length)],
       rating: Math.floor(Math.random() * 5) + 1,
-      dateSet: new Date(date.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-      gymId: 1 // Default gym ID
+      date_set: new Date(date.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000),
+      gym_id: 1 // Default gym ID
     }).returning();
 
     if (!route) {
@@ -35,14 +36,14 @@ export async function addRandomSend(userId: number, date: Date) {
     // Create the climb/send
     const isSuccessful = Math.random() > 0.3; // 70% success rate
     const [climb] = await db.insert(climbs).values({
-      userId,
-      routeId: route.id,
+      user_id: userId,
+      route_id: route.id,
       status: isSuccessful,
       rating: Math.floor(Math.random() * 5) + 1,
       tries: isSuccessful ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 5) + 1,
       notes: isSuccessful ? 'Clean send!' : 'Almost had it...',
       points: isSuccessful ? 10 : 5,
-      createdAt: date
+      created_at: date
     }).returning();
 
     return climb;
@@ -56,18 +57,30 @@ async function seedTestData() {
   try {
     console.log('Starting test data seeding...');
 
-    // Create test user
-    const hashedPassword = await bcrypt.hash(TEST_USER.password, 10);
-    const [user] = await db.insert(users).values({
-      username: TEST_USER.username,
-      email: TEST_USER.email,
-      passwordHash: hashedPassword,
-      profilePhoto: TEST_USER.profilePhoto,
-      memberSince: new Date(),
-      gymId: 1 // Default gym ID
-    }).returning();
+    // Check if demo user already exists
+    const existingUser = await db.select().from(users)
+      .where(users.username === TEST_USER.username)
+      .limit(1);
 
-    console.log('Created test user:', TEST_USER.username);
+    let user;
+    if (existingUser.length > 0) {
+      console.log('Demo user already exists, using existing user');
+      user = existingUser[0];
+    } else {
+      // Create test user
+      const hashedPassword = await bcrypt.hash(TEST_USER.password, 10);
+      [user] = await db.insert(users).values({
+        username: TEST_USER.username,
+        email: TEST_USER.email,
+        password_hash: hashedPassword,
+        profile_photo: TEST_USER.profilePhoto,
+        created_at: new Date(),
+        profile_completed: true,
+        user_type: TEST_USER.userType
+      }).returning();
+
+      console.log('Created test user:', TEST_USER.username);
+    }
 
     // Create sample sends for the last 7 days
     const now = new Date();
@@ -80,12 +93,12 @@ async function seedTestData() {
       }
     }
 
-    console.log('Created sample sends for the last 7 days');
     console.log('\nTest Data Summary:');
     console.log('Test User:', TEST_USER.username);
     console.log('Password:', TEST_USER.password);
     console.log('Email:', TEST_USER.email);
     console.log('Gym:', TEST_USER.gym);
+    console.log('User Type:', TEST_USER.userType);
 
   } catch (error) {
     console.error('Error seeding test data:', error);
@@ -106,4 +119,4 @@ if (require.main === module) {
     });
 }
 
-export { seedTestData, addRandomSend };
+export { seedTestData };

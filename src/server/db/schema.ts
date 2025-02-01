@@ -8,6 +8,7 @@ export interface User {
   profilePhoto?: string;
   memberSince: Date;
   gymId?: number;
+  userType: 'demo' | 'user' | 'admin';
 }
 
 export interface Route {
@@ -39,7 +40,8 @@ export const users = pgTable('users', {
   passwordHash: text('password_hash').notNull(),
   profilePhoto: text('profile_photo'),
   memberSince: timestamp('member_since').defaultNow(),
-  gymId: integer('gym_id')
+  gymId: integer('gym_id'),
+  userType: text('user_type').notNull().default('user')
 });
 
 export const routes = pgTable('routes', {
