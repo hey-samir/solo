@@ -1,6 +1,7 @@
 import { db } from './index';
 import { users, routes, climbs } from './schema';
 import bcrypt from 'bcryptjs';
+import { eq } from 'drizzle-orm';
 
 // Test user credentials
 const TEST_USER = {
@@ -8,25 +9,31 @@ const TEST_USER = {
   email: 'demo@soloapp.dev',
   password: 'demo123', // This is just for testing
   gym: 'Movement Gowanus',
-  profilePhoto: '/static/images/avatar-purple.svg',
-  userType: 'demo' // Set user type as demo
+  profile_photo: '/static/images/avatar-purple.svg',
+  user_type: 'demo' // Set user type as demo
 };
 
 // Sample route colors and grades for variety
 const ROUTE_COLORS = ['Red', 'Blue', 'Green', 'Yellow', 'White', 'Black', 'Purple', 'Orange'];
 const ROUTE_GRADES = ['5.8', '5.9', '5.10a', '5.10b', '5.10c', '5.10d', '5.11a', '5.11b', '5.11c'];
 
-// Function to generate a random send for a specific date
+let currentRouteNumber = 1;
+
 async function addRandomSend(userId: number, date: Date) {
   try {
-    // First, create a route
+    // Create a route with all required fields and ensure unique route_id
+    const routeId = `TR-${String(currentRouteNumber++).padStart(3, '0')}`;
     const [route] = await db.insert(routes).values({
-      route_id: `TR-${Math.floor(Math.random() * 1000)}`,
+      route_id: routeId,
       color: ROUTE_COLORS[Math.floor(Math.random() * ROUTE_COLORS.length)],
       grade: ROUTE_GRADES[Math.floor(Math.random() * ROUTE_GRADES.length)],
-      rating: Math.floor(Math.random() * 5) + 1,
+      grade_id: Math.floor(Math.random() * 15) + 1, // Assuming grade_id range 1-15
       date_set: new Date(date.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-      gym_id: 1 // Default gym ID
+      gym_id: 1, // Default gym ID
+      wall_sector: 'Main Wall',
+      route_type: 'Sport',
+      active: true,
+      created_at: new Date()
     }).returning();
 
     if (!route) {
@@ -58,8 +65,9 @@ async function seedTestData() {
     console.log('Starting test data seeding...');
 
     // Check if demo user already exists
-    const existingUser = await db.select().from(users)
-      .where(users.username === TEST_USER.username)
+    const existingUser = await db.select()
+      .from(users)
+      .where(eq(users.username, TEST_USER.username))
       .limit(1);
 
     let user;
@@ -73,10 +81,10 @@ async function seedTestData() {
         username: TEST_USER.username,
         email: TEST_USER.email,
         password_hash: hashedPassword,
-        profile_photo: TEST_USER.profilePhoto,
+        profile_photo: TEST_USER.profile_photo,
         created_at: new Date(),
-        profile_completed: true,
-        user_type: TEST_USER.userType
+        member_since: new Date(),
+        gym_id: 1 // Default gym ID
       }).returning();
 
       console.log('Created test user:', TEST_USER.username);
@@ -98,7 +106,7 @@ async function seedTestData() {
     console.log('Password:', TEST_USER.password);
     console.log('Email:', TEST_USER.email);
     console.log('Gym:', TEST_USER.gym);
-    console.log('User Type:', TEST_USER.userType);
+    console.log('User Type:', TEST_USER.user_type);
 
   } catch (error) {
     console.error('Error seeding test data:', error);

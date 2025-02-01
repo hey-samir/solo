@@ -12,4 +12,9 @@ dependencies = [
     "user-messages>=0.1.1",
     "trafilatura>=2.0.0",
     "oauthlib>=3.2.2",
+    "flask-login>=0.6.3",
+    "flask-wtf>=1.2.2",
+    "flask>=3.1.0",
+    "flask-sqlalchemy>=3.1.1",
+    "sqlalchemy>=2.0.37",
 ]

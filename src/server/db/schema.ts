@@ -4,66 +4,89 @@ export interface User {
   id: number;
   username: string;
   email: string;
-  passwordHash: string;
-  profilePhoto?: string;
-  memberSince: Date;
-  gymId?: number;
-  userType: 'demo' | 'user' | 'admin';
+  password_hash: string;
+  name?: string;
+  profile_photo?: string;
+  created_at: Date;
+  member_since: Date;
+  gym_id?: number;
+  user_type: 'demo' | 'user' | 'admin';
 }
 
 export interface Route {
   id: number;
-  routeId: string;
+  route_id: string;
   color: string;
   grade: string;
-  rating: number;
-  dateSet: Date;
-  gymId: number;
+  grade_id: number;
+  routesetter?: string;
+  date_set: Date;
+  gym_id: number;
+  wall_sector: string;
+  route_type: string;
+  height_meters?: number;
+  active?: boolean;
+  anchor_number?: number;
+  hold_style?: string;
+  avg_stars?: number;
+  stars_count?: number;
+  created_at: Date;
 }
 
 export interface Climb {
   id: number;
-  userId: number;
-  routeId: number;
+  user_id: number;
+  route_id: number;
   status: boolean;
   rating: number;
   tries: number;
   notes: string | null;
   points: number;
-  createdAt: Date;
+  created_at: Date;
 }
 
-export const users = pgTable('users', {
+export const users = pgTable('user', {
   id: serial('id').primaryKey(),
   username: text('username').notNull().unique(),
   email: text('email').notNull().unique(),
-  passwordHash: text('password_hash').notNull(),
-  profilePhoto: text('profile_photo'),
-  memberSince: timestamp('member_since').defaultNow(),
-  gymId: integer('gym_id'),
-  userType: text('user_type').notNull().default('user')
+  password_hash: text('password_hash').notNull(),
+  name: text('name'),
+  profile_photo: text('profile_photo'),
+  created_at: timestamp('created_at').defaultNow(),
+  member_since: timestamp('member_since').defaultNow(),
+  gym_id: integer('gym_id'),
 });
 
-export const routes = pgTable('routes', {
+export const routes = pgTable('route', {
   id: serial('id').primaryKey(),
-  routeId: text('route_id').notNull(),
+  route_id: text('route_id').notNull(),
   color: text('color').notNull(),
   grade: text('grade').notNull(),
-  rating: integer('rating').notNull(),
-  dateSet: timestamp('date_set').notNull(),
-  gymId: integer('gym_id').notNull()
+  grade_id: integer('grade_id').notNull(),
+  routesetter: text('routesetter'),
+  date_set: timestamp('date_set').notNull(),
+  gym_id: integer('gym_id').notNull(),
+  wall_sector: text('wall_sector').notNull(),
+  route_type: text('route_type').notNull(),
+  height_meters: integer('height_meters'),
+  active: boolean('active'),
+  anchor_number: integer('anchor_number'),
+  hold_style: text('hold_style'),
+  avg_stars: integer('avg_stars'),
+  stars_count: integer('stars_count'),
+  created_at: timestamp('created_at').defaultNow()
 });
 
-export const climbs = pgTable('climbs', {
+export const climbs = pgTable('climb', {
   id: serial('id').primaryKey(),
-  userId: integer('user_id').notNull(),
-  routeId: integer('route_id').notNull(),
+  user_id: integer('user_id').notNull(),
+  route_id: integer('route_id').notNull(),
   status: boolean('status').notNull(),
   rating: integer('rating').notNull(),
   tries: integer('tries').notNull(),
   notes: text('notes'),
   points: integer('points').notNull(),
-  createdAt: timestamp('created_at').defaultNow()
+  created_at: timestamp('created_at').defaultNow()
 });
 
 export default {
