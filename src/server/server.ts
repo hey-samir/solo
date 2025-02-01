@@ -4,10 +4,18 @@ import path from 'path';
 import session from 'express-session';
 import compression from 'compression';
 import morgan from 'morgan';
-import { sql } from '@vercel/postgres';
+import { createClient } from '@vercel/postgres';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Configure database connection
+const db = createClient({
+  connectionString: process.env.DATABASE_URL
+});
+
+// Connect to the database
+db.connect();
 
 // Middleware configuration
 app.use(express.json({ limit: '10mb' }));
@@ -85,11 +93,10 @@ app.post('/api/auth/google/callback', async (req, res) => {
 
     try {
       // Check if user exists in database
-      const result = await sql`
-        SELECT id, email, username 
-        FROM users 
-        WHERE email = ${userData.email}
-      `;
+      const result = await db.query(
+        'SELECT id, email, username FROM users WHERE email = $1',
+        [userData.email]
+      );
 
       const userExists = result.rows.length > 0;
 
