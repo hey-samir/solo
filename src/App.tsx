@@ -6,8 +6,18 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import './styles/global.css'
 
 const App: React.FC = () => {
-  const clientId = process.env.VITE_GOOGLE_OAUTH_CLIENT_ID || ''
-  console.log('App component rendering') // Debug log
+  const clientId = process.env.VITE_GOOGLE_OAUTH_CLIENT_ID
+
+  if (!clientId) {
+    console.error('Missing GOOGLE_OAUTH_CLIENT_ID environment variable')
+    return (
+      <div className="app" style={{ minHeight: '100vh' }}>
+        <div className="alert alert-danger">
+          Application configuration error. Please contact support.
+        </div>
+      </div>
+    )
+  }
 
   return (
     <GoogleOAuthProvider clientId={clientId}>
