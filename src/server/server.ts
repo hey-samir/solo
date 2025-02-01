@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 // CORS Configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://gosolo.nyc'] // Allow only gosolo.nyc in production
+    ? ['https://gosolo.nyc', 'https://www.gosolo.nyc'] // Allow gosolo.nyc and www.gosolo.nyc in production
     : ['http://localhost:3003', `https://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
