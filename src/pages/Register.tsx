@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 
@@ -18,9 +18,10 @@ interface Gym {
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState<RegisterForm>({
-    name: '',
-    email: '',
+    name: searchParams.get('name') || '',
+    email: searchParams.get('email') || '',
     username: '',
     password: '',
     gymId: ''
@@ -72,6 +73,7 @@ const Register: React.FC = () => {
                   required
                   value={form.name}
                   onChange={handleChange}
+                  readOnly={!!searchParams.get('name')}
                 />
               </div>
               <div className="mb-3">
@@ -84,6 +86,7 @@ const Register: React.FC = () => {
                   required
                   value={form.email}
                   onChange={handleChange}
+                  readOnly={!!searchParams.get('email')}
                 />
               </div>
               <div className="mb-3">
@@ -143,11 +146,6 @@ const Register: React.FC = () => {
               >
                 Join
               </button>
-              <div className="text-center mt-3">
-                <Link to="/login" className="text-decoration-none text-white">
-                  Already have an account? Login
-                </Link>
-              </div>
             </form>
           </div>
         </div>

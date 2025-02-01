@@ -18,40 +18,16 @@ var app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS Configuration - Handle Replit domains
+// CORS Configuration
 const corsOptions = process.env.NODE_ENV === 'production' 
   ? { 
-      origin: true, // Allow all origins in production
+      origin: ['https://gosolo.nyc'], // Only allow gosolo.nyc in production
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
     }
   : {
-      origin: function (origin, callback) {
-          console.log('Incoming request origin:', origin);
-          if (!origin) {
-              callback(null, true);
-              return;
-          }
-          var allowedDomains = [
-              'https://gosolo.nyc',
-              /\.repl\.co$/,
-              /\.replit\.dev$/,
-              /-\d{2}-[a-z0-9]+\..*\.replit\.dev$/, // Match Replit dev URLs
-              process.env.REPL_SLUG ? new RegExp(`${process.env.REPL_SLUG}.*\\.replit\\.dev$`) : null,
-          ].filter(Boolean);
-
-          var isAllowed = allowedDomains.some(function (domain) { 
-              return typeof domain === 'string' ? domain === origin : domain.test(origin); 
-          });
-
-          if (debug) {
-              console.log('Checking origin:', origin);
-              console.log('Allowed?', isAllowed);
-          }
-
-          callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
-      },
+      origin: ['http://localhost:3003', `https://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
