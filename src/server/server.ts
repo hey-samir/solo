@@ -5,10 +5,10 @@ import session from 'express-session';
 import compression from 'compression';
 import morgan from 'morgan';
 import { createClient } from '@vercel/postgres';
+import authRoutes from './routes/auth';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
-const DEVELOPMENT_DOMAIN = process.env.REPL_SLUG ? `${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co` : 'localhost';
 
 // Configure database connection
 const db = createClient({
@@ -16,7 +16,9 @@ const db = createClient({
 });
 
 // Connect to the database
-db.connect();
+db.connect().catch(err => {
+  console.error('Failed to connect to the database:', err);
+});
 
 // Middleware configuration
 app.use(express.json({ limit: '10mb' }));
@@ -59,7 +61,10 @@ const sessionConfig = {
 // Initialize session middleware
 app.use(session(sessionConfig));
 
-// Auth status middleware
+// Register routes
+app.use('/api', authRoutes);
+
+// Auth status middleware for debugging
 app.use((req, res, next) => {
   console.log('Session ID:', req.sessionID);
   console.log('Session:', req.session);
@@ -166,22 +171,13 @@ app.post('/api/auth/google/callback', async (req, res) => {
   }
 });
 
-// Add endpoint to check authentication status
-app.get('/api/auth/status', (req, res) => {
-  console.log('Checking auth status. Session:', req.session);
-  console.log('Session ID:', req.sessionID);
-  console.log('Cookies:', req.headers.cookie);
-
-  if (req.session.user) {
-    res.json({
-      authenticated: true,
-      user: req.session.user
-    });
-  } else {
-    res.json({
-      authenticated: false
-    });
-  }
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Server error:', err);
+  res.status(500).json({
+    error: 'Internal server error',
+    message: err.message
+  });
 });
 
 // Handle all routes for the SPA
