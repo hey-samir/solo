@@ -19,7 +19,18 @@ export default defineConfig({
         changeOrigin: true,
         secure: false,
       }
-    }
+    },
+    // Allow all Replit domains
+    allowedHosts: [
+      'localhost',
+      '.repl.co',
+      '.replit.dev',
+      '.repl.co.internal',
+      '.repl.dev.internal',
+      '.picard.replit.dev',
+      // Allow any Replit-generated domain
+      /.*\.repl(it)?\.dev$/,
+    ]
   },
   resolve: {
     alias: {
