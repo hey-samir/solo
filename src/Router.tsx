@@ -17,8 +17,23 @@ import Profile from './pages/Profile'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
 
+// Toggle this flag to enable/disable route protection
+const ENABLE_ROUTE_PROTECTION = false;
+
 const Router: React.FC = () => {
-  console.log('Router rendering...') // Debug log
+  console.log('Router rendering...')
+
+  // Wrapper component that conditionally applies protection
+  const ProtectedWrapper = ({ children, requireAuth = true }) => {
+    if (!ENABLE_ROUTE_PROTECTION) {
+      return <>{children}</>
+    }
+    return (
+      <ProtectedRoute requireAuth={requireAuth}>
+        {children}
+      </ProtectedRoute>
+    )
+  }
 
   return (
     <Routes>
@@ -33,36 +48,36 @@ const Router: React.FC = () => {
 
         {/* Semi-Protected Routes */}
         <Route path="/squads" element={
-          <ProtectedRoute requireAuth={false}>
+          <ProtectedWrapper requireAuth={false}>
             <Squads />
-          </ProtectedRoute>
+          </ProtectedWrapper>
         } />
         <Route path="/standings" element={
-          <ProtectedRoute requireAuth={false}>
+          <ProtectedWrapper requireAuth={false}>
             <Standings />
-          </ProtectedRoute>
+          </ProtectedWrapper>
         } />
 
         {/* Protected Routes */}
         <Route path="/sends" element={
-          <ProtectedRoute>
+          <ProtectedWrapper>
             <Sends />
-          </ProtectedRoute>
+          </ProtectedWrapper>
         } />
         <Route path="/sessions" element={
-          <ProtectedRoute>
+          <ProtectedWrapper>
             <Sessions />
-          </ProtectedRoute>
+          </ProtectedWrapper>
         } />
         <Route path="/stats" element={
-          <ProtectedRoute>
+          <ProtectedWrapper>
             <Stats />
-          </ProtectedRoute>
+          </ProtectedWrapper>
         } />
         <Route path="/profile" element={
-          <ProtectedRoute>
+          <ProtectedWrapper>
             <Profile />
-          </ProtectedRoute>
+          </ProtectedWrapper>
         } />
 
         {/* Catch all route */}
