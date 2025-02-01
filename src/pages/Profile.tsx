@@ -24,10 +24,10 @@ interface Stats {
 // Development mock data
 const mockUser: User = {
   id: 1,
-  username: "DemoUser",
-  name: "Demo User",
-  profilePhoto: null,
-  memberSince: new Date().toISOString(),
+  username: "gosolonyc",
+  name: "Solo",
+  profilePhoto: "/images/avatars/purple-solo.png",
+  memberSince: "2025-01-01T00:00:00.000Z",
   gymId: 1,
   gym: {
     name: "Movement Gowanus"
@@ -93,8 +93,8 @@ const Profile: FC = () => {
                 <div className="col-12 col-md-3">
                   <div className="profile-photo-container mb-3">
                     <img
-                      src={user.profilePhoto || '/default-avatar.svg'}
-                      alt={`${user.username}'s profile`}
+                      src={user.profilePhoto}
+                      alt={`${user.name}'s profile`}
                       className="profile-photo"
                     />
                     {isOwnProfile && (
@@ -160,31 +160,31 @@ const Profile: FC = () => {
                   </div>
 
                   {isOwnProfile && (
-                    <div className="profile-actions mt-4 d-flex gap-3">
+                    <div className="profile-actions mt-4">
                       {isEditing ? (
-                        <div className="save-mode-buttons">
+                        <div className="save-mode-buttons w-100">
                           <div className="d-flex gap-2">
-                            <button onClick={handleSave} className="btn btn-primary">
+                            <button onClick={handleSave} className="btn btn-primary flex-grow-1">
                               <i className="material-icons me-2">save</i>
                               <span>Save</span>
                             </button>
-                            <button onClick={handleCancel} className="btn btn-negative">
+                            <button onClick={handleCancel} className="btn btn-negative flex-grow-1">
                               <i className="material-icons me-2">close</i>
                               <span>Back</span>
                             </button>
                           </div>
                         </div>
                       ) : (
-                        <div className="edit-mode-buttons">
-                          <button onClick={handleEdit} className="btn btn-primary edit-toggle">
+                        <div className="edit-mode-buttons d-flex gap-2 w-100">
+                          <button onClick={handleEdit} className="btn btn-solo-purple flex-grow-1">
                             <i className="material-icons me-2">edit</i>
                             <span>Edit</span>
                           </button>
-                          <button className="btn btn-primary ms-2">
+                          <button className="btn btn-solo-purple flex-grow-1">
                             <i className="material-icons me-2">qr_code_2</i>
                             <span>Share</span>
                           </button>
-                          <button className="btn btn-negative ms-2">
+                          <button className="btn btn-negative flex-grow-1">
                             <i className="material-icons me-2">logout</i>
                             <span>Logout</span>
                           </button>
