@@ -4,7 +4,7 @@ const GoogleSignInButton: React.FC = () => {
   return (
     <button
       onClick={() => window.location.href = '/auth/google'}
-      className="inline-flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-solo-purple rounded-full hover:bg-opacity-90 transition-colors"
+      className="btn-google"
       type="button"
     >
       <svg className="w-4 h-4" viewBox="0 0 24 24">

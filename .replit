@@ -39,21 +39,6 @@ task = "shell.exec"
 args = "NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
-name = "Development Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development npx vite --port 3003 --host"
-waitForPort = 3003
-
-[[workflows.workflow]]
 name = "Project"
 author = "agent"
 mode = "parallel"
@@ -71,6 +56,10 @@ args = "Start Backend"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Start Frontend"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development Server"
 
 [[workflows.workflow]]
 name = "Production Build"
@@ -114,6 +103,21 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development vite --port 3003 --host"
+waitForPort = 3003
+
+[[workflows.workflow]]
+name = "Development Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development npx vite --port 3003 --host"
 waitForPort = 3003
 
 [[ports]]

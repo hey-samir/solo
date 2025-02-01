@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Basic reset and styles */
 body {
   margin: 0;
@@ -19,6 +23,12 @@ body {
   --text-primary: #ffffff;
   --text-primary-rgb: 255, 255, 255;
   --border-color: rgba(255, 255, 255, 0.1);
+}
+
+@layer components {
+  .btn-google {
+    @apply inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-solo-purple hover:bg-solo-purple-light rounded-full transition-colors duration-200 ease-in-out shadow-md;
+  }
 }
 
 .app {
