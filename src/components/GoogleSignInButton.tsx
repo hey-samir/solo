@@ -8,6 +8,7 @@ const GoogleSignInButton: React.FC = () => {
   const login = useGoogleLogin({
     onSuccess: async (response) => {
       try {
+        console.log('Google login successful, sending token to backend...');
         const result = await fetch('/api/auth/google/callback', {
           method: 'POST',
           headers: {
@@ -24,6 +25,7 @@ const GoogleSignInButton: React.FC = () => {
         }
 
         const data = await result.json();
+        console.log('Backend response:', data);
 
         if (data.success) {
           if (data.isNewUser) {
@@ -36,10 +38,12 @@ const GoogleSignInButton: React.FC = () => {
             navigate(`/register?${params.toString()}`);
           } else {
             // Check session establishment
+            console.log('Verifying session...');
             const statusCheck = await fetch('/api/auth/status', {
               credentials: 'include'
             });
             const statusData = await statusCheck.json();
+            console.log('Session status:', statusData);
 
             if (statusData.authenticated) {
               navigate('/profile');
