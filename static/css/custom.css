@@ -1522,10 +1522,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (table.scrollWidth > table.clientWidth) {
       table.classList.add('is-scrollable');
     }
-  });
-});
+  }
+  );
+}
+);
 </script>
-
 .profile-card {
   max-width: 1200px;
   margin: 1rem auto;
@@ -1917,4 +1918,40 @@ document.addEventListener('DOMContentLoaded', function() {
     width: auto;
     min-width: 200px;
   }
+}
+/* Sidebar Menu - Updated width and spacing */
+.offcanvas {
+  background-color: var(--bg-card);
+  max-width: 280px;
+}
+
+.offcanvas-header {
+  padding: 0.5rem 1rem;
+}
+
+.offcanvas-body {
+  padding: 0 1rem;
+}
+
+.offcanvas-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.list-group-item {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+}
+
+.list-group-item:hover {
+  background: var(--bg-button-hover);
+}
+
+.list-group-item i {
+  margin-right: 1rem;
+  font-size: var(--font-size-xl);
 }

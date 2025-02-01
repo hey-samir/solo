@@ -5,7 +5,6 @@ import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Import pages directly for debugging
-import Home from './pages/Home'
 import About from './pages/About'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -25,7 +24,7 @@ const Router: React.FC = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
-        <Route index element={<Home />} />
+        <Route index element={<Navigate to="/about" replace />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
