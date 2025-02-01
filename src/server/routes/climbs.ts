@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from '../db';
-import { climbs } from '../db/schema';
+import { climbs, routes } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
@@ -12,21 +12,43 @@ const getUserClimbs = async (req: Request, res: Response, next: NextFunction) =>
       return;
     }
 
-    const userClimbs = await db.query.climbs.findMany({
-      where: eq(climbs.userId, req.user.id),
-      orderBy: (climbs, { desc }) => [desc(climbs.createdAt)]
-    });
+    const userClimbs = await db
+      .select({
+        id: climbs.id,
+        route_id: climbs.route_id,
+        status: climbs.status,
+        rating: climbs.rating,
+        tries: climbs.tries,
+        notes: climbs.notes,
+        points: climbs.points,
+        created_at: climbs.created_at,
+        route: {
+          color: routes.color,
+          grade: routes.grade
+        }
+      })
+      .from(climbs)
+      .innerJoin(routes, eq(climbs.route_id, routes.id))
+      .where(eq(climbs.user_id, req.user.id))
+      .orderBy(climbs.created_at);
 
-    res.json(userClimbs.map(climb => ({
+    // Transform the data to match frontend expectations
+    const transformedClimbs = userClimbs.map(climb => ({
       id: climb.id,
-      routeId: climb.routeId,
+      routeId: climb.route_id,
       status: climb.status,
       rating: climb.rating,
       tries: climb.tries,
       notes: climb.notes,
       points: climb.points,
-      createdAt: climb.createdAt
-    })));
+      createdAt: climb.created_at?.toISOString(),
+      route: {
+        color: climb.route.color,
+        grade: climb.route.grade
+      }
+    }));
+
+    res.json(transformedClimbs);
   } catch (error) {
     console.error('Error fetching climbs:', error);
     res.status(500).json({ error: 'Internal server error' });
