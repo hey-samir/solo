@@ -18,13 +18,32 @@ interface Stats {
   avgGrade: string
 }
 
+// Development mock data
+const mockUser: User = {
+  id: 1,
+  username: "DemoUser",
+  profilePhoto: null,
+  memberSince: new Date().toISOString(),
+  gymId: 1
+}
+
+const mockStats: Stats = {
+  totalAscents: 42,
+  totalPoints: 1337,
+  avgGrade: "V5"
+}
+
 const Profile: FC = () => {
   const { username } = useParams()
   const isOwnProfile = !username // If no username provided, viewing own profile
 
+  // For development/debugging, use mock data when authentication is disabled
+  const ENABLE_AUTH = false
+
   const { data: user, isLoading: userLoading } = useQuery<User>({
     queryKey: ['user', username],
     queryFn: async () => {
+      if (!ENABLE_AUTH) return mockUser
       const response = await client.get(`/user/${username || 'me'}`)
       return response.data
     },
@@ -34,6 +53,7 @@ const Profile: FC = () => {
   const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
     queryKey: ['user-stats', username],
     queryFn: async () => {
+      if (!ENABLE_AUTH) return mockStats
       const response = await client.get(`/user/${username || 'me'}/stats`)
       return response.data
     },
