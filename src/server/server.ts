@@ -125,14 +125,15 @@ app.post('/api/auth/google/callback', async (req, res) => {
       );
 
       const userExists = result.rows.length > 0;
-      const profileCompleted = userExists && result.rows[0].profile_completed;
+      const user = userExists ? result.rows[0] : null;
+      const profileCompleted = user?.profile_completed || false;
 
+      // Only set session if user exists and has complete profile
       if (userExists && profileCompleted) {
-        // Set user in session
         req.session.user = {
-          id: result.rows[0].id,
-          email: result.rows[0].email,
-          username: result.rows[0].username,
+          id: user.id,
+          email: user.email,
+          username: user.username,
           profileCompleted: true
         };
 
@@ -149,7 +150,7 @@ app.post('/api/auth/google/callback', async (req, res) => {
         isNewUser: !userExists,
         needsProfile: userExists && !profileCompleted,
         user: userExists ? {
-          ...req.session.user,
+          ...user,
           needsProfile: !profileCompleted
         } : {
           email: userData.email,

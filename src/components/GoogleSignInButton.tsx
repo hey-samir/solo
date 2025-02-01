@@ -29,7 +29,7 @@ const GoogleSignInButton: React.FC = () => {
 
         if (data.success) {
           if (data.isNewUser || data.needsProfile) {
-            // Redirect to registration with pre-filled data
+            // Always redirect to register for new users or incomplete profiles
             const params = new URLSearchParams({
               email: data.user.email,
               name: data.user.name || '',
@@ -38,20 +38,9 @@ const GoogleSignInButton: React.FC = () => {
             });
             navigate(`/register?${params.toString()}`);
           } else {
-            // Verify session and redirect to profile
-            console.log('Verifying session...');
-            const statusCheck = await fetch('/api/auth/status', {
-              credentials: 'include'
-            });
-            const statusData = await statusCheck.json();
-            console.log('Session status:', statusData);
-
-            if (statusData.authenticated) {
-              navigate('/profile');
-            } else {
-              console.error('Session not established');
-              throw new Error('Failed to establish session');
-            }
+            // Only redirect to profile if user exists and has complete profile
+            console.log('User has complete profile, redirecting...');
+            navigate('/profile');
           }
         } else {
           console.error('Authentication failed:', data.error);
