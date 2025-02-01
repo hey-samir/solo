@@ -5,7 +5,7 @@ import session from 'express-session';
 import compression from 'compression';
 import morgan from 'morgan';
 import { createClient } from '@vercel/postgres';
-import authRoutes from './routes/auth';
+import routes from './routes';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -50,7 +50,7 @@ const sessionConfig = {
   cookie: {
     secure: isProduction,
     httpOnly: true,
-    sameSite: isProduction ? 'strict' : 'lax',
+    sameSite: isProduction ? 'strict' : 'lax' as const,
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     domain: isProduction ? '.gosolo.nyc' : undefined,
   },
@@ -61,14 +61,14 @@ const sessionConfig = {
 // Initialize session middleware
 app.use(session(sessionConfig));
 
-// Register routes
-app.use('/api', authRoutes);
+// Routes
+app.use('/api', routes);
 
 // Auth status middleware for debugging
 app.use((req, res, next) => {
   console.log('Session ID:', req.sessionID);
   console.log('Session:', req.session);
-  console.log('Is Authenticated:', !!req.session.user);
+  console.log('Is Authenticated:', req.session.user !== undefined);
   console.log('Cookies:', req.headers.cookie);
   next();
 });
@@ -88,89 +88,6 @@ app.use(express.static(distPath, {
     }
   }
 }));
-
-app.post('/api/auth/google/callback', async (req, res) => {
-  try {
-    const { access_token } = req.body;
-
-    if (!access_token) {
-      return res.status(400).json({
-        success: false,
-        error: 'No access token provided'
-      });
-    }
-
-    const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to get user info: ${response.statusText}`);
-    }
-
-    const userData = await response.json();
-
-    if (!userData.email || !userData.email_verified) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email not verified or not available'
-      });
-    }
-
-    try {
-      // Check if user exists and has complete profile
-      const result = await db.query(
-        'SELECT id, email, username, profile_completed FROM users WHERE email = $1',
-        [userData.email]
-      );
-
-      const userExists = result.rows.length > 0;
-      const user = userExists ? result.rows[0] : null;
-      const profileCompleted = user?.profile_completed || false;
-
-      // Only set session if user exists and has complete profile
-      if (userExists && profileCompleted) {
-        req.session.user = {
-          id: user.id,
-          email: user.email,
-          username: user.username,
-          profileCompleted: true
-        };
-
-        await new Promise((resolve, reject) => {
-          req.session.save((err) => {
-            if (err) reject(err);
-            resolve(true);
-          });
-        });
-      }
-
-      res.json({
-        success: true,
-        isNewUser: !userExists,
-        needsProfile: userExists && !profileCompleted,
-        user: userExists ? {
-          ...user,
-          needsProfile: !profileCompleted
-        } : {
-          email: userData.email,
-          name: userData.given_name || userData.name,
-          picture: userData.picture
-        }
-      });
-    } catch (dbError) {
-      console.error('Database error:', dbError);
-      throw new Error('Failed to check user existence');
-    }
-  } catch (error) {
-    console.error('Google auth callback error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Authentication failed',
-      details: error.message
-    });
-  }
-});
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
