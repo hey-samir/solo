@@ -26,7 +26,7 @@ const mockUser: User = {
   id: 1,
   username: "gosolonyc",
   name: "Solo",
-  profilePhoto: "/images/avatars/purple-solo.png",
+  profilePhoto: "/static/images/avatars/purple-solo.png",
   memberSince: "2025-01-01T00:00:00.000Z",
   gymId: 1,
   gym: {
@@ -36,8 +36,8 @@ const mockUser: User = {
 
 const mockStats: Stats = {
   totalAscents: 42,
-  totalPoints: 1337,
-  avgGrade: "V5"
+  avgGrade: "V5",
+  totalPoints: 1337
 }
 
 const Profile: FC = () => {
@@ -84,7 +84,7 @@ const Profile: FC = () => {
 
   return (
     <div className="container-fluid profile-container px-0">
-      <div className="row justify-content-center g-0">
+      <div className="row justify-content-start g-0">
         <div className="col-12">
           <div className="profile-card">
             <div className="card-body p-0">
@@ -93,7 +93,7 @@ const Profile: FC = () => {
                 <div className="col-12 col-md-3">
                   <div className="profile-photo-container mb-3">
                     <img
-                      src={user.profilePhoto}
+                      src={user.profilePhoto || '/static/images/avatars/purple-solo.png'}
                       alt={`${user.name}'s profile`}
                       className="profile-photo"
                     />
@@ -134,9 +134,9 @@ const Profile: FC = () => {
                       <label className="form-label">Gym</label>
                       <div className="field-content">
                         {isEditing ? (
-                          <select className="form-select" defaultValue={user.gymId || ''}>
+                          <select className="form-select" defaultValue={user.gymId?.toString()}>
                             <option value="">Select a gym</option>
-                            <option value={user.gymId}>{user.gym?.name}</option>
+                            <option value={user.gymId?.toString()}>{user.gym?.name}</option>
                           </select>
                         ) : (
                           <span className="profile-text">
@@ -164,7 +164,7 @@ const Profile: FC = () => {
                       {isEditing ? (
                         <div className="save-mode-buttons w-100">
                           <div className="d-flex gap-2">
-                            <button onClick={handleSave} className="btn btn-primary flex-grow-1">
+                            <button onClick={handleSave} className="btn btn-solo-purple flex-grow-1">
                               <i className="material-icons me-2">save</i>
                               <span>Save</span>
                             </button>
@@ -196,21 +196,27 @@ const Profile: FC = () => {
                   {/* KPI Cards */}
                   <div className="row g-3 mt-4">
                     <div className="col-12 col-sm-4">
-                      <div className="metric-card p-3">
-                        <div className="metric-value">{stats?.totalAscents || 0}</div>
-                        <div className="metric-label">Total Ascents</div>
+                      <div className="feature-card kpi-card">
+                        <div className="card-body text-center">
+                          <div className="metric-value">{stats?.totalAscents || 0}</div>
+                          <div className="metric-label">Total Ascents</div>
+                        </div>
                       </div>
                     </div>
                     <div className="col-12 col-sm-4">
-                      <div className="metric-card p-3">
-                        <div className="metric-value">{stats?.avgGrade || '--'}</div>
-                        <div className="metric-label">Avg Grade</div>
+                      <div className="feature-card kpi-card">
+                        <div className="card-body text-center">
+                          <div className="metric-value">{stats?.avgGrade || '--'}</div>
+                          <div className="metric-label">Avg Grade</div>
+                        </div>
                       </div>
                     </div>
                     <div className="col-12 col-sm-4">
-                      <div className="metric-card p-3">
-                        <div className="metric-value">{stats?.totalPoints || 0}</div>
-                        <div className="metric-label">Total Points</div>
+                      <div className="feature-card kpi-card">
+                        <div className="card-body text-center">
+                          <div className="metric-value">{stats?.totalPoints || 0}</div>
+                          <div className="metric-label">Total Points</div>
+                        </div>
                       </div>
                     </div>
                   </div>
