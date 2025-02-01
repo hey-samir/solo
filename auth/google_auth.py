@@ -2,7 +2,7 @@ import json
 import os
 
 import requests
-from flask import Blueprint, redirect, request, url_for
+from flask import Blueprint, redirect, request, url_for, flash
 from flask_login import login_required, login_user, logout_user
 from oauthlib.oauth2 import WebApplicationClient
 from models import User

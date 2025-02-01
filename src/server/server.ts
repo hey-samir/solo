@@ -64,7 +64,7 @@ app.get('/api/health', (_req, res) => {
 // Updated Google Auth callback handler
 app.post('/api/auth/google/callback', async (req, res) => {
   try {
-    const { access_token, redirect_uri } = req.body;
+    const { access_token } = req.body;
 
     if (!access_token) {
       throw new Error('No access token provided');
@@ -81,30 +81,46 @@ app.post('/api/auth/google/callback', async (req, res) => {
 
     const userData = await response.json();
 
-    // Create or update user session
-    req.session.user = {
-      email: userData.email,
-      name: userData.given_name,
-      picture: userData.picture,
-      provider: 'google'
-    };
+    // Check if user exists in your database
+    // This is a placeholder - implement according to your actual user storage
+    const existingUser = false; // Replace with actual user check
 
-    // Set session cookie
-    req.session.save((err) => {
-      if (err) {
-        console.error('Session save error:', err);
-        return res.status(500).json({ 
-          success: false, 
-          error: 'Failed to save session' 
+    if (existingUser) {
+      // Create session for existing user
+      req.session.user = {
+        email: userData.email,
+        name: userData.given_name,
+        picture: userData.picture,
+        provider: 'google'
+      };
+
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ 
+            success: false, 
+            error: 'Failed to save session' 
+          });
+        }
+
+        res.json({ 
+          success: true, 
+          isNewUser: false,
+          user: req.session.user
         });
-      }
-
+      });
+    } else {
+      // For new users, return success but indicate they need to complete registration
       res.json({ 
         success: true, 
-        user: req.session.user,
-        redirect: redirect_uri || '/profile'
+        isNewUser: true,
+        user: {
+          email: userData.email,
+          name: userData.given_name,
+          picture: userData.picture
+        }
       });
-    });
+    }
   } catch (error) {
     console.error('Google auth callback error:', error);
     res.status(500).json({ 

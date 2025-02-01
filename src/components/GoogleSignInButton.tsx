@@ -16,7 +16,6 @@ const GoogleSignInButton: React.FC = () => {
           },
           body: JSON.stringify({ 
             access_token: response.access_token,
-            redirect_uri: window.location.origin + '/oauth2/redirect'
           }),
           credentials: 'include'
         });
@@ -24,7 +23,12 @@ const GoogleSignInButton: React.FC = () => {
         if (result.ok) {
           const data = await result.json();
           if (data.success) {
-            navigate('/profile');
+            if (data.isNewUser) {
+              // Redirect to registration with pre-filled data
+              navigate(`/register?name=${encodeURIComponent(data.user.name)}&email=${encodeURIComponent(data.user.email)}`);
+            } else {
+              navigate('/profile');
+            }
           } else {
             console.error('Authentication failed:', data.error);
           }
