@@ -16,7 +16,7 @@ const GoogleSignInButton: React.FC = () => {
           body: JSON.stringify({ 
             access_token: response.access_token,
           }),
-          credentials: 'include'
+          credentials: 'include'  // Important for session cookie handling
         });
 
         if (!result.ok) {
@@ -35,8 +35,18 @@ const GoogleSignInButton: React.FC = () => {
             });
             navigate(`/register?${params.toString()}`);
           } else {
-            // Existing user - redirect to profile
-            navigate('/profile');
+            // Check session establishment
+            const statusCheck = await fetch('/api/auth/status', {
+              credentials: 'include'
+            });
+            const statusData = await statusCheck.json();
+
+            if (statusData.authenticated) {
+              navigate('/profile');
+            } else {
+              console.error('Session not established');
+              throw new Error('Failed to establish session');
+            }
           }
         } else {
           console.error('Authentication failed:', data.error);

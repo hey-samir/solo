@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 
-// CORS Configuration
+// CORS Configuration with credentials
 const corsOptions = {
   origin: isProduction 
     ? ['https://gosolo.nyc', 'https://www.gosolo.nyc']
@@ -35,13 +35,15 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Session configuration
+// Session configuration with secure settings
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: isProduction,
+    httpOnly: true,
+    sameSite: isProduction ? 'strict' : 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -62,7 +64,7 @@ app.use(express.static(distPath, {
   }
 }));
 
-// Updated Google Auth callback handler with user existence check
+// Updated Google Auth callback handler
 app.post('/api/auth/google/callback', async (req, res) => {
   try {
     const { access_token } = req.body;
@@ -100,6 +102,15 @@ app.post('/api/auth/google/callback', async (req, res) => {
 
       const userExists = result.rows.length > 0;
 
+      // Set user in session
+      if (userExists) {
+        req.session.user = {
+          id: result.rows[0].id,
+          email: result.rows[0].email,
+          username: result.rows[0].username
+        };
+      }
+
       res.json({
         success: true,
         isNewUser: !userExists,
@@ -119,6 +130,20 @@ app.post('/api/auth/google/callback', async (req, res) => {
       success: false,
       error: 'Authentication failed',
       details: error.message
+    });
+  }
+});
+
+// Add endpoint to check authentication status
+app.get('/api/auth/status', (req, res) => {
+  if (req.session.user) {
+    res.json({
+      authenticated: true,
+      user: req.session.user
+    });
+  } else {
+    res.json({
+      authenticated: false
     });
   }
 });
