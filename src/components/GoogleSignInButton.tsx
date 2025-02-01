@@ -20,20 +20,20 @@ const GoogleSignInButton: React.FC = () => {
           credentials: 'include'
         });
 
-        if (result.ok) {
-          const data = await result.json();
-          if (data.success) {
-            if (data.isNewUser) {
-              // Redirect to registration with pre-filled data
-              navigate(`/register?name=${encodeURIComponent(data.user.name)}&email=${encodeURIComponent(data.user.email)}`);
-            } else {
-              navigate('/profile');
-            }
+        if (!result.ok) {
+          throw new Error(`HTTP error! status: ${result.status}`);
+        }
+
+        const data = await result.json();
+        if (data.success) {
+          if (data.isNewUser) {
+            // Redirect to registration with pre-filled data
+            navigate(`/register?name=${encodeURIComponent(data.user.name)}&email=${encodeURIComponent(data.user.email)}`);
           } else {
-            console.error('Authentication failed:', data.error);
+            navigate('/profile');
           }
         } else {
-          console.error('Failed to authenticate with backend');
+          console.error('Authentication failed:', data.error);
         }
       } catch (error) {
         console.error('Error during authentication:', error);

@@ -11,8 +11,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 // Middleware configuration
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
-app.use(compression()); // Enable compression
-app.use(morgan(isProduction ? 'combined' : 'dev')); // Logging
+app.use(compression());
+app.use(morgan(isProduction ? 'combined' : 'dev'));
 
 // CORS Configuration
 const corsOptions = {
@@ -53,72 +53,51 @@ app.use(express.static(distPath, {
   }
 }));
 
-// Updated Google Auth callback handler
+// Updated Google Auth callback handler with proper error handling
 app.post('/api/auth/google/callback', async (req, res) => {
   try {
     const { access_token } = req.body;
 
     if (!access_token) {
-      throw new Error('No access token provided');
+      return res.status(400).json({
+        success: false,
+        error: 'No access token provided'
+      });
     }
 
-    // Get user info from Google
     const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
       headers: { Authorization: `Bearer ${access_token}` },
     });
 
     if (!response.ok) {
-      throw new Error('Failed to get user info from Google');
+      throw new Error(`Failed to get user info: ${response.statusText}`);
     }
 
     const userData = await response.json();
 
-    // Check if user exists in your database
-    // This is a placeholder - implement according to your actual user storage
-    const existingUser = false; // Replace with actual user check
-
-    if (existingUser) {
-      // Create session for existing user
-      req.session.user = {
-        email: userData.email,
-        name: userData.given_name,
-        picture: userData.picture,
-        provider: 'google'
-      };
-
-      req.session.save((err) => {
-        if (err) {
-          console.error('Session save error:', err);
-          return res.status(500).json({ 
-            success: false, 
-            error: 'Failed to save session' 
-          });
-        }
-
-        res.json({ 
-          success: true, 
-          isNewUser: false,
-          user: req.session.user
-        });
-      });
-    } else {
-      // For new users, return success but indicate they need to complete registration
-      res.json({ 
-        success: true, 
-        isNewUser: true,
-        user: {
-          email: userData.email,
-          name: userData.given_name,
-          picture: userData.picture
-        }
+    if (!userData.email || !userData.email_verified) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email not verified or not available'
       });
     }
+
+    // For now, treat all users as new users since we haven't implemented user storage yet
+    res.json({
+      success: true,
+      isNewUser: true,
+      user: {
+        email: userData.email,
+        name: userData.given_name || userData.name,
+        picture: userData.picture
+      }
+    });
   } catch (error) {
     console.error('Google auth callback error:', error);
-    res.status(500).json({ 
-      success: false, 
+    res.status(500).json({
+      success: false,
       error: 'Authentication failed',
-      details: error.message 
+      details: error.message
     });
   }
 });
