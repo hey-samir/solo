@@ -1,5 +1,12 @@
 import { pgTable, serial, text, timestamp, integer, boolean } from 'drizzle-orm/pg-core';
 
+export interface Gym {
+  id: number;
+  name: string;
+  location: string;
+  created_at: Date;
+}
+
 export interface User {
   id: number;
   username: string;
@@ -45,6 +52,13 @@ export interface Climb {
   created_at: Date;
 }
 
+export const gyms = pgTable('gym', {
+  id: serial('id').primaryKey(),
+  name: text('name').notNull(),
+  location: text('location').notNull(),
+  created_at: timestamp('created_at').defaultNow()
+});
+
 export const users = pgTable('user', {
   id: serial('id').primaryKey(),
   username: text('username').notNull().unique(),
@@ -54,7 +68,7 @@ export const users = pgTable('user', {
   profile_photo: text('profile_photo'),
   created_at: timestamp('created_at').defaultNow(),
   member_since: timestamp('member_since').defaultNow(),
-  gym_id: integer('gym_id'),
+  gym_id: integer('gym_id').references(() => gyms.id),
 });
 
 export const routes = pgTable('route', {
@@ -65,7 +79,7 @@ export const routes = pgTable('route', {
   grade_id: integer('grade_id').notNull(),
   routesetter: text('routesetter'),
   date_set: timestamp('date_set').notNull(),
-  gym_id: integer('gym_id').notNull(),
+  gym_id: integer('gym_id').notNull().references(() => gyms.id),
   wall_sector: text('wall_sector').notNull(),
   route_type: text('route_type').notNull(),
   height_meters: integer('height_meters'),
@@ -79,8 +93,8 @@ export const routes = pgTable('route', {
 
 export const climbs = pgTable('climb', {
   id: serial('id').primaryKey(),
-  user_id: integer('user_id').notNull(),
-  route_id: integer('route_id').notNull(),
+  user_id: integer('user_id').notNull().references(() => users.id),
+  route_id: integer('route_id').notNull().references(() => routes.id),
   status: boolean('status').notNull(),
   rating: integer('rating').notNull(),
   tries: integer('tries').notNull(),
@@ -90,6 +104,7 @@ export const climbs = pgTable('climb', {
 });
 
 export default {
+  gyms,
   users,
   routes,
   climbs

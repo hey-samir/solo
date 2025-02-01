@@ -1,5 +1,5 @@
 import { db } from './index';
-import { users, routes, climbs } from './schema';
+import { users, routes, climbs, gyms } from './schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 
@@ -17,7 +17,7 @@ const TEST_USER = {
 const ROUTE_COLORS = ['Red', 'Blue', 'Green', 'Yellow', 'White', 'Black', 'Purple', 'Orange'];
 const ROUTE_GRADES = ['5.8', '5.9', '5.10a', '5.10b', '5.10c', '5.10d', '5.11a', '5.11b', '5.11c'];
 
-async function addRandomSend(userId: number, date: Date, routeNumber: number) {
+async function addRandomSend(userId: number, gymId: number, date: Date, routeNumber: number) {
   try {
     // Create a route with all required fields
     const routeId = `TR-${String(routeNumber).padStart(3, '0')}`;
@@ -27,7 +27,7 @@ async function addRandomSend(userId: number, date: Date, routeNumber: number) {
       grade: ROUTE_GRADES[Math.floor(Math.random() * ROUTE_GRADES.length)],
       grade_id: Math.floor(Math.random() * 15) + 1, // Assuming grade_id range 1-15
       date_set: new Date(date.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-      gym_id: 1, // Default gym ID
+      gym_id: gymId,
       wall_sector: 'Main Wall',
       route_type: 'Sport',
       active: true,
@@ -62,6 +62,18 @@ async function seedTestData() {
   try {
     console.log('Starting test data seeding...');
 
+    // Create or get the demo gym
+    let gym = await db.select().from(gyms).where(eq(gyms.name, TEST_USER.gym)).limit(1);
+
+    if (gym.length === 0) {
+      console.log('Creating demo gym...');
+      [gym[0]] = await db.insert(gyms).values({
+        name: TEST_USER.gym,
+        location: 'Brooklyn, NY',
+        created_at: new Date()
+      }).returning();
+    }
+
     // Check if demo user already exists
     const existingUser = await db.select()
       .from(users)
@@ -72,6 +84,13 @@ async function seedTestData() {
     if (existingUser.length > 0) {
       console.log('Demo user already exists, using existing user');
       user = existingUser[0];
+      // Update gym_id if needed
+      if (user.gym_id !== gym[0].id) {
+        await db.update(users)
+          .set({ gym_id: gym[0].id })
+          .where(eq(users.id, user.id));
+        user.gym_id = gym[0].id;
+      }
     } else {
       // Create test user
       const hashedPassword = await bcrypt.hash(TEST_USER.password, 10);
@@ -82,7 +101,7 @@ async function seedTestData() {
         profile_photo: TEST_USER.profile_photo,
         created_at: new Date(),
         member_since: new Date(),
-        gym_id: 1 // Default gym ID
+        gym_id: gym[0].id
       }).returning();
 
       console.log('Created test user:', TEST_USER.username);
@@ -94,10 +113,10 @@ async function seedTestData() {
       await db.delete(climbs)
         .where(eq(climbs.user_id, user.id));
 
-      // Then, delete all routes for gym_id 1 (demo gym)
+      // Then, delete all routes for the demo gym
       console.log('Cleaning up existing routes...');
       await db.delete(routes)
-        .where(eq(routes.gym_id, 1));
+        .where(eq(routes.gym_id, gym[0].id));
 
       console.log('Creating new demo sends...');
       let routeCounter = 1;
@@ -111,7 +130,7 @@ async function seedTestData() {
         console.log(`Adding ${sendsCount} sends for ${date.toLocaleDateString()}...`);
 
         for (let j = 0; j < sendsCount; j++) {
-          await addRandomSend(user.id, date, routeCounter++);
+          await addRandomSend(user.id, gym[0].id, date, routeCounter++);
         }
       }
 
