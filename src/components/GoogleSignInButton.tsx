@@ -15,12 +15,19 @@ const GoogleSignInButton: React.FC = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
-            access_token: response.access_token 
+            access_token: response.access_token,
+            redirect_uri: window.location.origin + '/oauth2/redirect'
           }),
+          credentials: 'include'
         });
 
         if (result.ok) {
-          navigate('/profile'); // Redirect to profile page after successful login
+          const data = await result.json();
+          if (data.success) {
+            navigate('/profile');
+          } else {
+            console.error('Authentication failed:', data.error);
+          }
         } else {
           console.error('Failed to authenticate with backend');
         }
@@ -28,7 +35,10 @@ const GoogleSignInButton: React.FC = () => {
         console.error('Error during authentication:', error);
       }
     },
-    onError: () => console.error('Login Failed'),
+    onError: (error) => {
+      console.error('Login Failed:', error);
+    },
+    flow: 'implicit'
   });
 
   return (

@@ -61,10 +61,14 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'healthy', environment: process.env.NODE_ENV });
 });
 
-// Handle Google Auth callback
+// Updated Google Auth callback handler
 app.post('/api/auth/google/callback', async (req, res) => {
   try {
-    const { access_token } = req.body;
+    const { access_token, redirect_uri } = req.body;
+
+    if (!access_token) {
+      throw new Error('No access token provided');
+    }
 
     // Get user info from Google
     const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
@@ -82,12 +86,32 @@ app.post('/api/auth/google/callback', async (req, res) => {
       email: userData.email,
       name: userData.given_name,
       picture: userData.picture,
+      provider: 'google'
     };
 
-    res.json({ success: true, user: req.session.user });
+    // Set session cookie
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ 
+          success: false, 
+          error: 'Failed to save session' 
+        });
+      }
+
+      res.json({ 
+        success: true, 
+        user: req.session.user,
+        redirect: redirect_uri || '/profile'
+      });
+    });
   } catch (error) {
     console.error('Google auth callback error:', error);
-    res.status(500).json({ success: false, error: 'Authentication failed' });
+    res.status(500).json({ 
+      success: false, 
+      error: 'Authentication failed',
+      details: error.message 
+    });
   }
 });
 
