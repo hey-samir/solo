@@ -57,10 +57,6 @@ args = "Start Backend"
 task = "workflow.run"
 args = "Start Frontend"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Flask Server"
-
 [[workflows.workflow]]
 name = "Production Build"
 author = "agent"
@@ -104,21 +100,6 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "NODE_ENV=development VITE_GOOGLE_OAUTH_CLIENT_ID=$GOOGLE_OAUTH_CLIENT_ID vite --port 3003 --host"
 waitForPort = 3003
-
-[[workflows.workflow]]
-name = "Flask Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "python main.py"
-waitForPort = 5001
 
 [[ports]]
 localPort = 3000
