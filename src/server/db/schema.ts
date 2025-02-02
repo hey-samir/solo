@@ -22,21 +22,10 @@ export interface User {
 
 export interface Route {
   id: number;
-  route_id: string;
   color: string;
   grade: string;
-  grade_id: number;
-  routesetter?: string;
-  date_set: Date;
-  gym_id: number;
   wall_sector: string;
-  route_type: string;
-  height_meters?: number;
-  active?: boolean;
-  anchor_number?: number;
-  hold_style?: string;
-  avg_stars?: number;
-  stars_count?: number;
+  anchor_number: number;
   created_at: Date;
 }
 
@@ -83,25 +72,15 @@ export const users = pgTable('user', {
   user_type: text('user_type').notNull().default('user'),
 });
 
-export const routes = pgTable('route', {
+export const routes = pgTable('routes', {
   id: serial('id').primaryKey(),
-  route_id: text('route_id').notNull(),
   color: text('color').notNull(),
   grade: text('grade').notNull(),
-  grade_id: integer('grade_id').notNull(),
-  routesetter: text('routesetter'),
-  date_set: timestamp('date_set').notNull(),
-  gym_id: integer('gym_id').notNull().references(() => gyms.id),
   wall_sector: text('wall_sector').notNull(),
-  route_type: text('route_type').notNull(),
-  height_meters: integer('height_meters'),
-  active: boolean('active'),
-  anchor_number: integer('anchor_number'),
-  hold_style: text('hold_style'),
-  avg_stars: integer('avg_stars'),
-  stars_count: integer('stars_count'),
+  anchor_number: integer('anchor_number').notNull(),
   created_at: timestamp('created_at').defaultNow()
 });
+
 
 export const climbs = pgTable('climb', {
   id: serial('id').primaryKey(),

@@ -3,7 +3,6 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Error from '../components/Error'
-import { ErrorProps, QueryError } from '../types'
 
 interface Route {
   id: number
@@ -51,31 +50,23 @@ const Sends: FC = () => {
     notes: ''
   })
 
-  const { data: routes, isLoading, error } = useQuery<Route[], QueryError>({
+  const { data: routes, isLoading, error, refetch } = useQuery<Route[]>({
     queryKey: ['routes'],
     queryFn: async () => {
       try {
-        console.log('Fetching routes...');
-        const response = await client.get('/routes')
-        console.log('Routes response:', response);
-        if (!response.data) {
-          throw new Error('No data received from server')
-        }
-        return Array.isArray(response.data) ? response.data : []
+        const response = await client.get('/api/routes')
+        console.log('Routes response:', response.data)
+        return response.data
       } catch (err: any) {
-        console.error('Error fetching routes:', err);
-        const queryError: QueryError = {
-          message: err.response?.data?.message || 'Failed to fetch routes',
-          status: err.response?.status
-        }
-        throw queryError
+        console.error('Error fetching routes:', err)
+        throw new Error(err.message || 'Failed to fetch routes')
       }
     }
   })
 
   const sendMutation = useMutation({
     mutationFn: async (data: SendFormData) => {
-      return await client.post('/climbs', data)
+      return await client.post('/api/climbs', data)
     },
     onSuccess: () => {
       setFormData({
@@ -93,11 +84,16 @@ const Sends: FC = () => {
   }
 
   if (error) {
-    return <Error message={error.message} type="page" />
+    return (
+      <Error 
+        message="Failed to load routes. Please try again." 
+        type="page"
+        retry={() => refetch()}
+      />
+    )
   }
 
-  const routesArray = Array.isArray(routes) ? routes : [];
-  const selectedRoute = routesArray.find(route => route.id === formData.route_id);
+  const selectedRoute = routes?.find(route => route.id === formData.route_id);
   const points = selectedRoute 
     ? calculatePoints(selectedRoute.grade, formData.rating, formData.status, formData.tries)
     : 0;
@@ -128,7 +124,7 @@ const Sends: FC = () => {
                   required
                 >
                   <option value="">Select a route</option>
-                  {routesArray.map(route => (
+                  {routes?.map(route => (
                     <option 
                       key={route.id} 
                       value={route.id}
