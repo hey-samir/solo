@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ErrorProps } from '../types';
 
-const Error = ({ message, type = 'inline', retry }: ErrorProps) => {
+const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -19,20 +19,20 @@ const Error = ({ message, type = 'inline', retry }: ErrorProps) => {
       <div className="error-page">
         <div className="error-content">
           <div className="flex flex-col items-center space-y-4">
-            <i className="material-icons error-icon text-4xl">error_outline</i>
+            <i className="bi bi-exclamation-triangle text-4xl"></i>
             <h2 className="text-xl font-semibold text-center">{message}</h2>
             <div className="flex gap-4">
               {retry && (
                 <button
                   onClick={retry}
-                  className="btn-solo-purple px-6 py-2 rounded-lg transition-colors"
+                  className="btn btn-primary px-6 py-2 rounded-lg"
                 >
                   Try Again
                 </button>
               )}
               <button
                 onClick={handleBack}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors"
+                className="btn btn-secondary px-6 py-2 rounded-lg"
               >
                 Back
               </button>
@@ -47,20 +47,20 @@ const Error = ({ message, type = 'inline', retry }: ErrorProps) => {
     <div className="error-inline">
       <div className="flex flex-col space-y-4">
         <div className="flex items-center space-x-2">
-          <i className="material-icons text-error">error_outline</i>
-          <span className="text-error">{message}</span>
+          <i className="bi bi-exclamation-triangle"></i>
+          <span>{message}</span>
         </div>
         {retry && (
           <div className="flex gap-4 justify-end">
             <button
               onClick={retry}
-              className="btn-solo-purple px-4 py-2 rounded-lg text-sm"
+              className="btn btn-primary px-4 py-2 rounded-lg text-sm"
             >
               Try Again
             </button>
             <button
               onClick={handleBack}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+              className="btn btn-secondary px-4 py-2 rounded-lg text-sm"
             >
               Back
             </button>

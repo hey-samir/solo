@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Error from '../components/Error'
+import { ErrorProps, QueryError } from '../types'
 
 interface Route {
   id: number
@@ -51,7 +52,7 @@ const Sends: FC = () => {
     notes: ''
   })
 
-  const { data: routes, isLoading, error } = useQuery<Route[]>({
+  const { data: routes, isLoading, error } = useQuery<Route[], QueryError>({
     queryKey: ['routes'],
     queryFn: async () => {
       try {
@@ -61,8 +62,11 @@ const Sends: FC = () => {
         }
         return Array.isArray(response.data) ? response.data : []
       } catch (err: any) {
-        console.error('Error fetching routes:', err)
-        throw new Error(err.response?.data?.message || 'Failed to fetch routes')
+        const queryError: QueryError = {
+          message: err.response?.data?.message || 'Failed to fetch routes',
+          status: err.response?.status
+        }
+        throw queryError
       }
     }
   })
@@ -88,7 +92,7 @@ const Sends: FC = () => {
   }
 
   if (error) {
-    return <Error message={(error as Error).message} type="page" />
+    return <Error message={error.message} type="page" />
   }
 
   const routesArray = Array.isArray(routes) ? routes : [];
