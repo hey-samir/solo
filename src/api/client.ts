@@ -2,7 +2,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,15 +12,10 @@ const client = axios.create({
 // Request interceptor for API calls
 client.interceptors.request.use(
   (config) => {
-    console.log('[API Request]:', {
-      method: config.method,
-      url: config.url,
-      baseURL: config.baseURL
-    });
     return config;
   },
   (error) => {
-    console.error('[Request Error]:', error);
+    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -28,19 +23,9 @@ client.interceptors.request.use(
 // Response interceptor
 client.interceptors.response.use(
   (response) => {
-    console.log('[API Response]:', {
-      status: response.status,
-      url: response.config.url
-    });
     return response;
   },
   (error) => {
-    console.error('[API Error]:', {
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data
-    });
-
     // Handle network errors
     if (!error.response) {
       toast.error('Connection error. Please try again.');

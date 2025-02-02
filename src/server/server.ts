@@ -20,8 +20,9 @@ app.use(compression());
 app.use(cors({
   origin: isProduction 
     ? 'https://gosolo.nyc'
-    : 'http://localhost:3003',
-  credentials: true
+    : ['http://localhost:3003', 'http://0.0.0.0:3003'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
 // Session configuration
@@ -41,27 +42,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug logging middleware
-app.use((req, res, next) => {
-  console.log('[Request]:', {
-    method: req.method,
-    url: req.url,
-    path: req.path,
-    origin: req.headers.origin
-  });
-  next();
-});
-
 // API Routes
 app.use('/api', routes);
-
-// Error handling middleware
-app.use((err: any, req: any, res: any, next: any) => {
-  console.error('[Server Error]:', err);
-  res.status(err.status || 500).json({
-    error: isProduction ? 'Internal server error' : err.message
-  });
-});
 
 // Serve static files
 app.use(express.static(path.resolve(__dirname, '../../dist')));
