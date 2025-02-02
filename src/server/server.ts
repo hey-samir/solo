@@ -58,18 +58,19 @@ app.use(passport.session());
 // API Routes
 app.use('/api', routes);
 
-// Serve static files and handle client routing
+// Handle static files and client routing
 if (isProduction) {
-  const distPath = path.join(process.cwd(), 'dist');
+  // Get the absolute path to the dist directory
+  const distPath = path.resolve(process.cwd(), 'dist');
   console.log('Static files path:', distPath);
 
-  // Serve static files from the dist directory
+  // Serve static files with caching headers
   app.use(express.static(distPath, {
-    index: false,
-    maxAge: '1d'
+    maxAge: '1d',
+    index: false // Don't automatically serve index.html
   }));
 
-  // Handle all other routes by serving index.html
+  // For all other routes, serve index.html
   app.get('*', (_req, res) => {
     const indexPath = path.join(distPath, 'index.html');
     console.log('Serving index.html from:', indexPath);
@@ -91,7 +92,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   });
 });
 
-// Start server only if this file is run directly
+// Start server
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);

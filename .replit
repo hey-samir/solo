@@ -69,6 +69,22 @@ args = "Build All"
 task = "workflow.run"
 args = "Start Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build and Start"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Client"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start Production"
+
 [[workflows.workflow]]
 name = "Start Frontend"
 author = "agent"
@@ -112,7 +128,18 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-    echo \"Starting build process...\" &&     rm -rf dist &&     echo \"Removed old dist directory\" &&     mkdir -p dist/server &&     echo \"Created fresh dist directories\" &&     echo \"Building server files...\" &&     NODE_ENV=production npx tsc -p tsconfig.server.json &&     echo \"TypeScript compilation complete\" &&     echo \"Building client files...\" &&     NODE_ENV=production npx vite build &&     echo \"Client build complete\" &&     echo \"Final directory structure:\" &&     ls -R dist/
+    echo \"Starting build process...\" &&
+    rm -rf dist &&
+    echo \"Creating directories...\" &&
+    mkdir -p dist/server &&
+    echo \"Building server files...\" &&
+    NODE_ENV=production npx tsc --project tsconfig.server.json &&
+    echo \"Server build complete. Contents of dist/server:\" &&
+    ls -la dist/server &&
+    echo \"Building client files...\" &&
+    NODE_ENV=production npx vite build &&
+    echo \"Build complete. Final directory structure:\" &&
+    ls -R dist/
     """
 
 [[workflows.workflow]]
@@ -128,6 +155,74 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=production node dist/server/server.js"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Build Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    cd /home/runner/workspace &&
+    rm -rf dist/server &&
+    mkdir -p dist/server &&
+    NODE_ENV=production npx tsc --project tsconfig.server.json
+    """
+
+[[workflows.workflow]]
+name = "Build and Start"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd /home/runner/workspace && rm -rf dist && mkdir -p dist/server && NODE_ENV=production npx tsc --project tsconfig.server.json && NODE_ENV=production npx vite build && NODE_ENV=production node dist/server/server.js"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Build Client"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    cd /home/runner/workspace &&
+    NODE_ENV=production npx vite build
+    """
+
+[[workflows.workflow]]
+name = "Start Production"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd /home/runner/workspace && NODE_ENV=production node dist/server/server.js"
 waitForPort = 5000
 
 [[ports]]
