@@ -4,7 +4,7 @@ modules = ["python-3.11", "postgresql-16", "nodejs-20"]
 channel = "stable-24_05"
 
 [deployment]
-deploymentTarget = "flask"
+deploymentTarget = "cloudrun"
 run = ["sh", "-c", "NODE_ENV=production npx vite build && node src/server/server.js"]
 
 [workflows]
@@ -161,7 +161,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node dist/server/server.js"
+args = "NODE_ENV=development node dist/server/server.js"
 waitForPort = 5000
 
 [[ports]]
