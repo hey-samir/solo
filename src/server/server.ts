@@ -23,6 +23,20 @@ const corsOrigins = (() => {
   return ['http://localhost:3003'];
 })();
 
+// Standard middleware setup
+app.use(morgan(isProduction ? 'combined' : 'dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(compression());
+app.use(cookieParser());
+
+app.use(cors({
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
+
+// Validate configuration before setting up authenticated routes
 function validateConfig() {
   const requiredEnvVars = {
     'DATABASE_URL': process.env.DATABASE_URL,
@@ -55,29 +69,33 @@ console.log('Environment Variables Status:', {
 
 const configValidation = validateConfig();
 
-// Setup error handler for configuration issues
-if (!configValidation.valid) {
-  app.get('*', (_req, res) => {
-    res.status(500).json({
-      error: 'Application configuration error',
-      details: isProduction ? undefined : configValidation.error,
-      environment
-    });
-  });
-} else {
-  // Standard middleware setup
-  app.use(morgan(isProduction ? 'combined' : 'dev'));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(compression());
-  app.use(cookieParser());
+if (isProduction || isStaging) {
+  const distPath = path.resolve(__dirname, '..', '..');
 
-  app.use(cors({
-    origin: corsOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+  // Serve static files regardless of config status
+  app.use(express.static(path.join(distPath, 'dist'), {
+    maxAge: '1d',
+    index: false,
+    etag: true
   }));
 
+  // Health check endpoint always available
+  app.get('/health', (_req, res) => {
+    res.json({
+      status: 'ok',
+      environment,
+      config: {
+        corsOrigins,
+        hasDb: !!process.env.DATABASE_URL,
+        hasSession: !!process.env.SESSION_SECRET,
+        hasGoogle: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
+      }
+    });
+  });
+}
+
+// Setup authenticated routes only if configuration is valid
+if (configValidation.valid) {
   try {
     const PostgresqlStore = pgSession(session);
     const sessionPool = new Pool({
@@ -113,56 +131,44 @@ if (!configValidation.valid) {
     app.use(passport.initialize());
     app.use(passport.session());
 
+    // API routes
     app.use('/api', routes);
-
-    if (isProduction || isStaging) {
-      const distPath = path.resolve(__dirname, '..', '..');
-
-      app.use(express.static(path.join(distPath, 'dist'), {
-        maxAge: '1d',
-        index: false,
-        etag: true
-      }));
-
-      app.get('/health', (_req, res) => {
-        res.json({
-          status: 'ok',
-          environment,
-          config: {
-            corsOrigins,
-            hasDb: !!process.env.DATABASE_URL,
-            hasSession: !!process.env.SESSION_SECRET,
-            hasGoogle: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
-          }
-        });
-      });
-
-      app.get('*', (req, res) => {
-        if (req.path.startsWith('/api')) {
-          res.status(404).json({ error: 'API endpoint not found' });
-        } else {
-          res.sendFile(path.join(distPath, 'dist', 'index.html'));
-        }
-      });
-    } else {
-      app.get('*', (req, res) => {
-        res.redirect(`http://localhost:3003${req.path}`);
-      });
-    }
-
-    app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-      console.error('Server Error:', err);
-      res.status(err.status || 500).json({
-        error: isProduction ? 'Internal Server Error' : err.message,
-        details: !isProduction ? err.stack : undefined
-      });
-    });
-
   } catch (error) {
     console.error('Server initialization error:', error);
     process.exit(1);
   }
 }
+
+// Final catch-all route handler
+if (isProduction || isStaging) {
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+      if (!configValidation.valid) {
+        res.status(500).json({
+          error: 'Application configuration error',
+          details: isProduction ? undefined : configValidation.error
+        });
+      } else {
+        res.status(404).json({ error: 'API endpoint not found' });
+      }
+    } else {
+      res.sendFile(path.join(path.resolve(__dirname, '..', '..'), 'dist', 'index.html'));
+    }
+  });
+} else {
+  app.get('*', (req, res) => {
+    res.redirect(`http://localhost:3003${req.path}`);
+  });
+}
+
+// Error handling middleware
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Server Error:', err);
+  res.status(err.status || 500).json({
+    error: isProduction ? 'Internal Server Error' : err.message,
+    details: !isProduction ? err.stack : undefined
+  });
+});
 
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
