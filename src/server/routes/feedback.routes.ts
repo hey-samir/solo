@@ -33,6 +33,7 @@ const upload = multer({ storage });
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { sort = 'new' } = req.query;
+    console.log('[Feedback API] Request received:', { sort });
 
     const feedbackItems = await db.select({
       id: feedback.id,
@@ -62,9 +63,14 @@ router.get('/', async (req: Request, res: Response) => {
       username: item.user?.username
     }));
 
+    console.log('[Feedback API] Retrieved feedback:', {
+      count: formattedFeedback.length,
+      sample: formattedFeedback.slice(0, 2)
+    });
+
     res.json(formattedFeedback);
   } catch (error) {
-    console.error('Error fetching feedback:', error);
+    console.error('[Feedback API] Error fetching feedback:', error);
     res.status(500).json({ 
       error: "Oops! We're having trouble loading the feedback. Let's get you back on track." 
     });
@@ -129,7 +135,7 @@ router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, 
 
     res.status(201).json(formattedFeedback);
   } catch (error) {
-    console.error('Error submitting feedback:', error);
+    console.error('[Feedback API] Error submitting feedback:', error);
     res.status(500).json({ 
       error: "Oops! Something went wrong while submitting your feedback. Let's get you back on track." 
     });

@@ -41,13 +41,18 @@ router.get('/leaderboard', async (_req, res) => {
     .groupBy(users.id, users.username)
     .orderBy(sql`sum(${sends.points}) desc nulls last`);
 
-    // Ensure we always return an array, even if empty
+    // Ensure we always return an array
     const formattedLeaderboard = (leaderboard || []).map(entry => ({
       id: entry.user_id,
       username: entry.username,
       totalSends: entry.total_sends || 0,
       totalPoints: entry.total_points || 0
     }));
+
+    console.log('Leaderboard data:', {
+      count: formattedLeaderboard.length,
+      sample: formattedLeaderboard.slice(0, 2)
+    });
 
     res.json(formattedLeaderboard);
   } catch (error) {
