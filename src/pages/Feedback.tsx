@@ -32,6 +32,8 @@ const categories = [
   'Other'
 ];
 
+const DEFAULT_ERROR_MESSAGE = "Oops! This route hasn't been set yet. Let's get you back on track.";
+
 const Feedback: React.FC = () => {
   const [sort, setSort] = useState<'new' | 'top'>('new');
   const [form, setForm] = useState<FeedbackForm>({
@@ -40,22 +42,23 @@ const Feedback: React.FC = () => {
     category: '',
   });
 
-  const { data, isLoading, error, refetch } = useQuery<FeedbackItem[]>({
+  const {
+    data: items = [],
+    isLoading,
+    error,
+    refetch
+  } = useQuery<FeedbackItem[], Error>({
     queryKey: ['feedback', sort],
     queryFn: async () => {
       try {
         const response = await client.get('/api/feedback', { params: { sort } });
         if (!response.data || !Array.isArray(response.data)) {
-          throw new Error("Oops! This route hasn't been set yet. Let's get you back on track.");
+          return Promise.reject(DEFAULT_ERROR_MESSAGE);
         }
         return response.data;
-      } catch (err) {
-        const error = err as ErrorResponse;
+      } catch (error) {
         console.error('Error fetching feedback:', error);
-        throw new Error(
-          error.response?.data?.message ||
-          "Oops! This route hasn't been set yet. Let's get you back on track."
-        );
+        return Promise.reject(DEFAULT_ERROR_MESSAGE);
       }
     },
   });
@@ -78,11 +81,8 @@ const Feedback: React.FC = () => {
       toast.success('Thanks for your feedback! We\'ll look into it right away.');
       refetch();
     },
-    onError: (err: unknown) => {
-      const error = err as ErrorResponse;
-      const message = error.response?.data?.message || 
-        "Oops! Something went wrong while submitting your feedback. Let's get you back on track.";
-      toast.error(message);
+    onError: () => {
+      toast.error(DEFAULT_ERROR_MESSAGE);
     },
   });
 
@@ -112,14 +112,12 @@ const Feedback: React.FC = () => {
   if (error) {
     return (
       <Error 
-        message={error instanceof Error ? error.message : "Oops! This route hasn't been set yet. Let's get you back on track."}
+        message={DEFAULT_ERROR_MESSAGE}
         type="page"
         retry={() => refetch()}
       />
     );
   }
-
-  const items = data || [];
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -54,9 +54,8 @@ export interface ErrorProps {
   retry?: () => void;
 }
 
-export interface ErrorResponse extends Error {
-  code?: number;
-  status?: number;
+export interface ErrorResponse {
+  message?: string;
   response?: {
     data?: {
       error?: string;

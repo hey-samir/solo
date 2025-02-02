@@ -15,7 +15,7 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
             <div className="flex gap-4">
               {retry && (
                 <button
-                  onClick={retry}
+                  onClick={() => retry()}
                   className="btn-solo-purple px-6 py-2 rounded-lg transition-colors"
                 >
                   Try Again
@@ -44,7 +44,7 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
         {retry && (
           <div className="flex gap-4 justify-end">
             <button
-              onClick={retry}
+              onClick={() => retry()}
               className="btn-solo-purple px-4 py-2 rounded-lg text-sm"
             >
               Try Again
