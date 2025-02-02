@@ -6,13 +6,13 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
+const router = Router();
+
 // Ensure uploads directory exists
-const uploadDir = 'uploads/screenshots';
+const uploadDir = path.join(process.cwd(), 'uploads', 'screenshots');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
-
-const router = Router();
 
 interface AuthenticatedRequest extends Request {
   user?: any;
@@ -20,8 +20,10 @@ interface AuthenticatedRequest extends Request {
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: uploadDir,
-  filename: (req, file, cb) => {
+  destination: (_req, _file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (_req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
   }
@@ -29,25 +31,15 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Define the feedback item type
-type FeedbackItem = {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  screenshot_url: string | null;
-  created_at: Date | null;
-  upvotes: number;
-  user: {
-    username: string | null;
-  } | null;
-};
-
 // Get feedback items with optional sorting
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { sort = 'new' } = req.query;
-    console.log('[Feedback API] Request received:', { sort });
+    console.log('[Feedback API] GET request received:', { 
+      sort,
+      headers: req.headers,
+      path: req.path 
+    });
 
     const results = await db
       .select({
@@ -66,8 +58,11 @@ router.get('/', async (req: Request, res: Response) => {
       .leftJoin(users, eq(feedback.user_id, users.id))
       .orderBy(sort === 'new' ? desc(feedback.created_at) : desc(feedback.upvotes));
 
-    // Ensure we have a valid array and process the data
-    const feedbackData = (results || []).map((item: FeedbackItem) => ({
+    console.log('[Feedback API] Query completed:', {
+      resultCount: results?.length || 0
+    });
+
+    const feedbackData = results.map(item => ({
       id: item.id,
       title: item.title || '',
       description: item.description || '',
@@ -78,16 +73,15 @@ router.get('/', async (req: Request, res: Response) => {
       username: item.user?.username || 'Anonymous'
     }));
 
-    console.log('[Feedback API] Processed data:', {
-      resultCount: results?.length || 0,
-      outputCount: feedbackData.length,
-      sample: feedbackData[0] || null
+    console.log('[Feedback API] Sending response:', {
+      dataCount: feedbackData.length,
+      sample: feedbackData[0]
     });
 
-    return res.json(feedbackData);
+    res.json(feedbackData);
   } catch (error) {
-    console.error('[Feedback API] Error:', error);
-    return res.status(500).json({ 
+    console.error('[Feedback API] Error in GET route:', error);
+    res.status(500).json({ 
       error: "Failed to fetch feedback",
       details: error instanceof Error ? error.message : 'Unknown error'
     });
@@ -96,6 +90,12 @@ router.get('/', async (req: Request, res: Response) => {
 
 // Submit new feedback
 router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, res: Response) => {
+  console.log('[Feedback API] POST request received:', {
+    body: req.body,
+    file: req.file,
+    user: req.user?.id
+  });
+
   try {
     const { title, description, category } = req.body;
     const userId = req.user?.id;
@@ -105,7 +105,7 @@ router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, 
       return res.status(401).json({ error: 'Please log in to submit feedback.' });
     }
 
-    const [feedbackItem] = await db.insert(feedback)
+    const [newFeedback] = await db.insert(feedback)
       .values({
         title,
         description,
@@ -117,45 +117,23 @@ router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, 
       })
       .returning();
 
-    if (!feedbackItem) {
-      throw new Error('Failed to create feedback');
-    }
+    console.log('[Feedback API] Created feedback:', newFeedback);
 
-    const feedbackWithUser = await db.select({
-      id: feedback.id,
-      title: feedback.title,
-      description: feedback.description,
-      category: feedback.category,
-      screenshot_url: feedback.screenshot_url,
-      created_at: feedback.created_at,
-      upvotes: feedback.upvotes,
-      user: {
-        username: users.username
-      }
-    })
-    .from(feedback)
-    .leftJoin(users, eq(feedback.user_id, users.id))
-    .where(eq(feedback.id, feedbackItem.id))
-    .limit(1);
-
-    // Format the response consistently
-    const formattedFeedback = feedbackWithUser[0] ? {
-      id: feedbackWithUser[0].id,
-      title: feedbackWithUser[0].title,
-      description: feedbackWithUser[0].description,
-      category: feedbackWithUser[0].category,
-      screenshotUrl: feedbackWithUser[0].screenshot_url,
-      createdAt: feedbackWithUser[0].created_at,
-      upvotes: feedbackWithUser[0].upvotes,
-      username: feedbackWithUser[0].user?.username
-    } : null;
-
-    console.log('[Feedback API] Created new feedback:', formattedFeedback);
-    res.status(201).json(formattedFeedback);
+    res.status(201).json({
+      id: newFeedback.id,
+      title: newFeedback.title,
+      description: newFeedback.description,
+      category: newFeedback.category,
+      screenshotUrl: newFeedback.screenshot_url,
+      createdAt: newFeedback.created_at,
+      upvotes: newFeedback.upvotes,
+      username: req.user?.username || 'Anonymous'
+    });
   } catch (error) {
-    console.error('[Feedback API] Error submitting feedback:', error);
+    console.error('[Feedback API] Error in POST route:', error);
     res.status(500).json({ 
-      error: "Oops! Something went wrong while submitting your feedback. Let's get you back on track." 
+      error: "Failed to submit feedback",
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
