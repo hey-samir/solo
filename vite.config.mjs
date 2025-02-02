@@ -12,7 +12,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3003,
     strictPort: true,
-    allowedHosts: 'all',
+    allowedHosts: ["1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev"],
     proxy: {
       '/api': {
         target: 'http://0.0.0.0:5000',
