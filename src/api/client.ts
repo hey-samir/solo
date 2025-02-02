@@ -18,18 +18,39 @@ const client = axios.create({
   withCredentials: true,
 })
 
+// Add request interceptor for debugging
+client.interceptors.request.use(
+  (config) => {
+    console.log('API Request:', {
+      method: config.method,
+      url: config.url,
+      baseURL: config.baseURL
+    });
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // Add response interceptor for error handling
 client.interceptors.response.use(
   (response) => {
-    console.log('API Response:', response);
+    console.log('API Response:', {
+      status: response.status,
+      data: response.data
+    });
     return response;
   },
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    console.error('API Error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
 
     // Handle network errors
     if (!error.response) {
-      console.error('Network Error:', error);
       return Promise.reject({ 
         message: "Unable to connect to the server. Please check your connection and try again.",
         status: 0

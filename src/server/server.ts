@@ -58,7 +58,7 @@ app.use(session({
   }
 }));
 
-// API Routes - These must come before static file serving
+// API Routes - Make sure these come before static file serving
 app.use('/api', routes);
 app.use('/api/feedback', feedbackRoutes);
 

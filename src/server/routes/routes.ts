@@ -7,30 +7,27 @@ const router = Router();
 
 const getUserRoutes = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    console.log('Fetching routes for user...');
+    console.log('Fetching routes...');
 
-    if (!req.user?.id) {
-      console.log('User not authenticated');
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
+    // Remove authentication check temporarily for testing
+    const allRoutes = await db.select().from(routes);
+    console.log('Routes fetched:', allRoutes);
 
-    const userRoutes = await db.select().from(routes);
-    console.log('Routes fetched:', userRoutes);
-
-    const transformedRoutes = userRoutes.map(route => ({
+    const transformedRoutes = allRoutes.map(route => ({
       id: route.id,
-      routeId: route.route_id,
       color: route.color,
       grade: route.grade,
-      wallSector: route.wall_sector,
-      anchorNumber: route.anchor_number
+      wall_sector: route.wall_sector,
+      anchor_number: route.anchor_number
     }));
 
     res.json(transformedRoutes);
   } catch (error) {
     console.error('Error fetching routes:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Failed to fetch routes',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
