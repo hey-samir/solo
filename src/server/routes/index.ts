@@ -15,11 +15,22 @@ router.get('/health', (_req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
+// Test endpoint for feedback connectivity
+router.get('/feedback-test', (req, res) => {
+  console.log('[Debug] Feedback Test Endpoint Hit:', {
+    method: req.method,
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+  res.json({ status: 'ok', message: 'Feedback test endpoint working' });
+});
+
 // Add debug middleware for feedback routes
 router.use('/feedback', (req, res, next) => {
   console.log('[Debug] Feedback Request:', {
     method: req.method,
     path: req.path,
+    fullUrl: req.protocol + '://' + req.get('host') + req.originalUrl,
     headers: req.headers,
     body: req.body,
     timestamp: new Date().toISOString()
@@ -64,7 +75,6 @@ router.get('/leaderboard', async (_req, res) => {
       .groupBy(users.id, users.username)
       .orderBy(sql`COALESCE(sum(${sends.points}), 0) desc`);
 
-    // Ensure we have a valid array of results
     const leaderboardData = (results || []).map((entry: LeaderboardEntry) => ({
       id: entry.user_id,
       username: entry.username || 'Unknown User',
@@ -93,6 +103,6 @@ router.use('/user', userRoutes);
 router.use('/routes', routeRoutes);
 router.use('/climbs', climbRoutes);
 router.use('/sessions', sessionRoutes);
-router.use('/feedback', feedbackRoutes); // Ensure feedback routes are mounted correctly
+router.use('/feedback', feedbackRoutes);
 
 export default router;
