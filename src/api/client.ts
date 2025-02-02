@@ -2,7 +2,7 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,9 +12,6 @@ const client = axios.create({
 // Request interceptor for API calls
 client.interceptors.request.use(
   (config) => {
-    if (!config.headers['Content-Type']) {
-      config.headers['Content-Type'] = 'application/json';
-    }
     console.log('[API Request]:', {
       url: config.url,
       method: config.method

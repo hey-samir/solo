@@ -20,7 +20,7 @@ app.use(compression());
 app.use(cors({
   origin: isProduction 
     ? 'https://gosolo.nyc'
-    : ['http://localhost:3003', 'http://0.0.0.0:3003'],
+    : 'http://localhost:3003',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
@@ -57,15 +57,6 @@ if (!isProduction) {
 
 // API Routes
 app.use('/api', routes);
-
-// Error handling middleware
-app.use((err: any, req: any, res: any, next: any) => {
-  console.error('[Server Error]:', err);
-  res.status(err.status || 500).json({
-    error: isProduction ? 'Internal server error' : err.message,
-    details: !isProduction ? err.stack : undefined
-  });
-});
 
 // Serve static files in production
 if (isProduction) {

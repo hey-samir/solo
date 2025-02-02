@@ -95,7 +95,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development VITE_GOOGLE_OAUTH_CLIENT_ID=$GOOGLE_OAUTH_CLIENT_ID vite --port 3003 --host"
+args = "NODE_ENV=development vite --port 3003 --host"
 waitForPort = 3003
 
 [[workflows.workflow]]
