@@ -50,7 +50,7 @@ const Header: React.FC = () => {
           <div className="list-group list-group-flush">
             {/* Profile link - always visible but with different behavior based on auth */}
             <Link 
-              to={isAuthenticated ? "/profile" : "/login"}
+              to="/profile/@gosolonyc"
               className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
               onClick={() => setIsMenuOpen(false)}
             >
