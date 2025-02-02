@@ -10,6 +10,9 @@ interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
+// Apply authentication middleware to all routes
+router.use(isAuthenticated);
+
 // Get user stats
 router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
   try {
@@ -46,86 +49,6 @@ router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
     console.error('[Stats API] Error fetching stats:', error);
     res.status(500).json({ 
       error: "Failed to fetch statistics",
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-// Get user stats charts data
-router.get('/me/stats/charts', async (req: AuthenticatedRequest, res: Response) => {
-  try {
-    console.log('[Charts API] Request received:', {
-      userId: req.user?.id,
-      session: req.session?.id,
-      isAuthenticated: req.isAuthenticated?.()
-    });
-
-    if (!req.user?.id) {
-      console.log('[Charts API] Unauthorized access attempt');
-      return res.status(401).json({ error: 'Please log in to view statistics' });
-    }
-
-    // Get ascents by difficulty
-    const ascentsByDifficulty = await db
-      .select({
-        grade: routes.grade,
-        count: sql<number>`count(*)`.mapWith(Number)
-      })
-      .from(sends)
-      .leftJoin(routes, eq(sends.route_id, routes.id))
-      .where(eq(sends.user_id, req.user.id))
-      .groupBy(routes.grade)
-      .orderBy(routes.grade);
-
-    // Get sends by date
-    const sendsByDate = await db
-      .select({
-        date: sql<string>`date_trunc('day', ${sends.created_at})::date`.mapWith(String),
-        sends: sql<number>`sum(case when ${sends.status} = true then 1 else 0 end)`.mapWith(Number),
-        attempts: sql<number>`sum(case when ${sends.status} = false then 1 else 0 end)`.mapWith(Number)
-      })
-      .from(sends)
-      .where(eq(sends.user_id, req.user.id))
-      .groupBy(sql`date_trunc('day', ${sends.created_at})::date`)
-      .orderBy(sql`date_trunc('day', ${sends.created_at})::date`);
-
-    // Calculate send rate over time
-    const sendRate = await db
-      .select({
-        date: sql<string>`date_trunc('day', ${sends.created_at})::date`.mapWith(String),
-        rate: sql<number>`round(sum(case when ${sends.status} = true then 100 else 0 end)::numeric / count(*)::numeric, 1)`.mapWith(Number)
-      })
-      .from(sends)
-      .where(eq(sends.user_id, req.user.id))
-      .groupBy(sql`date_trunc('day', ${sends.created_at})::date`)
-      .orderBy(sql`date_trunc('day', ${sends.created_at})::date`);
-
-    // Format the response
-    const chartData = {
-      ascentsByDifficulty: {
-        labels: ascentsByDifficulty.map(d => d.grade),
-        data: ascentsByDifficulty.map(d => d.count)
-      },
-      sendsByDate: {
-        labels: sendsByDate.map(d => d.date),
-        sends: sendsByDate.map(d => d.sends),
-        attempts: sendsByDate.map(d => d.attempts)
-      },
-      metricsOverTime: {
-        labels: sendRate.map(d => d.date),
-        metrics: [{
-          name: 'Send Rate',
-          data: sendRate.map(d => d.rate)
-        }]
-      }
-    };
-
-    console.log('[Charts API] Returning chart data for user:', req.user.id);
-    res.json(chartData);
-  } catch (error) {
-    console.error('[Charts API] Error fetching chart data:', error);
-    res.status(500).json({ 
-      error: "Failed to fetch chart data",
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }

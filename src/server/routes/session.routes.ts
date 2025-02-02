@@ -14,7 +14,7 @@ interface AuthenticatedRequest extends Request {
 router.use(isAuthenticated);
 
 // Get all sessions
-router.get('/', async (req: AuthenticatedRequest, res: Response) => {
+router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
   try {
     console.log('[Sessions API] Request received:', {
       userId: req.user?.id,
