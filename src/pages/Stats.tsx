@@ -404,7 +404,7 @@ interface MetricCardProps {
 }
 
 const MetricCard: FC<MetricCardProps> = ({ value, label }) => (
-  <div className="bg-bg-card rounded-card shadow-card p-6">
+  <div className="bg-bg-card rounded-card shadow-card p-6 text-center">
     <div className="text-text-primary text-2xl font-bold mb-2">{value}</div>
     <div className="text-text-muted text-sm">{label}</div>
   </div>
