@@ -12,9 +12,20 @@ router.get('/health', (_req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
+// Add debug middleware for route tracking
+router.use((req, _res, next) => {
+  console.log('API Request:', {
+    method: req.method,
+    path: req.path,
+    query: req.query,
+    authenticated: req.isAuthenticated?.()
+  });
+  next();
+});
+
 // Mount feature routes
+router.use('/user', userRoutes);  // Changed from /users to /user to match client requests
 router.use('/routes', routeRoutes);
-router.use('/users', userRoutes);
 router.use('/climbs', climbRoutes);
 router.use('/sessions', sessionRoutes);
 router.use('/feedback', feedbackRoutes);

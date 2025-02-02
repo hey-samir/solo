@@ -83,6 +83,16 @@ app.use(express.static(distPath, {
   }
 }));
 
+// Add authentication debug middleware
+app.use((req, res, next) => {
+  console.log('Auth Debug:', {
+    isAuthenticated: req.isAuthenticated?.(),
+    session: req.session?.id,
+    user: req.user?.id
+  });
+  next();
+});
+
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Server error:', err);
