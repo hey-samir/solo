@@ -25,7 +25,7 @@ const Sessions: FC = () => {
     queryFn: async () => {
       try {
         console.log('Fetching sessions...');
-        const response = await client.get('/api/sessions');
+        const response = await client.get('/sessions');
         if (!response.data) {
           throw { 
             message: "Oops! We received unexpected data. Let's get you back on track.",
@@ -62,7 +62,6 @@ const Sessions: FC = () => {
     );
   }
 
-  // Ensure we have an array to work with
   const sessions = data || [];
 
   const formatDuration = (hours: number): string => {
