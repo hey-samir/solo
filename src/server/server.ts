@@ -17,9 +17,7 @@ if (!isProduction) {
     NODE_ENV: process.env.NODE_ENV,
     REPL_ID: process.env.REPL_ID,
     REPL_OWNER: process.env.REPL_OWNER,
-    DATABASE_URL: process.env.DATABASE_URL ? 'set' : 'not set',
-    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? 'set' : 'not set',
-    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? 'set' : 'not set'
+    DATABASE_URL: process.env.DATABASE_URL ? 'set' : 'not set'
   });
 }
 
@@ -46,7 +44,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Session configuration with secure settings
+// Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET || 'development-secret-key',
   resave: false,
@@ -59,17 +57,16 @@ app.use(session({
   }
 }));
 
-// Initialize Passport and restore authentication state from session
+// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Add debug middleware for all requests
+// Debug middleware
 app.use((req, res, next) => {
   console.log('Request Debug:', {
     method: req.method,
     path: req.path,
     headers: req.headers,
-    cookies: req.cookies,
     session: req.session?.id,
     user: req.user?.id,
     origin: req.headers.origin
@@ -77,27 +74,29 @@ app.use((req, res, next) => {
   next();
 });
 
-// API Routes with /api prefix
+// API Routes
 app.use('/api', routes);
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err, req, res, next) => {
   console.error('Server error:', {
     error: err,
     stack: err.stack,
     path: req.path,
     method: req.method
   });
-  res.status(500).json({
-    error: 'Internal server error',
-    message: isProduction ? 'Something went wrong' : err.message
+  res.status(err.status || 500).json({
+    error: isProduction ? 'Internal server error' : err.message,
+    details: !isProduction ? err.stack : undefined
   });
 });
 
+// Serve static files for SPA
+app.use(express.static(path.resolve(__dirname, '../../dist')));
+
 // Handle all routes for the SPA
 app.get('/*', (req, res) => {
-  const distPath = path.resolve(__dirname, '../../dist');
-  res.sendFile(path.join(distPath, 'index.html'));
+  res.sendFile(path.join(__dirname, '../../dist/index.html'));
 });
 
 const PORT = parseInt(process.env.PORT || '5000', 10);

@@ -18,13 +18,14 @@ router.use((req, _res, next) => {
     method: req.method,
     path: req.path,
     query: req.query,
-    authenticated: req.isAuthenticated?.()
+    authenticated: req.isAuthenticated?.(),
+    timestamp: new Date().toISOString()
   });
   next();
 });
 
 // Mount feature routes
-router.use('/user', userRoutes);  // Changed from /users to /user to match client requests
+router.use('/users', userRoutes);
 router.use('/routes', routeRoutes);
 router.use('/climbs', climbRoutes);
 router.use('/sessions', sessionRoutes);
