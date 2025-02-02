@@ -56,7 +56,7 @@ const Feedback: React.FC = () => {
   if (isError) {
     return (
       <Error 
-        message={error instanceof Error ? error.message : "Failed to load feedback"}
+        message={error?.message || "An unexpected error occurred"}
         type="page"
         retry={() => refetch()}
       />

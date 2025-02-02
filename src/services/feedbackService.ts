@@ -20,6 +20,18 @@ export interface FeedbackSubmission {
   screenshot?: File;
 }
 
+class ApiError extends Error {
+  status?: number;
+  data?: any;
+
+  constructor(message: string, status?: number, data?: any) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
+  }
+}
+
 class FeedbackService {
   async getFeedback(sort: 'new' | 'top' = 'new'): Promise<FeedbackItem[]> {
     try {
@@ -27,8 +39,8 @@ class FeedbackService {
       return response.data;
     } catch (error: any) {
       console.error('Error fetching feedback:', error);
-      toast.error('Failed to load feedback. Please try again.');
-      throw error;
+      const message = error.response?.data?.message || error.message || 'Failed to load feedback';
+      throw new ApiError(message, error.response?.status);
     }
   }
 
@@ -51,8 +63,8 @@ class FeedbackService {
       return response.data;
     } catch (error: any) {
       console.error('Error submitting feedback:', error);
-      toast.error('Failed to submit feedback. Please try again.');
-      throw error;
+      const message = error.response?.data?.message || error.message || 'Failed to submit feedback';
+      throw new ApiError(message, error.response?.status);
     }
   }
 }
