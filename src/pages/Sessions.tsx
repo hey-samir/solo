@@ -1,85 +1,90 @@
-import React, { FC, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import client from '../api/client'
-import LoadingSpinner from '../components/LoadingSpinner'
-import Error from '../components/Error'
+import React, { FC, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import client from '../api/client';
+import LoadingSpinner from '../components/LoadingSpinner';
+import Error from '../components/Error';
+import { ErrorResponse } from '../types';
 
 interface Route {
-  color: string
-  grade: string
+  color: string;
+  grade: string;
 }
 
 interface Climb {
-  id: number
-  routeId: number
-  status: boolean
-  rating: number
-  tries: number
-  notes: string | null
-  points: number
-  createdAt: string
-  route: Route
+  id: number;
+  routeId: number;
+  status: boolean;
+  rating: number;
+  tries: number;
+  notes: string | null;
+  points: number;
+  createdAt: string;
+  route: Route;
 }
 
 interface ClimbsByDate {
-  [date: string]: Climb[]
+  [date: string]: Climb[];
 }
 
-type SortKey = 'color' | 'grade' | 'status' | 'tries' | 'rating' | 'points'
-type SortDirection = 'asc' | 'desc'
+type SortKey = 'color' | 'grade' | 'status' | 'tries' | 'rating' | 'points';
+type SortDirection = 'asc' | 'desc';
 
 const Sessions: FC = () => {
   const [sortConfig, setSortConfig] = useState<{
-    key: SortKey
-    direction: SortDirection
-    date: string | null
+    key: SortKey;
+    direction: SortDirection;
+    date: string | null;
   }>({
     key: 'color',
     direction: 'asc',
-    date: null
-  })
+    date: null,
+  });
 
   const { data, isLoading, error, refetch } = useQuery<Climb[]>({
     queryKey: ['climbs'],
     queryFn: async () => {
       try {
-        const response = await client.get('/api/climbs')
-        return response.data || []
+        const response = await client.get('/api/climbs');
+        if (!response.data || !Array.isArray(response.data)) {
+          throw new Error("Oops! We received unexpected data. Let's get you back on track.");
+        }
+        return response.data;
       } catch (error) {
-        console.error('Error fetching climbs:', error)
-        throw new Error("Oops! We're having trouble loading your climbing sessions. Let's get you back on track.")
+        console.error('Error fetching climbs:', error);
+        const err = error as ErrorResponse;
+        if (err.response?.data?.message) {
+          throw new Error(err.response.data.message);
+        }
+        throw new Error("Oops! We're having trouble loading your climbing sessions. Let's get you back on track.");
       }
-    }
-  })
+    },
+  });
 
   if (isLoading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
 
-  if (error) {
+  if (error instanceof Error) {
     return (
       <Error
-        message={error instanceof Error ? error.message : "Oops! Something went wrong. Let's get you back on track."}
+        message={error.message}
         type="page"
         retry={() => refetch()}
       />
-    )
+    );
   }
 
-  // Ensure data is an array
-  const climbs = Array.isArray(data) ? data : []
-
-  // Group climbs by date with null check
+  const climbs = data || [];
   const climbsByDate = climbs.reduce<ClimbsByDate>((acc, climb) => {
-    if (climb && climb.createdAt) {
-      const date = new Date(climb.createdAt).toLocaleDateString()
+    if (climb?.createdAt) {
+      const date = new Date(climb.createdAt).toLocaleDateString();
       if (!acc[date]) {
-        acc[date] = []
+        acc[date] = [];
       }
-      acc[date].push(climb)
+      acc[date].push(climb);
     }
-    return acc
-  }, {})
+    return acc;
+  }, {});
 
   const getColorHex = (color: string): string => {
     const colorMap: Record<string, string> = {
@@ -96,7 +101,6 @@ const Sessions: FC = () => {
     }
     return colorMap[color] || '#CCCCCC'
   }
-  
 
   const sortClimbs = (climbsToSort: Climb[]) => {
     return [...climbsToSort].sort((a, b) => {
@@ -135,7 +139,7 @@ const Sessions: FC = () => {
         <div key={date} className="mb-8">
           <h2 className="text-xl font-semibold mb-4">{date}</h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+            <table className="min-w-full bg-card border border-gray-200 rounded-lg">
               <thead>
                 <tr className="bg-gray-50">
                   <th 
@@ -248,7 +252,7 @@ const Sessions: FC = () => {
                     <td className="px-4 py-2">{climb.tries}</td>
                     <td className="px-4 py-2">{climb.rating}/5</td>
                     <td className="px-4 py-2">
-                      <span className="text-purple-600 font-medium">
+                      <span className="text-solo-purple font-medium">
                         {climb.points} pts
                       </span>
                     </td>
@@ -265,14 +269,14 @@ const Sessions: FC = () => {
           <h4 className="text-xl text-gray-600 mb-4">Enter your first climb to see Sessions</h4>
           <a 
             href="/sends" 
-            className="inline-block bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition"
+            className="inline-block bg-solo-purple text-white px-6 py-2 rounded-lg hover:bg-solo-purple-light transition"
           >
             Back to Sends
           </a>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Sessions
+export default Sessions;

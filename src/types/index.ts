@@ -48,6 +48,24 @@ export interface Stats {
   data?: number[];
 }
 
+export interface ErrorProps {
+  message: string;
+  type?: 'inline' | 'page';
+  retry?: () => void;
+}
+
+export interface ErrorResponse extends Error {
+  code?: number;
+  status?: number;
+  response?: {
+    data?: {
+      error?: string;
+      message?: string;
+    };
+    status?: number;
+  };
+}
+
 export interface ErrorPageProps {
   code: number;
   message: string;

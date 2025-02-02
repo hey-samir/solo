@@ -3,6 +3,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import client from '../api/client';
 import { toast } from 'react-hot-toast';
 import Error from '../components/Error';
+import { ErrorResponse } from '../types';
 
 interface FeedbackItem {
   id: number;
@@ -39,26 +40,34 @@ const Feedback: React.FC = () => {
     category: '',
   });
 
-  const { data: feedbackItems = [], isLoading, error, refetch } = useQuery<FeedbackItem[]>({
+  const { data, isLoading, error, refetch } = useQuery<FeedbackItem[]>({
     queryKey: ['feedback', sort],
     queryFn: async () => {
       try {
         const response = await client.get('/api/feedback', { params: { sort } });
-        return response.data || [];
+        if (!response.data || !Array.isArray(response.data)) {
+          throw new Error("Oops! We received unexpected data. Let's get you back on track.");
+        }
+        return response.data;
       } catch (error) {
         console.error('Error fetching feedback:', error);
+        const err = error as ErrorResponse;
+        if (err.response?.data?.message) {
+          throw new Error(err.response.data.message);
+        }
         throw new Error("Oops! We're having trouble loading the feedback. Let's get you back on track.");
       }
-    }
+    },
   });
 
   const submitFeedback = useMutation({
     mutationFn: async (formData: FormData) => {
-      return await client.post('/api/feedback', formData, {
+      const response = await client.post('/api/feedback', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+      return response.data;
     },
     onSuccess: () => {
       setForm({
@@ -66,12 +75,14 @@ const Feedback: React.FC = () => {
         description: '',
         category: '',
       });
-      toast.success('Feedback submitted successfully!');
+      toast.success('Thanks for your feedback! We\'ll look into it right away.');
       refetch();
     },
-    onError: () => {
-      toast.error('Failed to submit feedback. Please try again.');
-    }
+    onError: (error: ErrorResponse) => {
+      const message = error.response?.data?.message || 
+        "Oops! Something went wrong while submitting your feedback. Let's get you back on track.";
+      toast.error(message);
+    },
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,36 +96,37 @@ const Feedback: React.FC = () => {
     }
     submitFeedback.mutate(formData);
   };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setForm(prev => ({ ...prev, screenshot: file }));
     }
   };
 
-  if (isLoading) {
+    if (isLoading) {
     return <div className="text-center mt-4">Loading...</div>;
   }
 
-  if (error) {
+
+  if (error instanceof Error) {
     return (
       <Error 
-        message={error instanceof Error ? error.message : "Oops! Something went wrong. Let's get you back on track."}
+        message={error.message}
         type="page"
         retry={() => refetch()}
       />
     );
   }
 
-  const items = Array.isArray(feedbackItems) ? feedbackItems : [];
+    const items = data || [];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Form section */}
         <div className="space-y-4">
-          <div className="bg-card rounded-lg p-6">
+          <div className="bg-bg-card rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-bold mb-4">Submit Feedback</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -175,7 +187,7 @@ const Feedback: React.FC = () => {
 
         {/* Feedback list section */}
         <div className="space-y-4">
-          <div className="bg-card rounded-lg p-6">
+          <div className="bg-bg-card rounded-lg shadow-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Community Feedback</h2>
               <div className="flex space-x-2">
