@@ -1,8 +1,9 @@
 import axios from 'axios'
 
-const baseURL = process.env.NODE_ENV === 'production' 
-  ? '/api'
-  : 'http://localhost:5000'
+const isDevelopment = process.env.NODE_ENV === 'development';
+const baseURL = isDevelopment
+  ? 'http://localhost:5000/api'
+  : '/api';
 
 console.log('API client configuration:')
 console.log('- Environment:', process.env.NODE_ENV)
@@ -22,6 +23,16 @@ client.interceptors.response.use(
   (response) => response,
   (error) => {
     console.error('API Error:', error.response?.data || error.message)
+
+    // Handle network errors
+    if (!error.response) {
+      console.error('Network Error:', error);
+      return Promise.reject({ 
+        message: "Unable to connect to the server. Please check your connection and try again.",
+        status: 0
+      });
+    }
+
     if (error.response?.status === 401) {
       // Handle unauthorized access
       window.location.href = '/login'
