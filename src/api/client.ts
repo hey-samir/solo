@@ -1,4 +1,5 @@
-import axios from 'axios'
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const baseURL = isDevelopment
@@ -16,7 +17,7 @@ const client = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Important for session cookie handling
+  withCredentials: true,
 });
 
 // Add request interceptor for debugging
@@ -49,7 +50,6 @@ client.interceptors.request.use(
 // Add response interceptor for error handling
 client.interceptors.response.use(
   (response) => {
-    // Additional logging for feedback-related responses
     if (response.config.url?.includes('feedback')) {
       console.log('Feedback API Response:', {
         status: response.status,

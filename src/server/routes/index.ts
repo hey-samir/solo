@@ -15,19 +15,24 @@ router.get('/health', (_req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// Test endpoint for feedback connectivity
-router.get('/feedback-test', (req, res) => {
-  console.log('[Debug] Feedback Test Endpoint Hit:', {
+// Debug middleware for all routes
+router.use((req, _res, next) => {
+  console.log('[API Request]:', {
     method: req.method,
-    headers: req.headers,
+    path: req.path,
+    url: req.url,
+    baseUrl: req.baseUrl,
+    originalUrl: req.originalUrl,
+    query: req.query,
+    body: req.body,
     timestamp: new Date().toISOString()
   });
-  res.json({ status: 'ok', message: 'Feedback test endpoint working' });
+  next();
 });
 
 // Add debug middleware for feedback routes
 router.use('/feedback', (req, res, next) => {
-  console.log('[Debug] Feedback Request:', {
+  console.log('[Feedback Request]:', {
     method: req.method,
     path: req.path,
     fullUrl: req.protocol + '://' + req.get('host') + req.originalUrl,
@@ -38,24 +43,9 @@ router.use('/feedback', (req, res, next) => {
   next();
 });
 
-// Add debug middleware for route tracking
-router.use((req, _res, next) => {
-  console.log('API Request:', {
-    method: req.method,
-    path: req.path,
-    query: req.query,
-    authenticated: req.isAuthenticated?.(),
-    timestamp: new Date().toISOString()
-  });
-  next();
-});
-
 // Leaderboard endpoint
 router.get('/leaderboard', async (_req, res) => {
   try {
-    console.log('[Leaderboard API] Fetching leaderboard data...');
-
-    // Explicitly type the result array
     type LeaderboardEntry = {
       user_id: number;
       username: string;
@@ -82,12 +72,6 @@ router.get('/leaderboard', async (_req, res) => {
       totalPoints: Number(entry.total_points) || 0
     }));
 
-    console.log('[Leaderboard API] Processed data:', {
-      resultCount: results?.length || 0,
-      outputCount: leaderboardData.length,
-      sample: leaderboardData[0] || null
-    });
-
     return res.json(leaderboardData);
   } catch (error) {
     console.error('[Leaderboard API] Error:', error);
@@ -98,7 +82,7 @@ router.get('/leaderboard', async (_req, res) => {
   }
 });
 
-// Mount feature routes
+// Feature routes - mount all routes under /api prefix
 router.use('/user', userRoutes);
 router.use('/routes', routeRoutes);
 router.use('/climbs', climbRoutes);
