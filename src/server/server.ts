@@ -23,7 +23,7 @@ app.use(cookieParser());
 
 // CORS configuration
 app.use(cors({
-  origin: '*', // Allow all origins in development and production
+  origin: isProduction ? 'https://gosolo.nyc' : 'http://localhost:3003',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
@@ -60,22 +60,23 @@ app.use('/api', routes);
 
 // Serve static files and handle client routing
 if (isProduction) {
-  // Production: serve from dist
-  const distPath = path.join(__dirname, '../../dist');
+  const distPath = path.join(process.cwd(), 'dist');
+  console.log('Static files path:', distPath);
+
+  // Serve static files from the dist directory
   app.use(express.static(distPath, {
-    index: false, // Don't serve index.html for all routes
-    maxAge: '1d' // Cache static assets for 1 day
+    index: false,
+    maxAge: '1d'
   }));
 
+  // Handle all other routes by serving index.html
   app.get('*', (_req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
+    const indexPath = path.join(distPath, 'index.html');
+    console.log('Serving index.html from:', indexPath);
+    res.sendFile(indexPath);
   });
 } else {
   // Development: redirect to dev server
-  app.get('/', (_req, res) => {
-    res.redirect('http://localhost:3003');
-  });
-
   app.get('*', (req, res) => {
     res.redirect(`http://localhost:3003${req.path}`);
   });

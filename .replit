@@ -63,33 +63,11 @@ args = "Database Migrations"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Build"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Backend Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Server"
+args = "Build All"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Start Server"
-
-[[workflows.workflow]]
-name = "Production Build"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
 name = "Start Frontend"
@@ -121,7 +99,7 @@ task = "shell.exec"
 args = "NODE_ENV=development tsx src/server/db/seed.ts"
 
 [[workflows.workflow]]
-name = "Backend Server"
+name = "Build All"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -132,22 +110,10 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node dist/server/server.js"
-waitForPort = 5000
+args = """
 
-[[workflows.workflow]]
-name = "Build Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsc -p tsconfig.server.json && NODE_ENV=production npx vite build"
+    echo \"Starting build process...\" &&     rm -rf dist &&     echo \"Removed old dist directory\" &&     mkdir -p dist/server &&     echo \"Created fresh dist directories\" &&     echo \"Building server files...\" &&     NODE_ENV=production npx tsc -p tsconfig.server.json &&     echo \"TypeScript compilation complete\" &&     echo \"Building client files...\" &&     NODE_ENV=production npx vite build &&     echo \"Client build complete\" &&     echo \"Final directory structure:\" &&     ls -R dist/
+    """
 
 [[workflows.workflow]]
 name = "Start Server"

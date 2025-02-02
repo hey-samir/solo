@@ -5,11 +5,22 @@ import { eq } from 'drizzle-orm';
 
 const router = Router();
 
+// Define the correct type for req.user based on your schema
 interface AuthenticatedRequest extends Request {
-  user?: typeof users.$inferSelect;
+  user?: {
+    id: number;
+    username: string;
+    email: string;
+    name: string | null;
+    profile_photo: string | null;
+    created_at: Date;
+    member_since: Date;
+    gym_id: number | null;
+    user_type: 'demo' | 'user' | 'admin';
+  };
 }
 
-const getUserClimbs = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+const getUserClimbs = async (req: AuthenticatedRequest, res: Response) => {
   try {
     if (!req.user?.id) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -21,7 +32,6 @@ const getUserClimbs = async (req: AuthenticatedRequest, res: Response, next: Nex
         id: sends.id,
         route_id: sends.route_id,
         status: sends.status,
-        rating: sends.rating,
         tries: sends.tries,
         notes: sends.notes,
         points: sends.points,
@@ -40,7 +50,6 @@ const getUserClimbs = async (req: AuthenticatedRequest, res: Response, next: Nex
       id: climb.id,
       routeId: climb.route_id,
       status: climb.status,
-      rating: climb.rating,
       tries: climb.tries,
       notes: climb.notes,
       points: climb.points,
