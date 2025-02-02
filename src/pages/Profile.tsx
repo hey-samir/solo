@@ -70,8 +70,8 @@ const Profile: FC = () => {
     <div className="container">
       <div className="profile-card p-4">
         {/* Profile Header */}
-        <div className="d-flex align-items-center mb-4">
-          <div className="profile-avatar me-3">
+        <div className="d-flex mb-4">
+          <div className="profile-avatar me-4">
             <img 
               src="/assets/solo-purple.png" 
               alt="Profile"
@@ -83,31 +83,29 @@ const Profile: FC = () => {
               }}
             />
           </div>
-          <div>
-            <div className="profile-field">
-              <label className="text-muted">Name</label>
-              <div className="profile-text">{user.name}</div>
-            </div>
-            <div className="profile-field">
-              <label className="text-muted">Username</label>
-              <div className="profile-text">@{user.username}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Profile Info */}
-        <div className="mb-4">
-          <div className="profile-field mb-2">
-            <label className="text-muted">Gym</label>
-            <div>{user.gym?.name || 'No gym selected'}</div>
-          </div>
-          <div className="profile-field">
-            <label className="text-muted">Joined</label>
-            <div>
-              {new Date(user.memberSince).toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric'
-              })}
+          <div className="flex-grow-1">
+            <div className="profile-info mb-3">
+              <div className="profile-field">
+                <label className="text-muted mb-1">Name</label>
+                <div className="profile-text">{user.name}</div>
+              </div>
+              <div className="profile-field">
+                <label className="text-muted mb-1">Username</label>
+                <div className="profile-text">@{user.username}</div>
+              </div>
+              <div className="profile-field">
+                <label className="text-muted mb-1">Gym</label>
+                <div className="profile-text">{user.gym?.name || 'No gym selected'}</div>
+              </div>
+              <div className="profile-field">
+                <label className="text-muted mb-1">Joined</label>
+                <div className="profile-text">
+                  {new Date(user.memberSince).toLocaleDateString('en-US', {
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -134,20 +132,20 @@ const Profile: FC = () => {
         )}
 
         {/* KPI Cards */}
-        <div className="row g-3">
-          <div className="col-4">
+        <div className="row g-4">
+          <div className="col-lg-4 col-md-4 col-sm-12">
             <div className="card kpi-card h-100 text-center p-3">
               <div className="metric-value">{stats?.totalAscents || 0}</div>
               <div className="metric-label text-muted">Total Ascents</div>
             </div>
           </div>
-          <div className="col-4">
+          <div className="col-lg-4 col-md-4 col-sm-12">
             <div className="card kpi-card h-100 text-center p-3">
               <div className="metric-value">{stats?.avgGrade || '--'}</div>
               <div className="metric-label text-muted">Avg Grade</div>
             </div>
           </div>
-          <div className="col-4">
+          <div className="col-lg-4 col-md-4 col-sm-12">
             <div className="card kpi-card h-100 text-center p-3">
               <div className="metric-value">{stats?.totalPoints || 0}</div>
               <div className="metric-label text-muted">Total Points</div>

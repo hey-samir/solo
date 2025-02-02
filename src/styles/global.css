@@ -188,17 +188,28 @@ body,
 
 .profile-avatar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .profile-text {
   color: var(--text-primary);
   font-size: var(--font-size-base);
+  font-weight: 500;
 }
 
 .profile-field {
   margin-bottom: 0.75rem;
+}
+
+.profile-field:last-child {
+  margin-bottom: 0;
 }
 
 .profile-field label {
