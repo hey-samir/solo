@@ -50,17 +50,15 @@ const Sends: FC = () => {
     notes: ''
   })
 
-  const { data: routes, isLoading, error, refetch } = useQuery<Route[]>({
+  const { data: routes = [], isLoading, error, refetch } = useQuery<Route[]>({
     queryKey: ['routes'],
     queryFn: async () => {
-      try {
-        const response = await client.get('/api/routes')
-        console.log('Routes response:', response.data)
-        return response.data
-      } catch (err: any) {
-        console.error('Error fetching routes:', err)
-        throw new Error(err.message || 'Failed to fetch routes')
-      }
+      const response = await client.get('/api/routes')
+      return response.data || []
+    },
+    onError: (err: any) => {
+      console.error('Error fetching routes:', err)
+      throw new Error(err.message || 'Failed to fetch routes')
     }
   })
 
@@ -93,7 +91,7 @@ const Sends: FC = () => {
     )
   }
 
-  const selectedRoute = routes?.find(route => route.id === formData.route_id);
+  const selectedRoute = routes.find(route => route.id === formData.route_id);
   const points = selectedRoute 
     ? calculatePoints(selectedRoute.grade, formData.rating, formData.status, formData.tries)
     : 0;
@@ -124,7 +122,7 @@ const Sends: FC = () => {
                   required
                 >
                   <option value="">Select a route</option>
-                  {routes?.map(route => (
+                  {routes.map(route => (
                     <option 
                       key={route.id} 
                       value={route.id}
@@ -200,7 +198,7 @@ const Sends: FC = () => {
 
               <button 
                 type="submit" 
-                className="btn btn-primary w-100"
+                className="btn bg-solo-purple hover:bg-solo-purple-light text-white w-100"
                 disabled={sendMutation.isPending || formData.route_id === 0}
               >
                 {sendMutation.isPending ? 'Sending...' : formData.status ? 'Send' : 'Log'}
