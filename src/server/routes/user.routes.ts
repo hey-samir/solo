@@ -1,9 +1,14 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request } from 'express';
 import { db } from '../db';
-import { users, gyms, climbs, routes } from '../db/schema';
+import { users, User } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import { isAuthenticated } from '../middleware/auth';
 
 const router = Router();
+
+interface AuthenticatedRequest extends Request {
+  user?: User;
+}
 
 // Convert database user to API response format
 const formatUserResponse = (user: any) => ({
@@ -12,22 +17,28 @@ const formatUserResponse = (user: any) => ({
   displayName: user.name,
   email: user.email,
   profilePhoto: user.profile_photo,
-  memberSince: user.member_since.toISOString(),
-  createdAt: user.created_at.toISOString(),
+  memberSince: user.member_since?.toISOString(),
+  createdAt: user.created_at?.toISOString(),
   gym: user.gym ? {
     id: user.gym.id,
     name: user.gym.name
   } : null
 });
 
+// Protect all stats routes with authentication
+router.use('/me', isAuthenticated);
+
 // Get user stats
-router.get('/me/stats', async (req: Request, res: Response) => {
+router.get('/me/stats', async (req: AuthenticatedRequest, res) => {
   try {
-    if (!req.user?.id) {
-      res.status(401).json({ error: 'Unauthorized' });
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ error: 'Please log in to view statistics' });
       return;
     }
 
+    // For now using mock data, will replace with actual DB queries later
     const mockStats = {
       totalAscents: 150,
       totalSends: 120,
@@ -44,18 +55,24 @@ router.get('/me/stats', async (req: Request, res: Response) => {
     res.json(mockStats);
   } catch (error) {
     console.error('Error fetching user stats:', error);
-    res.status(500).json({ error: 'Failed to fetch user statistics' });
+    res.status(500).json({ 
+      error: 'Failed to fetch user statistics',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
 // Get user stats charts data
-router.get('/me/stats/charts', async (req: Request, res: Response) => {
+router.get('/me/stats/charts', async (req: AuthenticatedRequest, res) => {
   try {
-    if (!req.user?.id) {
-      res.status(401).json({ error: 'Unauthorized' });
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ error: 'Please log in to view statistics' });
       return;
     }
 
+    // Mock chart data for development
     const mockChartData = {
       ascentsByDifficulty: {
         labels: ['5.8', '5.9', '5.10a', '5.10b', '5.10c'],
@@ -98,23 +115,24 @@ router.get('/me/stats/charts', async (req: Request, res: Response) => {
     res.json(mockChartData);
   } catch (error) {
     console.error('Error fetching chart data:', error);
-    res.status(500).json({ error: 'Failed to fetch chart data' });
+    res.status(500).json({ 
+      error: 'Failed to fetch chart data',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 });
 
-// Get user by username
-router.get('/:username', async (req: Request, res: Response) => {
+// Get user profile by username
+router.get('/:username', async (req, res) => {
   try {
     const username = req.params.username;
-    // Remove @ if present
     const cleanUsername = username.startsWith('@') ? username.slice(1) : username;
 
-    const user = await db.query.users.findFirst({
-      where: eq(users.username, cleanUsername),
-      with: {
-        gym: true
-      }
-    });
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.username, cleanUsername))
+      .limit(1);
 
     if (!user) {
       res.status(404).json({ error: 'User not found' });
@@ -124,31 +142,6 @@ router.get('/:username', async (req: Request, res: Response) => {
     res.json(formatUserResponse(user));
   } catch (error) {
     console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// Update user profile
-router.put('/:username', async (req: Request, res: Response) => {
-  try {
-    const username = req.params.username;
-    // Remove @ if present
-    const cleanUsername = username.startsWith('@') ? username.slice(1) : username;
-
-    const [updatedUser] = await db
-      .update(users)
-      .set(req.body)
-      .where(eq(users.username, cleanUsername))
-      .returning();
-
-    if (!updatedUser) {
-      res.status(404).json({ error: 'User not found' });
-      return;
-    }
-
-    res.json(formatUserResponse(updatedUser));
-  } catch (error) {
-    console.error('Error updating user:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

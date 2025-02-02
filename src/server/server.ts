@@ -8,6 +8,7 @@ import { createClient } from '@vercel/postgres';
 import routes from './routes';
 import feedbackRoutes from './routes/feedback.routes';
 import { db } from './db';
+import passport from './middleware/auth';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -63,6 +64,10 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
+
+// Initialize Passport and restore authentication state from session
+app.use(passport.initialize());
+app.use(passport.session());
 
 // API Routes - Make sure these come before static file serving
 app.use('/api', routes);

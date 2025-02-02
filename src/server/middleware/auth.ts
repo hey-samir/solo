@@ -1,13 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { db } from '../server';
-import { users } from '../db/schema';
+import { db } from '../db';
+import { users, User } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 // Will be replaced by actual credentials from environment variables
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET as string;
+
+declare global {
+  namespace Express {
+    interface User extends Omit<User, 'password_hash'> {}
+  }
+}
 
 // Passport Google OAuth strategy setup
 passport.use(
@@ -54,7 +60,7 @@ passport.use(
 );
 
 // Serialize user for the session
-passport.serializeUser((user: any, done) => {
+passport.serializeUser((user: Express.User, done) => {
   done(null, user.id);
 });
 
@@ -66,7 +72,7 @@ passport.deserializeUser(async (id: number, done) => {
       .from(users)
       .where(eq(users.id, id))
       .limit(1);
-    
+
     done(null, user);
   } catch (error) {
     done(error);

@@ -17,6 +17,7 @@ import { Bar, Doughnut, Line } from 'react-chartjs-2'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Error from '../components/Error'
+import { useNavigate } from 'react-router-dom'
 
 // Register Chart.js components
 ChartJS.register(
@@ -76,13 +77,24 @@ interface ChartData {
 
 const Stats: FC = () => {
   const [activeTab, setActiveTab] = useState<'metrics' | 'trends'>('metrics')
+  const navigate = useNavigate()
+
+  const handleError = (error: any) => {
+    console.error('Stats error:', error);
+    if (error?.status === 401) {
+      navigate('/login');
+      return 'Please log in to view your statistics';
+    }
+    return error?.message || 'Failed to load statistics';
+  };
 
   const { data: stats, isLoading: statsLoading, error: statsError } = useQuery<Stats>({
     queryKey: ['user-stats'],
     queryFn: async () => {
       const response = await client.get('/api/user/me/stats')
       return response.data
-    }
+    },
+    retry: 1
   })
 
   const { data: chartData, isLoading: chartsLoading, error: chartsError } = useQuery<ChartData>({
@@ -90,24 +102,42 @@ const Stats: FC = () => {
     queryFn: async () => {
       const response = await client.get('/api/user/me/stats/charts')
       return response.data
-    }
+    },
+    retry: 1,
+    enabled: activeTab === 'trends'
   })
 
-  if (statsLoading || chartsLoading) {
+  if (statsLoading || (activeTab === 'trends' && chartsLoading)) {
     return <LoadingSpinner />
   }
 
-  if (statsError || chartsError) {
-    return <Error message="Failed to load statistics" type="page" />
+  if (statsError) {
+    return (
+      <Error 
+        message={handleError(statsError)} 
+        type="page"
+        retry={() => window.location.reload()}
+      />
+    )
   }
 
-  if (!stats || !chartData) {
+  if (!stats) {
     return <Error message="No statistics data available" type="page" />
+  }
+
+  if (activeTab === 'trends' && chartsError) {
+    return (
+      <Error 
+        message={handleError(chartsError)} 
+        type="page"
+        retry={() => window.location.reload()}
+      />
+    )
   }
 
   return (
     <div className="container stats-container">
-      <ul className="nav nav-pills stats-pills mb-4 sticky-top" role="tablist" 
+      <ul className="nav nav-pills stats-pills mb-4 sticky-top" 
           style={{ top: 0, zIndex: 1020, backgroundColor: '#212529' }}>
         <li className="nav-item" role="presentation">
           <button 
@@ -177,7 +207,7 @@ const Stats: FC = () => {
           </div>
         )}
 
-        {activeTab === 'trends' && (
+        {activeTab === 'trends' && chartData && (
           <div>
             <ChartCard
               title="Route Mix"
@@ -339,15 +369,15 @@ const Stats: FC = () => {
 
 // Helper Components
 interface MetricCardProps {
-  value: number | string | undefined;
+  value: number | string;
   label: string;
 }
 
 const MetricCard: FC<MetricCardProps> = ({ value, label }) => (
   <div className="col-6 mb-2">
-    <div className="metric-card" style={{ height: '100px' }}>
-      <div className="metric-value">{value ?? 0}</div>
-      <div className="metric-label">{label}</div>
+    <div className="metric-card bg-bg-card shadow-card rounded-card p-4">
+      <div className="metric-value text-text-primary text-xl font-bold mb-1">{value}</div>
+      <div className="metric-label text-text-muted text-sm">{label}</div>
     </div>
   </div>
 )
@@ -358,9 +388,9 @@ interface ChartCardProps {
 }
 
 const ChartCard: FC<ChartCardProps> = ({ title, chart }) => (
-  <div className="card mb-4">
-    <div className="card-header bg-transparent">
-      <h5 className="card-title mb-0">{title}</h5>
+  <div className="card bg-bg-card shadow-card rounded-card mb-4">
+    <div className="card-header bg-transparent border-border-default">
+      <h5 className="card-title text-text-primary mb-0">{title}</h5>
     </div>
     <div className="card-body">
       <div style={{ height: '300px', width: '100%' }}>
@@ -378,15 +408,11 @@ const formatDate = (dateString: string) => {
 
 const getGradeColor = (grade: string) => {
   const gradeColors: Record<string, string> = {
-    '5.0': '#E9D8FD', '5.1': '#D6BCFA', '5.2': '#C084FC', '5.3': '#A855F7',
-    '5.4': '#9333EA', '5.5': '#7E22CE', '5.6': '#6B21A8', '5.7': '#581C87',
-    '5.8': '#4C1D95', '5.9': '#3B0764', '5.10a': '#350567', '5.10b': '#2F035E',
-    '5.10c': '#290356', '5.10d': '#23034E', '5.11a': '#1D0345', '5.11b': '#18033C',
-    '5.11c': '#130333', '5.11d': '#0E032B', '5.12a': '#090222', '5.12b': '#08021D',
-    '5.12c': '#07021A', '5.12d': '#060216', '5.13a': '#050213', '5.13b': '#040210',
-    '5.13c': '#03020D', '5.13d': '#02020A', '5.14a': '#010207', '5.14b': '#010106',
-    '5.14c': '#010105', '5.14d': '#010104', '5.15a': '#010103', '5.15b': '#010102',
-    '5.15c': '#010101', '5.15d': '#000000'
+    '5.8': '#4C1D95', '5.9': '#3B0764',
+    '5.10a': '#350567', '5.10b': '#2F035E',
+    '5.10c': '#290356', '5.10d': '#23034E',
+    '5.11a': '#1D0345', '5.11b': '#18033C',
+    '5.11c': '#130333', '5.11d': '#0E032B'
   }
   return gradeColors[grade] || '#7442d6'
 }
