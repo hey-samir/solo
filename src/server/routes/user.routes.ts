@@ -72,11 +72,11 @@ router.get('/me/stats/charts', async (req: AuthenticatedRequest, res) => {
       return;
     }
 
-    // Mock chart data for development
+    // Mock chart data with correct structure matching ChartData interface
     const mockChartData = {
       ascentsByDifficulty: {
-        labels: ['5.8', '5.9', '5.10a', '5.10b', '5.10c'],
-        data: [10, 15, 8, 12, 5]
+        labels: ['5.8', '5.9', '5.10a', '5.10b', '5.10c', '5.10d', '5.11a'],
+        data: [10, 15, 8, 12, 5, 3, 1]
       },
       sendsByDate: {
         labels: Array.from({ length: 7 }, (_, i) => {

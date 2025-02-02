@@ -135,6 +135,9 @@ const Stats: FC = () => {
     )
   }
 
+  // Add null check for chartData when rendering trends
+  const canShowTrends = activeTab === 'trends' && chartData;
+
   return (
     <div className="container stats-container">
       <ul className="nav nav-pills stats-pills mb-4 sticky-top" 
@@ -207,7 +210,7 @@ const Stats: FC = () => {
           </div>
         )}
 
-        {activeTab === 'trends' && chartData && (
+        {canShowTrends && (
           <div>
             <ChartCard
               title="Route Mix"
