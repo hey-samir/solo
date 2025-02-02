@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Error from '../components/Error';
-import { ErrorProps } from '../types';
+import { ApiError, QueryError } from '../types';
 
 interface Route {
   color: string;
@@ -22,10 +22,6 @@ interface Climb {
   route: Route;
 }
 
-interface ClimbsByDate {
-  [date: string]: Climb[];
-}
-
 type SortKey = 'color' | 'grade' | 'status' | 'tries' | 'rating' | 'points';
 type SortDirection = 'asc' | 'desc';
 
@@ -40,18 +36,29 @@ const Sessions: FC = () => {
     date: null,
   });
 
-  const { data, isLoading, error, refetch } = useQuery<Climb[], Error>({
+  const { data, isLoading, error, refetch } = useQuery<Climb[], QueryError>({
     queryKey: ['climbs'],
     queryFn: async () => {
       try {
         const response = await client.get('/api/climbs');
         if (!response.data || !Array.isArray(response.data)) {
-          throw new Error("Oops! We received unexpected data. Let's get you back on track.");
+          throw { 
+            message: "Oops! We received unexpected data. Let's get you back on track.",
+            status: 500 
+          };
         }
         return response.data;
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching climbs:', err);
-        throw new Error("Oops! We're having trouble loading your climbing sessions. Let's get you back on track.");
+        const errorMessage = err.response?.data?.message || 
+          err.message || 
+          "Oops! We're having trouble loading your climbing sessions. Let's get you back on track.";
+
+        throw {
+          message: errorMessage,
+          status: err.response?.status || 500,
+          data: err.response?.data
+        };
       }
     },
   });
@@ -71,7 +78,7 @@ const Sessions: FC = () => {
   }
 
   const climbs = data || [];
-  const climbsByDate = climbs.reduce<ClimbsByDate>((acc, climb) => {
+  const climbsByDate = climbs.reduce<{[date: string]: Climb[]}>((acc, climb) => {
     if (climb?.createdAt) {
       const date = new Date(climb.createdAt).toLocaleDateString();
       if (!acc[date]) {

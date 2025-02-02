@@ -48,21 +48,22 @@ export interface Stats {
   data?: number[];
 }
 
+export interface ApiError {
+  message: string;
+  code?: number;
+  details?: Record<string, any>;
+}
+
+export interface QueryError {
+  message: string;
+  status?: number;
+  data?: any;
+}
+
 export interface ErrorProps {
   message: string;
   type?: 'inline' | 'page';
   retry?: () => void;
-}
-
-export interface ErrorResponse {
-  message?: string;
-  response?: {
-    data?: {
-      error?: string;
-      message?: string;
-    };
-    status?: number;
-  };
 }
 
 export interface ErrorPageProps {

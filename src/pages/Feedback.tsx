@@ -23,6 +23,12 @@ interface FeedbackForm {
   screenshot?: File;
 }
 
+interface QueryError {
+    message: string;
+    status: number;
+    data?: any
+}
+
 const categories = [
   'Bug Report',
   'Feature Request',
@@ -39,11 +45,30 @@ const Feedback: React.FC = () => {
     category: '',
   });
 
-  const { data, isLoading, isError, refetch } = useQuery<FeedbackItem[]>({
+  const { data, isLoading, isError, error, refetch } = useQuery<FeedbackItem[], QueryError>({
     queryKey: ['feedback', sort],
     queryFn: async () => {
-      const response = await client.get('/api/feedback', { params: { sort } });
-      return response.data;
+      try {
+        const response = await client.get('/api/feedback', { params: { sort } });
+        if (!response.data) {
+          throw { 
+            message: "Unable to load feedback data. Please try again.",
+            status: 500 
+          };
+        }
+        return response.data;
+      } catch (err: any) {
+        console.error('Error fetching feedback:', err);
+        const errorMessage = err.response?.data?.message || 
+          err.message || 
+          "We're having trouble loading the feedback. Please try again.";
+
+        throw {
+          message: errorMessage,
+          status: err.response?.status || 500,
+          data: err.response?.data
+        };
+      }
     }
   });
 
@@ -96,7 +121,7 @@ const Feedback: React.FC = () => {
   if (isError) {
     return (
       <Error 
-        message="Unable to load feedback. Please try again."
+        message={error?.message || "We're having trouble loading the feedback. Please try again."}
         type="page"
         retry={() => refetch()}
       />
