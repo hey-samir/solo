@@ -13,6 +13,7 @@ export default {
         'solo-purple-light': '#9b75ff',
         'bg-primary': '#1e2638',
         'bg-card': '#4A5D79',
+        'bg-kpi-card': '#2A3A54',
         'text-primary': '#ffffff',
         'text-secondary': 'rgba(255, 255, 255, 0.6)',
         'text-muted': '#CBD5E1',

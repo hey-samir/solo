@@ -49,7 +49,7 @@ body {
   }
 
   .kpi-card {
-    @apply bg-bg-kpi-card rounded-card shadow-card overflow-hidden;
+    @apply bg-[#2A3A54] rounded-card shadow-card overflow-hidden;
   }
 
   .card-body {
