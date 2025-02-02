@@ -1,33 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import client from '../api/client';
 import { toast } from 'react-hot-toast';
 import Error from '../components/Error';
-
-interface FeedbackItem {
-  id: number;
-  title: string;
-  description: string;
-  category: string;
-  screenshot_url?: string;
-  created_at: string;
-  user: {
-    username: string;
-  };
-}
-
-interface FeedbackForm {
-  title: string;
-  description: string;
-  category: string;
-  screenshot?: File;
-}
-
-interface QueryError {
-    message: string;
-    status: number;
-    data?: any
-}
+import { feedbackService, type FeedbackSubmission } from '../services/feedbackService';
 
 const categories = [
   'Bug Report',
@@ -39,72 +14,32 @@ const categories = [
 
 const Feedback: React.FC = () => {
   const [sort, setSort] = useState<'new' | 'top'>('new');
-  const [form, setForm] = useState<FeedbackForm>({
+  const [form, setForm] = useState<FeedbackSubmission>({
     title: '',
     description: '',
     category: '',
   });
 
-  const { data, isLoading, isError, error, refetch } = useQuery<FeedbackItem[], QueryError>({
+  const { data: items = [], isLoading, isError, error, refetch } = useQuery({
     queryKey: ['feedback', sort],
-    queryFn: async () => {
-      try {
-        const response = await client.get('/api/feedback', { params: { sort } });
-        if (!response.data) {
-          throw { 
-            message: "Unable to load feedback data. Please try again.",
-            status: 500 
-          };
-        }
-        return response.data;
-      } catch (err: any) {
-        console.error('Error fetching feedback:', err);
-        const errorMessage = err.response?.data?.message || 
-          err.message || 
-          "We're having trouble loading the feedback. Please try again.";
-
-        throw {
-          message: errorMessage,
-          status: err.response?.status || 500,
-          data: err.response?.data
-        };
-      }
-    }
+    queryFn: () => feedbackService.getFeedback(sort)
   });
 
   const submitFeedback = useMutation({
-    mutationFn: async (formData: FormData) => {
-      const response = await client.post('/api/feedback', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data;
-    },
+    mutationFn: (formData: FeedbackSubmission) => feedbackService.submitFeedback(formData),
     onSuccess: () => {
       setForm({
         title: '',
         description: '',
         category: '',
       });
-      toast.success('Thanks for your feedback! We\'ll look into it right away.');
       refetch();
-    },
-    onError: () => {
-      toast.error('Something went wrong. Please try again.');
-    },
+    }
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('title', form.title);
-    formData.append('description', form.description);
-    formData.append('category', form.category);
-    if (form.screenshot) {
-      formData.append('screenshot', form.screenshot);
-    }
-    submitFeedback.mutate(formData);
+    submitFeedback.mutate(form);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,14 +56,12 @@ const Feedback: React.FC = () => {
   if (isError) {
     return (
       <Error 
-        message={error?.message || "We're having trouble loading the feedback. Please try again."}
+        message={error instanceof Error ? error.message : "Failed to load feedback"}
         type="page"
         retry={() => refetch()}
       />
     );
   }
-
-  const items = data || [];
 
   return (
     <div className="container mx-auto px-4 py-8">
