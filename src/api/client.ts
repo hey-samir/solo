@@ -17,6 +17,7 @@ const client = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
+  timeout: 10000, // Add timeout
 })
 
 // Add request interceptor for debugging
@@ -26,7 +27,8 @@ client.interceptors.request.use(
       method: config.method,
       url: config.url,
       headers: config.headers,
-      baseURL: config.baseURL
+      baseURL: config.baseURL,
+      withCredentials: config.withCredentials
     });
     return config;
   },
@@ -41,7 +43,8 @@ client.interceptors.response.use(
   (response) => {
     console.log('API Response:', {
       status: response.status,
-      data: response.data
+      data: response.data,
+      headers: response.headers
     });
     return response;
   },
@@ -50,14 +53,20 @@ client.interceptors.response.use(
       message: error.message,
       response: error.response?.data,
       status: error.response?.status,
-      config: error.config
+      config: error.config,
+      request: {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers
+      }
     });
 
     // Handle network errors
     if (!error.response) {
       return Promise.reject({ 
         message: "Unable to connect to the server. Please check your connection and try again.",
-        status: 0
+        status: 0,
+        details: error.message
       });
     }
 

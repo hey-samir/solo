@@ -31,9 +31,14 @@ router.use('/me', isAuthenticated);
 // Get user stats
 router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    console.log('[Stats API] Fetching stats for user:', req.user?.id);
+    console.log('[Stats API] Request received:', {
+      userId: req.user?.id,
+      session: req.session?.id,
+      isAuthenticated: req.isAuthenticated?.()
+    });
 
     if (!req.user?.id) {
+      console.log('[Stats API] Unauthorized access attempt');
       return res.status(401).json({ error: 'Please log in to view statistics' });
     }
 
@@ -56,7 +61,7 @@ router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
   } catch (error) {
     console.error('[Stats API] Error fetching stats:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch statistics',
+      error: "Failed to fetch statistics",
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
@@ -65,9 +70,14 @@ router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
 // Get user stats charts data
 router.get('/me/stats/charts', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    console.log('[Charts API] Fetching chart data for user:', req.user?.id);
+    console.log('[Charts API] Request received:', {
+      userId: req.user?.id,
+      session: req.session?.id,
+      isAuthenticated: req.isAuthenticated?.()
+    });
 
     if (!req.user?.id) {
+      console.log('[Charts API] Unauthorized access attempt');
       return res.status(401).json({ error: 'Please log in to view statistics' });
     }
 
@@ -110,33 +120,9 @@ router.get('/me/stats/charts', async (req: AuthenticatedRequest, res: Response) 
   } catch (error) {
     console.error('[Charts API] Error fetching chart data:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch chart data',
+      error: "Failed to fetch chart data",
       details: error instanceof Error ? error.message : 'Unknown error'
     });
-  }
-});
-
-// Get user profile by username
-router.get('/:username', async (req: Request, res: Response) => {
-  try {
-    const username = req.params.username;
-    const cleanUsername = username.startsWith('@') ? username.slice(1) : username;
-
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.username, cleanUsername))
-      .limit(1);
-
-    if (!user) {
-      res.status(404).json({ error: 'User not found' });
-      return;
-    }
-
-    res.json(formatUserResponse(user));
-  } catch (error) {
-    console.error('Error fetching user:', error);
-    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
