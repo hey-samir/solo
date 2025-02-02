@@ -41,13 +41,13 @@ const Sessions: FC = () => {
     queryFn: async () => {
       try {
         const response = await client.get('/api/climbs');
-        if (!response.data || !Array.isArray(response.data)) {
+        if (!response.data) {
           throw { 
             message: "Oops! We received unexpected data. Let's get you back on track.",
             status: 500 
           };
         }
-        return response.data;
+        return Array.isArray(response.data) ? response.data : [];
       } catch (err: any) {
         console.error('Error fetching climbs:', err);
         const errorMessage = err.response?.data?.message || 
@@ -77,7 +77,10 @@ const Sessions: FC = () => {
     );
   }
 
+  // Ensure we have an array to work with
   const climbs = data || [];
+
+  // Group climbs by date
   const climbsByDate = climbs.reduce<{[date: string]: Climb[]}>((acc, climb) => {
     if (climb?.createdAt) {
       const date = new Date(climb.createdAt).toLocaleDateString();
@@ -101,38 +104,40 @@ const Sessions: FC = () => {
       'Red': '#FF0000',
       'Yellow': '#FFFF00',
       'Teal': '#008080'
-    }
-    return colorMap[color] || '#CCCCCC'
-  }
+    };
+    return colorMap[color] || '#CCCCCC';
+  };
 
-  const sortClimbs = (climbsToSort: Climb[]) => {
+  const sortClimbs = (climbsToSort: Climb[]): Climb[] => {
+    if (!Array.isArray(climbsToSort)) return [];
+
     return [...climbsToSort].sort((a, b) => {
-      let comparison = 0
+      let comparison = 0;
       switch (sortConfig.key) {
         case 'color':
-          comparison = a.route.color.localeCompare(b.route.color)
-          break
+          comparison = a.route.color.localeCompare(b.route.color);
+          break;
         case 'grade':
-          comparison = a.route.grade.localeCompare(b.route.grade)
-          break
+          comparison = a.route.grade.localeCompare(b.route.grade);
+          break;
         case 'status':
-          comparison = Number(b.status) - Number(a.status)
-          break
+          comparison = Number(b.status) - Number(a.status);
+          break;
         case 'tries':
-          comparison = a.tries - b.tries
-          break
+          comparison = a.tries - b.tries;
+          break;
         case 'rating':
-          comparison = a.rating - b.rating
-          break
+          comparison = a.rating - b.rating;
+          break;
         case 'points':
-          comparison = a.points - b.points
-          break
+          comparison = a.points - b.points;
+          break;
         default:
-          return 0
+          return 0;
       }
-      return sortConfig.direction === 'asc' ? comparison : -comparison
-    })
-  }
+      return sortConfig.direction === 'asc' ? comparison : -comparison;
+    });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -232,7 +237,7 @@ const Sessions: FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {sortClimbs(sessionClimbs).map((climb) => (
+                {Array.isArray(sessionClimbs) && sortClimbs(sessionClimbs).map((climb) => (
                   <tr key={climb.id} className="border-t border-gray-100 hover:bg-gray-50">
                     <td className="px-4 py-2">
                       <div className="flex items-center">

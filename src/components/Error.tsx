@@ -5,6 +5,15 @@ import { ErrorProps } from '../types';
 const Error = ({ message, type = 'inline', retry }: ErrorProps) => {
   const navigate = useNavigate();
 
+  const handleBack = () => {
+    // Navigate to home if there's no previous history
+    if (window.history.length <= 2) {
+      navigate('/');
+    } else {
+      navigate(-1);
+    }
+  };
+
   if (type === 'page') {
     return (
       <div className="error-page">
@@ -22,7 +31,7 @@ const Error = ({ message, type = 'inline', retry }: ErrorProps) => {
                 </button>
               )}
               <button
-                onClick={() => navigate(-1)}
+                onClick={handleBack}
                 className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors"
               >
                 Back
@@ -50,7 +59,7 @@ const Error = ({ message, type = 'inline', retry }: ErrorProps) => {
               Try Again
             </button>
             <button
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
               className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
             >
               Back
