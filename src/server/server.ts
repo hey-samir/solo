@@ -22,6 +22,12 @@ if (!isProduction) {
   });
 }
 
+// Add request logging middleware first
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 // Middleware configuration with proper order
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 app.use(express.json({ limit: '10mb' }));

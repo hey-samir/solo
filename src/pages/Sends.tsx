@@ -22,7 +22,10 @@ interface SendFormData {
 
 const calculatePoints = (grade: string, rating: number, status: boolean, tries: number): number => {
   if (!grade) return 0;
-  const [_, mainGrade, subGrade] = grade.match(/5\.(\d+)([a-d])?/) || [null, '0', ''];
+  const gradeMatch = grade.match(/5\.(\d+)([a-d])?/);
+  if (!gradeMatch) return 0;
+
+  const [_, mainGrade, subGrade] = gradeMatch;
 
   const basePoints: Record<string, number> = {
     '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
@@ -33,7 +36,7 @@ const calculatePoints = (grade: string, rating: number, status: boolean, tries: 
     'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
   }
 
-  const base = (basePoints[mainGrade] || 0) * (subGradeMultiplier[subGrade] || 1);
+  const base = (basePoints[mainGrade] || 0) * (subGradeMultiplier[subGrade?.toLowerCase()] || 1);
   const starMultiplier = Math.max(0.1, rating / 3);
   const statusMultiplier = status ? 1 : 0.5;
   const triesMultiplier = Math.max(0.1, 1 / Math.sqrt(tries));
@@ -50,17 +53,16 @@ const Sends: FC = () => {
     notes: ''
   })
 
-  const { data: routes = [], isLoading, error, refetch } = useQuery<Route[]>({
+  const { data: routesData, isLoading, error, refetch } = useQuery<Route[]>({
     queryKey: ['routes'],
     queryFn: async () => {
       const response = await client.get('/api/routes')
-      return response.data || []
-    },
-    onError: (err: any) => {
-      console.error('Error fetching routes:', err)
-      throw new Error(err.message || 'Failed to fetch routes')
+      return response.data
     }
   })
+
+  // Ensure routes is always a properly typed array
+  const routes = Array.isArray(routesData) ? routesData : [];
 
   const sendMutation = useMutation({
     mutationFn: async (data: SendFormData) => {
@@ -82,34 +84,35 @@ const Sends: FC = () => {
   }
 
   if (error) {
+    console.error('Routes fetch error:', error)
     return (
       <Error 
-        message="Failed to load routes. Please try again." 
+        message="Failed to load routes" 
         type="page"
         retry={() => refetch()}
       />
     )
   }
 
-  const selectedRoute = routes.find(route => route.id === formData.route_id);
+  const selectedRoute = routes.find(route => route.id === formData.route_id)
   const points = selectedRoute 
     ? calculatePoints(selectedRoute.grade, formData.rating, formData.status, formData.tries)
-    : 0;
+    : 0
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
     if (formData.route_id === 0) {
-      return;
+      return
     }
-    sendMutation.mutate(formData);
-  };
+    sendMutation.mutate(formData)
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="card">
         <div className="card-body p-0">
           <form onSubmit={handleSubmit} className="w-100">
-            <div className="p-4">
+            <div className="p-4 space-y-4">
               <div className="mb-4">
                 <label className="form-label required-field">Route</label>
                 <select 
