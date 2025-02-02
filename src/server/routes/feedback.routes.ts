@@ -29,63 +29,66 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// Define the feedback item type
+type FeedbackItem = {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  screenshot_url: string | null;
+  created_at: Date | null;
+  upvotes: number;
+  user: {
+    username: string | null;
+  } | null;
+};
+
 // Get feedback items with optional sorting
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { sort = 'new' } = req.query;
     console.log('[Feedback API] Request received:', { sort });
 
-    const feedbackQuery = await db.select({
-      id: feedback.id,
-      title: feedback.title,
-      description: feedback.description,
-      category: feedback.category,
-      screenshot_url: feedback.screenshot_url,
-      created_at: feedback.created_at,
-      upvotes: feedback.upvotes,
-      user: {
-        username: users.username
-      }
-    })
-    .from(feedback)
-    .leftJoin(users, eq(feedback.user_id, users.id))
-    .orderBy(sort === 'new' ? desc(feedback.created_at) : desc(feedback.upvotes));
+    const results = await db
+      .select({
+        id: feedback.id,
+        title: feedback.title,
+        description: feedback.description,
+        category: feedback.category,
+        screenshot_url: feedback.screenshot_url,
+        created_at: feedback.created_at,
+        upvotes: feedback.upvotes,
+        user: {
+          username: users.username
+        }
+      })
+      .from(feedback)
+      .leftJoin(users, eq(feedback.user_id, users.id))
+      .orderBy(sort === 'new' ? desc(feedback.created_at) : desc(feedback.upvotes));
 
-    // Log raw query results
-    console.log('[Feedback API] Raw query results:', {
-      type: typeof feedbackQuery,
-      isArray: Array.isArray(feedbackQuery),
-      length: feedbackQuery?.length,
-      sample: feedbackQuery?.[0]
+    // Ensure we have a valid array and process the data
+    const feedbackData = (results || []).map((item: FeedbackItem) => ({
+      id: item.id,
+      title: item.title || '',
+      description: item.description || '',
+      category: item.category || 'general',
+      screenshotUrl: item.screenshot_url,
+      createdAt: item.created_at,
+      upvotes: item.upvotes || 0,
+      username: item.user?.username || 'Anonymous'
+    }));
+
+    console.log('[Feedback API] Processed data:', {
+      resultCount: results?.length || 0,
+      outputCount: feedbackData.length,
+      sample: feedbackData[0] || null
     });
 
-    // Initialize empty array as default response
-    let formattedFeedback = [];
-
-    // Only process if we have valid array data
-    if (Array.isArray(feedbackQuery) && feedbackQuery.length > 0) {
-      formattedFeedback = feedbackQuery.map(item => ({
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        category: item.category,
-        screenshotUrl: item.screenshot_url,
-        createdAt: item.created_at,
-        upvotes: item.upvotes,
-        username: item.user?.username
-      }));
-    }
-
-    console.log('[Feedback API] Formatted response:', {
-      count: formattedFeedback.length,
-      sample: formattedFeedback[0]
-    });
-
-    return res.json(formattedFeedback);
+    return res.json(feedbackData);
   } catch (error) {
-    console.error('[Feedback API] Error fetching feedback:', error);
+    console.error('[Feedback API] Error:', error);
     return res.status(500).json({ 
-      error: "Oops! We're having trouble loading the feedback. Let's get you back on track.",
+      error: "Failed to fetch feedback",
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }

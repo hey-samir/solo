@@ -32,46 +32,43 @@ router.get('/leaderboard', async (_req, res) => {
   try {
     console.log('[Leaderboard API] Fetching leaderboard data...');
 
-    const leaderboardQuery = await db.select({
-      user_id: users.id,
-      username: users.username,
-      total_sends: sql<number>`count(case when ${sends.status} = true then 1 end)`.mapWith(Number),
-      total_points: sql<number>`sum(${sends.points})`.mapWith(Number)
-    })
-    .from(users)
-    .leftJoin(sends, sql`${sends.user_id} = ${users.id}`)
-    .groupBy(users.id, users.username)
-    .orderBy(sql`sum(${sends.points}) desc nulls last`);
+    // Explicitly type the result array
+    type LeaderboardEntry = {
+      user_id: number;
+      username: string;
+      total_sends: number | null;
+      total_points: number | null;
+    };
 
-    // Log raw query results
-    console.log('[Leaderboard API] Raw query results:', {
-      type: typeof leaderboardQuery,
-      isArray: Array.isArray(leaderboardQuery),
-      length: leaderboardQuery?.length,
-      sample: leaderboardQuery?.[0]
+    const results = await db
+      .select({
+        user_id: users.id,
+        username: users.username,
+        total_sends: sql<number>`COALESCE(count(case when ${sends.status} = true then 1 end), 0)`.mapWith(Number),
+        total_points: sql<number>`COALESCE(sum(${sends.points}), 0)`.mapWith(Number)
+      })
+      .from(users)
+      .leftJoin(sends, sql`${sends.user_id} = ${users.id}`)
+      .groupBy(users.id, users.username)
+      .orderBy(sql`COALESCE(sum(${sends.points}), 0) desc`);
+
+    // Ensure we have a valid array of results
+    const leaderboardData = (results || []).map((entry: LeaderboardEntry) => ({
+      id: entry.user_id,
+      username: entry.username || 'Unknown User',
+      totalSends: Number(entry.total_sends) || 0,
+      totalPoints: Number(entry.total_points) || 0
+    }));
+
+    console.log('[Leaderboard API] Processed data:', {
+      resultCount: results?.length || 0,
+      outputCount: leaderboardData.length,
+      sample: leaderboardData[0] || null
     });
 
-    // Initialize empty array as default response
-    let formattedLeaderboard = [];
-
-    // Only process if we have valid array data
-    if (Array.isArray(leaderboardQuery) && leaderboardQuery.length > 0) {
-      formattedLeaderboard = leaderboardQuery.map(entry => ({
-        id: entry.user_id,
-        username: entry.username,
-        totalSends: entry.total_sends || 0,
-        totalPoints: entry.total_points || 0
-      }));
-    }
-
-    console.log('[Leaderboard API] Formatted response:', {
-      count: formattedLeaderboard.length,
-      sample: formattedLeaderboard[0]
-    });
-
-    return res.json(formattedLeaderboard);
+    return res.json(leaderboardData);
   } catch (error) {
-    console.error('[Leaderboard API] Error fetching leaderboard:', error);
+    console.error('[Leaderboard API] Error:', error);
     return res.status(500).json({ 
       error: 'Failed to fetch leaderboard',
       details: error instanceof Error ? error.message : 'Unknown error'
