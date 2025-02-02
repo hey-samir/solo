@@ -171,226 +171,161 @@ const Stats: FC = () => {
 
       <div className="tab-content">
         {activeTab === 'metrics' && stats && (
-            <div className="grid grid-cols-2 gap-4">
-              <MetricCard
-                value={stats.totalAscents ?? 'N/A'}
-                label="Total Ascents"
-              />
-              <MetricCard
-                value={stats.totalSends ?? 'N/A'}
-                label="Total Sends"
-              />
-              <MetricCard
-                value={stats.avgGrade ?? 'N/A'}
-                label="Avg Grade"
-              />
-              <MetricCard
-                value={stats.avgSentGrade ?? 'N/A'}
-                label="Avg. Sent Grade"
-              />
-              <MetricCard
-                value={stats.totalPoints ?? 'N/A'}
-                label="Total Points"
-              />
-              <MetricCard
-                value={stats.avgPointsPerClimb ?? 'N/A'}
-                label="Avg Pts / Ascent"
-              />
-              <MetricCard
-                value={stats.successRate ? `${stats.successRate}%` : 'N/A'}
-                label="Send Rate"
-              />
-              <MetricCard
-                value={stats.successRatePerSession ? `${stats.successRatePerSession}%` : 'N/A'}
-                label="Session Send Rate"
-              />
-              <MetricCard
-                value={stats.climbsPerSession ?? 'N/A'}
-                label="Ascents / Session"
-              />
-              <MetricCard
-                value={stats.avgAttemptsPerClimb ?? 'N/A'}
-                label="Tries / Ascent"
-              />
-            </div>
-          )}
+          <div className="grid grid-cols-2 gap-4">
+            <MetricCard
+              value={stats.totalAscents ?? 'N/A'}
+              label="Total Ascents"
+            />
+            <MetricCard
+              value={stats.totalSends ?? 'N/A'}
+              label="Total Sends"
+            />
+            <MetricCard
+              value={stats.avgGrade ?? 'N/A'}
+              label="Avg Grade"
+            />
+            <MetricCard
+              value={stats.avgSentGrade ?? 'N/A'}
+              label="Avg. Sent Grade"
+            />
+            <MetricCard
+              value={stats.totalPoints ?? 'N/A'}
+              label="Total Points"
+            />
+            <MetricCard
+              value={stats.avgPointsPerClimb ?? 'N/A'}
+              label="Avg Pts / Ascent"
+            />
+            <MetricCard
+              value={stats.successRate ? `${stats.successRate}%` : 'N/A'}
+              label="Send Rate"
+            />
+            <MetricCard
+              value={stats.successRatePerSession ? `${stats.successRatePerSession}%` : 'N/A'}
+              label="Session Send Rate"
+            />
+            <MetricCard
+              value={stats.climbsPerSession ?? 'N/A'}
+              label="Ascents / Session"
+            />
+            <MetricCard
+              value={stats.avgAttemptsPerClimb ?? 'N/A'}
+              label="Tries / Ascent"
+            />
+          </div>
+        )}
 
-        {canShowTrends && chartData && (
+        {activeTab === 'trends' && (
           <div className="space-y-8">
-            {chartData.ascentsByDifficulty && (
-              <ChartCard
-                title="Route Mix"
-                chart={
-                  <div className="h-[300px]">
-                    <Doughnut
-                      data={{
-                        labels: chartData.ascentsByDifficulty.labels,
-                        datasets: [{
-                          data: chartData.ascentsByDifficulty.data,
-                          backgroundColor: chartData.ascentsByDifficulty.labels.map(getGradeColor)
-                        }]
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            position: 'right',
-                            labels: {
-                              color: '#CBD5E1'
-                            }
+            <ChartCard
+              title="Route Mix"
+              chart={
+                <div className="h-[300px]">
+                  <Doughnut
+                    data={{
+                      labels: ['5.8', '5.9', '5.10a', '5.10b', '5.10c'],
+                      datasets: [{
+                        data: [10, 15, 8, 12, 5],
+                        backgroundColor: ['#4C1D95', '#3B0764', '#350567', '#2F035E', '#290356']
+                      }]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'right',
+                          labels: {
+                            color: '#CBD5E1'
                           }
                         }
-                      }}
-                    />
-                  </div>
-                }
-              />
-            )}
+                      }
+                    }}
+                  />
+                </div>
+              }
+            />
 
-            {chartData.sendsByDate && (
-              <ChartCard
-                title="Sends"
-                chart={
-                  <div className="h-[300px]">
-                    <Bar
-                      data={{
-                        labels: chartData.sendsByDate.labels.map(formatDate),
-                        datasets: [
-                          {
-                            label: 'Sends',
-                            data: chartData.sendsByDate.sends,
-                            backgroundColor: '#7442d6',
-                            stack: 'combined'
-                          },
-                          {
-                            label: 'Attempts',
-                            data: chartData.sendsByDate.attempts,
-                            backgroundColor: '#6c757d',
-                            stack: 'combined'
-                          }
-                        ]
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                          y: {
-                            beginAtZero: true,
-                            stacked: true
-                          },
-                          x: {
-                            stacked: true
-                          }
-                        }
-                      }}
-                    />
-                  </div>
-                }
-              />
-            )}
-
-            {chartData.metricsOverTime && (
-              <ChartCard
-                title="Send Rate"
-                chart={
-                  <div className="h-[300px]">
-                    <Line
-                      data={{
-                        labels: chartData.metricsOverTime.labels.map(formatDate),
-                        datasets: [{
-                          label: 'Send Rate',
-                          data: chartData.metricsOverTime.metrics[0].data,
-                          borderColor: '#7442d6',
-                          backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                          fill: true,
-                          tension: 0.4
-                        }]
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                          y: {
-                            beginAtZero: true,
-                            max: 100
-                          }
-                        }
-                      }}
-                    />
-                  </div>
-                }
-              />
-            )}
-
-            {chartData.climbsPerSession && (
-              <ChartCard
-                title="Routes per Session"
-                chart={
-                  <div className="h-[300px]">
-                    <Line
-                      data={{
-                        labels: chartData.climbsPerSession.labels.map(formatDate),
-                        datasets: [{
-                          label: 'Routes',
-                          data: chartData.climbsPerSession.data,
-                          borderColor: '#7442d6',
-                          backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                          fill: true,
-                          tension: 0.4
-                        }]
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                          y: {
-                            beginAtZero: true
-                          }
-                        }
-                      }}
-                    />
-                  </div>
-                }
-              />
-            )}
-
-            {chartData.sendRateByColor && (
-              <ChartCard
-                title="Send Rate by Color"
-                chart={
-                  <div className="h-[300px]">
-                    <Bar
-                      data={{
-                        labels: chartData.sendRateByColor.labels,
-                        datasets: [{
-                          data: chartData.sendRateByColor.data,
+            <ChartCard
+              title="Sends Over Time"
+              chart={
+                <div className="h-[300px]">
+                  <Bar
+                    data={{
+                      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                      datasets: [
+                        {
+                          label: 'Sends',
+                          data: [5, 7, 4, 8, 6, 9, 7],
                           backgroundColor: '#7442d6'
-                        }]
-                      }}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                          y: {
-                            beginAtZero: true,
-                            max: 100,
-                            ticks: {
-                              callback: (value) => `${value}%`
-                            }
+                        },
+                        {
+                          label: 'Attempts',
+                          data: [2, 3, 1, 4, 2, 3, 2],
+                          backgroundColor: '#6c757d'
+                        }
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
                           }
                         },
-                        plugins: {
-                          legend: {
+                        x: {
+                          grid: {
                             display: false
                           }
                         }
-                      }}
-                    />
-                  </div>
-                }
-              />
-            )}
+                      }
+                    }}
+                  />
+                </div>
+              }
+            />
+
+            <ChartCard
+              title="Send Rate"
+              chart={
+                <div className="h-[300px]">
+                  <Line
+                    data={{
+                      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                      datasets: [{
+                        label: 'Success Rate',
+                        data: [75, 80, 85, 82, 88, 85, 90],
+                        borderColor: '#7442d6',
+                        backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                      }]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          max: 100,
+                          grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                          }
+                        },
+                        x: {
+                          grid: {
+                            display: false
+                          }
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              }
+            />
           </div>
         )}
       </div>
