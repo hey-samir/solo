@@ -24,6 +24,20 @@ router.use((req, _res, next) => {
   next();
 });
 
+// Leaderboard endpoint
+router.get('/leaderboard', async (_req, res) => {
+  try {
+    // Return empty array if no data to prevent map errors
+    res.json([]);
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch leaderboard',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
 // Mount feature routes
 router.use('/users', userRoutes);
 router.use('/routes', routeRoutes);

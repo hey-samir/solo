@@ -5,7 +5,7 @@ import { desc } from 'drizzle-orm';
 
 const router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (_req: Request, res: Response) => {
   try {
     console.log('[Routes API] Fetching routes...');
 
@@ -21,12 +21,15 @@ router.get('/', async (req: Request, res: Response) => {
       .from(routes)
       .orderBy(desc(routes.created_at));
 
+    // Ensure we always return an array
+    const routesData = allRoutes || [];
+
     console.log('[Routes API] Routes fetched:', {
-      count: allRoutes.length,
-      sample: allRoutes.slice(0, 2)
+      count: routesData.length,
+      sample: routesData.slice(0, 2)
     });
 
-    res.json(allRoutes);
+    res.json(routesData);
   } catch (error) {
     console.error('[Routes API] Error fetching routes:', error);
     res.status(500).json({ 
