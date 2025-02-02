@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { toast } from 'react-hot-toast'
 
 interface User {
   id: number
@@ -20,7 +21,6 @@ interface Stats {
   totalPoints: number
 }
 
-// Fetch actual data from the API
 const fetchUserData = async (username: string | undefined) => {
   const response = await fetch(`/api/users/${username || 'current'}`)
   if (!response.ok) throw new Error('Failed to fetch user data')
@@ -48,108 +48,114 @@ const Profile: FC = () => {
     queryFn: () => fetchUserStats(username),
   })
 
-  if (userLoading || statsLoading) {
-    return <div className="loading-spinner">Loading...</div>
+  const handleShare = () => {
+    const profileUrl = `${window.location.origin}/profile/@${user?.username}`
+    navigator.clipboard.writeText(profileUrl)
+    toast.success('Profile link copied to clipboard')
   }
 
-  if (!user) {
+  if (userLoading || statsLoading) {
     return (
-      <div className="text-center py-8">
-        <h1 className="text-2xl font-bold text-red-600">User not found</h1>
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="loading-spinner">Loading...</div>
       </div>
     )
   }
 
-  const handleShare = () => {
-    const profileUrl = `${window.location.origin}/profile/@${user.username}`
-    navigator.clipboard.writeText(profileUrl)
-    // TODO: Add toast notification for copy success
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600">User not found</h1>
+          <p className="text-gray-400 mt-2">This profile doesn't exist or was deleted</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="container">
-      <div className="profile-card p-4">
+    <div className="container max-w-3xl mx-auto px-4 py-8">
+      <div className="bg-gray-900 rounded-lg shadow-xl p-6">
         {/* Profile Header */}
-        <div className="d-flex mb-4">
-          <div className="profile-avatar me-4">
+        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
+          {/* Avatar Section */}
+          <div className="relative">
             <img 
-              src="/assets/solo-purple.png" 
-              alt="Profile"
-              style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                objectFit: 'cover'
-              }}
+              src={user.profilePhoto || '/assets/solo-purple.png'}
+              alt={`${user.name}'s profile`}
+              className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
             />
+            {isOwnProfile && (
+              <button 
+                className="absolute bottom-0 right-0 bg-purple-600 p-2 rounded-full shadow-lg"
+                onClick={() => {/* TODO: Implement photo upload */}}
+              >
+                <i className="material-icons text-white text-xl">photo_camera</i>
+              </button>
+            )}
           </div>
-          <div className="flex-grow-1">
-            <div className="profile-info mb-3">
-              <div className="profile-field">
-                <label className="text-muted mb-1">Name</label>
-                <div className="profile-text">{user.name}</div>
-              </div>
-              <div className="profile-field">
-                <label className="text-muted mb-1">Username</label>
-                <div className="profile-text">@{user.username}</div>
-              </div>
-              <div className="profile-field">
-                <label className="text-muted mb-1">Gym</label>
-                <div className="profile-text">{user.gym?.name || 'No gym selected'}</div>
-              </div>
-              <div className="profile-field">
-                <label className="text-muted mb-1">Joined</label>
-                <div className="profile-text">
-                  {new Date(user.memberSince).toLocaleDateString('en-US', {
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </div>
-              </div>
+
+          {/* Profile Info */}
+          <div className="flex-grow text-center md:text-left">
+            <h1 className="text-2xl font-bold text-white mb-1">{user.name}</h1>
+            <p className="text-gray-400 mb-3">@{user.username}</p>
+            <div className="flex flex-col gap-2">
+              <p className="text-gray-300">
+                <i className="material-icons align-middle mr-2 text-purple-500">location_on</i>
+                {user.gym?.name || 'No gym selected'}
+              </p>
+              <p className="text-gray-300">
+                <i className="material-icons align-middle mr-2 text-purple-500">calendar_today</i>
+                Member since {new Date(user.memberSince).toLocaleDateString('en-US', {
+                  month: 'long',
+                  year: 'numeric'
+                })}
+              </p>
             </div>
+
+            {/* Action Buttons */}
+            {isOwnProfile ? (
+              <div className="flex flex-wrap gap-3 mt-4">
+                <button 
+                  className="btn btn-solo-purple flex-grow-0"
+                  onClick={() => navigate('/settings')}
+                >
+                  <i className="material-icons mr-2">edit</i>
+                  Edit Profile
+                </button>
+                <button 
+                  className="btn btn-solo-purple flex-grow-0"
+                  onClick={handleShare}
+                >
+                  <i className="material-icons mr-2">share</i>
+                  Share Profile
+                </button>
+              </div>
+            ) : (
+              <button 
+                className="btn btn-solo-purple mt-4"
+                onClick={handleShare}
+              >
+                <i className="material-icons mr-2">share</i>
+                Share Profile
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Action Buttons */}
-        {isOwnProfile && (
-          <div className="d-flex gap-2 mb-4">
-            <button className="btn btn-solo-purple flex-grow-1">
-              <i className="material-icons">edit</i>
-              <span>Edit</span>
-            </button>
-            <button 
-              className="btn btn-solo-purple flex-grow-1"
-              onClick={handleShare}
-            >
-              <i className="material-icons">qr_code_2</i>
-              <span>Share</span>
-            </button>
-            <button className="btn btn-secondary flex-grow-1">
-              <i className="material-icons">logout</i>
-              <span>Logout</span>
-            </button>
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+          <div className="bg-gray-800 rounded-lg p-4 text-center">
+            <div className="text-3xl font-bold text-white mb-1">{stats?.totalAscents || 0}</div>
+            <div className="text-gray-400 text-sm">Total Ascents</div>
           </div>
-        )}
-
-        {/* KPI Cards */}
-        <div className="row g-4">
-          <div className="col-lg-4 col-md-4 col-sm-12">
-            <div className="card kpi-card h-100 text-center p-3">
-              <div className="metric-value">{stats?.totalAscents || 0}</div>
-              <div className="metric-label text-muted">Total Ascents</div>
-            </div>
+          <div className="bg-gray-800 rounded-lg p-4 text-center">
+            <div className="text-3xl font-bold text-white mb-1">{stats?.avgGrade || '--'}</div>
+            <div className="text-gray-400 text-sm">Average Grade</div>
           </div>
-          <div className="col-lg-4 col-md-4 col-sm-12">
-            <div className="card kpi-card h-100 text-center p-3">
-              <div className="metric-value">{stats?.avgGrade || '--'}</div>
-              <div className="metric-label text-muted">Avg Grade</div>
-            </div>
-          </div>
-          <div className="col-lg-4 col-md-4 col-sm-12">
-            <div className="card kpi-card h-100 text-center p-3">
-              <div className="metric-value">{stats?.totalPoints || 0}</div>
-              <div className="metric-label text-muted">Total Points</div>
-            </div>
+          <div className="bg-gray-800 rounded-lg p-4 text-center">
+            <div className="text-3xl font-bold text-white mb-1">{stats?.totalPoints || 0}</div>
+            <div className="text-gray-400 text-sm">Total Points</div>
           </div>
         </div>
       </div>
