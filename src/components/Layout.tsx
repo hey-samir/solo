@@ -4,6 +4,8 @@ import Navbar from './Navbar'
 import Header from './Header'
 
 const Layout: React.FC = () => {
+  console.log('Layout rendering') // Debug log
+
   return (
     <div className="flex flex-col min-h-screen bg-bg-primary text-text-primary">
       <Header />

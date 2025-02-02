@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const Header: React.FC = () => {
+  console.log('Header component rendering') // Debug log
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { isAuthenticated, user, logout } = useAuth()
 
@@ -48,7 +49,6 @@ const Header: React.FC = () => {
         </div>
         <div className="offcanvas-body px-3 pt-0">
           <div className="list-group list-group-flush">
-            {/* Profile link - always visible but with different behavior based on auth */}
             <Link 
               to={isAuthenticated ? `/profile` : `/profile/@gosolonyc`}
               className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
@@ -76,16 +76,13 @@ const Header: React.FC = () => {
               <span className="ms-3">Feedback</span>
             </Link>
 
-            {/* Solo Pro link - always visible */}
             <Link 
               to="/pricing"
               className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
               onClick={() => setIsMenuOpen(false)}
             >
               <i className="material-icons">star</i>
-              <span className="ms-3 d-flex align-items-center">
-                Solo <span className="pro-badge ms-1">PRO</span>
-              </span>
+              <span className="ms-3">Solo PRO</span>
             </Link>
 
             {isAuthenticated ? (

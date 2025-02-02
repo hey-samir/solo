@@ -17,83 +17,28 @@ import Profile from './pages/Profile'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
 
-// Toggle this flag to enable/disable route protection
-const ENABLE_ROUTE_PROTECTION = false;
-
-interface ProtectedWrapperProps {
-  children: React.ReactNode;
-  requireAuth?: boolean;
-}
-
 const Router: React.FC = () => {
-  // Wrapper component that conditionally applies protection
-  const ProtectedWrapper: React.FC<ProtectedWrapperProps> = ({ children, requireAuth = true }) => {
-    if (!ENABLE_ROUTE_PROTECTION) {
-      return <>{children}</>
-    }
-    return (
-      <ProtectedRoute requireAuth={requireAuth}>
-        {children}
-      </ProtectedRoute>
-    )
-  }
-
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
-        <Route index element={<Navigate to="/about" replace />} />
+        <Route index element={<About />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/feedback" element={<Feedback />} />
 
-        {/* Semi-Protected Routes */}
-        <Route path="/squads" element={
-          <ProtectedWrapper requireAuth={false}>
-            <Squads />
-          </ProtectedWrapper>
-        } />
-        <Route path="/standings" element={
-          <ProtectedWrapper requireAuth={false}>
-            <Standings />
-          </ProtectedWrapper>
-        } />
+        {/* Public Squad Routes */}
+        <Route path="/squads" element={<Squads />} />
+        <Route path="/standings" element={<Standings />} />
 
         {/* Protected Routes */}
-        <Route path="/sends" element={
-          <ProtectedWrapper>
-            <Sends />
-          </ProtectedWrapper>
-        } />
-        <Route path="/sessions" element={
-          <ProtectedWrapper>
-            <Sessions />
-          </ProtectedWrapper>
-        } />
-        <Route path="/stats" element={
-          <ProtectedWrapper>
-            <Stats />
-          </ProtectedWrapper>
-        } />
-
-        {/* Profile Routes - Reordered for proper matching */}
-        <Route path="/profile/:username" element={
-          <ProtectedWrapper requireAuth={false}>
-            <Profile />
-          </ProtectedWrapper>
-        } />
-        <Route path="/profile/@:username" element={
-          <ProtectedWrapper requireAuth={false}>
-            <Profile />
-          </ProtectedWrapper>
-        } />
-        <Route path="/profile" element={
-          <ProtectedWrapper>
-            <Profile />
-          </ProtectedWrapper>
-        } />
+        <Route path="/sends" element={<Sends />} />
+        <Route path="/sessions" element={<Sessions />} />
+        <Route path="/stats" element={<Stats />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:username" element={<Profile />} />
 
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" replace />} />
