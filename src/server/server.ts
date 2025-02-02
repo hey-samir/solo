@@ -35,9 +35,7 @@ const corsOptions = {
     ? ['https://gosolo.nyc', 'https://www.gosolo.nyc']
     : [
         'http://localhost:3003',
-        'http://localhost:5000',
         'http://0.0.0.0:3003',
-        'http://0.0.0.0:5000',
         `https://${process.env.REPL_ID}.id.repl.co`,
         `https://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`,
       ],
@@ -82,20 +80,6 @@ app.use((req, res, next) => {
 // API Routes with /api prefix
 app.use('/api', routes);
 
-// Serve static files
-const distPath = path.resolve(__dirname, '../../dist');
-app.use(express.static(distPath, {
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, filePath) => {
-    if (filePath.includes('/assets/')) {
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-    } else {
-      res.setHeader('Cache-Control', 'no-cache');
-    }
-  }
-}));
-
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Server error:', {
@@ -112,6 +96,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // Handle all routes for the SPA
 app.get('/*', (req, res) => {
+  const distPath = path.resolve(__dirname, '../../dist');
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
