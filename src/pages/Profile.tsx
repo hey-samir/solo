@@ -74,20 +74,20 @@ const Profile: FC = () => {
   }
 
   return (
-    <div className="container max-w-3xl mx-auto px-4 py-8">
-      <div className="bg-gray-900 rounded-lg shadow-xl p-6">
+    <div className="container max-w-6xl mx-auto px-4 py-8">
+      <div className="p-6">
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
           {/* Avatar Section */}
-          <div className="relative">
+          <div className="relative group">
             <img 
-              src={user.profilePhoto || '/assets/solo-purple.png'}
+              src={user.profilePhoto || '/assets/avatars/purple-solo.png'}
               alt={`${user.name}'s profile`}
               className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
             />
             {isOwnProfile && (
               <button 
-                className="absolute bottom-0 right-0 bg-purple-600 p-2 rounded-full shadow-lg"
+                className="absolute bottom-0 right-0 bg-purple-600 p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => {/* TODO: Implement photo upload */}}
               >
                 <i className="material-icons text-white text-xl">photo_camera</i>
@@ -115,16 +115,16 @@ const Profile: FC = () => {
 
             {/* Action Buttons */}
             {isOwnProfile ? (
-              <div className="flex flex-wrap gap-3 mt-4">
+              <div className="flex items-center gap-3 mt-4">
                 <button 
-                  className="btn btn-solo-purple flex-grow-0"
+                  className="btn btn-solo-purple"
                   onClick={() => navigate('/settings')}
                 >
                   <i className="material-icons mr-2">edit</i>
                   Edit Profile
                 </button>
                 <button 
-                  className="btn btn-solo-purple flex-grow-0"
+                  className="btn btn-solo-purple"
                   onClick={handleShare}
                 >
                   <i className="material-icons mr-2">share</i>
@@ -143,17 +143,17 @@ const Profile: FC = () => {
           </div>
         </div>
 
-        {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
+        {/* Stats Section - Single Row */}
+        <div className="grid grid-cols-3 gap-6 mt-8">
+          <div className="text-center">
             <div className="text-3xl font-bold text-white mb-1">{stats?.totalAscents || 0}</div>
             <div className="text-gray-400 text-sm">Total Ascents</div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
+          <div className="text-center">
             <div className="text-3xl font-bold text-white mb-1">{stats?.avgGrade || '--'}</div>
             <div className="text-gray-400 text-sm">Average Grade</div>
           </div>
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
+          <div className="text-center">
             <div className="text-3xl font-bold text-white mb-1">{stats?.totalPoints || 0}</div>
             <div className="text-gray-400 text-sm">Total Points</div>
           </div>
