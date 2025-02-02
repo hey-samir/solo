@@ -15,6 +15,18 @@ router.get('/health', (_req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
+// Add debug middleware for feedback routes
+router.use('/feedback', (req, res, next) => {
+  console.log('[Debug] Feedback Request:', {
+    method: req.method,
+    path: req.path,
+    headers: req.headers,
+    body: req.body,
+    timestamp: new Date().toISOString()
+  });
+  next();
+});
+
 // Add debug middleware for route tracking
 router.use((req, _res, next) => {
   console.log('API Request:', {
@@ -81,6 +93,6 @@ router.use('/user', userRoutes);
 router.use('/routes', routeRoutes);
 router.use('/climbs', climbRoutes);
 router.use('/sessions', sessionRoutes);
-router.use('/feedback', feedbackRoutes);
+router.use('/feedback', feedbackRoutes); // Ensure feedback routes are mounted correctly
 
 export default router;
