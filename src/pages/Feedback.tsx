@@ -46,16 +46,16 @@ const Feedback: React.FC = () => {
       try {
         const response = await client.get('/api/feedback', { params: { sort } });
         if (!response.data || !Array.isArray(response.data)) {
-          throw new Error("Oops! We received unexpected data. Let's get you back on track.");
+          throw new Error("Oops! This route hasn't been set yet. Let's get you back on track.");
         }
         return response.data;
-      } catch (error) {
+      } catch (err) {
+        const error = err as ErrorResponse;
         console.error('Error fetching feedback:', error);
-        const err = error as ErrorResponse;
-        if (err.response?.data?.message) {
-          throw new Error(err.response.data.message);
-        }
-        throw new Error("Oops! We're having trouble loading the feedback. Let's get you back on track.");
+        throw new Error(
+          error.response?.data?.message ||
+          "Oops! This route hasn't been set yet. Let's get you back on track."
+        );
       }
     },
   });
@@ -78,7 +78,8 @@ const Feedback: React.FC = () => {
       toast.success('Thanks for your feedback! We\'ll look into it right away.');
       refetch();
     },
-    onError: (error: ErrorResponse) => {
+    onError: (err: unknown) => {
+      const error = err as ErrorResponse;
       const message = error.response?.data?.message || 
         "Oops! Something went wrong while submitting your feedback. Let's get you back on track.";
       toast.error(message);
@@ -96,30 +97,29 @@ const Feedback: React.FC = () => {
     }
     submitFeedback.mutate(formData);
   };
-  
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setForm(prev => ({ ...prev, screenshot: file }));
     }
   };
 
-    if (isLoading) {
+  if (isLoading) {
     return <div className="text-center mt-4">Loading...</div>;
   }
 
-
-  if (error instanceof Error) {
+  if (error) {
     return (
       <Error 
-        message={error.message}
+        message={error instanceof Error ? error.message : "Oops! This route hasn't been set yet. Let's get you back on track."}
         type="page"
         retry={() => refetch()}
       />
     );
   }
 
-    const items = data || [];
+  const items = data || [];
 
   return (
     <div className="container mx-auto px-4 py-8">
