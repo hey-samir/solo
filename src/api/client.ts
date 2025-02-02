@@ -16,7 +16,7 @@ const client = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true
+  withCredentials: true, // Important for session cookie handling
 });
 
 // Add request interceptor for debugging
@@ -75,9 +75,9 @@ client.interceptors.response.use(
 
     if (error.response?.status === 401) {
       // Handle unauthorized access
-      window.location.href = '/login'
+      window.location.href = '/login';
     }
-    return Promise.reject(error.response?.data || error)
+    return Promise.reject(error.response?.data || error);
   }
 );
 

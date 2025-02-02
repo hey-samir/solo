@@ -2,12 +2,16 @@ import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { climbs, routes, User } from '../db/schema';
 import { eq, sql } from 'drizzle-orm';
+import { isAuthenticated } from '../middleware/auth';
 
 const router = Router();
 
 interface AuthenticatedRequest extends Request {
   user?: User;
 }
+
+// Apply authentication middleware to all routes
+router.use(isAuthenticated);
 
 // Get all sessions
 router.get('/', async (req: AuthenticatedRequest, res: Response) => {
@@ -47,10 +51,10 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
     });
 
     const formattedSessions = sessions.map(session => ({
-      id: session.date, // Using date as session ID
+      id: session.date,
       userId: req.user?.id,
-      duration: Math.round(session.duration || 0), // Convert to hours
-      location: 'Main Gym', // Default location
+      duration: Math.round(session.duration || 0),
+      location: 'Main Gym',
       totalClimbs: session.total_climbs,
       totalSends: session.total_sends,
       totalPoints: session.total_points,
