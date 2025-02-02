@@ -16,6 +16,7 @@ import {
 import { Bar, Doughnut, Line } from 'react-chartjs-2'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
+import Error from '../components/Error'
 
 // Register Chart.js components
 ChartJS.register(
@@ -55,7 +56,7 @@ const Stats: FC = () => {
     }
   })
 
-  const { data: chartData, isLoading: chartsLoading } = useQuery({
+  const { data: chartData, isLoading: chartsLoading, error } = useQuery({
     queryKey: ['stats-charts'],
     queryFn: async () => {
       const response = await client.get('/api/stats')
@@ -67,6 +68,10 @@ const Stats: FC = () => {
     return <LoadingSpinner />
   }
 
+  if (error) {
+    return <Error message="Failed to load statistics" type="page" />
+  }
+
   return (
     <div className="container stats-container">
       {/* Main Content Pills */}
@@ -74,7 +79,7 @@ const Stats: FC = () => {
           style={{ top: 0, zIndex: 1020, backgroundColor: '#212529' }}>
         <li className="nav-item" role="presentation">
           <button 
-            className={`nav-link ${activeTab === 'metrics' ? 'active' : ''}`}
+            className={`nav-link bg-solo-purple hover:bg-solo-purple-light text-white ${activeTab === 'metrics' ? 'active' : ''}`}
             onClick={() => setActiveTab('metrics')}
             type="button"
             role="tab"
@@ -84,7 +89,7 @@ const Stats: FC = () => {
         </li>
         <li className="nav-item" role="presentation">
           <button 
-            className={`nav-link ${activeTab === 'trends' ? 'active' : ''}`}
+            className={`nav-link bg-solo-purple hover:bg-solo-purple-light text-white ${activeTab === 'trends' ? 'active' : ''}`}
             onClick={() => setActiveTab('trends')}
             type="button"
             role="tab"
@@ -144,157 +149,167 @@ const Stats: FC = () => {
         {/* Trends Tab */}
         {activeTab === 'trends' && chartData && (
           <div>
-            <ChartCard
-              title="Route Mix"
-              chart={
-                <Doughnut
-                  data={{
-                    labels: chartData.ascentsByDifficulty.labels,
-                    datasets: [{
-                      data: chartData.ascentsByDifficulty.data,
-                      backgroundColor: chartData.ascentsByDifficulty.labels.map(getGradeColor)
-                    }]
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: 'right'
-                      }
-                    }
-                  }}
-                />
-              }
-            />
-
-            <ChartCard
-              title="Sends"
-              chart={
-                <Bar
-                  data={{
-                    labels: chartData.sendsByDate.labels.map(formatDate),
-                    datasets: [
-                      {
-                        label: 'Sends',
-                        data: chartData.sendsByDate.sends,
-                        backgroundColor: '#7442d6',
-                        stack: 'combined'
-                      },
-                      {
-                        label: 'Attempts',
-                        data: chartData.sendsByDate.attempts,
-                        backgroundColor: '#6c757d',
-                        stack: 'combined'
-                      }
-                    ]
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        stacked: true
-                      },
-                      x: {
-                        stacked: true
-                      }
-                    }
-                  }}
-                />
-              }
-            />
-
-            <ChartCard
-              title="Send Rate"
-              chart={
-                <Line
-                  data={{
-                    labels: chartData.metricsOverTime.labels.map(formatDate),
-                    datasets: [{
-                      label: 'Send Rate',
-                      data: chartData.metricsOverTime.metrics[0].data,
-                      borderColor: '#7442d6',
-                      backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                      fill: true,
-                      tension: 0.4
-                    }]
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        max: 100
-                      }
-                    }
-                  }}
-                />
-              }
-            />
-
-            <ChartCard
-              title="Routes per Session"
-              chart={
-                <Line
-                  data={{
-                    labels: chartData.climbsPerSession.labels.map(formatDate),
-                    datasets: [{
-                      label: 'Routes',
-                      data: chartData.climbsPerSession.data,
-                      borderColor: '#7442d6',
-                      backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                      fill: true,
-                      tension: 0.4
-                    }]
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                      y: {
-                        beginAtZero: true
-                      }
-                    }
-                  }}
-                />
-              }
-            />
-
-            <ChartCard
-              title="Send Rate by Color"
-              chart={
-                <Bar
-                  data={{
-                    labels: chartData.sendRateByColor.labels,
-                    datasets: [{
-                      data: chartData.sendRateByColor.data,
-                      backgroundColor: '#7442d6'
-                    }]
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                      y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                          callback: (value) => `${value}%`
+            {chartData.ascentsByDifficulty?.labels && (
+              <ChartCard
+                title="Route Mix"
+                chart={
+                  <Doughnut
+                    data={{
+                      labels: chartData.ascentsByDifficulty.labels,
+                      datasets: [{
+                        data: chartData.ascentsByDifficulty.data || [],
+                        backgroundColor: (chartData.ascentsByDifficulty.labels || []).map(getGradeColor)
+                      }]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'right'
                         }
                       }
-                    },
-                    plugins: {
-                      legend: {
-                        display: false
+                    }}
+                  />
+                }
+              />
+            )}
+
+            {chartData.sendsByDate?.labels && (
+              <ChartCard
+                title="Sends"
+                chart={
+                  <Bar
+                    data={{
+                      labels: chartData.sendsByDate.labels.map(formatDate),
+                      datasets: [
+                        {
+                          label: 'Sends',
+                          data: chartData.sendsByDate.sends || [],
+                          backgroundColor: '#7442d6',
+                          stack: 'combined'
+                        },
+                        {
+                          label: 'Attempts',
+                          data: chartData.sendsByDate.attempts || [],
+                          backgroundColor: '#6c757d',
+                          stack: 'combined'
+                        }
+                      ]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          stacked: true
+                        },
+                        x: {
+                          stacked: true
+                        }
                       }
-                    }
-                  }}
-                />
-              }
-            />
+                    }}
+                  />
+                }
+              />
+            )}
+
+            {chartData.metricsOverTime?.labels && (
+              <ChartCard
+                title="Send Rate"
+                chart={
+                  <Line
+                    data={{
+                      labels: chartData.metricsOverTime.labels.map(formatDate),
+                      datasets: [{
+                        label: 'Send Rate',
+                        data: chartData.metricsOverTime.metrics?.[0]?.data || [],
+                        borderColor: '#7442d6',
+                        backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                      }]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          max: 100
+                        }
+                      }
+                    }}
+                  />
+                }
+              />
+            )}
+
+            {chartData.climbsPerSession?.labels && (
+              <ChartCard
+                title="Routes per Session"
+                chart={
+                  <Line
+                    data={{
+                      labels: chartData.climbsPerSession.labels.map(formatDate),
+                      datasets: [{
+                        label: 'Routes',
+                        data: chartData.climbsPerSession.data || [],
+                        borderColor: '#7442d6',
+                        backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                        fill: true,
+                        tension: 0.4
+                      }]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        y: {
+                          beginAtZero: true
+                        }
+                      }
+                    }}
+                  />
+                }
+              />
+            )}
+
+            {chartData.sendRateByColor?.labels && (
+              <ChartCard
+                title="Send Rate by Color"
+                chart={
+                  <Bar
+                    data={{
+                      labels: chartData.sendRateByColor.labels,
+                      datasets: [{
+                        data: chartData.sendRateByColor.data || [],
+                        backgroundColor: '#7442d6'
+                      }]
+                    }}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          max: 100,
+                          ticks: {
+                            callback: (value) => `${value}%`
+                          }
+                        }
+                      },
+                      plugins: {
+                        legend: {
+                          display: false
+                        }
+                      }
+                    }}
+                  />
+                }
+              />
+            )}
           </div>
         )}
       </div>
