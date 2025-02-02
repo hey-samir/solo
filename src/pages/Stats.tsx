@@ -171,49 +171,49 @@ const Stats: FC = () => {
 
       <div className="tab-content">
         {activeTab === 'metrics' && stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MetricCard
-              value={stats.totalAscents ?? 'N/A'}
-              label="Total Ascents"
-            />
-            <MetricCard
-              value={stats.totalSends ?? 'N/A'}
-              label="Total Sends"
-            />
-            <MetricCard
-              value={stats.avgGrade ?? 'N/A'}
-              label="Avg Grade"
-            />
-            <MetricCard
-              value={stats.avgSentGrade ?? 'N/A'}
-              label="Avg. Sent Grade"
-            />
-            <MetricCard
-              value={stats.totalPoints ?? 'N/A'}
-              label="Total Points"
-            />
-            <MetricCard
-              value={stats.avgPointsPerClimb ?? 'N/A'}
-              label="Avg Pts / Ascent"
-            />
-            <MetricCard
-              value={stats.successRate ? `${stats.successRate}%` : 'N/A'}
-              label="Send Rate"
-            />
-            <MetricCard
-              value={stats.successRatePerSession ? `${stats.successRatePerSession}%` : 'N/A'}
-              label="Session Send Rate"
-            />
-            <MetricCard
-              value={stats.climbsPerSession ?? 'N/A'}
-              label="Ascents / Session"
-            />
-            <MetricCard
-              value={stats.avgAttemptsPerClimb ?? 'N/A'}
-              label="Tries / Ascent"
-            />
-          </div>
-        )}
+            <div className="grid grid-cols-2 gap-4">
+              <MetricCard
+                value={stats.totalAscents ?? 'N/A'}
+                label="Total Ascents"
+              />
+              <MetricCard
+                value={stats.totalSends ?? 'N/A'}
+                label="Total Sends"
+              />
+              <MetricCard
+                value={stats.avgGrade ?? 'N/A'}
+                label="Avg Grade"
+              />
+              <MetricCard
+                value={stats.avgSentGrade ?? 'N/A'}
+                label="Avg. Sent Grade"
+              />
+              <MetricCard
+                value={stats.totalPoints ?? 'N/A'}
+                label="Total Points"
+              />
+              <MetricCard
+                value={stats.avgPointsPerClimb ?? 'N/A'}
+                label="Avg Pts / Ascent"
+              />
+              <MetricCard
+                value={stats.successRate ? `${stats.successRate}%` : 'N/A'}
+                label="Send Rate"
+              />
+              <MetricCard
+                value={stats.successRatePerSession ? `${stats.successRatePerSession}%` : 'N/A'}
+                label="Session Send Rate"
+              />
+              <MetricCard
+                value={stats.climbsPerSession ?? 'N/A'}
+                label="Ascents / Session"
+              />
+              <MetricCard
+                value={stats.avgAttemptsPerClimb ?? 'N/A'}
+                label="Tries / Ascent"
+              />
+            </div>
+          )}
 
         {canShowTrends && chartData && (
           <div className="space-y-8">
