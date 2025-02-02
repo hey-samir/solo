@@ -1,5 +1,5 @@
 import { db } from './index';
-import { users, routes, climbs, gyms } from './schema';
+import { users, routes, sends, gyms, points } from './schema';
 import bcrypt from 'bcryptjs';
 import { eq } from 'drizzle-orm';
 
@@ -21,38 +21,33 @@ const ROUTE_GRADES = ['5.8', '5.9', '5.10a', '5.10b', '5.10c', '5.10d', '5.11a',
 async function addRandomSend(userId: number, gymId: number, date: Date, routeNumber: number) {
   try {
     // Create a route with all required fields
-    const routeId = `TR-${String(routeNumber).padStart(3, '0')}`;
     const [route] = await db.insert(routes).values({
-      route_id: routeId,
+      gym_id: gymId,
       color: ROUTE_COLORS[Math.floor(Math.random() * ROUTE_COLORS.length)],
       grade: ROUTE_GRADES[Math.floor(Math.random() * ROUTE_GRADES.length)],
-      grade_id: Math.floor(Math.random() * 15) + 1, // Assuming grade_id range 1-15
-      date_set: new Date(date.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000),
-      gym_id: gymId,
       wall_sector: 'Main Wall',
-      route_type: 'Sport',
+      anchor_number: routeNumber,
       active: true,
-      created_at: new Date()
+      created_at: new Date(date.getTime() - Math.random() * 30 * 24 * 60 * 60 * 1000)
     }).returning();
 
     if (!route) {
       throw new Error('Failed to create route');
     }
 
-    // Create the climb/send
+    // Create the send
     const isSuccessful = Math.random() > 0.3; // 70% success rate
-    const [climb] = await db.insert(climbs).values({
+    const [send] = await db.insert(sends).values({
       user_id: userId,
       route_id: route.id,
       status: isSuccessful,
-      rating: Math.floor(Math.random() * 5) + 1,
       tries: isSuccessful ? Math.floor(Math.random() * 3) + 1 : Math.floor(Math.random() * 5) + 1,
       notes: isSuccessful ? 'Clean send!' : 'Almost had it...',
       points: isSuccessful ? 10 : 5,
       created_at: date
     }).returning();
 
-    return climb;
+    return send;
   } catch (error) {
     console.error('Error adding random send:', error);
     throw error;
@@ -111,10 +106,10 @@ async function seedTestData() {
     }
 
     try {
-      // First, delete all climbs for this user
-      console.log('Cleaning up existing climbs...');
-      await db.delete(climbs)
-        .where(eq(climbs.user_id, user.id));
+      // First, delete all sends for this user
+      console.log('Cleaning up existing sends...');
+      await db.delete(sends)
+        .where(eq(sends.user_id, user.id));
 
       // Then, delete all routes for the demo gym
       console.log('Cleaning up existing routes...');
