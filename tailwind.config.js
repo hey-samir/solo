@@ -15,9 +15,12 @@ export default {
         'bg-card': '#4A5D79',
         'text-primary': '#ffffff',
         'text-secondary': 'rgba(255, 255, 255, 0.6)',
-        'text-muted': 'rgba(255, 255, 255, 0.4)',
+        'text-muted': '#CBD5E1',
         'border-default': 'rgba(255, 255, 255, 0.1)',
         'border-active': 'rgba(255, 255, 255, 0.2)',
+      },
+      fontFamily: {
+        'lexend': ['Lexend', 'sans-serif'],
       },
       boxShadow: {
         'card': '0 2px 4px rgba(0, 0, 0, 0.1)',
@@ -37,6 +40,9 @@ export default {
         'xl': '1.25rem',
         '2xl': '1.5rem',
       },
+    },
+    fontFamily: {
+      sans: ['Lexend', 'sans-serif'],
     },
   },
   plugins: [],

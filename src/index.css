@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,7 +7,7 @@
 /* Basic reset and styles */
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -22,6 +24,7 @@ body {
   --bg-card: #4A5D79;
   --text-primary: #ffffff;
   --text-primary-rgb: 255, 255, 255;
+  --text-muted: #CBD5E1;
   --border-color: rgba(255, 255, 255, 0.1);
 }
 
@@ -29,89 +32,55 @@ body {
   .btn-google {
     @apply inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-solo-purple hover:bg-solo-purple-light rounded-full transition-colors duration-200 ease-in-out shadow-md;
   }
+
+  .btn-solo-purple {
+    @apply bg-solo-purple text-white hover:bg-solo-purple-light transition-colors duration-200;
+  }
+
+  .nav-link {
+    @apply text-text-primary hover:text-solo-purple transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-bg-card rounded-card shadow-card overflow-hidden;
+  }
+
+  .card-body {
+    @apply p-4;
+  }
 }
 
-.app {
-  text-align: center;
-  padding: 20px;
+/* Chart styles */
+.chart-container {
+  @apply h-[300px] w-full;
 }
 
-/* Pricing Table Styles */
-.table-responsive {
-  width: 100%;
-  margin: 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  background-color: var(--bg-primary);
-  border-radius: 8px;
+/* Form styles */
+.form-label {
+  @apply text-text-muted font-semibold text-sm;
 }
 
-.table-dark {
-  --bs-table-bg: transparent;
+.form-label.required-field::after {
+  content: '*';
+  @apply text-solo-purple ml-1;
 }
 
-.table-dark td, 
-.table-dark th {
-  border-color: var(--border-color);
-  padding: 0.75rem 1.5rem;
-  background-color: transparent;
-  color: var(--text-primary);
+.form-control {
+  @apply w-full bg-bg-primary text-text-primary border border-border-default rounded-card px-4 py-3 focus:border-solo-purple focus:ring-1 focus:ring-solo-purple;
 }
 
-.table-dark th {
-  vertical-align: top;
+.form-select {
+  @apply form-control appearance-none bg-no-repeat;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23CBD5E1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
 }
 
-.pro-badge {
-  background: var(--solo-purple);
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.btn-solo-purple {
-  background-color: var(--solo-purple);
-  color: white;
-  border: none;
-  transition: background-color 0.2s;
-}
-
-.btn-solo-purple:hover {
-  background-color: var(--solo-purple-light);
-  color: white;
-}
-
-.btn-outline-light {
-  border: 1px solid var(--text-primary);
-  color: var(--text-primary);
-  background: transparent;
-  transition: all 0.2s;
-}
-
-.btn-outline-light:hover {
-  background-color: var(--text-primary);
-  color: var(--bg-primary);
-}
-
+/* Utility classes */
 .text-success {
-  color: #28a745 !important;
+  @apply text-green-500;
 }
 
 .text-error {
-  color: #dc3545 !important;
-}
-
-.material-icons {
-  font-size: 1.25rem;
-  vertical-align: middle;
-}
-
-@media (min-width: 768px) {
-  .table th,
-  .table td {
-    font-size: 1rem;
-    padding: 1rem;
-  }
+  @apply text-red-500;
 }

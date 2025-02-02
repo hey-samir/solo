@@ -145,12 +145,11 @@ const Stats: FC = () => {
     chartData.sendRateByColor?.labels;
 
   return (
-    <div className="container stats-container">
-      <ul className="nav nav-pills stats-pills mb-4 sticky-top" 
-          style={{ top: 0, zIndex: 1020, backgroundColor: '#212529' }}>
+    <div className="container mx-auto px-4 py-8 font-lexend">
+      <ul className="nav nav-pills mb-8 flex space-x-4 border-b border-border-default">
         <li className="nav-item" role="presentation">
           <button 
-            className={`nav-link bg-solo-purple hover:bg-solo-purple-light text-white ${activeTab === 'metrics' ? 'active' : ''}`}
+            className={`nav-link text-text-primary px-4 py-2 ${activeTab === 'metrics' ? 'text-solo-purple border-b-2 border-solo-purple' : ''}`}
             onClick={() => setActiveTab('metrics')}
             type="button"
             role="tab"
@@ -160,7 +159,7 @@ const Stats: FC = () => {
         </li>
         <li className="nav-item" role="presentation">
           <button 
-            className={`nav-link bg-solo-purple hover:bg-solo-purple-light text-white ${activeTab === 'trends' ? 'active' : ''}`}
+            className={`nav-link text-text-primary px-4 py-2 ${activeTab === 'trends' ? 'text-solo-purple border-b-2 border-solo-purple' : ''}`}
             onClick={() => setActiveTab('trends')}
             type="button"
             role="tab"
@@ -172,74 +171,79 @@ const Stats: FC = () => {
 
       <div className="tab-content">
         {activeTab === 'metrics' && stats && (
-          <div className="row row-cols-1 row-cols-md-2 g-2 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <MetricCard
-              value={stats.totalAscents}
+              value={stats.totalAscents ?? 'N/A'}
               label="Total Ascents"
             />
             <MetricCard
-              value={stats.totalSends}
+              value={stats.totalSends ?? 'N/A'}
               label="Total Sends"
             />
             <MetricCard
-              value={stats.avgGrade}
+              value={stats.avgGrade ?? 'N/A'}
               label="Avg Grade"
             />
             <MetricCard
-              value={stats.avgSentGrade}
+              value={stats.avgSentGrade ?? 'N/A'}
               label="Avg. Sent Grade"
             />
             <MetricCard
-              value={stats.totalPoints}
+              value={stats.totalPoints ?? 'N/A'}
               label="Total Points"
             />
             <MetricCard
-              value={stats.avgPointsPerClimb}
+              value={stats.avgPointsPerClimb ?? 'N/A'}
               label="Avg Pts / Ascent"
             />
             <MetricCard
-              value={`${stats.successRate}%`}
+              value={stats.successRate ? `${stats.successRate}%` : 'N/A'}
               label="Send Rate"
             />
             <MetricCard
-              value={`${stats.successRatePerSession}%`}
+              value={stats.successRatePerSession ? `${stats.successRatePerSession}%` : 'N/A'}
               label="Session Send Rate"
             />
             <MetricCard
-              value={stats.climbsPerSession}
+              value={stats.climbsPerSession ?? 'N/A'}
               label="Ascents / Session"
             />
             <MetricCard
-              value={stats.avgAttemptsPerClimb}
+              value={stats.avgAttemptsPerClimb ?? 'N/A'}
               label="Tries / Ascent"
             />
           </div>
         )}
 
         {canShowTrends && chartData && (
-          <div>
+          <div className="space-y-8">
             {chartData.ascentsByDifficulty && (
               <ChartCard
                 title="Route Mix"
                 chart={
-                  <Doughnut
-                    data={{
-                      labels: chartData.ascentsByDifficulty.labels,
-                      datasets: [{
-                        data: chartData.ascentsByDifficulty.data,
-                        backgroundColor: chartData.ascentsByDifficulty.labels.map(getGradeColor)
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: {
-                          position: 'right'
+                  <div className="h-[300px]">
+                    <Doughnut
+                      data={{
+                        labels: chartData.ascentsByDifficulty.labels,
+                        datasets: [{
+                          data: chartData.ascentsByDifficulty.data,
+                          backgroundColor: chartData.ascentsByDifficulty.labels.map(getGradeColor)
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'right',
+                            labels: {
+                              color: '#CBD5E1'
+                            }
+                          }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  </div>
                 }
               />
             )}
@@ -248,38 +252,40 @@ const Stats: FC = () => {
               <ChartCard
                 title="Sends"
                 chart={
-                  <Bar
-                    data={{
-                      labels: chartData.sendsByDate.labels.map(formatDate),
-                      datasets: [
-                        {
-                          label: 'Sends',
-                          data: chartData.sendsByDate.sends,
-                          backgroundColor: '#7442d6',
-                          stack: 'combined'
-                        },
-                        {
-                          label: 'Attempts',
-                          data: chartData.sendsByDate.attempts,
-                          backgroundColor: '#6c757d',
-                          stack: 'combined'
+                  <div className="h-[300px]">
+                    <Bar
+                      data={{
+                        labels: chartData.sendsByDate.labels.map(formatDate),
+                        datasets: [
+                          {
+                            label: 'Sends',
+                            data: chartData.sendsByDate.sends,
+                            backgroundColor: '#7442d6',
+                            stack: 'combined'
+                          },
+                          {
+                            label: 'Attempts',
+                            data: chartData.sendsByDate.attempts,
+                            backgroundColor: '#6c757d',
+                            stack: 'combined'
+                          }
+                        ]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            stacked: true
+                          },
+                          x: {
+                            stacked: true
+                          }
                         }
-                      ]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          stacked: true
-                        },
-                        x: {
-                          stacked: true
-                        }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  </div>
                 }
               />
             )}
@@ -288,29 +294,31 @@ const Stats: FC = () => {
               <ChartCard
                 title="Send Rate"
                 chart={
-                  <Line
-                    data={{
-                      labels: chartData.metricsOverTime.labels.map(formatDate),
-                      datasets: [{
-                        label: 'Send Rate',
-                        data: chartData.metricsOverTime.metrics[0].data,
-                        borderColor: '#7442d6',
-                        backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          max: 100
+                  <div className="h-[300px]">
+                    <Line
+                      data={{
+                        labels: chartData.metricsOverTime.labels.map(formatDate),
+                        datasets: [{
+                          label: 'Send Rate',
+                          data: chartData.metricsOverTime.metrics[0].data,
+                          borderColor: '#7442d6',
+                          backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                          fill: true,
+                          tension: 0.4
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            max: 100
+                          }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  </div>
                 }
               />
             )}
@@ -319,28 +327,30 @@ const Stats: FC = () => {
               <ChartCard
                 title="Routes per Session"
                 chart={
-                  <Line
-                    data={{
-                      labels: chartData.climbsPerSession.labels.map(formatDate),
-                      datasets: [{
-                        label: 'Routes',
-                        data: chartData.climbsPerSession.data,
-                        borderColor: '#7442d6',
-                        backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: {
-                          beginAtZero: true
+                  <div className="h-[300px]">
+                    <Line
+                      data={{
+                        labels: chartData.climbsPerSession.labels.map(formatDate),
+                        datasets: [{
+                          label: 'Routes',
+                          data: chartData.climbsPerSession.data,
+                          borderColor: '#7442d6',
+                          backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                          fill: true,
+                          tension: 0.4
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          y: {
+                            beginAtZero: true
+                          }
                         }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  </div>
                 }
               />
             )}
@@ -349,33 +359,35 @@ const Stats: FC = () => {
               <ChartCard
                 title="Send Rate by Color"
                 chart={
-                  <Bar
-                    data={{
-                      labels: chartData.sendRateByColor.labels,
-                      datasets: [{
-                        data: chartData.sendRateByColor.data,
-                        backgroundColor: '#7442d6'
-                      }]
-                    }}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          max: 100,
-                          ticks: {
-                            callback: (value) => `${value}%`
+                  <div className="h-[300px]">
+                    <Bar
+                      data={{
+                        labels: chartData.sendRateByColor.labels,
+                        datasets: [{
+                          data: chartData.sendRateByColor.data,
+                          backgroundColor: '#7442d6'
+                        }]
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                              callback: (value) => `${value}%`
+                            }
+                          }
+                        },
+                        plugins: {
+                          legend: {
+                            display: false
                           }
                         }
-                      },
-                      plugins: {
-                        legend: {
-                          display: false
-                        }
-                      }
-                    }}
-                  />
+                      }}
+                    />
+                  </div>
                 }
               />
             )}
@@ -386,18 +398,15 @@ const Stats: FC = () => {
   )
 }
 
-// Helper Components
 interface MetricCardProps {
   value: number | string;
   label: string;
 }
 
 const MetricCard: FC<MetricCardProps> = ({ value, label }) => (
-  <div className="col-6 mb-2">
-    <div className="metric-card bg-bg-card shadow-card rounded-card p-4">
-      <div className="metric-value text-text-primary text-xl font-bold mb-1">{value}</div>
-      <div className="metric-label text-text-muted text-sm">{label}</div>
-    </div>
+  <div className="bg-bg-card rounded-card shadow-card p-6">
+    <div className="text-text-primary text-2xl font-bold mb-2">{value}</div>
+    <div className="text-text-muted text-sm">{label}</div>
   </div>
 )
 
@@ -407,19 +416,16 @@ interface ChartCardProps {
 }
 
 const ChartCard: FC<ChartCardProps> = ({ title, chart }) => (
-  <div className="card bg-bg-card shadow-card rounded-card mb-4">
-    <div className="card-header bg-transparent border-border-default">
-      <h5 className="card-title text-text-primary mb-0">{title}</h5>
+  <div className="bg-bg-card rounded-card shadow-card overflow-hidden">
+    <div className="p-4 border-b border-border-default">
+      <h3 className="text-text-primary text-lg font-semibold">{title}</h3>
     </div>
-    <div className="card-body">
-      <div style={{ height: '300px', width: '100%' }}>
-        {chart}
-      </div>
+    <div className="p-4">
+      {chart}
     </div>
   </div>
 )
 
-// Helper functions
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
   return `${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getDate().toString().padStart(2, '0')}`
