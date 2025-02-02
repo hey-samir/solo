@@ -51,8 +51,14 @@ router.get('/', async (req: Request, res: Response) => {
     .leftJoin(users, eq(feedback.user_id, users.id))
     .orderBy(sort === 'new' ? desc(feedback.created_at) : desc(feedback.upvotes));
 
+    // Ensure we have valid data before mapping
+    if (!Array.isArray(feedbackItems)) {
+      console.log('[Feedback API] Query returned non-array:', feedbackItems);
+      return res.json([]);
+    }
+
     // Ensure we always return an array and format the data
-    const formattedFeedback = (feedbackItems || []).map(item => ({
+    const formattedFeedback = feedbackItems.map(item => ({
       id: item.id,
       title: item.title,
       description: item.description,
@@ -84,8 +90,8 @@ router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, 
     const userId = req.user?.id;
 
     if (!userId) {
-      res.status(401).json({ error: 'Please log in to submit feedback.' });
-      return;
+      console.log('[Feedback API] Unauthorized access attempt');
+      return res.status(401).json({ error: 'Please log in to submit feedback.' });
     }
 
     const [feedbackItem] = await db.insert(feedback)
@@ -133,6 +139,7 @@ router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, 
       username: feedbackWithUser[0].user?.username
     } : null;
 
+    console.log('[Feedback API] Created new feedback:', formattedFeedback);
     res.status(201).json(formattedFeedback);
   } catch (error) {
     console.error('[Feedback API] Error submitting feedback:', error);
