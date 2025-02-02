@@ -1,33 +1,64 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import session from 'express-session';
+import compression from 'compression';
+import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import routes from './routes';
+import passport from './middleware/auth';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
 
 // Basic middleware
+app.use(morgan(isProduction ? 'combined' : 'dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(compression());
+app.use(cookieParser());
 
-// Simple CORS configuration
+// CORS configuration
 app.use(cors({
   origin: isProduction ? 'https://gosolo.nyc' : 'http://localhost:3003',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
-// Health check endpoint
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'development-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: isProduction,
+    httpOnly: true,
+    sameSite: isProduction ? 'strict' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // API Routes
 app.use('/api', routes);
+
+// Serve static files in production
+if (isProduction) {
+  app.use(express.static(path.resolve(__dirname, '../../dist')));
+  app.get('*', (_req, res) => {
+    res.sendFile(path.resolve(__dirname, '../../dist/index.html'));
+  });
+}
 
 // Error handling middleware
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server Error:', err);
   res.status(err.status || 500).json({
-    error: err.message || 'Internal Server Error'
+    error: err.message || 'Internal Server Error',
+    details: process.env.NODE_ENV === 'development' ? err.stack : undefined
   });
 });
 
