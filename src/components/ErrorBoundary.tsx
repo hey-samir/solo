@@ -1,4 +1,5 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react'
+import Error from './Error'
 
 interface Props {
   children: ReactNode
@@ -26,12 +27,13 @@ class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="error-boundary p-4">
-          <h2>Something went wrong</h2>
-          <details style={{ whiteSpace: 'pre-wrap' }}>
-            {this.state.error && this.state.error.toString()}
-          </details>
-        </div>
+        <Error
+          message={this.state.error?.message || 'Something went wrong'}
+          type="page"
+          retry={() => {
+            this.setState({ hasError: false, error: null })
+          }}
+        />
       )
     }
 

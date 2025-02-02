@@ -41,7 +41,7 @@
 }
 
 /* Base Styles */
-html, 
+html,
 body,
 #root {
   background-color: var(--bg-primary) !important;
@@ -285,4 +285,32 @@ body,
   .container {
     padding: 1.5rem;
   }
+}
+
+/* Error Components */
+.error-page {
+  @apply flex items-center justify-center min-h-[60vh];
+}
+
+.error-content {
+  @apply text-center p-8 max-w-md;
+}
+
+.error-inline {
+  @apply bg-red-500/10 border border-red-500/20 rounded-lg p-4 my-4;
+}
+
+/* Error Text */
+.text-error {
+  @apply text-red-500;
+}
+
+/* Error Icons */
+.error-icon {
+  @apply text-red-500;
+}
+
+/* Error Buttons */
+.error-retry {
+  @apply text-purple-600 hover:text-purple-700 transition-colors;
 }

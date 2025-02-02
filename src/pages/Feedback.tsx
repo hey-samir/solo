@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import client from '../api/client';
+import { toast } from 'react-hot-toast';
+import Error from '../components/Error';
 
 interface FeedbackItem {
   id: number;
@@ -37,11 +39,16 @@ const Feedback: React.FC = () => {
     category: '',
   });
 
-  const { data: feedbackItems, refetch } = useQuery<FeedbackItem[]>({
+  const { data: feedbackItems = [], isLoading, error, refetch } = useQuery<FeedbackItem[]>({
     queryKey: ['feedback', sort],
     queryFn: async () => {
-      const response = await client.get(`/api/feedback?sort=${sort}`);
-      return response.data;
+      try {
+        const response = await client.get(`/api/feedback?sort=${sort}`);
+        return response.data || [];
+      } catch (error) {
+        console.error('Error fetching feedback:', error);
+        throw error;
+      }
     }
   });
 
@@ -59,7 +66,11 @@ const Feedback: React.FC = () => {
         description: '',
         category: '',
       });
+      toast.success('Feedback submitted successfully!');
       refetch();
+    },
+    onError: () => {
+      toast.error('Failed to submit feedback. Please try again.');
     }
   });
 
@@ -82,40 +93,54 @@ const Feedback: React.FC = () => {
     }
   };
 
+  if (isLoading) {
+    return <div className="text-center mt-4">Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <Error 
+        message="Error loading feedback. Please try again later."
+        type="page"
+        retry={() => refetch()}
+      />
+    );
+  }
+
   return (
-    <div className="row justify-content-center">
-      <div className="col-md-4 mb-4">
-        <div className="card bg-dark">
-          <div className="card-body">
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
-              <div className="mb-3">
-                <label className="form-label required-field">Title</label>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-4">
+          <div className="bg-gray-800 rounded-lg p-6">
+            <h2 className="text-2xl font-bold mb-4">Submit Feedback</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Title</label>
                 <input
                   type="text"
-                  className="form-control"
-                  placeholder="Short, descriptive title"
-                  required
+                  className="w-full px-3 py-2 bg-gray-700 rounded-md"
                   value={form.title}
                   onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
+                  required
                 />
               </div>
-              <div className="mb-3">
-                <label className="form-label required-field">Description</label>
+              <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
                 <textarea
-                  className="form-control"
-                  placeholder="Detailed description of your feedback"
-                  required
+                  className="w-full px-3 py-2 bg-gray-700 rounded-md"
+                  rows={4}
                   value={form.description}
                   onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))}
+                  required
                 />
               </div>
-              <div className="mb-3">
-                <label className="form-label required-field">Category</label>
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
                 <select
-                  className="form-select"
-                  required
+                  className="w-full px-3 py-2 bg-gray-700 rounded-md"
                   value={form.category}
                   onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))}
+                  required
                 >
                   <option value="">Select a category</option>
                   {categories.map(category => (
@@ -125,57 +150,62 @@ const Feedback: React.FC = () => {
                   ))}
                 </select>
               </div>
-              <div className="mb-3">
-                <label className="form-label">Screenshot</label>
+              <div>
+                <label className="block text-sm font-medium mb-1">Screenshot (optional)</label>
                 <input
                   type="file"
-                  className="form-control"
+                  className="w-full px-3 py-2 bg-gray-700 rounded-md"
                   accept="image/*"
                   onChange={handleFileChange}
                 />
               </div>
-              <button 
-                type="submit" 
-                className="btn bg-solo-purple text-white w-100"
+              <button
+                type="submit"
+                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
                 disabled={submitFeedback.isPending}
               >
-                {submitFeedback.isPending ? 'Submitting...' : 'Submit'}
+                {submitFeedback.isPending ? 'Submitting...' : 'Submit Feedback'}
               </button>
             </form>
           </div>
         </div>
-      </div>
 
-      <div className="col-md-4">
-        <div className="card bg-dark">
-          <div className="card-header">
-            <h4 className="card-title mb-0">Community Feedback</h4>
-          </div>
-          <div className="card-body">
-            <div className="btn-group mb-3 w-100">
-              <button
-                className={`btn btn-outline-secondary ${sort === 'new' ? 'active' : ''}`}
-                onClick={() => setSort('new')}
-              >
-                Latest
-              </button>
-              <button
-                className={`btn btn-outline-secondary ${sort === 'top' ? 'active' : ''}`}
-                onClick={() => setSort('top')}
-              >
-                Top
-              </button>
-            </div>
-
-            {feedbackItems?.map(item => (
-              <div key={item.id} className="feedback-item mb-3">
-                <h6>{item.title}</h6>
-                <p className="mb-1">{item.description}</p>
-                <small className="text-muted">
-                  By @{item.user.username} on {new Date(item.created_at).toLocaleDateString()}
-                </small>
+        <div className="space-y-4">
+          <div className="bg-gray-800 rounded-lg p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl font-bold">Community Feedback</h2>
+              <div className="flex space-x-2">
+                <button
+                  className={`px-4 py-2 rounded ${sort === 'new' ? 'bg-purple-600' : 'bg-gray-700'}`}
+                  onClick={() => setSort('new')}
+                >
+                  Latest
+                </button>
+                <button
+                  className={`px-4 py-2 rounded ${sort === 'top' ? 'bg-purple-600' : 'bg-gray-700'}`}
+                  onClick={() => setSort('top')}
+                >
+                  Top
+                </button>
               </div>
-            ))}
+            </div>
+            <div className="space-y-4">
+              {feedbackItems && feedbackItems.length > 0 ? (
+                feedbackItems.map(item => (
+                  <div key={item.id} className="bg-gray-700 rounded-lg p-4">
+                    <h3 className="font-semibold text-lg">{item.title}</h3>
+                    <p className="text-gray-300 mt-2">{item.description}</p>
+                    <div className="mt-2 text-sm text-gray-400">
+                      <span>By @{item.user.username}</span>
+                      <span className="mx-2">•</span>
+                      <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-400">No feedback items yet</p>
+              )}
+            </div>
           </div>
         </div>
       </div>

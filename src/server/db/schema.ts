@@ -52,6 +52,17 @@ export interface Climb {
   created_at: Date;
 }
 
+export interface Feedback {
+  id: number;
+  title: string;
+  description: string;
+  category: string;
+  screenshot_url?: string;
+  user_id: number;
+  upvotes: number;
+  created_at: Date;
+}
+
 export const gyms = pgTable('gym', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
@@ -104,9 +115,22 @@ export const climbs = pgTable('climb', {
   created_at: timestamp('created_at').defaultNow()
 });
 
+export const feedbacks = pgTable('feedback', {
+  id: serial('id').primaryKey(),
+  title: text('title').notNull(),
+  description: text('description').notNull(),
+  category: text('category').notNull(),
+  screenshot_url: text('screenshot_url'),
+  user_id: integer('user_id').notNull().references(() => users.id),
+  upvotes: integer('upvotes').notNull().default(0),
+  created_at: timestamp('created_at').defaultNow()
+});
+
+
 export default {
   gyms,
   users,
   routes,
-  climbs
+  climbs,
+  feedbacks
 };
