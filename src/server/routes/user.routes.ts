@@ -72,38 +72,32 @@ router.get('/me/stats/charts', async (req: AuthenticatedRequest, res) => {
       return;
     }
 
-    // Mock chart data with correct structure matching ChartData interface
+    const today = new Date();
+    const labels = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      return d.toISOString().split('T')[0];
+    }).reverse();
+
     const mockChartData = {
       ascentsByDifficulty: {
         labels: ['5.8', '5.9', '5.10a', '5.10b', '5.10c', '5.10d', '5.11a'],
         data: [10, 15, 8, 12, 5, 3, 1]
       },
       sendsByDate: {
-        labels: Array.from({ length: 7 }, (_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          return d.toISOString().split('T')[0];
-        }).reverse(),
+        labels: labels,
         sends: [5, 7, 4, 8, 6, 9, 7],
         attempts: [2, 3, 1, 4, 2, 3, 2]
       },
       metricsOverTime: {
-        labels: Array.from({ length: 7 }, (_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          return d.toISOString().split('T')[0];
-        }).reverse(),
+        labels: labels,
         metrics: [{
           name: 'Send Rate',
           data: [75, 80, 85, 82, 88, 85, 90]
         }]
       },
       climbsPerSession: {
-        labels: Array.from({ length: 7 }, (_, i) => {
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          return d.toISOString().split('T')[0];
-        }).reverse(),
+        labels: labels,
         data: [8, 10, 7, 12, 9, 11, 10]
       },
       sendRateByColor: {
