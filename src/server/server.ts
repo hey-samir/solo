@@ -4,7 +4,6 @@ import path from 'path';
 import session from 'express-session';
 import compression from 'compression';
 import morgan from 'morgan';
-import { createClient } from '@vercel/postgres';
 import routes from './routes';
 import feedbackRoutes from './routes/feedback.routes';
 import { db } from './db';
@@ -19,7 +18,10 @@ if (!isProduction) {
   console.log('Environment variables:', {
     NODE_ENV: process.env.NODE_ENV,
     REPL_ID: process.env.REPL_ID,
-    REPL_OWNER: process.env.REPL_OWNER
+    REPL_OWNER: process.env.REPL_OWNER,
+    DATABASE_URL: process.env.DATABASE_URL ? 'set' : 'not set',
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? 'set' : 'not set',
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? 'set' : 'not set'
   });
 }
 
@@ -47,14 +49,14 @@ const corsOptions = {
       ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(cors(corsOptions));
 
 // Session configuration with secure settings
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret-key',
+  secret: process.env.SESSION_SECRET || 'development-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -69,14 +71,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// API Routes - Make sure these come before static file serving
+// API Routes
 app.use('/api', routes);
 app.use('/api/feedback', feedbackRoutes);
 
-// Get the absolute path to the dist directory
+// Serve static files
 const distPath = path.resolve(__dirname, '../../dist');
-
-// Serve static files with proper MIME types and cache control
 app.use(express.static(distPath, {
   etag: true,
   lastModified: true,
@@ -98,7 +98,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Handle all routes for the SPA - This must come after API routes
+// Handle all routes for the SPA
 app.get('/*', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });

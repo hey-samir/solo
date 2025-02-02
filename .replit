@@ -69,10 +69,6 @@ args = "Production Build"
 task = "workflow.run"
 args = "Backend Server"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Backend API"
-
 [[workflows.workflow]]
 name = "Production Build"
 author = "agent"
@@ -118,21 +114,6 @@ args = "NODE_ENV=development tsx src/server/db/seed.ts"
 
 [[workflows.workflow]]
 name = "Backend Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development tsx src/server/server.ts"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Backend API"
 author = "agent"
 
 [workflows.workflow.metadata]
