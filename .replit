@@ -73,6 +73,10 @@ args = "Start Server"
 task = "workflow.run"
 args = "Build and Start"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Production Build"
+
 [[workflows.workflow]]
 name = "Start Frontend"
 author = "agent"
@@ -171,6 +175,29 @@ args = """
     echo \"Starting production server...\" &&
     cd /home/runner/workspace &&
     NODE_ENV=production NODE_DEBUG=module node --enable-source-maps dist/server/server.js
+    """
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Production Build"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    echo \"Starting production build...\" &&
+    rm -rf dist &&
+    mkdir -p dist/server &&
+    NODE_ENV=production npx tsc --project tsconfig.server.json &&
+    NODE_ENV=production npx vite build &&
+    NODE_ENV=production PORT=5000 NODE_PATH=./dist/server tsx src/server/server.ts
     """
 waitForPort = 5000
 

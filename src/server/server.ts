@@ -22,8 +22,17 @@ app.use(compression());
 app.use(cookieParser());
 
 // CORS configuration
+const corsOrigins = isProduction 
+  ? ['https://gosolo.nyc']
+  : ['http://localhost:3003'];
+
+// Add staging URL if available
+if (isProduction && process.env.CORS_ORIGIN) {
+  corsOrigins.push(process.env.CORS_ORIGIN);
+}
+
 app.use(cors({
-  origin: isProduction ? 'https://gosolo.nyc' : 'http://localhost:3003',
+  origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
@@ -60,19 +69,19 @@ app.use('/api', routes);
 
 // Handle static files and client routing
 if (isProduction) {
-  // Use relative path resolution from current directory
-  const distPath = path.join(__dirname, '..', '..');
+  // Use absolute path resolution
+  const distPath = path.resolve(__dirname, '..', '..');
   console.log('Static files path:', distPath);
 
   // Serve static files with caching headers
-  app.use(express.static(path.join(distPath), {
+  app.use(express.static(path.join(distPath, 'dist'), {
     maxAge: '1d',
     index: false
   }));
 
   // For all other routes, serve index.html
-  app.get('*', (_req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'dist', 'index.html'));
   });
 } else {
   // Development: redirect to dev server
@@ -96,7 +105,7 @@ if (require.main === module) {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
     console.log('Environment:', process.env.NODE_ENV);
     console.log('Current directory:', __dirname);
-    console.log('Dist path:', path.join(__dirname, '..', '..'));
+    console.log('Dist path:', path.resolve(__dirname, '..', '..'));
   });
 }
 
