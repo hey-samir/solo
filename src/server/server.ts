@@ -60,21 +60,19 @@ app.use('/api', routes);
 
 // Handle static files and client routing
 if (isProduction) {
-  // Get the absolute path to the dist directory
-  const distPath = path.resolve(process.cwd(), 'dist');
+  // Use relative path resolution from current directory
+  const distPath = path.join(__dirname, '..', '..');
   console.log('Static files path:', distPath);
 
   // Serve static files with caching headers
-  app.use(express.static(distPath, {
+  app.use(express.static(path.join(distPath), {
     maxAge: '1d',
-    index: false // Don't automatically serve index.html
+    index: false
   }));
 
   // For all other routes, serve index.html
   app.get('*', (_req, res) => {
-    const indexPath = path.join(distPath, 'index.html');
-    console.log('Serving index.html from:', indexPath);
-    res.sendFile(indexPath);
+    res.sendFile(path.join(distPath, 'index.html'));
   });
 } else {
   // Development: redirect to dev server
@@ -97,6 +95,8 @@ if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
     console.log('Environment:', process.env.NODE_ENV);
+    console.log('Current directory:', __dirname);
+    console.log('Dist path:', path.join(__dirname, '..', '..'));
   });
 }
 

@@ -14,8 +14,9 @@
     "sourceMap": true,
     "rootDir": "./src/server",
     "baseUrl": ".",
+    "resolveJsonModule": true,
     "paths": {
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*", "src/server/*"]
     }
   },
   "include": ["src/server/**/*"],
