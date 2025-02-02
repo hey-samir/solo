@@ -2,11 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import session from 'express-session';
+import pgSession from 'connect-pg-simple';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import routes from './routes';
 import passport from './middleware/auth';
+import { Pool } from 'pg';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -26,8 +28,18 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
-// Session configuration
+// PostgreSQL session store setup
+const PostgresqlStore = pgSession(session);
+const sessionPool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
+
+// Session configuration with PostgreSQL store
 app.use(session({
+  store: new PostgresqlStore({
+    pool: sessionPool,
+    tableName: 'user_sessions'
+  }),
   secret: process.env.SESSION_SECRET || 'development-secret-key',
   resave: false,
   saveUninitialized: false,
@@ -50,7 +62,10 @@ app.use('/api', routes);
 if (isProduction) {
   // Production: serve from dist
   const distPath = path.join(__dirname, '../../../dist');
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, {
+    index: false, // Don't serve index.html for all routes
+    maxAge: '1d' // Cache static assets for 1 day
+  }));
 
   app.get('*', (_req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));

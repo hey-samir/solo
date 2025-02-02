@@ -13,23 +13,23 @@ const getUserClimbs = async (req, res, next) => {
         }
         const userClimbs = await db_1.db
             .select({
-            id: schema_1.climbs.id,
-            route_id: schema_1.climbs.route_id,
-            status: schema_1.climbs.status,
-            rating: schema_1.climbs.rating,
-            tries: schema_1.climbs.tries,
-            notes: schema_1.climbs.notes,
-            points: schema_1.climbs.points,
-            created_at: schema_1.climbs.created_at,
+            id: schema_1.sends.id,
+            route_id: schema_1.sends.route_id,
+            status: schema_1.sends.status,
+            rating: schema_1.sends.rating,
+            tries: schema_1.sends.tries,
+            notes: schema_1.sends.notes,
+            points: schema_1.sends.points,
+            created_at: schema_1.sends.created_at,
             route: {
                 color: schema_1.routes.color,
                 grade: schema_1.routes.grade
             }
         })
-            .from(schema_1.climbs)
-            .innerJoin(schema_1.routes, (0, drizzle_orm_1.eq)(schema_1.climbs.route_id, schema_1.routes.id))
-            .where((0, drizzle_orm_1.eq)(schema_1.climbs.user_id, req.user.id))
-            .orderBy(schema_1.climbs.created_at);
+            .from(schema_1.sends)
+            .innerJoin(schema_1.routes, (0, drizzle_orm_1.eq)(schema_1.sends.route_id, schema_1.routes.id))
+            .where((0, drizzle_orm_1.eq)(schema_1.sends.user_id, req.user.id))
+            .orderBy(schema_1.sends.created_at);
         const transformedClimbs = userClimbs.map(climb => ({
             id: climb.id,
             routeId: climb.route_id,

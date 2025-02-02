@@ -8,11 +8,13 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const express_session_1 = __importDefault(require("express-session"));
+const connect_pg_simple_1 = __importDefault(require("connect-pg-simple"));
 const compression_1 = __importDefault(require("compression"));
 const morgan_1 = __importDefault(require("morgan"));
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const routes_1 = __importDefault(require("./routes"));
 const auth_1 = __importDefault(require("./middleware/auth"));
+const pg_1 = require("pg");
 const app = (0, express_1.default)();
 exports.app = app;
 const isProduction = process.env.NODE_ENV === 'production';
@@ -29,8 +31,17 @@ app.use((0, cors_1.default)({
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
-// Session configuration
+// PostgreSQL session store setup
+const PostgresqlStore = (0, connect_pg_simple_1.default)(express_session_1.default);
+const sessionPool = new pg_1.Pool({
+    connectionString: process.env.DATABASE_URL,
+});
+// Session configuration with PostgreSQL store
 app.use((0, express_session_1.default)({
+    store: new PostgresqlStore({
+        pool: sessionPool,
+        tableName: 'user_sessions'
+    }),
     secret: process.env.SESSION_SECRET || 'development-secret-key',
     resave: false,
     saveUninitialized: false,
@@ -49,13 +60,17 @@ app.use('/api', routes_1.default);
 // Serve static files and handle client routing
 if (isProduction) {
     // Production: serve from dist
-    app.use(express_1.default.static(path_1.default.join(__dirname, '../../')));
+    const distPath = path_1.default.join(__dirname, '../../../dist');
+    app.use(express_1.default.static(distPath, {
+        index: false, // Don't serve index.html for all routes
+        maxAge: '1d' // Cache static assets for 1 day
+    }));
     app.get('*', (_req, res) => {
-        res.sendFile(path_1.default.join(__dirname, '../../index.html'));
+        res.sendFile(path_1.default.join(distPath, 'index.html'));
     });
 }
 else {
-    // Development: serve static files and redirect to dev server
+    // Development: redirect to dev server
     app.get('/', (_req, res) => {
         res.redirect('http://localhost:3003');
     });
