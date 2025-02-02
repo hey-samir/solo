@@ -2,6 +2,7 @@ import { Router } from 'express';
 import userRoutes from './user.routes';
 import climbRoutes from './climb.routes';
 import sessionRoutes from './session.routes';
+import routesHandler from './routes';
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.get('/health', (_req, res) => {
 });
 
 // Mount feature routes
+router.use('/routes', routesHandler);
 router.use('/users', userRoutes);
 router.use('/climbs', climbRoutes);
 router.use('/sessions', sessionRoutes);

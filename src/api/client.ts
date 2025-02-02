@@ -20,9 +20,12 @@ const client = axios.create({
 
 // Add response interceptor for error handling
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('API Response:', response);
+    return response;
+  },
   (error) => {
-    console.error('API Error:', error.response?.data || error.message)
+    console.error('API Error:', error.response?.data || error.message);
 
     // Handle network errors
     if (!error.response) {
@@ -37,7 +40,7 @@ client.interceptors.response.use(
       // Handle unauthorized access
       window.location.href = '/login'
     }
-    return Promise.reject(error)
+    return Promise.reject(error.response?.data || error)
   }
 )
 

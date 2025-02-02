@@ -21,7 +21,6 @@ interface SendFormData {
   notes: string
 }
 
-// Points calculation function
 const calculatePoints = (grade: string, rating: number, status: boolean, tries: number): number => {
   if (!grade) return 0;
   const [_, mainGrade, subGrade] = grade.match(/5\.(\d+)([a-d])?/) || [null, '0', ''];
@@ -56,12 +55,15 @@ const Sends: FC = () => {
     queryKey: ['routes'],
     queryFn: async () => {
       try {
-        const response = await client.get('/api/routes')
+        console.log('Fetching routes...');
+        const response = await client.get('/routes')
+        console.log('Routes response:', response);
         if (!response.data) {
           throw new Error('No data received from server')
         }
         return Array.isArray(response.data) ? response.data : []
       } catch (err: any) {
+        console.error('Error fetching routes:', err);
         const queryError: QueryError = {
           message: err.response?.data?.message || 'Failed to fetch routes',
           status: err.response?.status
@@ -73,10 +75,9 @@ const Sends: FC = () => {
 
   const sendMutation = useMutation({
     mutationFn: async (data: SendFormData) => {
-      return await client.post('/api/climbs', data)
+      return await client.post('/climbs', data)
     },
     onSuccess: () => {
-      // Reset form and show success message
       setFormData({
         route_id: 0,
         tries: 1,
@@ -104,7 +105,7 @@ const Sends: FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.route_id === 0) {
-      return; // Don't submit if no route is selected
+      return;
     }
     sendMutation.mutate(formData);
   };

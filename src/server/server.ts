@@ -58,10 +58,9 @@ app.use(session({
   }
 }));
 
-// Routes
+// API Routes - These must come before static file serving
 app.use('/api', routes);
 app.use('/api/feedback', feedbackRoutes);
-
 
 // Get the absolute path to the dist directory
 const distPath = path.resolve(__dirname, '../../dist');
@@ -88,12 +87,12 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
   });
 });
 
-// Handle all routes for the SPA
+// Handle all routes for the SPA - This must come after API routes
 app.get('/*', (req, res) => {
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = parseInt(process.env.PORT || '5000', 10);
 const HOST = '0.0.0.0';
 
 app.listen(PORT, HOST, () => {
