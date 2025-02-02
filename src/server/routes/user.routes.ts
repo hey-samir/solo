@@ -1,4 +1,4 @@
-import { Router, Request } from 'express';
+import { Router, Request, Response } from 'express';
 import { db } from '../db';
 import { users, User } from '../db/schema';
 import { eq } from 'drizzle-orm';
@@ -25,17 +25,16 @@ const formatUserResponse = (user: any) => ({
   } : null
 });
 
-// Protect all stats routes with authentication
+// Apply authentication middleware to protected routes
 router.use('/me', isAuthenticated);
 
 // Get user stats
-router.get('/me/stats', async (req: AuthenticatedRequest, res) => {
+router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
+    console.log('[Stats API] Fetching stats for user:', req.user?.id);
 
-    if (!userId) {
-      res.status(401).json({ error: 'Please log in to view statistics' });
-      return;
+    if (!req.user?.id) {
+      return res.status(401).json({ error: 'Please log in to view statistics' });
     }
 
     // For now using mock data, will replace with actual DB queries later
@@ -52,24 +51,24 @@ router.get('/me/stats', async (req: AuthenticatedRequest, res) => {
       avgAttemptsPerClimb: 2.5
     };
 
+    console.log('[Stats API] Returning stats for user:', req.user.id);
     res.json(mockStats);
   } catch (error) {
-    console.error('Error fetching user stats:', error);
+    console.error('[Stats API] Error fetching stats:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch user statistics',
+      error: 'Failed to fetch statistics',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
 
 // Get user stats charts data
-router.get('/me/stats/charts', async (req: AuthenticatedRequest, res) => {
+router.get('/me/stats/charts', async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const userId = req.user?.id;
+    console.log('[Charts API] Fetching chart data for user:', req.user?.id);
 
-    if (!userId) {
-      res.status(401).json({ error: 'Please log in to view statistics' });
-      return;
+    if (!req.user?.id) {
+      return res.status(401).json({ error: 'Please log in to view statistics' });
     }
 
     const today = new Date();
@@ -85,19 +84,19 @@ router.get('/me/stats/charts', async (req: AuthenticatedRequest, res) => {
         data: [10, 15, 8, 12, 5, 3, 1]
       },
       sendsByDate: {
-        labels: labels,
+        labels,
         sends: [5, 7, 4, 8, 6, 9, 7],
         attempts: [2, 3, 1, 4, 2, 3, 2]
       },
       metricsOverTime: {
-        labels: labels,
+        labels,
         metrics: [{
           name: 'Send Rate',
           data: [75, 80, 85, 82, 88, 85, 90]
         }]
       },
       climbsPerSession: {
-        labels: labels,
+        labels,
         data: [8, 10, 7, 12, 9, 11, 10]
       },
       sendRateByColor: {
@@ -106,9 +105,10 @@ router.get('/me/stats/charts', async (req: AuthenticatedRequest, res) => {
       }
     };
 
+    console.log('[Charts API] Returning chart data for user:', req.user.id);
     res.json(mockChartData);
   } catch (error) {
-    console.error('Error fetching chart data:', error);
+    console.error('[Charts API] Error fetching chart data:', error);
     res.status(500).json({ 
       error: 'Failed to fetch chart data',
       details: error instanceof Error ? error.message : 'Unknown error'
@@ -117,7 +117,7 @@ router.get('/me/stats/charts', async (req: AuthenticatedRequest, res) => {
 });
 
 // Get user profile by username
-router.get('/:username', async (req, res) => {
+router.get('/:username', async (req: Request, res: Response) => {
   try {
     const username = req.params.username;
     const cleanUsername = username.startsWith('@') ? username.slice(1) : username;

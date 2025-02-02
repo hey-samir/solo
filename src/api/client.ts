@@ -24,6 +24,7 @@ client.interceptors.request.use(
     console.log('API Request:', {
       method: config.method,
       url: config.url,
+      headers: config.headers,
       baseURL: config.baseURL
     });
     return config;
@@ -63,6 +64,6 @@ client.interceptors.response.use(
     }
     return Promise.reject(error.response?.data || error)
   }
-)
+);
 
-export default client
+export default client;
