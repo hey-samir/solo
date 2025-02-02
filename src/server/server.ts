@@ -5,8 +5,6 @@ import session from 'express-session';
 import compression from 'compression';
 import morgan from 'morgan';
 import routes from './routes';
-import feedbackRoutes from './routes/feedback.routes';
-import { db } from './db';
 import passport from './middleware/auth';
 
 const app = express();
@@ -65,9 +63,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// API Routes
+// API Routes with /api prefix
 app.use('/api', routes);
-app.use('/api/feedback', feedbackRoutes);
 
 // Serve static files
 const distPath = path.resolve(__dirname, '../../dist');
@@ -88,7 +85,8 @@ app.use((req, res, next) => {
   console.log('Auth Debug:', {
     isAuthenticated: req.isAuthenticated?.(),
     session: req.session?.id,
-    user: req.user?.id
+    user: req.user?.id,
+    path: req.path
   });
   next();
 });

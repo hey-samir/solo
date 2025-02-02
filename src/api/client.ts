@@ -2,13 +2,14 @@ import axios from 'axios'
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const baseURL = isDevelopment
-  ? 'http://localhost:5000'  // Changed from /api to include full URL
-  : '';
+  ? 'http://localhost:5000/api'
+  : '/api';
 
-console.log('API client configuration:')
-console.log('- Environment:', process.env.NODE_ENV)
-console.log('- Base URL:', baseURL)
-console.log('- Origin:', window.location.origin)
+console.log('API client configuration:', {
+  environment: process.env.NODE_ENV,
+  baseURL,
+  origin: window.location.origin
+});
 
 const client = axios.create({
   baseURL,
@@ -30,6 +31,7 @@ client.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -47,7 +49,8 @@ client.interceptors.response.use(
     console.error('API Error:', {
       message: error.message,
       response: error.response?.data,
-      status: error.response?.status
+      status: error.response?.status,
+      config: error.config
     });
 
     // Handle network errors
