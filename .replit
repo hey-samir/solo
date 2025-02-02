@@ -124,9 +124,10 @@ args = """
     echo \"Starting staging build...\" &&
     rm -rf dist &&
     mkdir -p dist/server &&
+    set -a && source .env.staging && set +a &&
     NODE_ENV=staging npx tsc --project tsconfig.server.json &&
     NODE_ENV=staging npx vite build &&
-    NODE_ENV=staging PORT=5000 NODE_PATH=./dist/server tsx src/server/server.ts
+    NODE_ENV=staging PORT=5000 NODE_PATH=./dist/server tsx --require dotenv/config src/server/server.ts dotenv_config_path=.env.staging
     """
 waitForPort = 5000
 
