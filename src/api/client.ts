@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const baseURL = isDevelopment
-  ? 'http://localhost:5000/api'
+  ? 'http://0.0.0.0:5000/api'
   : '/api';
 
 console.log('API client configuration:', {
@@ -24,6 +24,7 @@ client.interceptors.request.use(
   (config) => {
     // Add CORS headers
     config.headers['Access-Control-Allow-Credentials'] = 'true';
+    config.headers['Access-Control-Allow-Origin'] = window.location.origin;
 
     // Additional logging for feedback-related requests
     if (config.url?.includes('feedback')) {
@@ -33,16 +34,8 @@ client.interceptors.request.use(
         fullUrl: `${config.baseURL}${config.url}`,
         headers: config.headers,
         data: config.data,
+        origin: window.location.origin,
         timestamp: new Date().toISOString()
-      });
-    } else {
-      console.log('API Request:', {
-        method: config.method,
-        url: config.url,
-        headers: config.headers,
-        baseURL: config.baseURL,
-        withCredentials: config.withCredentials,
-        data: config.data
       });
     }
     return config;
@@ -64,12 +57,6 @@ client.interceptors.response.use(
         headers: response.headers,
         timestamp: new Date().toISOString()
       });
-    } else {
-      console.log('API Response:', {
-        status: response.status,
-        data: response.data,
-        headers: response.headers
-      });
     }
     return response;
   },
@@ -85,16 +72,10 @@ client.interceptors.response.use(
           fullUrl: `${error.config?.baseURL}${error.config?.url}`,
           method: error.config?.method,
           headers: error.config?.headers,
-          data: error.config?.data
+          data: error.config?.data,
+          origin: window.location.origin
         },
         timestamp: new Date().toISOString()
-      });
-    } else {
-      console.error('API Error:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        config: error.config
       });
     }
 
@@ -108,7 +89,6 @@ client.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      // Handle unauthorized access
       window.location.href = '/login';
     }
     return Promise.reject(error.response?.data || error);
