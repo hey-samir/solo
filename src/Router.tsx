@@ -78,7 +78,12 @@ const Router: React.FC = () => {
           </ProtectedWrapper>
         } />
 
-        {/* Profile Routes - Order is important */}
+        {/* Profile Routes - Reordered for proper matching */}
+        <Route path="/profile/:username" element={
+          <ProtectedWrapper requireAuth={false}>
+            <Profile />
+          </ProtectedWrapper>
+        } />
         <Route path="/profile/@:username" element={
           <ProtectedWrapper requireAuth={false}>
             <Profile />

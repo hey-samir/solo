@@ -5,27 +5,30 @@
 @tailwind utilities;
 
 /* Basic reset and styles */
-body {
-  margin: 0;
-  font-family: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-}
-
 :root {
   --solo-purple: #7442d6;
   --solo-purple-rgb: 116, 66, 214;
   --solo-purple-light: #9b75ff;
   --bg-primary: #1e2638;
   --bg-card: #4A5D79;
+  --bg-kpi-card: #2A3A54;
   --text-primary: #ffffff;
   --text-primary-rgb: 255, 255, 255;
   --text-muted: #CBD5E1;
   --border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Apply Lexend font globally */
+* {
+  font-family: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 @layer components {
@@ -43,6 +46,10 @@ body {
 
   .card {
     @apply bg-bg-card rounded-card shadow-card overflow-hidden;
+  }
+
+  .kpi-card {
+    @apply bg-bg-kpi-card rounded-card shadow-card overflow-hidden;
   }
 
   .card-body {
