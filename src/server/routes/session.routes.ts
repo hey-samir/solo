@@ -7,19 +7,20 @@ import { isAuthenticated } from '../middleware/auth';
 const router = Router();
 
 interface AuthenticatedRequest extends Request {
-  user?: any;
+  user?: Express.User;
 }
 
 // Get all sessions with proper error handling
-router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    console.log('[Sessions API] Request received:', {
-      userId: req.user?.id,
-      session: req.session?.id,
-      isAuthenticated: req.isAuthenticated?.()
-    });
+    if (!req.user?.id) {
+      res.status(401).json({
+        error: 'Please log in to view your climbing sessions.',
+        details: 'Authentication required'
+      });
+      return;
+    }
 
-    // Get sessions by grouping sends by date
     const sessions = await db
       .select({
         date: sql<string>`date_trunc('day', ${sends.created_at})::date`.mapWith(String),
@@ -36,11 +37,6 @@ router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response
       .where(eq(sends.user_id, req.user.id))
       .groupBy(sql`date_trunc('day', ${sends.created_at})::date`)
       .orderBy(sql`date_trunc('day', ${sends.created_at})::date desc`);
-
-    console.log('[Sessions API] Retrieved sessions:', {
-      count: sessions.length,
-      sample: sessions.slice(0, 2)
-    });
 
     const formattedSessions = sessions.map(session => ({
       id: session.date,

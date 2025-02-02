@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { db } from '../db';
-import { users, User } from '../db/schema';
+import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 // Will be replaced by actual credentials from environment variables
@@ -36,7 +36,7 @@ passport.use(
         : 'http://localhost:5000/auth/google/callback',
       scope: ['profile', 'email']
     },
-    async (accessToken, refreshToken, profile, done) => {
+    async (_accessToken, _refreshToken, profile, done) => {
       try {
         console.log('Google OAuth callback:', { profile_id: profile.id });
 
@@ -49,25 +49,26 @@ passport.use(
 
         if (existingUser.length > 0) {
           console.log('Existing user found:', existingUser[0].id);
-          return done(null, existingUser[0]);
+          return done(null, existingUser[0] as Express.User);
         }
 
         // Create new user if doesn't exist
         const [newUser] = await db
           .insert(users)
           .values({
-            email: profile.emails?.[0].value,
             username: profile.displayName,
             name: profile.displayName,
+            email: profile.emails?.[0].value as string,
             profile_photo: profile.photos?.[0].value,
             password_hash: '', // Google auth doesn't need password
+            created_at: new Date(),
             member_since: new Date(),
-            user_type: 'user'
+            user_type: 'user' as const
           })
           .returning();
 
         console.log('New user created:', newUser.id);
-        return done(null, newUser);
+        return done(null, newUser as Express.User);
       } catch (error) {
         console.error('OAuth error:', error);
         return done(error as Error);
@@ -97,7 +98,7 @@ passport.deserializeUser(async (id: number, done) => {
       return done(null, false);
     }
 
-    done(null, user);
+    done(null, user as Express.User);
   } catch (error) {
     console.error('Deserialization error:', error);
     done(error);

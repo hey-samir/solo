@@ -7,17 +7,18 @@ import { isAuthenticated } from '../middleware/auth';
 const router = Router();
 
 interface AuthenticatedRequest extends Request {
-  user?: any;
+  user?: Express.User;
 }
 
 // Get user stats
-router.get('/me/stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/me/stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     if (!req.user?.id) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         error: 'Please log in to view your climbing statistics.',
         details: 'Authentication required' 
       });
+      return;
     }
 
     const stats = await db.select({
@@ -47,13 +48,14 @@ router.get('/me/stats', isAuthenticated, async (req: AuthenticatedRequest, res: 
 });
 
 // Get user profile
-router.get('/profile', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/profile', isAuthenticated, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     if (!req.user?.id) {
-      return res.status(401).json({ 
+      res.status(401).json({ 
         error: 'Please log in to view your profile.',
         details: 'Authentication required' 
       });
+      return;
     }
 
     const [userProfile] = await db
@@ -63,10 +65,11 @@ router.get('/profile', isAuthenticated, async (req: AuthenticatedRequest, res: R
       .limit(1);
 
     if (!userProfile) {
-      return res.status(404).json({ 
+      res.status(404).json({ 
         error: 'Profile not found.',
         details: 'User profile could not be located' 
       });
+      return;
     }
 
     res.json({

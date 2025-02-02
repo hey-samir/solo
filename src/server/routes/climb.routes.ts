@@ -7,17 +7,21 @@ import { isAuthenticated } from '../middleware/auth';
 const router = Router();
 
 interface AuthenticatedRequest extends Request {
-  user?: any;
+  user?: Express.User;
 }
 
 // Apply authentication middleware
 router.use(isAuthenticated);
 
 // Get all climbs
-router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     if (!req.user?.id) {
-      return res.status(401).json({ error: 'Please log in to view climbs' });
+      res.status(401).json({ 
+        error: 'Please log in to view climbs',
+        details: 'Authentication required'
+      });
+      return;
     }
 
     const climbs = await db
@@ -38,10 +42,14 @@ router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response
 });
 
 // Get specific climb
-router.get('/:id', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+router.get('/:id', isAuthenticated, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     if (!req.user?.id) {
-      return res.status(401).json({ error: 'Please log in to view climb details' });
+      res.status(401).json({ 
+        error: 'Please log in to view climb details',
+        details: 'Authentication required'
+      });
+      return;
     }
 
     const climb = await db
@@ -52,7 +60,11 @@ router.get('/:id', isAuthenticated, async (req: AuthenticatedRequest, res: Respo
       .limit(1);
 
     if (!climb.length) {
-      return res.status(404).json({ error: 'Climb not found' });
+      res.status(404).json({ 
+        error: 'Climb not found',
+        details: 'The requested climb could not be found'
+      });
+      return;
     }
 
     res.json(climb[0]);

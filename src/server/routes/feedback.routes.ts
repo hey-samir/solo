@@ -32,7 +32,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // Get feedback items with optional sorting
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const { sort = 'new' } = req.query;
     console.log('[Feedback API] GET request received:', { 
@@ -73,11 +73,6 @@ router.get('/', async (req: Request, res: Response) => {
       username: item.user?.username || 'Anonymous'
     }));
 
-    console.log('[Feedback API] Sending response:', {
-      dataCount: feedbackData.length,
-      sample: feedbackData[0]
-    });
-
     res.json(feedbackData);
   } catch (error) {
     console.error('[Feedback API] Error in GET route:', error);
@@ -89,20 +84,14 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // Submit new feedback
-router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, res: Response) => {
-  console.log('[Feedback API] POST request received:', {
-    body: req.body,
-    file: req.file,
-    user: req.user?.id
-  });
-
+router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { title, description, category } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
-      console.log('[Feedback API] Unauthorized access attempt');
-      return res.status(401).json({ error: 'Please log in to submit feedback.' });
+      res.status(401).json({ error: 'Please log in to submit feedback.' });
+      return;
     }
 
     const [newFeedback] = await db.insert(feedback)

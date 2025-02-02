@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import userRoutes from './user.routes';
 import climbRoutes from './climb.routes';
 import sessionRoutes from './session.routes';
@@ -13,7 +13,7 @@ import { isAuthenticated } from '../middleware/auth';
 const router = Router();
 
 // Health check route
-router.get('/health', (_req, res) => {
+router.get('/health', (_req: Request, res: Response): void => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
@@ -26,7 +26,7 @@ router.use('/sessions', sessionRoutes);
 router.use('/feedback', feedbackRoutes);
 
 // Leaderboard endpoint
-router.get('/leaderboard', async (req, res) => {
+router.get('/leaderboard', async (req: Request, res: Response): Promise<void> => {
   try {
     const results = await db
       .select({
@@ -47,10 +47,10 @@ router.get('/leaderboard', async (req, res) => {
       totalPoints: Number(entry.total_points) || 0
     }));
 
-    return res.json(leaderboardData);
+    res.json(leaderboardData);
   } catch (error) {
     console.error('[Leaderboard API] Error:', error);
-    return res.status(500).json({ 
+    res.status(500).json({ 
       error: 'Failed to fetch leaderboard',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
