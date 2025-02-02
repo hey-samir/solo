@@ -79,6 +79,11 @@ const Router: React.FC = () => {
             <Profile />
           </ProtectedWrapper>
         } />
+        <Route path="/profile/@:username" element={
+          <ProtectedWrapper requireAuth={false}>
+            <Profile />
+          </ProtectedWrapper>
+        } />
 
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/" replace />} />

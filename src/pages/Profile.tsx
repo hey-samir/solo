@@ -1,7 +1,6 @@
-import React, { FC, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import React, { FC } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import LoadingSpinner from '../components/LoadingSpinner'
 
 interface User {
   id: number
@@ -21,43 +20,36 @@ interface Stats {
   totalPoints: number
 }
 
-// Development mock data
-const mockUser: User = {
-  id: 1,
-  username: "gosolonyc",
-  name: "Solo",
-  profilePhoto: null,
-  memberSince: "2024-12-01T00:00:00.000Z",
-  gymId: 1,
-  gym: {
-    name: "Movement Gowanus"
-  }
+// Fetch actual data from the API
+const fetchUserData = async (username: string | undefined) => {
+  const response = await fetch(`/api/users/${username || 'current'}`)
+  if (!response.ok) throw new Error('Failed to fetch user data')
+  return response.json()
 }
 
-const mockStats: Stats = {
-  totalAscents: 42,
-  avgGrade: "V5",
-  totalPoints: 1337
+const fetchUserStats = async (username: string | undefined) => {
+  const response = await fetch(`/api/users/${username || 'current'}/stats`)
+  if (!response.ok) throw new Error('Failed to fetch user stats')
+  return response.json()
 }
 
 const Profile: FC = () => {
   const { username } = useParams()
+  const navigate = useNavigate()
   const isOwnProfile = !username
 
   const { data: user, isLoading: userLoading } = useQuery<User>({
     queryKey: ['user', username],
-    queryFn: async () => mockUser,
-    enabled: true
+    queryFn: () => fetchUserData(username),
   })
 
   const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
     queryKey: ['user-stats', username],
-    queryFn: async () => mockStats,
-    enabled: true
+    queryFn: () => fetchUserStats(username),
   })
 
   if (userLoading || statsLoading) {
-    return <LoadingSpinner />
+    return <div className="loading-spinner">Loading...</div>
   }
 
   if (!user) {
@@ -68,41 +60,38 @@ const Profile: FC = () => {
     )
   }
 
-  // Generate avatar text from name (first letters of first and last name)
-  const getAvatarText = (name: string) => {
-    return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
+  const handleShare = () => {
+    const profileUrl = `${window.location.origin}/profile/@${user.username}`
+    navigator.clipboard.writeText(profileUrl)
+    // TODO: Add toast notification for copy success
+  }
 
   return (
     <div className="container">
       <div className="profile-card p-4">
         {/* Profile Header */}
         <div className="d-flex align-items-center mb-4">
-          <div 
-            className="profile-avatar me-3"
-            style={{
-              width: '80px',
-              height: '80px',
-              backgroundColor: 'var(--solo-purple)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '2rem',
-              fontWeight: 'bold'
-            }}
-          >
-            {getAvatarText(user.name)}
+          <div className="profile-avatar me-3">
+            <img 
+              src="/assets/solo-purple.png" 
+              alt="Profile"
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                objectFit: 'cover'
+              }}
+            />
           </div>
           <div>
-            <div className="profile-text">{user.name}</div>
-            <div className="profile-text text-muted">@{user.username}</div>
+            <div className="profile-field">
+              <label className="text-muted">Name</label>
+              <div className="profile-text">{user.name}</div>
+            </div>
+            <div className="profile-field">
+              <label className="text-muted">Username</label>
+              <div className="profile-text">@{user.username}</div>
+            </div>
           </div>
         </div>
 
@@ -130,11 +119,14 @@ const Profile: FC = () => {
               <i className="material-icons">edit</i>
               <span>Edit</span>
             </button>
-            <button className="btn btn-solo-purple flex-grow-1">
+            <button 
+              className="btn btn-solo-purple flex-grow-1"
+              onClick={handleShare}
+            >
               <i className="material-icons">qr_code_2</i>
               <span>Share</span>
             </button>
-            <button className="btn btn-negative flex-grow-1">
+            <button className="btn btn-secondary flex-grow-1">
               <i className="material-icons">logout</i>
               <span>Logout</span>
             </button>
@@ -144,19 +136,19 @@ const Profile: FC = () => {
         {/* KPI Cards */}
         <div className="row g-3">
           <div className="col-4">
-            <div className="card kpi-card text-center p-3">
+            <div className="card kpi-card h-100 text-center p-3">
               <div className="metric-value">{stats?.totalAscents || 0}</div>
               <div className="metric-label text-muted">Total Ascents</div>
             </div>
           </div>
           <div className="col-4">
-            <div className="card kpi-card text-center p-3">
+            <div className="card kpi-card h-100 text-center p-3">
               <div className="metric-value">{stats?.avgGrade || '--'}</div>
               <div className="metric-label text-muted">Avg Grade</div>
             </div>
           </div>
           <div className="col-4">
-            <div className="card kpi-card text-center p-3">
+            <div className="card kpi-card h-100 text-center p-3">
               <div className="metric-value">{stats?.totalPoints || 0}</div>
               <div className="metric-label text-muted">Total Points</div>
             </div>
