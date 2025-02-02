@@ -61,7 +61,7 @@ app.use('/api', routes);
 // Serve static files and handle client routing
 if (isProduction) {
   // Production: serve from dist
-  const distPath = path.join(__dirname, '../../../dist');
+  const distPath = path.join(__dirname, '../../dist');
   app.use(express.static(distPath, {
     index: false, // Don't serve index.html for all routes
     maxAge: '1d' // Cache static assets for 1 day
