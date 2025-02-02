@@ -2,6 +2,7 @@ import React, { FC, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
+import Error from '../components/Error'
 
 interface Route {
   id: number
@@ -33,6 +34,28 @@ const colorToHex: Record<string, string> = {
   'Teal': '#008080'
 }
 
+// Points calculation function
+const calculatePoints = (grade: string, rating: number, status: boolean, tries: number): number => {
+  if (!grade) return 0;
+  const [_, mainGrade, subGrade] = grade.match(/5\.(\d+)([a-d])?/) || [null, '0', ''];
+
+  const basePoints: Record<string, number> = {
+    '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
+    '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
+  }
+
+  const subGradeMultiplier: Record<string, number> = {
+    'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
+  }
+
+  const base = (basePoints[mainGrade] || 0) * (subGradeMultiplier[subGrade] || 1);
+  const starMultiplier = Math.max(0.1, rating / 3);
+  const statusMultiplier = status ? 1 : 0.5;
+  const triesMultiplier = Math.max(0.1, 1 / Math.sqrt(tries));
+
+  return Math.round(base * starMultiplier * statusMultiplier * triesMultiplier);
+}
+
 const Sends: FC = () => {
   const [formData, setFormData] = useState<SendFormData>({
     route_id: 0,
@@ -42,17 +65,25 @@ const Sends: FC = () => {
     notes: ''
   })
 
-  const { data: routes, isLoading } = useQuery<Route[]>({
+  const { data: routes, isLoading, error } = useQuery<Route[]>({
     queryKey: ['routes'],
     queryFn: async () => {
-      const response = await client.get('/routes')
-      return response.data
+      try {
+        const response = await client.get('/api/routes')
+        if (!response.data) {
+          throw new Error('No data received from server')
+        }
+        return Array.isArray(response.data) ? response.data : []
+      } catch (err: any) {
+        console.error('Error fetching routes:', err)
+        throw new Error(err.response?.data?.message || 'Failed to fetch routes')
+      }
     }
   })
 
   const sendMutation = useMutation({
     mutationFn: async (data: SendFormData) => {
-      return await client.post('/climbs', data)
+      return await client.post('/api/climbs', data)
     },
     onSuccess: () => {
       // Reset form and show success message
@@ -66,33 +97,16 @@ const Sends: FC = () => {
     }
   })
 
-  // Points calculation function
-  const calculatePoints = (grade: string, rating: number, status: boolean, tries: number) => {
-    if (!grade) return 0;
-    const [_, mainGrade, subGrade] = grade.match(/5\.(\d+)([a-d])?/) || [null, '0', ''];
-
-    const basePoints: Record<string, number> = {
-      '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
-      '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
-    }
-
-    const subGradeMultiplier: Record<string, number> = {
-      'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
-    }
-
-    const base = (basePoints[mainGrade] || 0) * (subGradeMultiplier[subGrade] || 1);
-    const starMultiplier = Math.max(0.1, rating / 3);
-    const statusMultiplier = status ? 1 : 0.5;
-    const triesMultiplier = Math.max(0.1, 1 / Math.sqrt(tries));
-
-    return Math.round(base * starMultiplier * statusMultiplier * triesMultiplier);
-  }
-
   if (isLoading) {
     return <LoadingSpinner />
   }
 
-  const selectedRoute = routes?.find(r => r.id === formData.route_id);
+  if (error) {
+    return <Error message={(error as Error).message} type="page" />
+  }
+
+  const routesArray = Array.isArray(routes) ? routes : [];
+  const selectedRoute = routesArray.find(route => route.id === formData.route_id);
   const points = selectedRoute 
     ? calculatePoints(selectedRoute.grade, formData.rating, formData.status, formData.tries)
     : 0;
@@ -115,20 +129,19 @@ const Sends: FC = () => {
                     <select 
                       className="form-select form-select-lg custom-select"
                       value={formData.route_id || ''}
-                      onChange={(e) => setFormData(prev => ({ ...prev, route_id: Number(e.target.value) }))}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        route_id: Number(e.target.value) 
+                      }))}
                       required
                     >
-                      <option value="" disabled>Select a route</option>
-                      {routes?.map(route => (
+                      <option value="">Select a route</option>
+                      {routesArray.map(route => (
                         <option 
                           key={route.id} 
                           value={route.id}
                           className="route-option"
                         >
-                          <span 
-                            className="color-dot" 
-                            style={{ backgroundColor: colorToHex[route.color] || '#FFFFFF' }}
-                          />
                           {route.wall_sector} - {route.anchor_number} - {route.color} {route.grade}
                         </option>
                       ))}
@@ -146,7 +159,10 @@ const Sends: FC = () => {
                         min="1"
                         max="10"
                         value={formData.tries}
-                        onChange={(e) => setFormData(prev => ({ ...prev, tries: Number(e.target.value) }))}
+                        onChange={(e) => setFormData(prev => ({ 
+                          ...prev, 
+                          tries: Number(e.target.value) 
+                        }))}
                         className="form-range"
                       />
                       <span className="text-white">{formData.tries}</span>
@@ -164,7 +180,10 @@ const Sends: FC = () => {
                         type="checkbox"
                         role="switch"
                         checked={formData.status}
-                        onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.checked }))}
+                        onChange={(e) => setFormData(prev => ({ 
+                          ...prev, 
+                          status: e.target.checked 
+                        }))}
                       />
                       <label className="form-check-label">
                         {formData.status ? 'Sent' : 'Attempted'}
@@ -199,7 +218,10 @@ const Sends: FC = () => {
                       className="form-control form-control-lg"
                       rows={3}
                       value={formData.notes}
-                      onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                      onChange={(e) => setFormData(prev => ({ 
+                        ...prev, 
+                        notes: e.target.value 
+                      }))}
                     />
                   </td>
                 </tr>
