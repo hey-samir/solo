@@ -1,12 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from '../db';
-import { climbs, routes, User } from '../db/schema';
+import { sends, routes, users } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
 
 interface AuthenticatedRequest extends Request {
-  user?: User;
+  user?: typeof users.$inferSelect;
 }
 
 const getUserClimbs = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
@@ -18,23 +18,23 @@ const getUserClimbs = async (req: AuthenticatedRequest, res: Response, next: Nex
 
     const userClimbs = await db
       .select({
-        id: climbs.id,
-        route_id: climbs.route_id,
-        status: climbs.status,
-        rating: climbs.rating,
-        tries: climbs.tries,
-        notes: climbs.notes,
-        points: climbs.points,
-        created_at: climbs.created_at,
+        id: sends.id,
+        route_id: sends.route_id,
+        status: sends.status,
+        rating: sends.rating,
+        tries: sends.tries,
+        notes: sends.notes,
+        points: sends.points,
+        created_at: sends.created_at,
         route: {
           color: routes.color,
           grade: routes.grade
         }
       })
-      .from(climbs)
-      .innerJoin(routes, eq(climbs.route_id, routes.id))
-      .where(eq(climbs.user_id, req.user.id))
-      .orderBy(climbs.created_at);
+      .from(sends)
+      .innerJoin(routes, eq(sends.route_id, routes.id))
+      .where(eq(sends.user_id, req.user.id))
+      .orderBy(sends.created_at);
 
     const transformedClimbs = userClimbs.map(climb => ({
       id: climb.id,

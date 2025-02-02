@@ -49,12 +49,14 @@ app.use('/api', routes);
 // Serve static files and handle client routing
 if (isProduction) {
   // Production: serve from dist
-  app.use(express.static(path.join(__dirname, '../../')));
+  const distPath = path.join(__dirname, '../../../dist');
+  app.use(express.static(distPath));
+
   app.get('*', (_req, res) => {
-    res.sendFile(path.join(__dirname, '../../index.html'));
+    res.sendFile(path.join(distPath, 'index.html'));
   });
 } else {
-  // Development: serve static files and redirect to dev server
+  // Development: redirect to dev server
   app.get('/', (_req, res) => {
     res.redirect('http://localhost:3003');
   });
