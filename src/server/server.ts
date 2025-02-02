@@ -6,6 +6,7 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { createClient } from '@vercel/postgres';
 import routes from './routes';
+import feedbackRoutes from './routes/feedback.routes';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
@@ -63,6 +64,7 @@ app.use(session(sessionConfig));
 
 // Routes
 app.use('/api', routes);
+app.use('/api/feedback', feedbackRoutes); // Add feedback routes
 
 // Auth status middleware for debugging
 app.use((req, res, next) => {

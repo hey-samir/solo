@@ -43,7 +43,8 @@ const Feedback: React.FC = () => {
     queryKey: ['feedback', sort],
     queryFn: async () => {
       try {
-        const response = await client.get(`/api/feedback?sort=${sort}`);
+        const response = await client.get('/api/feedback', { params: { sort } });
+        console.log('Feedback response:', response);
         return response.data || [];
       } catch (error) {
         console.error('Error fetching feedback:', error);
@@ -100,7 +101,7 @@ const Feedback: React.FC = () => {
   if (error) {
     return (
       <Error 
-        message="Error loading feedback. Please try again later."
+        message="Oops! We're having trouble loading the feedback. Let's get you back on track."
         type="page"
         retry={() => refetch()}
       />

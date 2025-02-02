@@ -4,12 +4,20 @@ import { feedbacks, users } from '../db/schema';
 import { desc, eq } from 'drizzle-orm';
 import multer from 'multer';
 import path from 'path';
+import { Request, Response } from 'express';
+import fs from 'fs';
+
+// Ensure uploads directory exists
+const uploadDir = 'uploads/screenshots';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 const router = Router();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: 'uploads/screenshots/',
+  destination: uploadDir,
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
@@ -18,8 +26,14 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+interface RequestWithUser extends Request {
+  session?: {
+    userId?: number;
+  };
+}
+
 // Get feedback items with optional sorting
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const { sort = 'new' } = req.query;
 
@@ -42,18 +56,20 @@ router.get('/', async (req, res) => {
     res.json(feedbackItems);
   } catch (error) {
     console.error('Error fetching feedback:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Oops! We\'re having trouble loading the feedback. Let\'s get you back on track.' 
+    });
   }
 });
 
 // Submit new feedback
-router.post('/', upload.single('screenshot'), async (req, res) => {
+router.post('/', upload.single('screenshot'), async (req: RequestWithUser, res: Response) => {
   try {
     const { title, description, category } = req.body;
     const userId = req.session?.userId;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      return res.status(401).json({ error: 'Please log in to submit feedback.' });
     }
 
     const [feedback] = await db.insert(feedbacks)
@@ -88,7 +104,9 @@ router.post('/', upload.single('screenshot'), async (req, res) => {
     res.status(201).json(feedbackWithUser[0]);
   } catch (error) {
     console.error('Error submitting feedback:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ 
+      error: 'Oops! Something went wrong while submitting your feedback. Please try again.' 
+    });
   }
 });
 
