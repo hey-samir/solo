@@ -9,33 +9,64 @@ const baseURL = isDevelopment
 const client = axios.create({
   baseURL,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   },
   withCredentials: true
 });
 
-// Request interceptor
+// Request interceptor for API calls
 client.interceptors.request.use(
   (config) => {
     // Ensure API prefix
     if (!config.url?.startsWith('/api')) {
       config.url = `/api${config.url}`;
     }
+
+    // Log request for debugging
+    console.log('[API Request]:', {
+      method: config.method,
+      url: config.url,
+      baseURL: config.baseURL,
+      fullUrl: `${config.baseURL}${config.url}`,
+      data: config.data,
+      headers: config.headers
+    });
+
     return config;
   },
   (error) => {
+    console.error('[Request Error]:', error);
     return Promise.reject(error);
   }
 );
 
 // Response interceptor
 client.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('[API Response]:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
+    return response;
+  },
   (error) => {
+    console.error('[API Error]:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      request: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL
+      }
+    });
+
     // Handle network errors
     if (!error.response) {
-      toast.error('Unable to connect to the server');
-      return Promise.reject(new Error('Network error'));
+      const message = 'Unable to connect to the server. Please check your connection.';
+      toast.error(message);
+      return Promise.reject(new Error(message));
     }
 
     // Handle authentication errors
@@ -45,7 +76,7 @@ client.interceptors.response.use(
     }
 
     // Handle other errors
-    const message = error.response?.data?.error || error.message;
+    const message = error.response?.data?.error || error.message || 'An unexpected error occurred';
     toast.error(message);
     return Promise.reject(error);
   }
