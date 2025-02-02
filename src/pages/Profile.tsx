@@ -4,19 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import client from '../api/client'
 import { useAuth } from '../hooks/useAuth'
-
-interface User {
-  id: number
-  username: string
-  displayName: string | null
-  email: string
-  profilePhoto: string | null
-  memberSince: string
-  gym: {
-    id: number
-    name: string
-  } | null
-}
+import type { User } from '../types'
 
 interface Stats {
   totalAscents: number
@@ -25,7 +13,7 @@ interface Stats {
 }
 
 const Profile: FC = () => {
-  const { username } = useParams()
+  const { username } = useParams<{ username: string }>()
   const navigate = useNavigate()
   const { user: currentUser } = useAuth()
 
@@ -36,25 +24,48 @@ const Profile: FC = () => {
   const { data: user, isLoading: userLoading } = useQuery<User>({
     queryKey: ['user', cleanUsername],
     queryFn: async () => {
-      const endpoint = isOwnProfile ? '/api/users/current' : `/api/users/${cleanUsername}`
-      const response = await client.get(endpoint)
-      return response.data
+      try {
+        if (!cleanUsername && !isOwnProfile) {
+          throw new Error('Username is required')
+        }
+        const response = await client.get(isOwnProfile ? '/api/users/current' : `/api/users/${cleanUsername}`)
+        return response.data
+      } catch (error) {
+        console.error('Error fetching user:', error)
+        throw error
+      }
     },
+    retry: false,
+    enabled: Boolean(cleanUsername) || isOwnProfile,
   })
 
   const { data: stats, isLoading: statsLoading } = useQuery<Stats>({
     queryKey: ['user-stats', cleanUsername],
     queryFn: async () => {
-      const endpoint = isOwnProfile ? '/api/users/current/stats' : `/api/users/${cleanUsername}/stats`
-      const response = await client.get(endpoint)
-      return response.data
+      try {
+        if (!user) {
+          throw new Error('User data is required')
+        }
+        const response = await client.get(isOwnProfile ? '/api/users/current/stats' : `/api/users/${cleanUsername}/stats`)
+        return response.data
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+        throw error
+      }
     },
+    retry: false,
+    enabled: Boolean(user),
   })
 
-  const handleShare = () => {
-    const profileUrl = `${window.location.origin}/profile/@${user?.username}`
-    navigator.clipboard.writeText(profileUrl)
-    toast.success('Profile link copied to clipboard')
+  const handleShare = async () => {
+    try {
+      const profileUrl = `${window.location.origin}/profile/@${user?.username}`
+      await navigator.clipboard.writeText(profileUrl)
+      toast.success('Profile link copied to clipboard')
+    } catch (error) {
+      console.error('Error copying to clipboard:', error)
+      toast.error('Failed to copy profile link')
+    }
   }
 
   if (userLoading || statsLoading) {
@@ -78,7 +89,7 @@ const Profile: FC = () => {
 
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
-      <div className="p-6">
+      <div className="bg-opacity-0 p-6 rounded-lg">
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
           {/* Avatar Section */}
@@ -117,7 +128,7 @@ const Profile: FC = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-3 mt-4">
+            <div className="flex items-center gap-3 mt-4 justify-center md:justify-start">
               {isOwnProfile && (
                 <button 
                   className="btn btn-solo-purple"

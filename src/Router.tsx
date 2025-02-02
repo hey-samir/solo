@@ -20,11 +20,14 @@ import Feedback from './pages/Feedback'
 // Toggle this flag to enable/disable route protection
 const ENABLE_ROUTE_PROTECTION = false;
 
-const Router: React.FC = () => {
-  console.log('Router rendering...')
+interface ProtectedWrapperProps {
+  children: React.ReactNode;
+  requireAuth?: boolean;
+}
 
+const Router: React.FC = () => {
   // Wrapper component that conditionally applies protection
-  const ProtectedWrapper = ({ children, requireAuth = true }) => {
+  const ProtectedWrapper: React.FC<ProtectedWrapperProps> = ({ children, requireAuth = true }) => {
     if (!ENABLE_ROUTE_PROTECTION) {
       return <>{children}</>
     }
@@ -74,13 +77,15 @@ const Router: React.FC = () => {
             <Stats />
           </ProtectedWrapper>
         } />
-        <Route path="/profile" element={
-          <ProtectedWrapper>
+
+        {/* Profile Routes - Order is important */}
+        <Route path="/profile/@:username" element={
+          <ProtectedWrapper requireAuth={false}>
             <Profile />
           </ProtectedWrapper>
         } />
-        <Route path="/profile/@:username" element={
-          <ProtectedWrapper requireAuth={false}>
+        <Route path="/profile" element={
+          <ProtectedWrapper>
             <Profile />
           </ProtectedWrapper>
         } />
