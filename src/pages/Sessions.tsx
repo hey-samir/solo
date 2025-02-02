@@ -5,42 +5,27 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import Error from '../components/Error';
 import { ApiError, QueryError } from '../types';
 
-interface Route {
-  color: string;
-  grade: string;
-}
-
-interface Climb {
-  id: number;
-  routeId: number;
-  status: boolean;
-  rating: number;
-  tries: number;
-  notes: string | null;
-  points: number;
+interface Session {
+  id: string;
+  userId: number;
+  duration: number;
+  location: string;
+  totalClimbs: number;
+  totalSends: number;
+  totalPoints: number;
+  avgGrade: string;
+  grades: string[];
+  successRate: number;
   createdAt: string;
-  route: Route;
 }
-
-type SortKey = 'color' | 'grade' | 'status' | 'tries' | 'rating' | 'points';
-type SortDirection = 'asc' | 'desc';
 
 const Sessions: FC = () => {
-  const [sortConfig, setSortConfig] = useState<{
-    key: SortKey;
-    direction: SortDirection;
-    date: string | null;
-  }>({
-    key: 'color',
-    direction: 'asc',
-    date: null,
-  });
-
-  const { data, isLoading, error, refetch } = useQuery<Climb[], QueryError>({
-    queryKey: ['climbs'],
+  const { data, isLoading, error, refetch } = useQuery<Session[], QueryError>({
+    queryKey: ['sessions'],
     queryFn: async () => {
       try {
-        const response = await client.get('/api/climbs');
+        console.log('Fetching sessions...');
+        const response = await client.get('/api/sessions');
         if (!response.data) {
           throw { 
             message: "Oops! We received unexpected data. Let's get you back on track.",
@@ -49,7 +34,7 @@ const Sessions: FC = () => {
         }
         return Array.isArray(response.data) ? response.data : [];
       } catch (err: any) {
-        console.error('Error fetching climbs:', err);
+        console.error('Error fetching sessions:', err);
         const errorMessage = err.response?.data?.message || 
           err.message || 
           "Oops! We're having trouble loading your climbing sessions. Let's get you back on track.";
@@ -78,64 +63,21 @@ const Sessions: FC = () => {
   }
 
   // Ensure we have an array to work with
-  const climbs = data || [];
+  const sessions = data || [];
 
-  // Group climbs by date
-  const climbsByDate = climbs.reduce<{[date: string]: Climb[]}>((acc, climb) => {
-    if (climb?.createdAt) {
-      const date = new Date(climb.createdAt).toLocaleDateString();
-      if (!acc[date]) {
-        acc[date] = [];
-      }
-      acc[date].push(climb);
+  const formatDuration = (hours: number): string => {
+    if (hours < 1) {
+      return `${Math.round(hours * 60)} min`;
     }
-    return acc;
-  }, {});
-
-  const getColorHex = (color: string): string => {
-    const colorMap: Record<string, string> = {
-      'White': '#FFFFFF',
-      'Pink': '#FF69B4',
-      'Blue': '#0000FF',
-      'Black': '#000000',
-      'Orange': '#FFA500',
-      'Purple': '#800080',
-      'Green': '#008000',
-      'Red': '#FF0000',
-      'Yellow': '#FFFF00',
-      'Teal': '#008080'
-    };
-    return colorMap[color] || '#CCCCCC';
+    return `${Math.round(hours)} hr`;
   };
 
-  const sortClimbs = (climbsToSort: Climb[]): Climb[] => {
-    if (!Array.isArray(climbsToSort)) return [];
-
-    return [...climbsToSort].sort((a, b) => {
-      let comparison = 0;
-      switch (sortConfig.key) {
-        case 'color':
-          comparison = a.route.color.localeCompare(b.route.color);
-          break;
-        case 'grade':
-          comparison = a.route.grade.localeCompare(b.route.grade);
-          break;
-        case 'status':
-          comparison = Number(b.status) - Number(a.status);
-          break;
-        case 'tries':
-          comparison = a.tries - b.tries;
-          break;
-        case 'rating':
-          comparison = a.rating - b.rating;
-          break;
-        case 'points':
-          comparison = a.points - b.points;
-          break;
-        default:
-          return 0;
-      }
-      return sortConfig.direction === 'asc' ? comparison : -comparison;
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -143,138 +85,50 @@ const Sessions: FC = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-6">Your Climbing Sessions</h1>
 
-      {Object.entries(climbsByDate).map(([date, sessionClimbs]) => (
-        <div key={date} className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">{date}</h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-card border border-gray-200 rounded-lg">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th 
-                    className="px-4 py-2 cursor-pointer" 
-                    onClick={() => setSortConfig(current => ({
-                      key: 'color',
-                      direction: 
-                        current.key === 'color' && current.date === date && current.direction === 'asc' 
-                          ? 'desc' 
-                          : 'asc',
-                      date
-                    }))}
-                  >
-                    Color {sortConfig.key === 'color' && sortConfig.date === date && 
-                      (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th 
-                    className="px-4 py-2 cursor-pointer"
-                    onClick={() => setSortConfig(current => ({
-                      key: 'grade',
-                      direction: 
-                        current.key === 'grade' && current.date === date && current.direction === 'asc' 
-                          ? 'desc' 
-                          : 'asc',
-                      date
-                    }))}
-                  >
-                    Grade {sortConfig.key === 'grade' && sortConfig.date === date &&
-                      (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th 
-                    className="px-4 py-2 cursor-pointer"
-                    onClick={() => setSortConfig(current => ({
-                      key: 'status',
-                      direction: 
-                        current.key === 'status' && current.date === date && current.direction === 'asc' 
-                          ? 'desc' 
-                          : 'asc',
-                      date
-                    }))}
-                  >
-                    Status {sortConfig.key === 'status' && sortConfig.date === date &&
-                      (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th 
-                    className="px-4 py-2 cursor-pointer"
-                    onClick={() => setSortConfig(current => ({
-                      key: 'tries',
-                      direction: 
-                        current.key === 'tries' && current.date === date && current.direction === 'asc' 
-                          ? 'desc' 
-                          : 'asc',
-                      date
-                    }))}
-                  >
-                    # Tries {sortConfig.key === 'tries' && sortConfig.date === date &&
-                      (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th 
-                    className="px-4 py-2 cursor-pointer"
-                    onClick={() => setSortConfig(current => ({
-                      key: 'rating',
-                      direction: 
-                        current.key === 'rating' && current.date === date && current.direction === 'asc' 
-                          ? 'desc' 
-                          : 'asc',
-                      date
-                    }))}
-                  >
-                    Stars {sortConfig.key === 'rating' && sortConfig.date === date &&
-                      (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                  <th 
-                    className="px-4 py-2 cursor-pointer"
-                    onClick={() => setSortConfig(current => ({
-                      key: 'points',
-                      direction: 
-                        current.key === 'points' && current.date === date && current.direction === 'asc' 
-                          ? 'desc' 
-                          : 'asc',
-                      date
-                    }))}
-                  >
-                    Points {sortConfig.key === 'points' && sortConfig.date === date &&
-                      (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(sessionClimbs) && sortClimbs(sessionClimbs).map((climb) => (
-                  <tr key={climb.id} className="border-t border-gray-100 hover:bg-gray-50">
-                    <td className="px-4 py-2">
-                      <div className="flex items-center">
-                        <span 
-                          className="w-4 h-4 rounded-full mr-2" 
-                          style={{ 
-                            backgroundColor: getColorHex(climb.route.color),
-                            border: climb.route.color === 'White' ? '1px solid #ccc' : 'none'
-                          }}
-                        />
-                        {climb.route.color}
-                      </div>
-                    </td>
-                    <td className="px-4 py-2">{climb.route.grade}</td>
-                    <td className="px-4 py-2">
-                      <span className={`font-medium ${climb.status ? 'text-green-600' : 'text-red-600'}`}>
-                        {climb.status ? 'Send' : 'Attempt'}
-                      </span>
-                    </td>
-                    <td className="px-4 py-2">{climb.tries}</td>
-                    <td className="px-4 py-2">{climb.rating}/5</td>
-                    <td className="px-4 py-2">
-                      <span className="text-solo-purple font-medium">
-                        {climb.points} pts
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {sessions.map((session) => (
+        <div key={session.id} className="mb-8 bg-bg-card rounded-lg shadow-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-semibold">{formatDate(session.createdAt)}</h2>
+            <span className="text-text-muted">
+              Duration: {formatDuration(session.duration)}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="bg-bg-primary p-4 rounded-lg">
+              <div className="text-text-muted text-sm mb-1">Total Climbs</div>
+              <div className="text-2xl font-bold">{session.totalClimbs}</div>
+            </div>
+            <div className="bg-bg-primary p-4 rounded-lg">
+              <div className="text-text-muted text-sm mb-1">Sends</div>
+              <div className="text-2xl font-bold text-success">{session.totalSends}</div>
+            </div>
+            <div className="bg-bg-primary p-4 rounded-lg">
+              <div className="text-text-muted text-sm mb-1">Success Rate</div>
+              <div className="text-2xl font-bold">{session.successRate}%</div>
+            </div>
+            <div className="bg-bg-primary p-4 rounded-lg">
+              <div className="text-text-muted text-sm mb-1">Points</div>
+              <div className="text-2xl font-bold text-solo-purple">{session.totalPoints}</div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {session.grades.map((grade) => (
+              <span 
+                key={grade} 
+                className="bg-bg-primary px-3 py-1 rounded-full text-sm"
+              >
+                {grade}
+              </span>
+            ))}
           </div>
         </div>
       ))}
 
-      {Object.keys(climbsByDate).length === 0 && (
+      {sessions.length === 0 && (
         <div className="text-center my-8">
-          <h4 className="text-xl text-gray-600 mb-4">Enter your first climb to see Sessions</h4>
+          <h4 className="text-xl text-text-muted mb-4">Enter your first climb to see Sessions</h4>
           <a 
             href="/sends" 
             className="inline-block bg-solo-purple text-white px-6 py-2 rounded-lg hover:bg-solo-purple-light transition"

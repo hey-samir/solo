@@ -12,7 +12,14 @@ interface AuthenticatedRequest extends Request {
 // Get all sessions
 router.get('/', async (req: AuthenticatedRequest, res: Response) => {
   try {
+    console.log('[Sessions API] Request received:', {
+      userId: req.user?.id,
+      session: req.session?.id,
+      isAuthenticated: req.isAuthenticated?.()
+    });
+
     if (!req.user?.id) {
+      console.log('[Sessions API] Unauthorized access attempt');
       return res.status(401).json({ error: 'Please log in to view sessions' });
     }
 
@@ -34,6 +41,11 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
       .groupBy(sql`date_trunc('day', ${climbs.created_at})::date`)
       .orderBy(sql`date_trunc('day', ${climbs.created_at})::date desc`);
 
+    console.log('[Sessions API] Retrieved sessions:', {
+      count: sessions.length,
+      sample: sessions.slice(0, 2)
+    });
+
     const formattedSessions = sessions.map(session => ({
       id: session.date, // Using date as session ID
       userId: req.user?.id,
@@ -50,7 +62,7 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
 
     res.json(formattedSessions);
   } catch (error) {
-    console.error('Error fetching sessions:', error);
+    console.error('[Sessions API] Error fetching sessions:', error);
     res.status(500).json({ 
       error: 'Failed to fetch sessions',
       details: error instanceof Error ? error.message : 'Unknown error'
@@ -61,7 +73,13 @@ router.get('/', async (req: AuthenticatedRequest, res: Response) => {
 // Get specific session
 router.get('/:date', async (req: AuthenticatedRequest, res: Response) => {
   try {
+    console.log('[Sessions API] Session detail request:', {
+      userId: req.user?.id,
+      date: req.params.date
+    });
+
     if (!req.user?.id) {
+      console.log('[Sessions API] Unauthorized detail access attempt');
       return res.status(401).json({ error: 'Please log in to view session details' });
     }
 
@@ -87,8 +105,14 @@ router.get('/:date', async (req: AuthenticatedRequest, res: Response) => {
       .groupBy(sql`date_trunc('day', ${climbs.created_at})::date`);
 
     if (!session) {
+      console.log('[Sessions API] Session not found:', { date });
       return res.status(404).json({ error: 'Session not found' });
     }
+
+    console.log('[Sessions API] Retrieved session details:', {
+      date: session.date,
+      totalClimbs: session.total_climbs
+    });
 
     const formattedSession = {
       id: session.date,
@@ -106,7 +130,7 @@ router.get('/:date', async (req: AuthenticatedRequest, res: Response) => {
 
     res.json(formattedSession);
   } catch (error) {
-    console.error('Error fetching session:', error);
+    console.error('[Sessions API] Error fetching session details:', error);
     res.status(500).json({ 
       error: 'Failed to fetch session details',
       details: error instanceof Error ? error.message : 'Unknown error'
