@@ -12,6 +12,7 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3003,
     strictPort: true,
+    allowedHosts: 'all',
     proxy: {
       '/api': {
         target: 'http://0.0.0.0:5000',
@@ -36,11 +37,5 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true
-  },
-  // Allow Replit domains
-  server: {
-    hmr: {
-      clientPort: 443
-    }
   }
 })
