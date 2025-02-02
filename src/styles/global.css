@@ -186,3 +186,90 @@ body,
   font-size: 0.875rem;
   font-weight: 600;
 }
+
+/* Profile Styles */
+.profile-card {
+  background-color: var(--bg-primary);
+  border-radius: var(--card-border-radius);
+}
+
+.profile-avatar {
+  background: var(--solo-purple);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.profile-text {
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+}
+
+.profile-field {
+  margin-bottom: 0.75rem;
+}
+
+.profile-field label {
+  display: block;
+  font-size: var(--font-size-sm);
+  margin-bottom: 0.25rem;
+}
+
+.kpi-card {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color);
+  border-radius: var(--card-border-radius);
+  transition: transform 0.2s;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+}
+
+.metric-value {
+  font-size: var(--font-size-xxl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.metric-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.btn-solo-purple {
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: opacity 0.2s;
+}
+
+.btn-solo-purple:hover {
+  opacity: 0.9;
+  color: var(--button-primary-text);
+}
+
+.btn-negative {
+  background: rgba(255, 59, 48, 0.1);
+  color: rgb(255, 59, 48);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: opacity 0.2s;
+}
+
+.btn-negative:hover {
+  opacity: 0.9;
+  background: rgba(255, 59, 48, 0.2);
+  color: rgb(255, 59, 48);
+}

@@ -26,8 +26,8 @@ const mockUser: User = {
   id: 1,
   username: "gosolonyc",
   name: "Solo",
-  profilePhoto: "https://ui-avatars.com/api/?name=Solo&background=7442d6&color=fff",
-  memberSince: "2025-01-01T00:00:00.000Z",
+  profilePhoto: null,
+  memberSince: "2024-12-01T00:00:00.000Z",
   gymId: 1,
   gym: {
     name: "Movement Gowanus"
@@ -43,7 +43,6 @@ const mockStats: Stats = {
 const Profile: FC = () => {
   const { username } = useParams()
   const isOwnProfile = !username
-  const [isEditing, setIsEditing] = useState(false)
 
   const { data: user, isLoading: userLoading } = useQuery<User>({
     queryKey: ['user', username],
@@ -69,104 +68,97 @@ const Profile: FC = () => {
     )
   }
 
-  // Helper function to generate fallback avatar URL
-  const getAvatarUrl = (user: User) => {
-    if (user.profilePhoto) return user.profilePhoto;
-    // Generate a UI Avatar with user's name and Solo brand color
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=7442d6&color=fff`;
+  // Generate avatar text from name (first letters of first and last name)
+  const getAvatarText = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="profile-card">
-        <div className="row">
-          {/* Avatar Column */}
-          <div className="col-md-3 col-12 mb-4 mb-md-0">
-            <div className="profile-photo-container">
-              <img
-                src={getAvatarUrl(user)}
-                alt={`${user.name}'s profile`}
-                className="profile-photo"
-              />
-              {isOwnProfile && (
-                <div className="edit-photo-icon">
-                  <i className="material-icons">edit</i>
-                </div>
-              )}
-            </div>
+    <div className="container">
+      <div className="profile-card p-4">
+        {/* Profile Header */}
+        <div className="d-flex align-items-center mb-4">
+          <div 
+            className="profile-avatar me-3"
+            style={{
+              width: '80px',
+              height: '80px',
+              backgroundColor: 'var(--solo-purple)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '2rem',
+              fontWeight: 'bold'
+            }}
+          >
+            {getAvatarText(user.name)}
           </div>
+          <div>
+            <div className="profile-text">{user.name}</div>
+            <div className="profile-text text-muted">@{user.username}</div>
+          </div>
+        </div>
 
-          {/* Info Column */}
-          <div className="col-md-9 col-12">
-            <div className="profile-fields">
-              <div className="field-row">
-                <label className="form-label">Name</label>
-                <div className="profile-text">{user.name}</div>
-              </div>
-
-              <div className="field-row">
-                <label className="form-label">Username</label>
-                <div className="profile-text">@{user.username}</div>
-              </div>
-
-              <div className="field-row">
-                <label className="form-label">Gym</label>
-                <div className="profile-text">
-                  {user.gym?.name || 'No gym selected'}
-                </div>
-              </div>
-
-              <div className="field-row">
-                <label className="form-label">Joined</label>
-                <div className="profile-text">
-                  {new Date(user.memberSince).toLocaleDateString('en-US', {
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </div>
-              </div>
+        {/* Profile Info */}
+        <div className="mb-4">
+          <div className="profile-field mb-2">
+            <label className="text-muted">Gym</label>
+            <div>{user.gym?.name || 'No gym selected'}</div>
+          </div>
+          <div className="profile-field">
+            <label className="text-muted">Joined</label>
+            <div>
+              {new Date(user.memberSince).toLocaleDateString('en-US', {
+                month: 'long',
+                year: 'numeric'
+              })}
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
         {isOwnProfile && (
-          <div className="profile-actions">
-            <div className="d-flex gap-2">
-              <button className="btn btn-solo-purple flex-grow-1">
-                <i className="material-icons">edit</i>
-                <span>Edit</span>
-              </button>
-              <button className="btn btn-solo-purple flex-grow-1">
-                <i className="material-icons">qr_code_2</i>
-                <span>Share</span>
-              </button>
-              <button className="btn btn-negative flex-grow-1">
-                <i className="material-icons">logout</i>
-                <span>Logout</span>
-              </button>
-            </div>
+          <div className="d-flex gap-2 mb-4">
+            <button className="btn btn-solo-purple flex-grow-1">
+              <i className="material-icons">edit</i>
+              <span>Edit</span>
+            </button>
+            <button className="btn btn-solo-purple flex-grow-1">
+              <i className="material-icons">qr_code_2</i>
+              <span>Share</span>
+            </button>
+            <button className="btn btn-negative flex-grow-1">
+              <i className="material-icons">logout</i>
+              <span>Logout</span>
+            </button>
           </div>
         )}
 
         {/* KPI Cards */}
-        <div className="row g-3 mt-4">
-          <div className="col-md-4 col-12">
-            <div className="feature-card kpi-card">
+        <div className="row g-3">
+          <div className="col-4">
+            <div className="card kpi-card text-center p-3">
               <div className="metric-value">{stats?.totalAscents || 0}</div>
-              <div className="metric-label">Total Ascents</div>
+              <div className="metric-label text-muted">Total Ascents</div>
             </div>
           </div>
-          <div className="col-md-4 col-12">
-            <div className="feature-card kpi-card">
+          <div className="col-4">
+            <div className="card kpi-card text-center p-3">
               <div className="metric-value">{stats?.avgGrade || '--'}</div>
-              <div className="metric-label">Avg Grade</div>
+              <div className="metric-label text-muted">Avg Grade</div>
             </div>
           </div>
-          <div className="col-md-4 col-12">
-            <div className="feature-card kpi-card">
+          <div className="col-4">
+            <div className="card kpi-card text-center p-3">
               <div className="metric-value">{stats?.totalPoints || 0}</div>
-              <div className="metric-label">Total Points</div>
+              <div className="metric-label text-muted">Total Points</div>
             </div>
           </div>
         </div>
