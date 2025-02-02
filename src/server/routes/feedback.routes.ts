@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { feedbacks, users, User } from '../db/schema';
+import { feedback, users } from '../db/schema';
 import { desc, eq } from 'drizzle-orm';
 import multer from 'multer';
 import path from 'path';
@@ -15,7 +15,7 @@ if (!fs.existsSync(uploadDir)) {
 const router = Router();
 
 interface AuthenticatedRequest extends Request {
-  user?: User;
+  user?: any;
 }
 
 // Configure multer for file uploads
@@ -35,20 +35,20 @@ router.get('/', async (req: Request, res: Response) => {
     const { sort = 'new' } = req.query;
 
     const feedbackItems = await db.select({
-      id: feedbacks.id,
-      title: feedbacks.title,
-      description: feedbacks.description,
-      category: feedbacks.category,
-      screenshot_url: feedbacks.screenshot_url,
-      created_at: feedbacks.created_at,
-      upvotes: feedbacks.upvotes,
+      id: feedback.id,
+      title: feedback.title,
+      description: feedback.description,
+      category: feedback.category,
+      screenshot_url: feedback.screenshot_url,
+      created_at: feedback.created_at,
+      upvotes: feedback.upvotes,
       user: {
         username: users.username
       }
     })
-    .from(feedbacks)
-    .leftJoin(users, eq(feedbacks.user_id, users.id))
-    .orderBy(sort === 'new' ? desc(feedbacks.created_at) : desc(feedbacks.upvotes));
+    .from(feedback)
+    .leftJoin(users, eq(feedback.user_id, users.id))
+    .orderBy(sort === 'new' ? desc(feedback.created_at) : desc(feedback.upvotes));
 
     res.json(feedbackItems || []);
   } catch (error) {
@@ -70,7 +70,7 @@ router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, 
       return;
     }
 
-    const [feedback] = await db.insert(feedbacks)
+    const [feedbackItem] = await db.insert(feedback)
       .values({
         title,
         description,
@@ -82,25 +82,25 @@ router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, 
       })
       .returning();
 
-    if (!feedback) {
+    if (!feedbackItem) {
       throw new Error('Failed to create feedback');
     }
 
     const feedbackWithUser = await db.select({
-      id: feedbacks.id,
-      title: feedbacks.title,
-      description: feedbacks.description,
-      category: feedbacks.category,
-      screenshot_url: feedbacks.screenshot_url,
-      created_at: feedbacks.created_at,
-      upvotes: feedbacks.upvotes,
+      id: feedback.id,
+      title: feedback.title,
+      description: feedback.description,
+      category: feedback.category,
+      screenshot_url: feedback.screenshot_url,
+      created_at: feedback.created_at,
+      upvotes: feedback.upvotes,
       user: {
         username: users.username
       }
     })
-    .from(feedbacks)
-    .leftJoin(users, eq(feedbacks.user_id, users.id))
-    .where(eq(feedbacks.id, feedback.id))
+    .from(feedback)
+    .leftJoin(users, eq(feedback.user_id, users.id))
+    .where(eq(feedback.id, feedbackItem.id))
     .limit(1);
 
     res.status(201).json(feedbackWithUser[0]);

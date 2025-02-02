@@ -1,13 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { users, climbs, routes, User } from '../db/schema';
+import { users, sends, routes } from '../db/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { isAuthenticated } from '../middleware/auth';
 
 const router = Router();
 
 interface AuthenticatedRequest extends Request {
-  user?: User;
+  user?: any;
 }
 
 // Get user stats
@@ -26,19 +26,19 @@ router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
 
     const stats = await db.select({
       totalAscents: sql<number>`count(*)`.mapWith(Number),
-      totalSends: sql<number>`sum(case when ${climbs.status} = true then 1 else 0 end)`.mapWith(Number),
-      totalPoints: sql<number>`sum(${climbs.points})`.mapWith(Number),
+      totalSends: sql<number>`sum(case when ${sends.status} = true then 1 else 0 end)`.mapWith(Number),
+      totalPoints: sql<number>`sum(${sends.points})`.mapWith(Number),
       avgGrade: sql<string>`mode() within group (order by ${routes.grade})`.mapWith(String),
-      avgSentGrade: sql<string>`mode() within group (order by case when ${climbs.status} = true then ${routes.grade} end)`.mapWith(String),
-      avgPointsPerClimb: sql<number>`round(avg(${climbs.points})::numeric, 1)`.mapWith(Number),
-      successRate: sql<number>`round(sum(case when ${climbs.status} = true then 100 else 0 end)::numeric / count(*)::numeric, 1)`.mapWith(Number),
-      successRatePerSession: sql<number>`round(avg(case when ${climbs.status} = true then 100 else 0 end)::numeric, 1)`.mapWith(Number),
-      climbsPerSession: sql<number>`round(count(*)::numeric / count(distinct date_trunc('day', ${climbs.created_at}))::numeric, 1)`.mapWith(Number),
-      avgAttemptsPerClimb: sql<number>`round(avg(${climbs.tries})::numeric, 1)`.mapWith(Number)
+      avgSentGrade: sql<string>`mode() within group (order by case when ${sends.status} = true then ${routes.grade} end)`.mapWith(String),
+      avgPointsPerClimb: sql<number>`round(avg(${sends.points})::numeric, 1)`.mapWith(Number),
+      successRate: sql<number>`round(sum(case when ${sends.status} = true then 100 else 0 end)::numeric / count(*)::numeric, 1)`.mapWith(Number),
+      successRatePerSession: sql<number>`round(avg(case when ${sends.status} = true then 100 else 0 end)::numeric, 1)`.mapWith(Number),
+      climbsPerSession: sql<number>`round(count(*)::numeric / count(distinct date_trunc('day', ${sends.created_at}))::numeric, 1)`.mapWith(Number),
+      avgAttemptsPerClimb: sql<number>`round(avg(${sends.tries})::numeric, 1)`.mapWith(Number)
     })
-    .from(climbs)
-    .leftJoin(routes, eq(climbs.route_id, routes.id))
-    .where(eq(climbs.user_id, req.user.id));
+    .from(sends)
+    .leftJoin(routes, eq(sends.route_id, routes.id))
+    .where(eq(sends.user_id, req.user.id));
 
     console.log('[Stats API] Returning stats for user:', req.user.id);
     res.json(stats[0]);
@@ -71,34 +71,34 @@ router.get('/me/stats/charts', async (req: AuthenticatedRequest, res: Response) 
         grade: routes.grade,
         count: sql<number>`count(*)`.mapWith(Number)
       })
-      .from(climbs)
-      .leftJoin(routes, eq(climbs.route_id, routes.id))
-      .where(eq(climbs.user_id, req.user.id))
+      .from(sends)
+      .leftJoin(routes, eq(sends.route_id, routes.id))
+      .where(eq(sends.user_id, req.user.id))
       .groupBy(routes.grade)
       .orderBy(routes.grade);
 
     // Get sends by date
     const sendsByDate = await db
       .select({
-        date: sql<string>`date_trunc('day', ${climbs.created_at})::date`.mapWith(String),
-        sends: sql<number>`sum(case when ${climbs.status} = true then 1 else 0 end)`.mapWith(Number),
-        attempts: sql<number>`sum(case when ${climbs.status} = false then 1 else 0 end)`.mapWith(Number)
+        date: sql<string>`date_trunc('day', ${sends.created_at})::date`.mapWith(String),
+        sends: sql<number>`sum(case when ${sends.status} = true then 1 else 0 end)`.mapWith(Number),
+        attempts: sql<number>`sum(case when ${sends.status} = false then 1 else 0 end)`.mapWith(Number)
       })
-      .from(climbs)
-      .where(eq(climbs.user_id, req.user.id))
-      .groupBy(sql`date_trunc('day', ${climbs.created_at})::date`)
-      .orderBy(sql`date_trunc('day', ${climbs.created_at})::date`);
+      .from(sends)
+      .where(eq(sends.user_id, req.user.id))
+      .groupBy(sql`date_trunc('day', ${sends.created_at})::date`)
+      .orderBy(sql`date_trunc('day', ${sends.created_at})::date`);
 
     // Calculate send rate over time
     const sendRate = await db
       .select({
-        date: sql<string>`date_trunc('day', ${climbs.created_at})::date`.mapWith(String),
-        rate: sql<number>`round(sum(case when ${climbs.status} = true then 100 else 0 end)::numeric / count(*)::numeric, 1)`.mapWith(Number)
+        date: sql<string>`date_trunc('day', ${sends.created_at})::date`.mapWith(String),
+        rate: sql<number>`round(sum(case when ${sends.status} = true then 100 else 0 end)::numeric / count(*)::numeric, 1)`.mapWith(Number)
       })
-      .from(climbs)
-      .where(eq(climbs.user_id, req.user.id))
-      .groupBy(sql`date_trunc('day', ${climbs.created_at})::date`)
-      .orderBy(sql`date_trunc('day', ${climbs.created_at})::date`);
+      .from(sends)
+      .where(eq(sends.user_id, req.user.id))
+      .groupBy(sql`date_trunc('day', ${sends.created_at})::date`)
+      .orderBy(sql`date_trunc('day', ${sends.created_at})::date`);
 
     // Format the response
     const chartData = {
