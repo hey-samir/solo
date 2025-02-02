@@ -8,8 +8,9 @@ const TEST_USER = {
   username: 'gosolonyc',
   email: 'demo@soloapp.dev',
   password: 'demo123', // This is just for testing
+  name: 'Solo Demo',
   gym: 'Movement Gowanus',
-  profile_photo: '/static/images/avatar-purple.svg',
+  profile_photo: '/assets/avatars/purple-solo.png',
   user_type: 'demo' // Set user type as demo
 };
 
@@ -98,10 +99,12 @@ async function seedTestData() {
         username: TEST_USER.username,
         email: TEST_USER.email,
         password_hash: hashedPassword,
+        name: TEST_USER.name,
         profile_photo: TEST_USER.profile_photo,
         created_at: new Date(),
         member_since: new Date(),
-        gym_id: gym[0].id
+        gym_id: gym[0].id,
+        user_type: TEST_USER.user_type
       }).returning();
 
       console.log('Created test user:', TEST_USER.username);

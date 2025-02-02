@@ -5,11 +5,30 @@ import { eq } from 'drizzle-orm';
 
 const router = Router();
 
+// Convert database user to API response format
+const formatUserResponse = (user: any) => ({
+  id: user.id,
+  username: user.username,
+  displayName: user.name,
+  email: user.email,
+  profilePhoto: user.profile_photo,
+  memberSince: user.member_since.toISOString(),
+  createdAt: user.created_at.toISOString(),
+  gym: user.gym ? {
+    id: user.gym.id,
+    name: user.gym.name
+  } : null
+});
+
+// Get user by username
 const getUserByUsername = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const username = req.params.username;
+    // Remove @ if present
+    const cleanUsername = username.startsWith('@') ? username.slice(1) : username;
+
     const user = await db.query.users.findFirst({
-      where: eq(users.username, username),
+      where: eq(users.username, cleanUsername),
       with: {
         gym: true
       }
@@ -20,15 +39,7 @@ const getUserByUsername = async (req: Request, res: Response, next: NextFunction
       return;
     }
 
-    res.json({
-      id: user.id,
-      username: user.username,
-      displayName: user.displayName,
-      profilePhoto: user.profilePhoto,
-      memberSince: user.memberSince,
-      gymId: user.gymId,
-      gym: user.gym
-    });
+    res.json(formatUserResponse(user));
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -38,7 +49,7 @@ const getUserByUsername = async (req: Request, res: Response, next: NextFunction
 // Get current user route
 router.get('/current', async (req: Request, res: Response) => {
   try {
-    if (!req.user) {
+    if (!req.user?.id) {
       res.status(401).json({ error: 'Not authenticated' });
       return;
     }
@@ -55,21 +66,14 @@ router.get('/current', async (req: Request, res: Response) => {
       return;
     }
 
-    res.json({
-      id: user.id,
-      username: user.username,
-      displayName: user.displayName,
-      profilePhoto: user.profilePhoto,
-      memberSince: user.memberSince,
-      gymId: user.gymId,
-      gym: user.gym
-    });
+    res.json(formatUserResponse(user));
   } catch (error) {
     console.error('Error fetching current user:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
 
+// Get user by username
 router.get('/:username', getUserByUsername);
 
 export default router;

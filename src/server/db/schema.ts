@@ -12,11 +12,11 @@ export interface User {
   username: string;
   email: string;
   password_hash: string;
-  name?: string;
-  profile_photo?: string;
+  name: string | null;
+  profile_photo: string | null;
   created_at: Date;
   member_since: Date;
-  gym_id?: number;
+  gym_id: number | null;
   user_type: 'demo' | 'user' | 'admin';
 }
 
@@ -69,6 +69,7 @@ export const users = pgTable('user', {
   created_at: timestamp('created_at').defaultNow(),
   member_since: timestamp('member_since').defaultNow(),
   gym_id: integer('gym_id').references(() => gyms.id),
+  user_type: text('user_type').notNull().default('user'),
 });
 
 export const routes = pgTable('route', {

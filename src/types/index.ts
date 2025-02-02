@@ -2,8 +2,14 @@ export interface User {
   id: number;
   username: string;
   email: string;
+  displayName: string | null;
+  profilePhoto: string | null;
+  memberSince: string;
   createdAt: string;
-  profileCompleted?: boolean;
+  gym?: {
+    id: number;
+    name: string;
+  } | null;
 }
 
 export interface Send {
