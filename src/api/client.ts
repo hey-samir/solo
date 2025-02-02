@@ -16,19 +16,22 @@ const client = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
-  timeout: 10000, // Add timeout
-})
+  withCredentials: true
+});
 
 // Add request interceptor for debugging
 client.interceptors.request.use(
   (config) => {
+    // Add CORS headers
+    config.headers['Access-Control-Allow-Credentials'] = 'true';
+
     console.log('API Request:', {
       method: config.method,
       url: config.url,
       headers: config.headers,
       baseURL: config.baseURL,
-      withCredentials: config.withCredentials
+      withCredentials: config.withCredentials,
+      data: config.data
     });
     return config;
   },

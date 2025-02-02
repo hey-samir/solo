@@ -35,13 +35,15 @@ const corsOptions = {
     ? ['https://gosolo.nyc', 'https://www.gosolo.nyc']
     : [
         'http://localhost:3003',
+        'http://localhost:5000',
+        'http://0.0.0.0:3003',
+        'http://0.0.0.0:5000',
         `https://${process.env.REPL_ID}.id.repl.co`,
         `https://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`,
-        'http://localhost:5000'
       ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 };
 
 app.use(cors(corsOptions));
@@ -63,6 +65,20 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Add debug middleware for all requests
+app.use((req, res, next) => {
+  console.log('Request Debug:', {
+    method: req.method,
+    path: req.path,
+    headers: req.headers,
+    cookies: req.cookies,
+    session: req.session?.id,
+    user: req.user?.id,
+    origin: req.headers.origin
+  });
+  next();
+});
+
 // API Routes with /api prefix
 app.use('/api', routes);
 
@@ -80,20 +96,14 @@ app.use(express.static(distPath, {
   }
 }));
 
-// Add authentication debug middleware
-app.use((req, res, next) => {
-  console.log('Auth Debug:', {
-    isAuthenticated: req.isAuthenticated?.(),
-    session: req.session?.id,
-    user: req.user?.id,
-    path: req.path
-  });
-  next();
-});
-
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Server error:', err);
+  console.error('Server error:', {
+    error: err,
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
   res.status(500).json({
     error: 'Internal server error',
     message: isProduction ? 'Something went wrong' : err.message
