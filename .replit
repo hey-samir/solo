@@ -147,7 +147,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsc -p tsconfig.server.json"
+args = "npx tsc -p tsconfig.server.json && NODE_ENV=production npx vite build"
 
 [[workflows.workflow]]
 name = "Start Server"
@@ -161,7 +161,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development node dist/server/server.js"
+args = "NODE_ENV=production node dist/server/server.js"
 waitForPort = 5000
 
 [[ports]]

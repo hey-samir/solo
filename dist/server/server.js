@@ -16,6 +16,7 @@ const auth_1 = __importDefault(require("./middleware/auth"));
 const app = (0, express_1.default)();
 exports.app = app;
 const isProduction = process.env.NODE_ENV === 'production';
+const PORT = Number(process.env.PORT || 5000);
 // Basic middleware
 app.use((0, morgan_1.default)(isProduction ? 'combined' : 'dev'));
 app.use(express_1.default.json());
@@ -24,7 +25,7 @@ app.use((0, compression_1.default)());
 app.use((0, cookie_parser_1.default)());
 // CORS configuration
 app.use((0, cors_1.default)({
-    origin: isProduction ? 'https://gosolo.nyc' : 'http://localhost:3003',
+    origin: '*', // Allow all origins in development and production
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
@@ -48,9 +49,9 @@ app.use('/api', routes_1.default);
 // Serve static files and handle client routing
 if (isProduction) {
     // Production: serve from dist
-    app.use(express_1.default.static(path_1.default.resolve(__dirname, '../../../dist')));
+    app.use(express_1.default.static(path_1.default.join(__dirname, '../../')));
     app.get('*', (_req, res) => {
-        res.sendFile(path_1.default.resolve(__dirname, '../../../dist/index.html'));
+        res.sendFile(path_1.default.join(__dirname, '../../index.html'));
     });
 }
 else {
@@ -70,7 +71,6 @@ app.use((err, _req, res, _next) => {
         details: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
 });
-const PORT = Number(process.env.PORT || 5000);
 // Start server only if this file is run directly
 if (require.main === module) {
     app.listen(PORT, '0.0.0.0', () => {
