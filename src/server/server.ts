@@ -31,7 +31,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 
-// CORS Configuration with credentials
+// Updated CORS Configuration with credentials
 const corsOptions = {
   origin: isProduction 
     ? ['https://gosolo.nyc', 'https://www.gosolo.nyc']

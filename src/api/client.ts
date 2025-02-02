@@ -2,8 +2,8 @@ import axios from 'axios'
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 const baseURL = isDevelopment
-  ? 'http://localhost:5000/api'
-  : '/api';
+  ? 'http://localhost:5000'  // Changed from /api to include full URL
+  : '';
 
 console.log('API client configuration:')
 console.log('- Environment:', process.env.NODE_ENV)
