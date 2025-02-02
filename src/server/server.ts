@@ -36,6 +36,9 @@ const corsOptions = {
         'http://0.0.0.0:3003',
         `https://${process.env.REPL_ID}.id.repl.co`,
         `https://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`,
+        // Add additional development domains
+        `https://${process.env.REPL_ID}-00-35jfb2x2btqr5.picard.replit.dev`,
+        `https://${process.env.REPL_ID}-00-35jfb2x2btqr5.picard.replit.dev:5000`
       ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

@@ -77,7 +77,7 @@ router.get('/leaderboard', async (_req, res) => {
 });
 
 // Mount feature routes
-router.use('/users', userRoutes);
+router.use('/user', userRoutes);
 router.use('/routes', routeRoutes);
 router.use('/climbs', climbRoutes);
 router.use('/sessions', sessionRoutes);
