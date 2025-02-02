@@ -10,10 +10,7 @@ interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
-// Apply authentication middleware to all routes
-router.use(isAuthenticated);
-
-// Get all sessions
+// Get all sessions with proper error handling
 router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
   try {
     console.log('[Sessions API] Request received:', {
@@ -21,11 +18,6 @@ router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response
       session: req.session?.id,
       isAuthenticated: req.isAuthenticated?.()
     });
-
-    if (!req.user?.id) {
-      console.log('[Sessions API] Unauthorized access attempt');
-      return res.status(401).json({ error: 'Please log in to view sessions' });
-    }
 
     // Get sessions by grouping sends by date
     const sessions = await db
@@ -68,7 +60,7 @@ router.get('/', isAuthenticated, async (req: AuthenticatedRequest, res: Response
   } catch (error) {
     console.error('[Sessions API] Error fetching sessions:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch sessions',
+      error: 'Unable to load your climbing sessions. Please try again later.',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }

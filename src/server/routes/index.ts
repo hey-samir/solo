@@ -4,9 +4,11 @@ import climbRoutes from './climb.routes';
 import sessionRoutes from './session.routes';
 import routeRoutes from './routes';
 import feedbackRoutes from './feedback.routes';
+import authRoutes from './auth';
 import { db } from '../db';
 import { sends, users } from '../db/schema';
 import { sql } from 'drizzle-orm';
+import { isAuthenticated } from '../middleware/auth';
 
 const router = Router();
 
@@ -16,6 +18,7 @@ router.get('/health', (_req, res) => {
 });
 
 // Mount feature routes
+router.use('/auth', authRoutes);
 router.use('/user', userRoutes);
 router.use('/routes', routeRoutes);
 router.use('/climbs', climbRoutes);
@@ -23,7 +26,7 @@ router.use('/sessions', sessionRoutes);
 router.use('/feedback', feedbackRoutes);
 
 // Leaderboard endpoint
-router.get('/leaderboard', async (_req, res) => {
+router.get('/leaderboard', async (req, res) => {
   try {
     const results = await db
       .select({

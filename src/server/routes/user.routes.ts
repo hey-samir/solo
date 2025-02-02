@@ -10,21 +10,14 @@ interface AuthenticatedRequest extends Request {
   user?: any;
 }
 
-// Apply authentication middleware to all routes
-router.use(isAuthenticated);
-
 // Get user stats
-router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
+router.get('/me/stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
   try {
-    console.log('[Stats API] Request received:', {
-      userId: req.user?.id,
-      session: req.session?.id,
-      isAuthenticated: req.isAuthenticated?.()
-    });
-
     if (!req.user?.id) {
-      console.log('[Stats API] Unauthorized access attempt');
-      return res.status(401).json({ error: 'Please log in to view statistics' });
+      return res.status(401).json({ 
+        error: 'Please log in to view your climbing statistics.',
+        details: 'Authentication required' 
+      });
     }
 
     const stats = await db.select({
@@ -43,12 +36,53 @@ router.get('/me/stats', async (req: AuthenticatedRequest, res: Response) => {
     .leftJoin(routes, eq(sends.route_id, routes.id))
     .where(eq(sends.user_id, req.user.id));
 
-    console.log('[Stats API] Returning stats for user:', req.user.id);
     res.json(stats[0]);
   } catch (error) {
-    console.error('[Stats API] Error fetching stats:', error);
+    console.error('[Stats API] Error:', error);
     res.status(500).json({ 
-      error: "Failed to fetch statistics",
+      error: 'Unable to load your climbing statistics. Please try again later.',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Get user profile
+router.get('/profile', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    if (!req.user?.id) {
+      return res.status(401).json({ 
+        error: 'Please log in to view your profile.',
+        details: 'Authentication required' 
+      });
+    }
+
+    const [userProfile] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, req.user.id))
+      .limit(1);
+
+    if (!userProfile) {
+      return res.status(404).json({ 
+        error: 'Profile not found.',
+        details: 'User profile could not be located' 
+      });
+    }
+
+    res.json({
+      id: userProfile.id,
+      username: userProfile.username,
+      email: userProfile.email,
+      name: userProfile.name,
+      profilePhoto: userProfile.profile_photo,
+      memberSince: userProfile.member_since,
+      gymId: userProfile.gym_id,
+      userType: userProfile.user_type
+    });
+  } catch (error) {
+    console.error('[Profile API] Error:', error);
+    res.status(500).json({ 
+      error: 'Unable to load your profile. Please try again later.',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
