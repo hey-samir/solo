@@ -30,7 +30,9 @@ router.use((req, _res, next) => {
 // Leaderboard endpoint
 router.get('/leaderboard', async (_req, res) => {
   try {
-    const leaderboard = await db.select({
+    console.log('[Leaderboard API] Fetching leaderboard data...');
+
+    const leaderboardQuery = await db.select({
       user_id: users.id,
       username: users.username,
       total_sends: sql<number>`count(case when ${sends.status} = true then 1 end)`.mapWith(Number),
@@ -41,29 +43,36 @@ router.get('/leaderboard', async (_req, res) => {
     .groupBy(users.id, users.username)
     .orderBy(sql`sum(${sends.points}) desc nulls last`);
 
-    // Ensure we have valid data before mapping
-    if (!Array.isArray(leaderboard)) {
-      console.log('Leaderboard query returned non-array:', leaderboard);
-      return res.json([]);
-    }
-
-    // Format the response
-    const formattedLeaderboard = leaderboard.map(entry => ({
-      id: entry.user_id,
-      username: entry.username,
-      totalSends: entry.total_sends || 0,
-      totalPoints: entry.total_points || 0
-    }));
-
-    console.log('Leaderboard data:', {
-      count: formattedLeaderboard.length,
-      sample: formattedLeaderboard.slice(0, 2)
+    // Log raw query results
+    console.log('[Leaderboard API] Raw query results:', {
+      type: typeof leaderboardQuery,
+      isArray: Array.isArray(leaderboardQuery),
+      length: leaderboardQuery?.length,
+      sample: leaderboardQuery?.[0]
     });
 
-    res.json(formattedLeaderboard);
+    // Initialize empty array as default response
+    let formattedLeaderboard = [];
+
+    // Only process if we have valid array data
+    if (Array.isArray(leaderboardQuery) && leaderboardQuery.length > 0) {
+      formattedLeaderboard = leaderboardQuery.map(entry => ({
+        id: entry.user_id,
+        username: entry.username,
+        totalSends: entry.total_sends || 0,
+        totalPoints: entry.total_points || 0
+      }));
+    }
+
+    console.log('[Leaderboard API] Formatted response:', {
+      count: formattedLeaderboard.length,
+      sample: formattedLeaderboard[0]
+    });
+
+    return res.json(formattedLeaderboard);
   } catch (error) {
-    console.error('Error fetching leaderboard:', error);
-    res.status(500).json({ 
+    console.error('[Leaderboard API] Error fetching leaderboard:', error);
+    return res.status(500).json({ 
       error: 'Failed to fetch leaderboard',
       details: error instanceof Error ? error.message : 'Unknown error'
     });

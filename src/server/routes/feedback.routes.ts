@@ -35,7 +35,7 @@ router.get('/', async (req: Request, res: Response) => {
     const { sort = 'new' } = req.query;
     console.log('[Feedback API] Request received:', { sort });
 
-    const feedbackItems = await db.select({
+    const feedbackQuery = await db.select({
       id: feedback.id,
       title: feedback.title,
       description: feedback.description,
@@ -51,34 +51,42 @@ router.get('/', async (req: Request, res: Response) => {
     .leftJoin(users, eq(feedback.user_id, users.id))
     .orderBy(sort === 'new' ? desc(feedback.created_at) : desc(feedback.upvotes));
 
-    // Ensure we have valid data before mapping
-    if (!Array.isArray(feedbackItems)) {
-      console.log('[Feedback API] Query returned non-array:', feedbackItems);
-      return res.json([]);
-    }
-
-    // Ensure we always return an array and format the data
-    const formattedFeedback = feedbackItems.map(item => ({
-      id: item.id,
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      screenshotUrl: item.screenshot_url,
-      createdAt: item.created_at,
-      upvotes: item.upvotes,
-      username: item.user?.username
-    }));
-
-    console.log('[Feedback API] Retrieved feedback:', {
-      count: formattedFeedback.length,
-      sample: formattedFeedback.slice(0, 2)
+    // Log raw query results
+    console.log('[Feedback API] Raw query results:', {
+      type: typeof feedbackQuery,
+      isArray: Array.isArray(feedbackQuery),
+      length: feedbackQuery?.length,
+      sample: feedbackQuery?.[0]
     });
 
-    res.json(formattedFeedback);
+    // Initialize empty array as default response
+    let formattedFeedback = [];
+
+    // Only process if we have valid array data
+    if (Array.isArray(feedbackQuery) && feedbackQuery.length > 0) {
+      formattedFeedback = feedbackQuery.map(item => ({
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        category: item.category,
+        screenshotUrl: item.screenshot_url,
+        createdAt: item.created_at,
+        upvotes: item.upvotes,
+        username: item.user?.username
+      }));
+    }
+
+    console.log('[Feedback API] Formatted response:', {
+      count: formattedFeedback.length,
+      sample: formattedFeedback[0]
+    });
+
+    return res.json(formattedFeedback);
   } catch (error) {
     console.error('[Feedback API] Error fetching feedback:', error);
-    res.status(500).json({ 
-      error: "Oops! We're having trouble loading the feedback. Let's get you back on track." 
+    return res.status(500).json({ 
+      error: "Oops! We're having trouble loading the feedback. Let's get you back on track.",
+      details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
