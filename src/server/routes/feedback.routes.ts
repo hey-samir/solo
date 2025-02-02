@@ -50,7 +50,19 @@ router.get('/', async (req: Request, res: Response) => {
     .leftJoin(users, eq(feedback.user_id, users.id))
     .orderBy(sort === 'new' ? desc(feedback.created_at) : desc(feedback.upvotes));
 
-    res.json(feedbackItems || []);
+    // Ensure we always return an array and format the data
+    const formattedFeedback = (feedbackItems || []).map(item => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      category: item.category,
+      screenshotUrl: item.screenshot_url,
+      createdAt: item.created_at,
+      upvotes: item.upvotes,
+      username: item.user?.username
+    }));
+
+    res.json(formattedFeedback);
   } catch (error) {
     console.error('Error fetching feedback:', error);
     res.status(500).json({ 
@@ -103,7 +115,19 @@ router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, 
     .where(eq(feedback.id, feedbackItem.id))
     .limit(1);
 
-    res.status(201).json(feedbackWithUser[0]);
+    // Format the response consistently
+    const formattedFeedback = feedbackWithUser[0] ? {
+      id: feedbackWithUser[0].id,
+      title: feedbackWithUser[0].title,
+      description: feedbackWithUser[0].description,
+      category: feedbackWithUser[0].category,
+      screenshotUrl: feedbackWithUser[0].screenshot_url,
+      createdAt: feedbackWithUser[0].created_at,
+      upvotes: feedbackWithUser[0].upvotes,
+      username: feedbackWithUser[0].user?.username
+    } : null;
+
+    res.status(201).json(formattedFeedback);
   } catch (error) {
     console.error('Error submitting feedback:', error);
     res.status(500).json({ 

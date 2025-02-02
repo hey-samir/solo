@@ -41,7 +41,15 @@ router.get('/leaderboard', async (_req, res) => {
     .groupBy(users.id, users.username)
     .orderBy(sql`sum(${sends.points}) desc nulls last`);
 
-    res.json(leaderboard || []);
+    // Ensure we always return an array, even if empty
+    const formattedLeaderboard = (leaderboard || []).map(entry => ({
+      id: entry.user_id,
+      username: entry.username,
+      totalSends: entry.total_sends || 0,
+      totalPoints: entry.total_points || 0
+    }));
+
+    res.json(formattedLeaderboard);
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     res.status(500).json({ 
