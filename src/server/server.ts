@@ -20,7 +20,7 @@ app.use(cookieParser());
 
 // CORS configuration
 app.use(cors({
-  origin: isProduction ? 'https://gosolo.nyc' : 'http://localhost:3003',
+  origin: true, // Allow all origins in development
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));

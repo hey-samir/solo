@@ -36,5 +36,11 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true
+  },
+  // Allow Replit domains
+  server: {
+    hmr: {
+      clientPort: 443
+    }
   }
 })
