@@ -11,7 +11,9 @@ import passport from './middleware/auth';
 import { Pool } from 'pg';
 
 const app = express();
-const isProduction = process.env.NODE_ENV === 'production';
+const environment = process.env.NODE_ENV || 'development';
+const isProduction = environment === 'production';
+const isStaging = environment === 'staging';
 const PORT = Number(process.env.PORT || 5000);
 
 // Basic middleware
@@ -22,14 +24,11 @@ app.use(compression());
 app.use(cookieParser());
 
 // CORS configuration
-const corsOrigins = isProduction 
-  ? ['https://gosolo.nyc']
-  : ['http://localhost:3003'];
-
-// Add staging URL if available
-if (isProduction && process.env.CORS_ORIGIN) {
-  corsOrigins.push(process.env.CORS_ORIGIN);
-}
+const corsOrigins = (() => {
+  if (isProduction) return ['https://gosolo.nyc'];
+  if (isStaging) return process.env.CORS_ORIGIN ? [process.env.CORS_ORIGIN] : ['https://staging.gosolo.nyc'];
+  return ['http://localhost:3003'];
+})();
 
 app.use(cors({
   origin: corsOrigins,
@@ -53,9 +52,9 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: isProduction,
+    secure: isProduction || isStaging,
     httpOnly: true,
-    sameSite: isProduction ? 'strict' : 'lax',
+    sameSite: isProduction || isStaging ? 'strict' : 'lax',
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
@@ -68,10 +67,11 @@ app.use(passport.session());
 app.use('/api', routes);
 
 // Handle static files and client routing
-if (isProduction) {
+if (isProduction || isStaging) {
   // Use absolute path resolution
   const distPath = path.resolve(__dirname, '..', '..');
   console.log('Static files path:', distPath);
+  console.log('Environment:', environment);
 
   // Serve static files with caching headers
   app.use(express.static(path.join(distPath, 'dist'), {
@@ -95,7 +95,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
   console.error('Server Error:', err);
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error',
-    details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    details: environment === 'development' ? err.stack : undefined
   });
 });
 
@@ -103,7 +103,7 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
-    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Environment:', environment);
     console.log('Current directory:', __dirname);
     console.log('Dist path:', path.resolve(__dirname, '..', '..'));
   });

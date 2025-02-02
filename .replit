@@ -51,10 +51,6 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start Frontend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Seed Test Data"
 
 [[workflows.workflow.tasks]]
@@ -67,30 +63,7 @@ args = "Build All"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Start Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build and Start"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Production Build"
-
-[[workflows.workflow]]
-name = "Start Frontend"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development vite --port 3003 --host"
-waitForPort = 3003
+args = "Staging Build"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -135,22 +108,7 @@ args = """
     """
 
 [[workflows.workflow]]
-name = "Start Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=production npx tsx src/server/server.ts"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Build and Start"
+name = "Staging Build"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -163,41 +121,12 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-    cd /home/runner/workspace &&
-    echo \"Cleaning dist directory...\" &&
-    rm -rf dist &&
-    echo \"Creating server directory...\" &&
-    mkdir -p dist/server &&
-    echo \"Building server with TypeScript...\" &&
-    NODE_ENV=production NODE_PATH=./src/server npx tsc --project tsconfig.server.json &&
-    echo \"Building client with Vite...\" &&
-    NODE_ENV=production npx vite build &&
-    echo \"Starting production server...\" &&
-    cd /home/runner/workspace &&
-    NODE_ENV=production NODE_DEBUG=module node --enable-source-maps dist/server/server.js
-    """
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Production Build"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-    echo \"Starting production build...\" &&
+    echo \"Starting staging build...\" &&
     rm -rf dist &&
     mkdir -p dist/server &&
-    NODE_ENV=production npx tsc --project tsconfig.server.json &&
-    NODE_ENV=production npx vite build &&
-    NODE_ENV=production PORT=5000 NODE_PATH=./dist/server tsx src/server/server.ts
+    NODE_ENV=staging npx tsc --project tsconfig.server.json &&
+    NODE_ENV=staging npx vite build &&
+    NODE_ENV=staging PORT=5000 NODE_PATH=./dist/server tsx src/server/server.ts
     """
 waitForPort = 5000
 
