@@ -73,6 +73,10 @@ args = "Backend Server"
 task = "workflow.run"
 args = "Build Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start Server"
+
 [[workflows.workflow]]
 name = "Production Build"
 author = "agent"
@@ -143,7 +147,21 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development npx tsc -p tsconfig.server.json && node dist/server/server.js"
+args = "npx tsc -p tsconfig.server.json"
+
+[[workflows.workflow]]
+name = "Start Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node dist/server/server.js"
 waitForPort = 5000
 
 [[ports]]
