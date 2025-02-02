@@ -2,8 +2,9 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+// Remove the /api suffix since it's already in VITE_API_URL
 const baseURL = isDevelopment
-  ? 'http://0.0.0.0:5000/api'
+  ? import.meta.env.VITE_API_URL
   : '/api';
 
 console.log('API client configuration:', {
