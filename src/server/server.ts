@@ -23,7 +23,7 @@ const corsOrigins = (() => {
   return ['http://localhost:3003'];
 })();
 
-// Standard middleware setup
+// Basic middleware setup
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -36,52 +36,18 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
-// Validate configuration before setting up authenticated routes
-function validateConfig() {
-  const requiredEnvVars = {
-    'DATABASE_URL': process.env.DATABASE_URL,
-    'SESSION_SECRET': process.env.SESSION_SECRET,
-    'GOOGLE_CLIENT_ID': process.env.GOOGLE_CLIENT_ID,
-    'GOOGLE_CLIENT_SECRET': process.env.GOOGLE_CLIENT_SECRET
-  };
-
-  const missingVars = Object.entries(requiredEnvVars)
-    .filter(([_, value]) => !value)
-    .map(([key]) => key);
-
-  if (missingVars.length > 0) {
-    const errorMessage = `Missing required configuration: ${missingVars.join(', ')}`;
-    console.error(errorMessage);
-    return { valid: false, error: errorMessage };
-  }
-
-  return { valid: true };
-}
-
-console.log('Environment Variables Status:', {
-  NODE_ENV: process.env.NODE_ENV,
-  DATABASE_URL: process.env.DATABASE_URL ? '[SET]' : '[NOT SET]',
-  SESSION_SECRET: process.env.SESSION_SECRET ? '[SET]' : '[NOT SET]',
-  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? '[SET]' : '[NOT SET]',
-  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? '[SET]' : '[NOT SET]',
-  CORS_ORIGIN: process.env.CORS_ORIGIN
-});
-
-const configValidation = validateConfig();
-
+// Static file serving and health check setup for production/staging
 if (isProduction || isStaging) {
   const distPath = path.resolve(__dirname, '..', '..');
 
-  // Serve static files regardless of config status
   app.use(express.static(path.join(distPath, 'dist'), {
     maxAge: '1d',
     index: false,
     etag: true
   }));
 
-  // Health check endpoint always available
   app.get('/health', (_req, res) => {
-    res.json({
+    res.json({ 
       status: 'ok',
       environment,
       config: {
@@ -94,8 +60,10 @@ if (isProduction || isStaging) {
   });
 }
 
-// Setup authenticated routes only if configuration is valid
-if (configValidation.valid) {
+// Session and authentication setup
+let sessionInitialized = false;
+
+if (process.env.SESSION_SECRET && process.env.DATABASE_URL) {
   try {
     const PostgresqlStore = pgSession(session);
     const sessionPool = new Pool({
@@ -103,21 +71,12 @@ if (configValidation.valid) {
       ssl: isProduction || isStaging ? { rejectUnauthorized: false } : false
     });
 
-    sessionPool.query('SELECT NOW()', (err) => {
-      if (err) {
-        console.error('Database connection error:', err);
-        process.exit(1);
-      } else {
-        console.log('Database connection successful');
-      }
-    });
-
     app.use(session({
       store: new PostgresqlStore({
         pool: sessionPool,
         tableName: 'user_sessions'
       }),
-      secret: process.env.SESSION_SECRET!,
+      secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -131,22 +90,34 @@ if (configValidation.valid) {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    // API routes
-    app.use('/api', routes);
+    // API routes with authentication middleware
+    const authCheckMiddleware: express.RequestHandler = (req, res, next) => {
+      if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+        res.status(503).json({ 
+          error: 'Authentication service unavailable',
+          details: isProduction ? undefined : 'Missing OAuth configuration'
+        });
+        return;
+      }
+      next();
+    };
+
+    app.use('/api', authCheckMiddleware, routes);
+
+    sessionInitialized = true;
   } catch (error) {
-    console.error('Server initialization error:', error);
-    process.exit(1);
+    console.error('Session initialization error:', error);
   }
 }
 
-// Final catch-all route handler
+// Catch-all route handler
 if (isProduction || isStaging) {
   app.get('*', (req, res) => {
     if (req.path.startsWith('/api')) {
-      if (!configValidation.valid) {
-        res.status(500).json({
-          error: 'Application configuration error',
-          details: isProduction ? undefined : configValidation.error
+      if (!sessionInitialized) {
+        res.status(503).json({
+          error: 'Service temporarily unavailable',
+          details: isProduction ? undefined : 'Session service not initialized'
         });
       } else {
         res.status(404).json({ error: 'API endpoint not found' });
@@ -161,7 +132,7 @@ if (isProduction || isStaging) {
   });
 }
 
-// Error handling middleware
+// Error handling
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server Error:', err);
   res.status(err.status || 500).json({
@@ -175,6 +146,7 @@ if (require.main === module) {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
     console.log('Environment:', environment);
     console.log('CORS Origins:', corsOrigins);
+    console.log('Session Status:', sessionInitialized ? 'Initialized' : 'Not Initialized');
   });
 }
 
