@@ -42,16 +42,39 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Debug logging middleware
+if (!isProduction) {
+  app.use((req, res, next) => {
+    console.log('[API Request]:', {
+      method: req.method,
+      url: req.url,
+      origin: req.headers.origin,
+      authenticated: req.isAuthenticated()
+    });
+    next();
+  });
+}
+
 // API Routes
 app.use('/api', routes);
 
-// Serve static files
-app.use(express.static(path.resolve(__dirname, '../../dist')));
-
-// SPA fallback
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, '../../dist/index.html'));
+// Error handling middleware
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('[Server Error]:', err);
+  res.status(err.status || 500).json({
+    error: isProduction ? 'Internal server error' : err.message,
+    details: !isProduction ? err.stack : undefined
+  });
 });
+
+// Serve static files in production
+if (isProduction) {
+  app.use(express.static(path.resolve(__dirname, '../../dist')));
+
+  app.get('*', (_req, res) => {
+    res.sendFile(path.join(__dirname, '../../dist/index.html'));
+  });
+}
 
 const PORT = Number(process.env.PORT || 5000);
 app.listen(PORT, '0.0.0.0', () => {

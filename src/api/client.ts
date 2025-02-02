@@ -12,6 +12,9 @@ const client = axios.create({
 // Request interceptor for API calls
 client.interceptors.request.use(
   (config) => {
+    if (!config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json';
+    }
     return config;
   },
   (error) => {
@@ -28,7 +31,7 @@ client.interceptors.response.use(
   (error) => {
     // Handle network errors
     if (!error.response) {
-      toast.error('Connection error. Please try again.');
+      toast.error('Unable to connect to the server. Please check your connection.');
       return Promise.reject(error);
     }
 
@@ -38,7 +41,7 @@ client.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const message = error.response?.data?.error || 'Something went wrong';
+    const message = error.response?.data?.error || 'An unexpected error occurred';
     toast.error(message);
     return Promise.reject(error);
   }

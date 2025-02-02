@@ -10,9 +10,8 @@ const __dirname = path.dirname(__filename)
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    host: true,
     port: 3003,
-    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://0.0.0.0:5000',
@@ -34,5 +33,6 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true
-  }
+  },
+  envPrefix: ['VITE_']
 })
