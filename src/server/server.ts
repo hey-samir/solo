@@ -17,6 +17,16 @@ const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = Number(process.env.PORT || 5000);
 
+// Debug environment variables
+console.log('Environment Variables:', {
+  NODE_ENV: process.env.NODE_ENV,
+  DATABASE_URL: process.env.DATABASE_URL ? '[SET]' : '[NOT SET]',
+  SESSION_SECRET: process.env.SESSION_SECRET ? '[SET]' : '[NOT SET]',
+  GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? '[SET]' : '[NOT SET]',
+  GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? '[SET]' : '[NOT SET]',
+  CORS_ORIGIN: process.env.CORS_ORIGIN
+});
+
 // Validate required environment variables
 const requiredEnvVars = ['DATABASE_URL', 'SESSION_SECRET', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
@@ -47,28 +57,43 @@ app.use(cors({
 }));
 
 // PostgreSQL session store setup
-const PostgresqlStore = pgSession(session);
-const sessionPool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: isProduction || isStaging ? { rejectUnauthorized: false } : false
-});
+try {
+  const PostgresqlStore = pgSession(session);
+  const sessionPool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: isProduction || isStaging ? { rejectUnauthorized: false } : false
+  });
 
-// Session configuration with PostgreSQL store
-app.use(session({
-  store: new PostgresqlStore({
-    pool: sessionPool,
-    tableName: 'user_sessions'
-  }),
-  secret: process.env.SESSION_SECRET!,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: isProduction || isStaging,
-    httpOnly: true,
-    sameSite: isProduction || isStaging ? 'strict' : 'lax',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));
+  // Test database connection
+  sessionPool.query('SELECT NOW()', (err) => {
+    if (err) {
+      console.error('Database connection error:', err);
+      process.exit(1);
+    } else {
+      console.log('Database connection successful');
+    }
+  });
+
+  // Session configuration with PostgreSQL store
+  app.use(session({
+    store: new PostgresqlStore({
+      pool: sessionPool,
+      tableName: 'user_sessions'
+    }),
+    secret: process.env.SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: isProduction || isStaging,
+      httpOnly: true,
+      sameSite: isProduction || isStaging ? 'strict' : 'lax',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
+  }));
+} catch (error) {
+  console.error('Session store setup error:', error);
+  process.exit(1);
+}
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -92,7 +117,16 @@ if (isProduction || isStaging) {
 
   // Health check endpoint
   app.get('/health', (_req, res) => {
-    res.json({ status: 'ok', environment });
+    res.json({ 
+      status: 'ok', 
+      environment,
+      config: {
+        corsOrigins,
+        hasDb: !!process.env.DATABASE_URL,
+        hasSession: !!process.env.SESSION_SECRET,
+        hasGoogle: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
+      }
+    });
   });
 
   // For all other routes, serve index.html
