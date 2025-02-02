@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
+// Create axios instance with development-specific configuration
 const client = axios.create({
   baseURL: '/api',
   headers: {
@@ -12,14 +13,17 @@ const client = axios.create({
 // Request interceptor for API calls
 client.interceptors.request.use(
   (config) => {
-    console.log('[API Request]:', {
+    console.log('[API Client Request]:', {
       url: config.url,
-      method: config.method
+      method: config.method,
+      headers: config.headers,
+      data: config.data,
+      timestamp: new Date().toISOString()
     });
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
+    console.error('[API Client Request Error]:', error);
     return Promise.reject(error);
   }
 );
@@ -27,14 +31,21 @@ client.interceptors.request.use(
 // Response interceptor
 client.interceptors.response.use(
   (response) => {
-    console.log('[API Response]:', {
+    console.log('[API Client Response]:', {
       status: response.status,
-      url: response.config.url
+      url: response.config.url,
+      data: response.data,
+      timestamp: new Date().toISOString()
     });
     return response;
   },
   (error) => {
-    console.error('[API Error]:', error);
+    console.error('[API Client Error]:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      timestamp: new Date().toISOString()
+    });
 
     // Handle network errors
     if (!error.response) {

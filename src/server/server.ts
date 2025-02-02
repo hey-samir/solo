@@ -16,6 +16,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 
+// Debug logging for all requests in development
+if (!isProduction) {
+  app.use((req, res, next) => {
+    console.log('\n[Incoming Request]:', {
+      method: req.method,
+      path: req.path,
+      query: req.query,
+      headers: req.headers,
+      body: req.body,
+      timestamp: new Date().toISOString()
+    });
+    next();
+  });
+}
+
 // CORS configuration
 app.use(cors({
   origin: isProduction 
@@ -42,26 +57,19 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug logging middleware
-if (!isProduction) {
-  app.use((req, res, next) => {
-    console.log('[API Request]:', {
-      method: req.method,
-      url: req.url,
-      origin: req.headers.origin,
-      authenticated: req.isAuthenticated()
-    });
-    next();
+// API Routes with detailed logging
+app.use('/api', (req, res, next) => {
+  console.log('[API Route Hit]:', {
+    path: req.path,
+    method: req.method,
+    authenticated: req.isAuthenticated()
   });
-}
-
-// API Routes
-app.use('/api', routes);
+  next();
+}, routes);
 
 // Serve static files in production
 if (isProduction) {
   app.use(express.static(path.resolve(__dirname, '../../dist')));
-
   app.get('*', (_req, res) => {
     res.sendFile(path.join(__dirname, '../../dist/index.html'));
   });
