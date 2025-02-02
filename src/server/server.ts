@@ -7,19 +7,10 @@ import morgan from 'morgan';
 import { createClient } from '@vercel/postgres';
 import routes from './routes';
 import feedbackRoutes from './routes/feedback.routes';
+import { db } from './db';
 
 const app = express();
 const isProduction = process.env.NODE_ENV === 'production';
-
-// Configure database connection
-const db = createClient({
-  connectionString: process.env.DATABASE_URL
-});
-
-// Connect to the database
-db.connect().catch(err => {
-  console.error('Failed to connect to the database:', err);
-});
 
 // Middleware configuration
 app.use(express.json({ limit: '10mb' }));
@@ -44,36 +35,24 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Session configuration with secure settings
-const sessionConfig = {
+app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-key',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: isProduction,
     httpOnly: true,
-    sameSite: isProduction ? 'strict' : 'lax' as const,
+    sameSite: isProduction ? 'strict' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     domain: isProduction ? '.gosolo.nyc' : undefined,
   },
   name: 'solo.sid', // Custom session ID name
   proxy: true // Trust the reverse proxy
-};
-
-// Initialize session middleware
-app.use(session(sessionConfig));
+}));
 
 // Routes
 app.use('/api', routes);
-app.use('/api/feedback', feedbackRoutes); // Add feedback routes
-
-// Auth status middleware for debugging
-app.use((req, res, next) => {
-  console.log('Session ID:', req.sessionID);
-  console.log('Session:', req.session);
-  console.log('Is Authenticated:', req.session.user !== undefined);
-  console.log('Cookies:', req.headers.cookie);
-  next();
-});
+app.use('/api/feedback', feedbackRoutes);
 
 // Get the absolute path to the dist directory
 const distPath = path.resolve(__dirname, '../../dist');
@@ -95,8 +74,8 @@ app.use(express.static(distPath, {
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Server error:', err);
   res.status(500).json({
-    error: 'Internal server error',
-    message: err.message
+    error: 'Oops! Something went wrong on our end. Let\'s get you back on track.',
+    message: isProduction ? undefined : err.message
   });
 });
 

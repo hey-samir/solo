@@ -12,10 +12,10 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
 
   if (type === 'page') {
     return (
-      <div className="flash-messages-container">
-        <div className="flash-message">
+      <div className="error-page">
+        <div className="error-content">
           <div className="flex flex-col items-center">
-            <i className="material-icons text-red-500 text-4xl mb-4">error</i>
+            <i className="material-icons error-icon text-4xl mb-4">error</i>
             <h2 className="text-xl font-semibold mb-4">{message}</h2>
             <div className="flex gap-4">
               {retry && (
@@ -40,27 +40,29 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
   }
 
   return (
-    <div className="flash-message">
-      <div className="flex items-center space-x-2">
-        <i className="material-icons text-lg">error_outline</i>
-        <span>{message}</span>
-      </div>
-      {retry && (
-        <div className="flex gap-4 mt-4 justify-center">
-          <button
-            onClick={retry}
-            className="btn-solo-purple"
-          >
-            Try Again
-          </button>
-          <button
-            onClick={() => navigate(-1)}
-            className="btn-secondary"
-          >
-            Back
-          </button>
+    <div className="error-inline">
+      <div className="flex flex-col space-y-4">
+        <div className="flex items-center space-x-2">
+          <i className="material-icons text-lg">error_outline</i>
+          <span className="text-error">{message}</span>
         </div>
-      )}
+        {retry && (
+          <div className="flex gap-4 justify-center">
+            <button
+              onClick={retry}
+              className="btn-solo-purple"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="btn-secondary"
+            >
+              Back
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -39,7 +39,7 @@ const Sessions: FC = () => {
     date: null
   })
 
-  const { data: climbs = [], isLoading, error, refetch } = useQuery<Climb[]>({
+  const { data, isLoading, error, refetch } = useQuery<Climb[]>({
     queryKey: ['climbs'],
     queryFn: async () => {
       try {
@@ -47,7 +47,7 @@ const Sessions: FC = () => {
         return response.data || []
       } catch (error) {
         console.error('Error fetching climbs:', error)
-        throw error
+        throw new Error("Oops! We're having trouble loading your climbing sessions. Let's get you back on track.")
       }
     }
   })
@@ -59,12 +59,27 @@ const Sessions: FC = () => {
   if (error) {
     return (
       <Error
-        message="Failed to load climbing sessions. Please try again."
+        message={error instanceof Error ? error.message : "Oops! Something went wrong. Let's get you back on track."}
         type="page"
         retry={() => refetch()}
       />
     )
   }
+
+  // Ensure data is an array
+  const climbs = Array.isArray(data) ? data : []
+
+  // Group climbs by date with null check
+  const climbsByDate = climbs.reduce<ClimbsByDate>((acc, climb) => {
+    if (climb && climb.createdAt) {
+      const date = new Date(climb.createdAt).toLocaleDateString()
+      if (!acc[date]) {
+        acc[date] = []
+      }
+      acc[date].push(climb)
+    }
+    return acc
+  }, {})
 
   const getColorHex = (color: string): string => {
     const colorMap: Record<string, string> = {
@@ -81,16 +96,7 @@ const Sessions: FC = () => {
     }
     return colorMap[color] || '#CCCCCC'
   }
-
-  // Group climbs by date
-  const climbsByDate = (climbs || []).reduce<ClimbsByDate>((acc, climb) => {
-    const date = new Date(climb.createdAt).toLocaleDateString()
-    if (!acc[date]) {
-      acc[date] = []
-    }
-    acc[date].push(climb)
-    return acc
-  }, {})
+  
 
   const sortClimbs = (climbsToSort: Climb[]) => {
     return [...climbsToSort].sort((a, b) => {

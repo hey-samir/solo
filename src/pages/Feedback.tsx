@@ -44,11 +44,10 @@ const Feedback: React.FC = () => {
     queryFn: async () => {
       try {
         const response = await client.get('/api/feedback', { params: { sort } });
-        console.log('Feedback response:', response);
         return response.data || [];
       } catch (error) {
         console.error('Error fetching feedback:', error);
-        throw error;
+        throw new Error("Oops! We're having trouble loading the feedback. Let's get you back on track.");
       }
     }
   });
@@ -101,7 +100,7 @@ const Feedback: React.FC = () => {
   if (error) {
     return (
       <Error 
-        message="Oops! We're having trouble loading the feedback. Let's get you back on track."
+        message={error instanceof Error ? error.message : "Oops! Something went wrong. Let's get you back on track."}
         type="page"
         retry={() => refetch()}
       />
@@ -113,8 +112,9 @@ const Feedback: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Form section */}
         <div className="space-y-4">
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-card rounded-lg p-6">
             <h2 className="text-2xl font-bold mb-4">Submit Feedback</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -164,7 +164,7 @@ const Feedback: React.FC = () => {
               </div>
               <button
                 type="submit"
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
+                className="w-full bg-solo-purple hover:bg-solo-purple-light text-white font-bold py-2 px-4 rounded transition-colors"
                 disabled={submitFeedback.isPending}
               >
                 {submitFeedback.isPending ? 'Submitting...' : 'Submit Feedback'}
@@ -173,19 +173,20 @@ const Feedback: React.FC = () => {
           </div>
         </div>
 
+        {/* Feedback list section */}
         <div className="space-y-4">
-          <div className="bg-gray-800 rounded-lg p-6">
+          <div className="bg-card rounded-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Community Feedback</h2>
               <div className="flex space-x-2">
                 <button
-                  className={`px-4 py-2 rounded ${sort === 'new' ? 'bg-purple-600' : 'bg-gray-700'}`}
+                  className={`px-4 py-2 rounded transition-colors ${sort === 'new' ? 'bg-solo-purple' : 'bg-gray-700'}`}
                   onClick={() => setSort('new')}
                 >
                   Latest
                 </button>
                 <button
-                  className={`px-4 py-2 rounded ${sort === 'top' ? 'bg-purple-600' : 'bg-gray-700'}`}
+                  className={`px-4 py-2 rounded transition-colors ${sort === 'top' ? 'bg-solo-purple' : 'bg-gray-700'}`}
                   onClick={() => setSort('top')}
                 >
                   Top

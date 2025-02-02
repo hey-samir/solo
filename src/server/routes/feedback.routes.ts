@@ -26,12 +26,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-interface RequestWithUser extends Request {
-  session?: {
-    userId?: number;
-  };
-}
-
 // Get feedback items with optional sorting
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -53,20 +47,21 @@ router.get('/', async (req: Request, res: Response) => {
     .leftJoin(users, eq(feedbacks.user_id, users.id))
     .orderBy(sort === 'new' ? desc(feedbacks.created_at) : desc(feedbacks.upvotes));
 
-    res.json(feedbackItems);
+    // Ensure we always return an array
+    res.json(feedbackItems || []);
   } catch (error) {
     console.error('Error fetching feedback:', error);
     res.status(500).json({ 
-      error: 'Oops! We\'re having trouble loading the feedback. Let\'s get you back on track.' 
+      error: "Oops! We're having trouble loading the feedback. Let's get you back on track." 
     });
   }
 });
 
 // Submit new feedback
-router.post('/', upload.single('screenshot'), async (req: RequestWithUser, res: Response) => {
+router.post('/', upload.single('screenshot'), async (req: Request, res: Response) => {
   try {
     const { title, description, category } = req.body;
-    const userId = req.session?.userId;
+    const userId = req.user?.id;
 
     if (!userId) {
       return res.status(401).json({ error: 'Please log in to submit feedback.' });
@@ -83,6 +78,10 @@ router.post('/', upload.single('screenshot'), async (req: RequestWithUser, res: 
         created_at: new Date()
       })
       .returning();
+
+    if (!feedback) {
+      throw new Error('Failed to create feedback');
+    }
 
     const feedbackWithUser = await db.select({
       id: feedbacks.id,
@@ -105,7 +104,7 @@ router.post('/', upload.single('screenshot'), async (req: RequestWithUser, res: 
   } catch (error) {
     console.error('Error submitting feedback:', error);
     res.status(500).json({ 
-      error: 'Oops! Something went wrong while submitting your feedback. Please try again.' 
+      error: "Oops! Something went wrong while submitting your feedback. Let's get you back on track." 
     });
   }
 });
