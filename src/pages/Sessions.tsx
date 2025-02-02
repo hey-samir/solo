@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Error from '../components/Error';
-import { ErrorResponse } from '../types';
+import { ErrorProps } from '../types';
 
 interface Route {
   color: string;
@@ -40,7 +40,7 @@ const Sessions: FC = () => {
     date: null,
   });
 
-  const { data, isLoading, error, refetch } = useQuery<Climb[]>({
+  const { data, isLoading, error, refetch } = useQuery<Climb[], Error>({
     queryKey: ['climbs'],
     queryFn: async () => {
       try {
@@ -49,12 +49,8 @@ const Sessions: FC = () => {
           throw new Error("Oops! We received unexpected data. Let's get you back on track.");
         }
         return response.data;
-      } catch (error) {
-        console.error('Error fetching climbs:', error);
-        const err = error as ErrorResponse;
-        if (err.response?.data?.message) {
-          throw new Error(err.response.data.message);
-        }
+      } catch (err) {
+        console.error('Error fetching climbs:', err);
         throw new Error("Oops! We're having trouble loading your climbing sessions. Let's get you back on track.");
       }
     },
@@ -64,7 +60,7 @@ const Sessions: FC = () => {
     return <LoadingSpinner />;
   }
 
-  if (error instanceof Error) {
+  if (error) {
     return (
       <Error
         message={error.message}

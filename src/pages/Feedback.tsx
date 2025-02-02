@@ -3,7 +3,6 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import client from '../api/client';
 import { toast } from 'react-hot-toast';
 import Error from '../components/Error';
-import { ErrorResponse } from '../types';
 
 interface FeedbackItem {
   id: number;
@@ -32,8 +31,6 @@ const categories = [
   'Other'
 ];
 
-const DEFAULT_ERROR_MESSAGE = "Oops! This route hasn't been set yet. Let's get you back on track.";
-
 const Feedback: React.FC = () => {
   const [sort, setSort] = useState<'new' | 'top'>('new');
   const [form, setForm] = useState<FeedbackForm>({
@@ -42,25 +39,12 @@ const Feedback: React.FC = () => {
     category: '',
   });
 
-  const {
-    data: items = [],
-    isLoading,
-    error,
-    refetch
-  } = useQuery<FeedbackItem[], Error>({
+  const { data, isLoading, isError, refetch } = useQuery<FeedbackItem[]>({
     queryKey: ['feedback', sort],
     queryFn: async () => {
-      try {
-        const response = await client.get('/api/feedback', { params: { sort } });
-        if (!response.data || !Array.isArray(response.data)) {
-          return Promise.reject(DEFAULT_ERROR_MESSAGE);
-        }
-        return response.data;
-      } catch (error) {
-        console.error('Error fetching feedback:', error);
-        return Promise.reject(DEFAULT_ERROR_MESSAGE);
-      }
-    },
+      const response = await client.get('/api/feedback', { params: { sort } });
+      return response.data;
+    }
   });
 
   const submitFeedback = useMutation({
@@ -82,7 +66,7 @@ const Feedback: React.FC = () => {
       refetch();
     },
     onError: () => {
-      toast.error(DEFAULT_ERROR_MESSAGE);
+      toast.error('Something went wrong. Please try again.');
     },
   });
 
@@ -109,15 +93,17 @@ const Feedback: React.FC = () => {
     return <div className="text-center mt-4">Loading...</div>;
   }
 
-  if (error) {
+  if (isError) {
     return (
       <Error 
-        message={DEFAULT_ERROR_MESSAGE}
+        message="Unable to load feedback. Please try again."
         type="page"
         retry={() => refetch()}
       />
     );
   }
+
+  const items = data || [];
 
   return (
     <div className="container mx-auto px-4 py-8">

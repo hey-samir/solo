@@ -1,11 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { db } from '../db';
-import { climbs, routes } from '../db/schema';
+import { climbs, routes, User } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
 
-const getUserClimbs = async (req: Request, res: Response, next: NextFunction) => {
+interface AuthenticatedRequest extends Request {
+  user?: User;
+}
+
+const getUserClimbs = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     if (!req.user?.id) {
       res.status(401).json({ error: 'Unauthorized' });
@@ -32,7 +36,6 @@ const getUserClimbs = async (req: Request, res: Response, next: NextFunction) =>
       .where(eq(climbs.user_id, req.user.id))
       .orderBy(climbs.created_at);
 
-    // Transform the data to match frontend expectations
     const transformedClimbs = userClimbs.map(climb => ({
       id: climb.id,
       routeId: climb.route_id,

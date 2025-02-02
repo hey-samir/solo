@@ -1,10 +1,9 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { feedbacks, users } from '../db/schema';
+import { feedbacks, users, User } from '../db/schema';
 import { desc, eq } from 'drizzle-orm';
 import multer from 'multer';
 import path from 'path';
-import { Request, Response } from 'express';
 import fs from 'fs';
 
 // Ensure uploads directory exists
@@ -14,6 +13,10 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 const router = Router();
+
+interface AuthenticatedRequest extends Request {
+  user?: User;
+}
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -47,7 +50,6 @@ router.get('/', async (req: Request, res: Response) => {
     .leftJoin(users, eq(feedbacks.user_id, users.id))
     .orderBy(sort === 'new' ? desc(feedbacks.created_at) : desc(feedbacks.upvotes));
 
-    // Ensure we always return an array
     res.json(feedbackItems || []);
   } catch (error) {
     console.error('Error fetching feedback:', error);
@@ -58,13 +60,14 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // Submit new feedback
-router.post('/', upload.single('screenshot'), async (req: Request, res: Response) => {
+router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { title, description, category } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
-      return res.status(401).json({ error: 'Please log in to submit feedback.' });
+      res.status(401).json({ error: 'Please log in to submit feedback.' });
+      return;
     }
 
     const [feedback] = await db.insert(feedbacks)
