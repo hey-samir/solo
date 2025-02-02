@@ -34,11 +34,14 @@ const corsOptions = {
     : [
         'http://localhost:3003',
         'http://0.0.0.0:3003',
+        'http://localhost:5000',
+        'http://0.0.0.0:5000',
+        `http://${process.env.REPL_ID}.id.repl.co`,
         `https://${process.env.REPL_ID}.id.repl.co`,
+        `http://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`,
         `https://${process.env.REPL_ID}-3003.${process.env.REPL_OWNER}.repl.co`,
-        // Add additional development domains
-        `https://${process.env.REPL_ID}-00-35jfb2x2btqr5.picard.replit.dev`,
-        `https://${process.env.REPL_ID}-00-35jfb2x2btqr5.picard.replit.dev:5000`
+        'http://localhost',
+        'http://0.0.0.0'
       ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -47,7 +50,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Session configuration
+// Session configuration with secure options
 app.use(session({
   secret: process.env.SESSION_SECRET || 'development-secret-key',
   resave: false,
@@ -64,29 +67,36 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug middleware
+// Debug middleware for all requests
 app.use((req, res, next) => {
-  console.log('Request Debug:', {
+  console.log('[Request Debug]:', {
     method: req.method,
     path: req.path,
-    headers: req.headers,
+    headers: {
+      origin: req.headers.origin,
+      referer: req.headers.referer,
+      host: req.headers.host,
+      'user-agent': req.headers['user-agent']
+    },
     session: req.session?.id,
     user: req.user?.id,
-    origin: req.headers.origin
+    query: req.query,
+    body: req.method !== 'GET' ? req.body : undefined
   });
   next();
 });
 
-// API Routes
+// API Routes - mount under /api prefix
 app.use('/api', routes);
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Server error:', {
+app.use((err: any, req: any, res: any, next: any) => {
+  console.error('[Server Error]:', {
     error: err,
     stack: err.stack,
     path: req.path,
-    method: req.method
+    method: req.method,
+    headers: req.headers
   });
   res.status(err.status || 500).json({
     error: isProduction ? 'Internal server error' : err.message,

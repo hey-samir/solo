@@ -2,8 +2,8 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
-const baseURL = isDevelopment
-  ? import.meta.env.VITE_API_URL
+const baseURL = isDevelopment 
+  ? 'http://localhost:5000/api'
   : '/api';
 
 console.log('API client configuration:', {
@@ -23,26 +23,18 @@ const client = axios.create({
 // Add request interceptor for debugging
 client.interceptors.request.use(
   (config) => {
-    // Add CORS headers
-    config.headers['Access-Control-Allow-Credentials'] = 'true';
-    config.headers['Access-Control-Allow-Origin'] = window.location.origin;
-
-    // Additional logging for feedback-related requests
-    if (config.url?.includes('feedback')) {
-      console.log('Feedback API Request:', {
-        method: config.method,
-        url: config.url,
-        fullUrl: `${config.baseURL}${config.url}`,
-        headers: config.headers,
-        data: config.data,
-        origin: window.location.origin,
-        timestamp: new Date().toISOString()
-      });
-    }
+    console.log('[API Request]:', {
+      method: config.method,
+      url: config.url,
+      baseURL: config.baseURL,
+      fullUrl: `${config.baseURL}${config.url}`,
+      data: config.data,
+      headers: config.headers
+    });
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
+    console.error('[API Request Error]:', error);
     return Promise.reject(error);
   }
 );
@@ -50,47 +42,40 @@ client.interceptors.request.use(
 // Add response interceptor for error handling
 client.interceptors.response.use(
   (response) => {
-    if (response.config.url?.includes('feedback')) {
-      console.log('Feedback API Response:', {
-        status: response.status,
-        data: response.data,
-        headers: response.headers,
-        timestamp: new Date().toISOString()
-      });
-    }
+    console.log('[API Response]:', {
+      status: response.status,
+      url: response.config.url,
+      data: response.data
+    });
     return response;
   },
   (error) => {
-    // Enhanced error logging for feedback-related errors
-    if (error.config?.url?.includes('feedback')) {
-      console.error('Feedback API Error:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-        request: {
-          url: error.config?.url,
-          fullUrl: `${error.config?.baseURL}${error.config?.url}`,
-          method: error.config?.method,
-          headers: error.config?.headers,
-          data: error.config?.data,
-          origin: window.location.origin
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
+    console.error('[API Error]:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      request: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL,
+        headers: error.config?.headers
+      }
+    });
 
     // Handle network errors
     if (!error.response) {
+      toast.error('Unable to connect to the server. Please check your connection.');
       return Promise.reject({ 
-        message: "Unable to connect to the server. Please check your connection and try again.",
-        status: 0,
-        details: error.message
+        message: "Unable to connect to the server. Please check your connection.",
+        status: 0 
       });
     }
 
+    // Handle authentication errors
     if (error.response?.status === 401) {
       window.location.href = '/login';
     }
+
     return Promise.reject(error.response?.data || error);
   }
 );
