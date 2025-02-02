@@ -60,7 +60,7 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 // Submit new feedback
-router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+router.post('/', upload.single('screenshot'), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const { title, description, category } = req.body;
     const userId = req.user?.id;

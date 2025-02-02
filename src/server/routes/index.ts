@@ -4,6 +4,9 @@ import climbRoutes from './climb.routes';
 import sessionRoutes from './session.routes';
 import routeRoutes from './routes';
 import feedbackRoutes from './feedback.routes';
+import { db } from '../db';
+import { sends, users } from '../db/schema';
+import { sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -27,8 +30,18 @@ router.use((req, _res, next) => {
 // Leaderboard endpoint
 router.get('/leaderboard', async (_req, res) => {
   try {
-    // Return empty array if no data to prevent map errors
-    res.json([]);
+    const leaderboard = await db.select({
+      user_id: users.id,
+      username: users.username,
+      total_sends: sql<number>`count(case when ${sends.status} = true then 1 end)`.mapWith(Number),
+      total_points: sql<number>`sum(${sends.points})`.mapWith(Number)
+    })
+    .from(users)
+    .leftJoin(sends, sql`${sends.user_id} = ${users.id}`)
+    .groupBy(users.id, users.username)
+    .orderBy(sql`sum(${sends.points}) desc nulls last`);
+
+    res.json(leaderboard || []);
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     res.status(500).json({ 
