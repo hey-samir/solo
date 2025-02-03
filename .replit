@@ -205,6 +205,7 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=production tsx src/server/deployment/deploy.ts"
+waitForPort = 5002
 
 [[ports]]
 localPort = 80
