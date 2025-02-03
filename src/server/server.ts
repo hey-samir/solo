@@ -10,14 +10,33 @@ import routes from './routes';
 import passport from './middleware/auth';
 import { Pool } from 'pg';
 
+// Initialize express app
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
 const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = Number(process.env.PORT || 5000);
 
-// Set up session secret with fallback for development
-const sessionSecret = process.env.SESSION_SECRET || 'temporary_development_secret_key_123';
+// Validate environment variables
+function validateEnvironment() {
+  const requiredVars = {
+    DATABASE_URL: process.env.DATABASE_URL,
+    SESSION_SECRET: process.env.SESSION_SECRET,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
+  };
+
+  const missing = Object.entries(requiredVars)
+    .filter(([_, value]) => !value)
+    .map(([key]) => key);
+
+  if (missing.length > 0) {
+    console.error('Missing required environment variables:', missing);
+    return false;
+  }
+
+  return true;
+}
 
 // CORS configuration
 const corsOrigins = (() => {
@@ -50,7 +69,7 @@ app.use(session({
     pool: sessionPool,
     tableName: 'user_sessions'
   }),
-  secret: sessionSecret,
+  secret: process.env.SESSION_SECRET || 'temporary_development_secret_key_123',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -97,7 +116,7 @@ if (isProduction || isStaging) {
       config: {
         corsOrigins,
         hasDb: !!process.env.DATABASE_URL,
-        hasSession: true, // We now have a session secret (either from env or fallback)
+        hasSession: true,
         hasGoogle: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
       }
     });
@@ -127,6 +146,12 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 });
 
 if (require.main === module) {
+  // Validate environment before starting
+  if (!validateEnvironment()) {
+    console.error('Failed to validate environment variables');
+    process.exit(1);
+  }
+
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
     console.log('Environment:', environment);
