@@ -26,15 +26,20 @@ console.log('Environment:', environment);
 console.log('Session Secret Available:', !!process.env.SESSION_SECRET);
 console.log('Database URL Available:', !!process.env.DATABASE_URL);
 
-// CORS configuration
+// Add CORS configuration for Replit Webview
 const corsOrigins = (() => {
   const origins = [];
   if (isProduction) {
     origins.push('https://gosolo.nyc');
   }
   if (isStaging) {
-    // Add both staging and local development URLs
-    origins.push('https://staging.gosolo.nyc');
+    origins.push(
+      'https://staging.gosolo.nyc',
+      // Add Replit domains for Webview
+      /\.repl\.co$/,
+      /\.replit\.dev$/
+    );
+    // Add local development URLs when not in production
     if (process.env.NODE_ENV !== 'production') {
       origins.push('http://localhost:5000', 'http://localhost:3003');
     }
@@ -49,7 +54,19 @@ console.log('Configured CORS origins:', corsOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || corsOrigins.includes(origin)) {
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+
+    const isAllowed = corsOrigins.some(allowedOrigin => {
+      if (allowedOrigin instanceof RegExp) {
+        return allowedOrigin.test(origin);
+      }
+      return allowedOrigin === origin;
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
       console.log('Blocked by CORS:', origin);
