@@ -27,7 +27,7 @@ const Router: React.FC = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
-        <Route index element={<Home />} />
+        <Route index element={<Navigate to="/about" replace />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
