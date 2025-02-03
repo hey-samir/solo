@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './contexts/AuthContext'
+import 'bootstrap/dist/css/bootstrap.min.css'
 import './styles/global.css'
 
 const queryClient = new QueryClient({
@@ -27,7 +28,7 @@ const App: React.FC = () => {
   if (!clientId) {
     console.error('Missing VITE_GOOGLE_OAUTH_CLIENT_ID environment variable');
     return (
-      <div className="app bg-bg-primary text-text-primary min-h-screen">
+      <div className="vh-100 d-flex align-items-center justify-content-center bg-bg-primary text-text-primary">
         <Error
           message="Application configuration error. Please try again later."
           type="page"
@@ -43,7 +44,7 @@ const App: React.FC = () => {
         <GoogleOAuthProvider clientId={clientId}>
           <AuthProvider>
             <ErrorBoundary>
-              <div className="app bg-bg-primary text-text-primary min-h-screen">
+              <div className="min-vh-100 bg-bg-primary text-text-primary">
                 <AppRouter />
               </div>
             </ErrorBoundary>
