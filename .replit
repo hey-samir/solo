@@ -36,7 +36,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npx vite build"
+args = "NODE_ENV=staging npx vite build"
 
 [[workflows.workflow]]
 name = "Project"
@@ -59,7 +59,7 @@ args = "Database Migrations"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Build All"
+args = "Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
@@ -78,34 +78,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development tsx src/server/db/seed.ts"
-
-[[workflows.workflow]]
-name = "Build All"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-    echo \"Starting build process...\" &&
-    rm -rf dist &&
-    echo \"Creating directories...\" &&
-    mkdir -p dist/server &&
-    echo \"Building server files...\" &&
-    NODE_ENV=production npx tsc --project tsconfig.server.json &&
-    echo \"Server build complete. Contents of dist/server:\" &&
-    ls -la dist/server &&
-    echo \"Building client files...\" &&
-    NODE_ENV=production npx vite build &&
-    echo \"Build complete. Final directory structure:\" &&
-    ls -R dist/
-    """
 
 [[workflows.workflow]]
 name = "Staging Server"
