@@ -3,7 +3,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
-import { NotFound, ServerError } from './pages/ErrorPage'
+import NotFound from './pages/NotFound'
+import ServerError from './pages/ErrorPage'
 
 // Import pages
 import About from './pages/About'
