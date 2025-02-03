@@ -196,9 +196,14 @@ if (isProduction || isStaging) {
     }
   });
 } else {
-  // Development mode: redirect all requests to development server
+  // Development mode: serve the Vite development server
   app.get('*', (req, res) => {
-    res.redirect(`http://localhost:3003${req.path}`);
+    if (req.path.startsWith('/api')) {
+      res.status(404).json({ error: 'API endpoint not found' });
+      return;
+    }
+    console.log('Development mode: Serving index.html');
+    res.sendFile(path.join(__dirname, '../../dist/index.html'));
   });
 }
 

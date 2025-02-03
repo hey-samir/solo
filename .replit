@@ -110,8 +110,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development PORT=3003 tsx src/server/server.ts"
-waitForPort = 3003
+args = "NODE_ENV=development npx concurrently \"npx vite --port 3000\" \"PORT=3003 tsx src/server/server.ts\""
+waitForPort = 3000
 
 [[ports]]
 localPort = 3000
