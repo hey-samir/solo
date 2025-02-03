@@ -11,7 +11,8 @@ async function deploy() {
 
     // Start the new environment
     process.env.DEPLOYMENT_COLOR = newColor;
-    await blueGreenDeployment.startEnvironment(app, newColor);
+    const version = process.env.DEPLOYMENT_VERSION || new Date().toISOString();
+    await blueGreenDeployment.startEnvironment(app, newColor, version);
 
     // Wait for the new environment to be healthy
     let attempts = 0;
@@ -21,15 +22,17 @@ async function deploy() {
     while (attempts < maxAttempts && !isHealthy) {
       console.log(`Performing health check attempt ${attempts + 1}/${maxAttempts}`);
       isHealthy = await blueGreenDeployment.performHealthCheck(inactiveEnv);
-      
-      if (!isHealthy && attempts < maxAttempts - 1) {
+
+      if (!isHealthy) {
+        if (attempts === maxAttempts - 1) {
+          // If we've reached max attempts and still unhealthy, rollback
+          console.log('Health checks failed, initiating rollback...');
+          await blueGreenDeployment.performRollback();
+          throw new Error('Deployment failed health checks, rolled back to previous version');
+        }
         await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between attempts
       }
       attempts++;
-    }
-
-    if (!isHealthy) {
-      throw new Error(`New ${newColor} environment failed health checks`);
     }
 
     // Switch traffic to the new environment
@@ -40,6 +43,13 @@ async function deploy() {
     const oldColor = newColor === 'blue' ? 'green' : 'blue';
     await blueGreenDeployment.stopEnvironment(oldColor);
     console.log(`Stopped old ${oldColor} environment`);
+
+    // Start monitoring period
+    console.log('Starting deployment monitoring period...');
+    await new Promise(resolve => setTimeout(resolve, 30000)); // Monitor for 30 seconds
+
+    const deploymentHistory = blueGreenDeployment.getDeploymentHistory();
+    console.log('Recent deployment history:', deploymentHistory);
 
   } catch (error) {
     console.error('Deployment failed:', error);
