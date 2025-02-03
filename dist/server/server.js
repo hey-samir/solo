@@ -51,7 +51,7 @@ const sessionConfig = {
     cookie: {
         secure: isProduction || isStaging,
         httpOnly: true,
-        sameSite: isProduction || isStaging ? 'strict' : 'lax',
+        sameSite: (isProduction || isStaging ? 'strict' : 'lax'),
         maxAge: 24 * 60 * 60 * 1000
     }
 };
@@ -93,9 +93,13 @@ if (isProduction || isStaging) {
                 res.sendFile(path_1.default.join(distPath, 'dist', 'index.html'));
             }
         }
-        catch (error) {
+        catch (err) {
+            const error = err;
             console.error('Error serving static file:', error);
-            res.status(500).json({ error: 'Internal server error', details: !isProduction ? error.message : undefined });
+            res.status(500).json({
+                error: 'Internal server error',
+                details: !isProduction ? error.message : undefined
+            });
         }
     });
 }
@@ -107,7 +111,7 @@ else {
 // Enhanced error handling middleware
 app.use((err, _req, res, _next) => {
     console.error('Server Error:', err);
-    res.status(err.status || 500).json({
+    res.status(500).json({
         error: isProduction ? 'Internal Server Error' : err.message,
         details: !isProduction ? err.stack : undefined
     });

@@ -41,14 +41,14 @@ app.use(cors({
 }));
 
 // Session configuration with enhanced security for staging
-const sessionConfig = {
+const sessionConfig: session.SessionOptions = {
   secret: process.env.SESSION_SECRET || 'temporary_staging_secret_key_123',
   resave: false,
   saveUninitialized: false,
   cookie: {
     secure: isProduction || isStaging,
     httpOnly: true,
-    sameSite: isProduction || isStaging ? 'strict' : 'lax',
+    sameSite: (isProduction || isStaging ? 'strict' : 'lax') as 'strict' | 'lax' | 'none',
     maxAge: 24 * 60 * 60 * 1000
   }
 };
@@ -95,9 +95,13 @@ if (isProduction || isStaging) {
       } else {
         res.sendFile(path.join(distPath, 'dist', 'index.html'));
       }
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error;
       console.error('Error serving static file:', error);
-      res.status(500).json({ error: 'Internal server error', details: !isProduction ? error.message : undefined });
+      res.status(500).json({ 
+        error: 'Internal server error', 
+        details: !isProduction ? error.message : undefined 
+      });
     }
   });
 } else {
@@ -107,9 +111,9 @@ if (isProduction || isStaging) {
 }
 
 // Enhanced error handling middleware
-app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server Error:', err);
-  res.status(err.status || 500).json({
+  res.status(500).json({
     error: isProduction ? 'Internal Server Error' : err.message,
     details: !isProduction ? err.stack : undefined
   });

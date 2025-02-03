@@ -63,10 +63,6 @@ args = "Build All"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Staging Build"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Staging Server"
 
 [[workflows.workflow]]
@@ -112,27 +108,6 @@ args = """
     """
 
 [[workflows.workflow]]
-name = "Staging Build"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-    echo \"Starting staging build process...\" &&
-    rm -rf dist &&
-    mkdir -p dist/server &&
-    NODE_ENV=staging tsc --project tsconfig.server.json &&
-    NODE_ENV=staging vite build
-    """
-
-[[workflows.workflow]]
 name = "Staging Server"
 author = "agent"
 
@@ -144,11 +119,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = """
-
-    echo \"Starting staging server...\" &&
-    NODE_ENV=staging PORT=5000 tsx src/server/server.ts
-    """
+args = "NODE_ENV=staging PORT=5000 tsx src/server/server.ts"
 waitForPort = 5000
 
 [[ports]]
