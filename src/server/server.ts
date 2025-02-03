@@ -28,9 +28,21 @@ console.log('Database URL Available:', !!process.env.DATABASE_URL);
 
 // CORS configuration
 const corsOrigins = (() => {
-  if (isProduction) return ['https://gosolo.nyc'];
-  if (isStaging) return ['https://staging.gosolo.nyc', 'http://localhost:3003', 'http://localhost:5000'];
-  return ['http://localhost:3003'];
+  const origins = [];
+  if (isProduction) {
+    origins.push('https://gosolo.nyc');
+  }
+  if (isStaging) {
+    // Add both staging and local development URLs
+    origins.push('https://staging.gosolo.nyc');
+    if (process.env.NODE_ENV !== 'production') {
+      origins.push('http://localhost:5000', 'http://localhost:3003');
+    }
+  }
+  if (!isProduction && !isStaging) {
+    origins.push('http://localhost:3003');
+  }
+  return origins;
 })();
 
 console.log('Configured CORS origins:', corsOrigins);
