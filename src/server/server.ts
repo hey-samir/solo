@@ -49,17 +49,19 @@ const sessionConfig: session.SessionOptions = {
 };
 
 app.use(session(sessionConfig));
-
 app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/api', routes);
 
 if (isProduction || isStaging) {
-  const distPath = path.join(__dirname, '..', '..');
-  console.log('Static files path:', path.join(distPath, 'dist'));
+  const rootDir = path.resolve(__dirname, '../..');
+  const distDir = path.join(rootDir, 'dist');
 
-  app.use(express.static(path.join(distPath, 'dist'), {
+  console.log('Root directory:', rootDir);
+  console.log('Dist directory:', distDir);
+
+  app.use(express.static(distDir, {
     maxAge: '1d',
     index: false,
     etag: true
@@ -70,9 +72,9 @@ if (isProduction || isStaging) {
       status: 'ok',
       environment,
       paths: {
-        distPath,
-        staticPath: path.join(distPath, 'dist'),
-        indexPath: path.join(distPath, 'dist', 'index.html')
+        rootDir,
+        distDir,
+        indexHtml: path.join(distDir, 'index.html')
       },
       config: {
         corsOrigins,
@@ -87,21 +89,28 @@ if (isProduction || isStaging) {
     try {
       if (req.path.startsWith('/api')) {
         res.status(404).json({ error: 'API endpoint not found' });
-      } else {
-        const indexPath = path.join(distPath, 'dist', 'index.html');
-        console.log('Serving index.html from:', indexPath);
-        if (!require('fs').existsSync(indexPath)) {
-          throw new Error(`index.html not found at ${indexPath}`);
-        }
-        res.sendFile(indexPath);
+        return;
       }
+
+      const indexPath = path.join(distDir, 'index.html');
+      console.log('Attempting to serve index.html from:', indexPath);
+
+      if (!require('fs').existsSync(indexPath)) {
+        console.error('index.html not found at:', indexPath);
+        throw new Error(`index.html not found at ${indexPath}`);
+      }
+
+      res.sendFile(indexPath);
     } catch (err) {
       const error = err as Error;
       console.error('Error serving static file:', error);
       res.status(500).json({ 
         error: 'Internal server error', 
         details: !isProduction ? error.message : undefined,
-        path: !isProduction ? path.join(distPath, 'dist', 'index.html') : undefined
+        paths: !isProduction ? {
+          attempted: path.join(distDir, 'index.html'),
+          exists: require('fs').existsSync(distDir)
+        } : undefined
       });
     }
   });

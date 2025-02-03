@@ -55,9 +55,11 @@ app.use(auth_1.default.initialize());
 app.use(auth_1.default.session());
 app.use('/api', routes_1.default);
 if (isProduction || isStaging) {
-    const distPath = path_1.default.join(__dirname, '..', '..');
-    console.log('Static files path:', path_1.default.join(distPath, 'dist'));
-    app.use(express_1.default.static(path_1.default.join(distPath, 'dist'), {
+    const rootDir = path_1.default.resolve(__dirname, '../..');
+    const distDir = path_1.default.join(rootDir, 'dist');
+    console.log('Root directory:', rootDir);
+    console.log('Dist directory:', distDir);
+    app.use(express_1.default.static(distDir, {
         maxAge: '1d',
         index: false,
         etag: true
@@ -67,9 +69,9 @@ if (isProduction || isStaging) {
             status: 'ok',
             environment,
             paths: {
-                distPath,
-                staticPath: path_1.default.join(distPath, 'dist'),
-                indexPath: path_1.default.join(distPath, 'dist', 'index.html')
+                rootDir,
+                distDir,
+                indexHtml: path_1.default.join(distDir, 'index.html')
             },
             config: {
                 corsOrigins,
@@ -83,15 +85,15 @@ if (isProduction || isStaging) {
         try {
             if (req.path.startsWith('/api')) {
                 res.status(404).json({ error: 'API endpoint not found' });
+                return;
             }
-            else {
-                const indexPath = path_1.default.join(distPath, 'dist', 'index.html');
-                console.log('Serving index.html from:', indexPath);
-                if (!require('fs').existsSync(indexPath)) {
-                    throw new Error(`index.html not found at ${indexPath}`);
-                }
-                res.sendFile(indexPath);
+            const indexPath = path_1.default.join(distDir, 'index.html');
+            console.log('Attempting to serve index.html from:', indexPath);
+            if (!require('fs').existsSync(indexPath)) {
+                console.error('index.html not found at:', indexPath);
+                throw new Error(`index.html not found at ${indexPath}`);
             }
+            res.sendFile(indexPath);
         }
         catch (err) {
             const error = err;
@@ -99,7 +101,10 @@ if (isProduction || isStaging) {
             res.status(500).json({
                 error: 'Internal server error',
                 details: !isProduction ? error.message : undefined,
-                path: !isProduction ? path_1.default.join(distPath, 'dist', 'index.html') : undefined
+                paths: !isProduction ? {
+                    attempted: path_1.default.join(distDir, 'index.html'),
+                    exists: require('fs').existsSync(distDir)
+                } : undefined
             });
         }
     });
