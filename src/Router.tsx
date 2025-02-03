@@ -3,8 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
-import { NotFound } from './pages/ErrorPage'
-import Error from './components/Error'
+import { NotFound, ServerError } from './pages/ErrorPage'
 
 // Import pages
 import About from './pages/About'
@@ -18,7 +17,6 @@ import Stats from './pages/Stats'
 import Profile from './pages/Profile'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
-import Home from './pages/Home'
 
 const Router: React.FC = () => {
   console.log('Router component rendering...'); // Debug log
@@ -63,10 +61,12 @@ const Router: React.FC = () => {
             </ProtectedRoute>
           }
         />
+
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:username" element={<Profile />} />
 
-        {/* 404 Route */}
+        {/* Error Routes */}
+        <Route path="/server-error" element={<ServerError />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

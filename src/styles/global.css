@@ -26,6 +26,9 @@
   --bg-button-gradient: linear-gradient(135deg, var(--solo-purple) 0%, var(--solo-purple-light) 100%);
   --button-primary-bg: var(--solo-purple);
   --button-primary-text: var(--text-primary);
+
+  /* Sizing Variables */
+  --navbar-height: 60px;
 }
 
 /* Base Styles */
@@ -59,25 +62,60 @@ h1, h2, h3, h4, h5, h6 {
 .navbar {
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+}
+
+/* Fix hamburger menu */
+.navbar-toggler {
+  width: auto;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--border-color);
 }
 
 .navbar-toggler-icon {
   filter: invert(1);
+  width: 1.5em;
+  height: 1.5em;
 }
 
+/* Fix navbar links */
 .nav-link {
-  color: var(--text-primary);
+  color: var(--text-primary) !important;
   opacity: 0.7;
   transition: opacity 0.2s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-link i,
+.nav-link svg {
+  color: var(--text-primary);
+  fill: currentColor;
 }
 
 .nav-link:hover,
 .nav-link.active {
-  color: var(--solo-purple-light);
+  color: var(--solo-purple-light) !important;
   opacity: 1;
 }
 
-/* Container */
+/* Fix offcanvas menu */
+.offcanvas {
+  background-color: var(--bg-primary);
+}
+
+.offcanvas-header .btn-close {
+  filter: invert(1);
+}
+
+.list-group-item {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
 .container {
   width: 100%;
   max-width: 1200px;
@@ -155,19 +193,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Sidebar Menu */
-.offcanvas {
-  background-color: var(--bg-card);
-  max-width: 280px;
-}
+
 
 .offcanvas-backdrop {
   background-color: rgba(0, 0, 0, 0.5);
 }
 
+
 .list-group-item {
-  background: transparent;
-  border: none;
-  color: var(--text-primary);
   padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
