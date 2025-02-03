@@ -18,6 +18,8 @@ import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
 
 const Router: React.FC = () => {
+  console.log('Router component rendering...'); // Debug log
+
   return (
     <Routes>
       <Route path="/" element={<Layout />}>

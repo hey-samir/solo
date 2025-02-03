@@ -22,6 +22,9 @@ const queryClient = new QueryClient({
 const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 
+  // Debug logging
+  console.log('App rendering, current path:', window.location.pathname);
+
   // Enhanced error logging for missing configuration
   React.useEffect(() => {
     if (!clientId) {
