@@ -15,9 +15,10 @@ const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = Number(process.env.PORT || 5000);
 
-// Debug middleware to log all requests
+// Debug middleware to log all requests with more details
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
   next();
 });
 
@@ -197,26 +198,30 @@ if (isProduction || isStaging) {
   });
 } else {
   // Development mode: Handle API and client routes properly
-  app.get('*', (req, res, next) => {
+  app.use((req, res, next) => {
     if (req.path.startsWith('/api')) {
-      // Pass API requests to the API router
       next();
-      return;
+    } else {
+      console.log('Development mode: Serving index.html for client route:', req.path);
+      res.sendFile(path.join(__dirname, '../../index.html'));
     }
-
-    console.log('Development mode: Serving index.html for client route:', req.path);
-    res.sendFile(path.join(__dirname, '../../index.html'));
   });
 }
 
-// Error handler
+// Error handler with more detailed logging
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error('Server Error:', err);
+  console.error('Server Error Details:', {
+    message: err.message,
+    stack: err.stack,
+    type: err.name
+  });
+
   res.status(500).json({
     error: isProduction ? 'Internal Server Error' : err.message,
     details: !isProduction ? err.stack : undefined
   });
 });
+
 
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {

@@ -4,8 +4,9 @@ import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
 import { NotFound } from './pages/ErrorPage'
+import Error from './components/Error'
 
-// Import pages directly for debugging
+// Import pages
 import About from './pages/About'
 import Login from './pages/Login'
 import Register from './pages/Register'
