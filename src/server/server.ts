@@ -90,16 +90,26 @@ if (isProduction || isStaging) {
   const rootDir = path.resolve(__dirname, '../..');
   const distDir = path.join(rootDir, 'dist');
 
+  console.log('Root directory:', rootDir);
+  console.log('Dist directory:', distDir);
+
+  // Check if dist directory exists
+  if (!fs.existsSync(distDir)) {
+    console.error('Dist directory not found. Please run build first.');
+    process.exit(1);
+  }
 
   // Serve static files with proper MIME types
   app.use(express.static(distDir, {
     maxAge: '1d',
     index: false,
-    setHeaders: (res, path) => {
-      if (path.endsWith('.js')) {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.js')) {
         res.setHeader('Content-Type', 'application/javascript');
-      } else if (path.endsWith('.css')) {
+      } else if (filePath.endsWith('.css')) {
         res.setHeader('Content-Type', 'text/css');
+      } else if (filePath.endsWith('.html')) {
+        res.setHeader('Content-Type', 'text/html');
       }
     }
   }));
@@ -112,14 +122,22 @@ if (isProduction || isStaging) {
     }
 
     const indexPath = path.join(distDir, 'index.html');
+    console.log('Attempting to serve index.html from:', indexPath);
 
-    if (!fs.existsSync(indexPath)) {
-      console.error('index.html not found at:', indexPath);
-      res.status(500).send('Building application... Please refresh in a few moments.');
-      return;
+    try {
+      if (!fs.existsSync(indexPath)) {
+        console.error('index.html not found at:', indexPath);
+        res.status(503).send('Application is building. Please refresh in a few moments.');
+        return;
+      }
+
+      const indexContent = fs.readFileSync(indexPath, 'utf-8');
+      res.set('Content-Type', 'text/html');
+      res.send(indexContent);
+    } catch (error) {
+      console.error('Error serving index.html:', error);
+      res.status(500).send('Error loading application. Please try again.');
     }
-
-    res.sendFile(indexPath);
   });
 } else {
   app.get('*', (req, res) => {
