@@ -52,6 +52,7 @@ app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// API Routes
 app.use('/api', routes);
 
 if (isProduction || isStaging) {
@@ -60,13 +61,29 @@ if (isProduction || isStaging) {
 
   console.log('Root directory:', rootDir);
   console.log('Dist directory:', distDir);
+  console.log('Static files directory structure:');
 
+  try {
+    const fs = require('fs');
+    const files = fs.readdirSync(distDir);
+    console.log('Files in dist:', files);
+
+    if (files.includes('assets')) {
+      const assetFiles = fs.readdirSync(path.join(distDir, 'assets'));
+      console.log('Files in assets:', assetFiles);
+    }
+  } catch (err) {
+    console.error('Error reading dist directory:', err);
+  }
+
+  // Serve static files with caching
   app.use(express.static(distDir, {
     maxAge: '1d',
     index: false,
     etag: true
   }));
 
+  // Health check endpoint
   app.get('/health', (_req, res) => {
     res.json({ 
       status: 'ok',
@@ -85,33 +102,39 @@ if (isProduction || isStaging) {
     });
   });
 
+  // Serve index.html for all non-API routes
   app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+      res.status(404).json({ error: 'API endpoint not found' });
+      return;
+    }
+
+    const indexPath = path.join(distDir, 'index.html');
+    console.log('Serving index.html from:', indexPath);
+
     try {
-      if (req.path.startsWith('/api')) {
-        res.status(404).json({ error: 'API endpoint not found' });
-        return;
-      }
-
-      const indexPath = path.join(distDir, 'index.html');
-      console.log('Attempting to serve index.html from:', indexPath);
-
-      if (!require('fs').existsSync(indexPath)) {
-        console.error('index.html not found at:', indexPath);
+      if (!fs.existsSync(indexPath)) {
         throw new Error(`index.html not found at ${indexPath}`);
       }
-
       res.sendFile(indexPath);
     } catch (err) {
-      const error = err as Error;
-      console.error('Error serving static file:', error);
-      res.status(500).json({ 
-        error: 'Internal server error', 
-        details: !isProduction ? error.message : undefined,
-        paths: !isProduction ? {
-          attempted: path.join(distDir, 'index.html'),
-          exists: require('fs').existsSync(distDir)
-        } : undefined
-      });
+      console.error('Error serving index.html:', err);
+      res.status(500).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Solo App</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <script>
+            window.location.reload();
+          </script>
+        </head>
+        <body>
+          <p>Loading application...</p>
+        </body>
+        </html>
+      `);
     }
   });
 } else {
@@ -120,6 +143,7 @@ if (isProduction || isStaging) {
   });
 }
 
+// Error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server Error:', err);
   res.status(500).json({
