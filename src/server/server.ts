@@ -29,12 +29,21 @@ console.log('Database URL Available:', !!process.env.DATABASE_URL);
 // CORS configuration
 const corsOrigins = (() => {
   if (isProduction) return ['https://gosolo.nyc'];
-  if (isStaging) return process.env.CORS_ORIGIN ? [process.env.CORS_ORIGIN] : ['https://staging.gosolo.nyc'];
+  if (isStaging) return ['https://staging.gosolo.nyc', 'http://localhost:3003', 'http://localhost:5000'];
   return ['http://localhost:3003'];
 })();
 
+console.log('Configured CORS origins:', corsOrigins);
+
 app.use(cors({
-  origin: corsOrigins,
+  origin: (origin, callback) => {
+    if (!origin || corsOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('Blocked by CORS:', origin);
+      callback(null, false);
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
@@ -87,7 +96,7 @@ if (isProduction || isStaging) {
 
   // Health check endpoint
   app.get('/health', (_req, res) => {
-    res.json({ 
+    res.json({
       status: 'ok',
       environment,
       paths: {
