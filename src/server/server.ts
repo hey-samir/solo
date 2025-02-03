@@ -93,17 +93,39 @@ if (isProduction || isStaging) {
   console.log('Root directory:', rootDir);
   console.log('Dist directory:', distDir);
 
-  // Check if dist directory exists
-  if (!fs.existsSync(distDir)) {
-    console.error('Dist directory not found. Please run build first.');
+  // Verify build output
+  try {
+    if (!fs.existsSync(distDir)) {
+      console.error('Dist directory not found at:', distDir);
+      process.exit(1);
+    }
+
+    const distContents = fs.readdirSync(distDir);
+    console.log('Contents of dist directory:', distContents);
+
+    const assetsDir = path.join(distDir, 'assets');
+    if (fs.existsSync(assetsDir)) {
+      const assetsContents = fs.readdirSync(assetsDir);
+      console.log('Contents of assets directory:', assetsContents);
+    }
+
+    const indexPath = path.join(distDir, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+      console.error('index.html not found at:', indexPath);
+      process.exit(1);
+    }
+  } catch (error) {
+    console.error('Error verifying build output:', error);
     process.exit(1);
   }
 
-  // Serve static files with proper MIME types
+  // Serve static files
   app.use(express.static(distDir, {
-    maxAge: '1d',
-    index: false,
+    index: false, // Don't serve index.html automatically
+    etag: true, // Enable caching
+    lastModified: true,
     setHeaders: (res, filePath) => {
+      // Set correct content types
       if (filePath.endsWith('.js')) {
         res.setHeader('Content-Type', 'application/javascript');
       } else if (filePath.endsWith('.css')) {
@@ -111,11 +133,16 @@ if (isProduction || isStaging) {
       } else if (filePath.endsWith('.html')) {
         res.setHeader('Content-Type', 'text/html');
       }
+      // Enable caching for static assets
+      if (filePath.includes('/assets/')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000');
+      }
     }
   }));
 
-  // Serve index.html for client-side routing
+  // Handle all other routes by serving index.html
   app.get('*', (req, res) => {
+    // Don't handle API routes
     if (req.path.startsWith('/api')) {
       res.status(404).json({ error: 'API endpoint not found' });
       return;
@@ -125,21 +152,17 @@ if (isProduction || isStaging) {
     console.log('Attempting to serve index.html from:', indexPath);
 
     try {
-      if (!fs.existsSync(indexPath)) {
-        console.error('index.html not found at:', indexPath);
-        res.status(503).send('Application is building. Please refresh in a few moments.');
-        return;
-      }
-
+      // Read and serve index.html
       const indexContent = fs.readFileSync(indexPath, 'utf-8');
       res.set('Content-Type', 'text/html');
       res.send(indexContent);
     } catch (error) {
-      console.error('Error serving index.html:', error);
+      console.error('Error reading index.html:', error);
       res.status(500).send('Error loading application. Please try again.');
     }
   });
 } else {
+  // Development mode: redirect all requests to development server
   app.get('*', (req, res) => {
     res.redirect(`http://localhost:3003${req.path}`);
   });
@@ -157,8 +180,6 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
-    console.log('Environment:', environment);
-    console.log('CORS Origins:', corsOrigins);
   });
 }
 
