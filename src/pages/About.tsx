@@ -13,26 +13,26 @@ const About: React.FC = () => {
       </section>
 
       {/* Features Grid - 2x2 layout */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+      <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto mb-12 px-4">
         <FeatureCard
-          icon="trending_up"
-          title="Track Your Progress"
-          description="Log your climbs, track your sends, and watch your improvement over time."
-        />
-        <FeatureCard
-          icon="analytics"
-          title="Detailed Analytics"
-          description="Get insights into your climbing patterns, strengths, and areas for improvement."
-        />
-        <FeatureCard
-          icon="group"
-          title="Join the Community"
-          description="Connect with other climbers, share beta, and celebrate achievements together."
+          icon="arrow_upward"
+          title="Log Sends Instantly"
+          description="Track all metrics for routes"
         />
         <FeatureCard
           icon="emoji_events"
-          title="Compete & Compare"
-          description="See how you stack up against other climbers in your gym and worldwide."
+          title="Compete Globally"
+          description="See how you rank worldwide"
+        />
+        <FeatureCard
+          icon="calendar_today"
+          title="View Sessions"
+          description="Track your sessions"
+        />
+        <FeatureCard
+          icon="bar_chart"
+          title="Track Progress"
+          description="Analyze your climbing stats"
         />
       </div>
 
@@ -84,12 +84,12 @@ interface FeatureCardProps {
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
-  <div className="bg-bg-card rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
-    <div className="flex items-center mb-4">
-      <i className="material-icons text-3xl text-solo-purple mr-3">{icon}</i>
-      <h3 className="text-xl font-semibold text-text-primary">{title}</h3>
+  <div className="bg-bg-card rounded-lg p-4 md:p-6 hover:shadow-lg transition-shadow duration-200">
+    <div className="flex flex-col md:flex-row items-center md:items-start mb-3 md:mb-4">
+      <i className="material-icons text-2xl md:text-3xl text-solo-purple mb-2 md:mb-0 md:mr-3">{icon}</i>
+      <h3 className="text-lg md:text-xl font-semibold text-text-primary text-center md:text-left">{title}</h3>
     </div>
-    <p className="text-text-muted">{description}</p>
+    <p className="text-text-muted text-sm md:text-base text-center md:text-left">{description}</p>
   </div>
 )
 
