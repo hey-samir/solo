@@ -2,13 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import session from 'express-session';
-import pgSession from 'connect-pg-simple';
 import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import routes from './routes';
 import passport from './middleware/auth';
-import { Pool } from 'pg';
 
 // Initialize express app
 const app = express();
@@ -17,26 +15,12 @@ const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = Number(process.env.PORT || 5000);
 
-// Validate environment variables
-function validateEnvironment() {
-  const requiredVars = {
-    DATABASE_URL: process.env.DATABASE_URL,
-    SESSION_SECRET: process.env.SESSION_SECRET,
-    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET
-  };
-
-  const missing = Object.entries(requiredVars)
-    .filter(([_, value]) => !value)
-    .map(([key]) => key);
-
-  if (missing.length > 0) {
-    console.error('Missing required environment variables:', missing);
-    return false;
-  }
-
-  return true;
-}
+// Basic middleware setup
+app.use(morgan(isProduction ? 'combined' : 'dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(compression());
+app.use(cookieParser());
 
 // CORS configuration
 const corsOrigins = (() => {
@@ -45,31 +29,15 @@ const corsOrigins = (() => {
   return ['http://localhost:3003'];
 })();
 
-// Basic middleware setup
-app.use(morgan(isProduction ? 'combined' : 'dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(compression());
-app.use(cookieParser());
 app.use(cors({
   origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
-// Session setup
-const sessionPool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: isProduction || isStaging ? { rejectUnauthorized: false } : false
-});
-
-const PostgresqlStore = pgSession(session);
+// Simplified session configuration
 app.use(session({
-  store: new PostgresqlStore({
-    pool: sessionPool,
-    tableName: 'user_sessions'
-  }),
-  secret: process.env.SESSION_SECRET || 'temporary_development_secret_key_123',
+  secret: process.env.SESSION_SECRET || 'temporary_secret_123',  // Temporary secret for staging
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -84,20 +52,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-// API middleware
-const authCheckMiddleware: express.RequestHandler = (req, res, next) => {
-  if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
-    res.status(503).json({ 
-      error: 'Authentication service unavailable',
-      details: isProduction ? undefined : 'Missing OAuth configuration'
-    });
-    return;
-  }
-  next();
-};
-
 // Routes setup
-app.use('/api', authCheckMiddleware, routes);
+app.use('/api', routes);
 
 // Static file serving for production/staging
 if (isProduction || isStaging) {
@@ -146,12 +102,6 @@ app.use((err: any, _req: express.Request, res: express.Response, _next: express.
 });
 
 if (require.main === module) {
-  // Validate environment before starting
-  if (!validateEnvironment()) {
-    console.error('Failed to validate environment variables');
-    process.exit(1);
-  }
-
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
     console.log('Environment:', environment);

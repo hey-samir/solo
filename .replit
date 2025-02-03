@@ -65,6 +65,10 @@ args = "Build All"
 task = "workflow.run"
 args = "Staging Build"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Staging Server"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -121,13 +125,32 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-    echo \"Starting staging build...\" &&
+    echo \"Starting staging build process...\" &&
     rm -rf dist &&
     mkdir -p dist/server &&
-    set -a && source .env.staging && set +a &&
-    NODE_ENV=staging npx tsc --project tsconfig.server.json &&
-    NODE_ENV=staging npx vite build &&
-    NODE_ENV=staging PORT=5000 NODE_PATH=./dist/server tsx --require dotenv/config src/server/server.ts dotenv_config_path=.env.staging
+    echo \"Running TypeScript compilation...\" &&
+    NODE_ENV=staging npx tsc -v &&
+    NODE_ENV=staging npx tsc --project tsconfig.server.json --listEmittedFiles &&
+    echo \"TypeScript compilation complete. Running Vite build...\" &&
+    NODE_ENV=staging npx vite build --debug
+    """
+
+[[workflows.workflow]]
+name = "Staging Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    echo \"Starting staging server...\" &&
+    NODE_ENV=staging PORT=5000 NODE_PATH=./dist/server tsx src/server/server.ts
     """
 waitForPort = 5000
 
