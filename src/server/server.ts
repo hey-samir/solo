@@ -93,32 +93,6 @@ if (isProduction || isStaging) {
   console.log('Root directory:', rootDir);
   console.log('Dist directory:', distDir);
 
-  // Verify build output
-  try {
-    if (!fs.existsSync(distDir)) {
-      console.error('Dist directory not found at:', distDir);
-      process.exit(1);
-    }
-
-    const distContents = fs.readdirSync(distDir);
-    console.log('Contents of dist directory:', distContents);
-
-    const assetsDir = path.join(distDir, 'assets');
-    if (fs.existsSync(assetsDir)) {
-      const assetsContents = fs.readdirSync(assetsDir);
-      console.log('Contents of assets directory:', assetsContents);
-    }
-
-    const indexPath = path.join(distDir, 'index.html');
-    if (!fs.existsSync(indexPath)) {
-      console.error('index.html not found at:', indexPath);
-      process.exit(1);
-    }
-  } catch (error) {
-    console.error('Error verifying build output:', error);
-    process.exit(1);
-  }
-
   // Serve static files
   app.use(express.static(distDir, {
     index: false, // Don't serve index.html automatically
@@ -158,7 +132,43 @@ if (isProduction || isStaging) {
       res.send(indexContent);
     } catch (error) {
       console.error('Error reading index.html:', error);
-      res.status(500).send('Error loading application. Please try again.');
+      // Send a more user-friendly error message
+      res.status(500).send(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Solo App</title>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <style>
+              body {
+                font-family: system-ui, -apple-system, sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                margin: 0;
+                background: #f5f5f5;
+              }
+              div {
+                text-align: center;
+                padding: 2rem;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+              }
+              h1 { color: #333; margin-bottom: 1rem; }
+              p { color: #666; }
+            </style>
+          </head>
+          <body>
+            <div>
+              <h1>Loading Solo App</h1>
+              <p>Please wait while we set up the application...</p>
+            </div>
+          </body>
+        </html>
+      `);
     }
   });
 } else {
