@@ -14,11 +14,13 @@ const app = express();
 const environment = process.env.NODE_ENV || 'development';
 const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ? 80 : 5000);
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ? 80 : 3003);
 
 // Debug middleware to log all requests with more details
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Environment:', environment);
+  console.log('Port:', PORT);
   if (!isProduction) {
     console.log('Headers:', req.headers);
   }
@@ -48,7 +50,10 @@ const corsOrigins = [
   ...(!isProduction ? [
     'http://localhost:3000',
     'http://localhost:3003',
-    'http://localhost:5000'
+    'http://localhost:5000',
+    'http://0.0.0.0:3000',
+    'http://0.0.0.0:3003',
+    'http://0.0.0.0:5000'
   ] : []),
   /\.repl\.co$/,
   /\.replit\.dev$/,
@@ -77,9 +82,8 @@ app.use(cors({
       if (isAllowed) {
         callback(null, true);
       } else {
-        const error = new Error('Not allowed by CORS');
         console.log('Blocked by CORS:', origin);
-        callback(error);
+        callback(new Error('Not allowed by CORS'));
       }
     } catch (error) {
       console.error('CORS validation error:', error);
@@ -123,6 +127,8 @@ if (isProduction || isStaging) {
   const rootDir = path.resolve(__dirname, '../..');
   const distDir = path.join(rootDir, 'dist');
 
+  console.log('Static files directory:', distDir);
+
   // Serve static files with caching
   app.use(express.static(distDir, {
     index: false,
@@ -152,6 +158,7 @@ if (isProduction || isStaging) {
 
     const indexPath = path.join(distDir, 'index.html');
     try {
+      console.log('Attempting to serve:', indexPath);
       const indexContent = fs.readFileSync(indexPath, 'utf-8');
       res.set('Content-Type', 'text/html');
       res.send(indexContent);
@@ -179,6 +186,7 @@ const startServer = async () => {
   try {
     console.log('Starting server with configuration:');
     console.log('Environment:', environment);
+    console.log('Port:', PORT);
 
     if (isProduction) {
       // In production, use blue-green deployment
@@ -190,8 +198,6 @@ const startServer = async () => {
       return blueGreenDeployment.getActiveEnvironment().server;
     } else {
       // In development/staging, use regular deployment
-      const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isStaging ? 5000 : 3003);
-
       const server = await new Promise((resolve, reject) => {
         const server = app.listen(PORT, '0.0.0.0', () => {
           console.log(`Server running on http://0.0.0.0:${PORT}`);

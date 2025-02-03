@@ -75,10 +75,6 @@ args = "Build Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Deploy"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Full Production Deploy"
 
 [[workflows.workflow.tasks]]
@@ -88,6 +84,10 @@ args = "Blue-Green Deploy"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Development Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Production Deploy"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -148,20 +148,6 @@ task = "shell.exec"
 args = "npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/"
 
 [[workflows.workflow]]
-name = "Production Deploy"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=production npx concurrently \"npx vite build\" \"npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/ && cp -r src/server/types dist/server/ && cp -r src/server/deployment dist/server/ && cp src/server/server.ts dist/server/ && npx tsc dist/server/server.ts --outDir dist/server\""
-
-[[workflows.workflow]]
 name = "Full Production Deploy"
 author = "agent"
 
@@ -205,6 +191,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "NODE_ENV=development npx concurrently \"npx vite --port 3000\" \"PORT=3003 tsx src/server/server.ts\""
 waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Production Deploy"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production PORT=80 npm run build && cp src/server/server.ts dist/server/ && cd dist/server && npx tsc server.ts && node server.js"
+waitForPort = 80
 
 [[ports]]
 localPort = 80
