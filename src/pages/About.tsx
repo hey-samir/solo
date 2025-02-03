@@ -1,77 +1,77 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { Collapse } from 'bootstrap'
 
 const About: React.FC = () => {
+  // Initialize Bootstrap components
+  useEffect(() => {
+    // Initialize all accordions
+    const accordionItems = document.querySelectorAll('.accordion-collapse')
+    accordionItems.forEach(item => {
+      new Collapse(item, {
+        toggle: false
+      })
+    })
+  }, [])
+
   return (
-    <div className="container mt-3">
+    <div className="container mx-auto px-4 py-8 font-lexend">
       {/* App Description */}
-      <section className="mb-4">
-        <h2 className="text-solo-purple mb-3">Quantify your Ascent</h2>
-        <p className="lead">
-          Solo is the first and only beautifully functional app dedicated to solo indoor climbing. Log your sends to rack up points, track your progress with detailed metrics, and climb your way to the top of global leaderboards. Solo is designed to help climbers like you scale new heights—one ascent at a time.
+      <section className="mb-8">
+        <h2 className="text-3xl font-bold text-solo-purple mb-4">Quantify your Ascent</h2>
+        <p className="text-xl text-text-primary">
+          Solo is the first and only beautifully functional app dedicated to solo indoor climbing. 
+          Log your sends to rack up points, track your progress with detailed metrics, and climb 
+          your way to the top of global leaderboards. Solo is designed to help climbers like you 
+          scale new heights—one ascent at a time.
         </p>
       </section>
 
       {/* Key Features */}
-      <section className="mb-5">
-        <div className="row g-3">
-          <div className="col-6">
-            <div className="card feature-card kpi-card h-100">
-              <div className="card-body text-center d-flex flex-column justify-content-center">
-                <i className="material-icons text-solo-purple mb-2" style={{ fontSize: '2.25rem' }}>arrow_upward</i>
-                <h5 className="card-title mb-2">Log Sends Instantly</h5>
-                <p className="card-text small mb-0">Track all metrics for routes</p>
-              </div>
-            </div>
-          </div>
-          <div className="col-6">
-            <div className="card feature-card kpi-card h-100">
-              <div className="card-body text-center d-flex flex-column justify-content-center">
-                <i className="material-icons text-solo-purple mb-2" style={{ fontSize: '2.25rem' }}>emoji_events</i>
-                <h5 className="card-title mb-2">Compete Globally</h5>
-                <p className="card-text small mb-0">See how you rank worldwide</p>
-              </div>
-            </div>
-          </div>
-          <div className="col-6">
-            <div className="card feature-card kpi-card h-100">
-              <div className="card-body text-center d-flex flex-column justify-content-center">
-                <i className="material-icons text-solo-purple mb-2" style={{ fontSize: '2.25rem' }}>calendar_today</i>
-                <h5 className="card-title mb-2">View Sessions</h5>
-                <p className="card-text small mb-0">Track your sessions</p>
-              </div>
-            </div>
-          </div>
-          <div className="col-6">
-            <div className="card feature-card kpi-card h-100">
-              <div className="card-body text-center d-flex flex-column justify-content-center">
-                <i className="material-icons text-solo-purple mb-2" style={{ fontSize: '2.25rem' }}>bar_chart</i>
-                <h5 className="card-title mb-2">Track Progress</h5>
-                <p className="card-text small mb-0">Analyze your climbing stats</p>
-              </div>
-            </div>
-          </div>
+      <section className="mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <FeatureCard
+            icon="arrow_upward"
+            title="Log Sends Instantly"
+            description="Track all metrics for routes"
+          />
+          <FeatureCard
+            icon="emoji_events"
+            title="Compete Globally"
+            description="See how you rank worldwide"
+          />
+          <FeatureCard
+            icon="calendar_today"
+            title="View Sessions"
+            description="Track your sessions"
+          />
+          <FeatureCard
+            icon="bar_chart"
+            title="Track Progress"
+            description="Analyze your climbing stats"
+          />
         </div>
       </section>
 
       {/* FAQ Section */}
-      <section className="mb-5">
-        <h3 className="text-solo-purple mb-3">Frequently Asked Questions</h3>
-        <div className="accordion" id="faqAccordion">
-          {/* FAQ items */}
+      <section className="mb-8">
+        <h3 className="text-2xl font-bold text-solo-purple mb-6">Frequently Asked Questions</h3>
+        <div className="space-y-4">
           {faqs.map((faq, index) => (
-            <div key={index} className="accordion-item bg-dark border-0">
-              <h2 className="accordion-header">
-                <button 
-                  className="accordion-button bg-solo-purple text-white border-0" 
-                  type="button" 
-                  data-bs-toggle="collapse" 
-                  data-bs-target={`#faq${index + 1}`}
-                >
+            <div key={index} className="bg-bg-card rounded-lg overflow-hidden">
+              <button
+                className="w-full text-left p-4 bg-bg-kpi-card hover:bg-opacity-90 transition-colors duration-200"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target={`#faq${index + 1}`}
+                aria-expanded="false"
+              >
+                <h4 className="text-lg font-semibold text-text-primary flex items-center justify-between">
                   {faq.question}
-                </button>
-              </h2>
-              <div id={`faq${index + 1}`} className="accordion-collapse collapse">
-                <div className="accordion-body text-white">
+                  <i className="material-icons transition-transform duration-200">expand_more</i>
+                </h4>
+              </button>
+              <div id={`faq${index + 1}`} className="collapse">
+                <div className="p-4 bg-bg-card text-text-primary">
                   {faq.answer}
                 </div>
               </div>
@@ -79,17 +79,23 @@ const About: React.FC = () => {
           ))}
         </div>
       </section>
-
-      <style>
-        {`
-        .accordion-button::after {
-          filter: brightness(0) invert(1);
-        }
-        `}
-      </style>
     </div>
   )
 }
+
+interface FeatureCardProps {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
+  <div className="bg-bg-card rounded-lg p-6 text-center hover:shadow-lg transition-shadow duration-200">
+    <i className="material-icons text-solo-purple text-4xl mb-4">{icon}</i>
+    <h5 className="text-xl font-semibold text-text-primary mb-2">{title}</h5>
+    <p className="text-text-muted">{description}</p>
+  </div>
+)
 
 const faqs = [
   {
