@@ -107,7 +107,7 @@ app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// API Routes
+// API Routes - Must come before the catch-all route
 app.use('/api', routes);
 
 if (isProduction || isStaging) {
@@ -196,14 +196,15 @@ if (isProduction || isStaging) {
     }
   });
 } else {
-  // Development mode: serve the Vite development server
+  // Development mode: Handle API and client routes properly
   app.get('*', (req, res) => {
     if (req.path.startsWith('/api')) {
-      res.status(404).json({ error: 'API endpoint not found' });
+      // Let the API routes handle this
       return;
     }
-    console.log('Development mode: Serving index.html');
-    res.sendFile(path.join(__dirname, '../../dist/index.html'));
+
+    console.log('Development mode: Serving index.html for client route:', req.path);
+    res.sendFile(path.join(__dirname, '../../index.html'));
   });
 }
 
@@ -219,6 +220,8 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log('Environment:', environment);
+    console.log('API Routes mounted at /api');
   });
 }
 

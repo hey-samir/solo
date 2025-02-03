@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from './LoadingSpinner';
+import Error from './Error';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -8,18 +9,21 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, error } = useAuth();
   const location = useLocation();
-
-  // Development flag to bypass authentication
-  const BYPASS_AUTH = true;
-
-  if (BYPASS_AUTH) {
-    return <>{children}</>;
-  }
 
   if (loading) {
     return <LoadingSpinner />;
+  }
+
+  if (error) {
+    return (
+      <Error
+        message="Authentication error. Please try logging in again."
+        type="component"
+        retry={() => window.location.reload()}
+      />
+    );
   }
 
   // If authentication is required and user is not authenticated
