@@ -16,11 +16,6 @@ const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ? 80 : 5000);
 
-// Add health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', environment: process.env.DEPLOYMENT_COLOR || 'blue' });
-});
-
 // Debug middleware to log all requests with more details
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -28,6 +23,15 @@ app.use((req, res, next) => {
     console.log('Headers:', req.headers);
   }
   next();
+});
+
+// Add health check endpoint before any other middleware
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy', 
+    environment: process.env.DEPLOYMENT_COLOR || 'blue',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Middleware setup

@@ -1,8 +1,6 @@
 import React from 'react'
 
 const About: React.FC = () => {
-  console.log('About component rendering...'); // Debug log
-
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
@@ -14,7 +12,7 @@ const About: React.FC = () => {
         </p>
       </section>
 
-      {/* Features Grid */}
+      {/* Features Grid - 2x2 layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         <FeatureCard
           icon="trending_up"
@@ -38,24 +36,45 @@ const About: React.FC = () => {
         />
       </div>
 
-      {/* How It Works */}
+      {/* FAQ Section with Bootstrap Accordion */}
       <section className="mb-12">
-        <h2 className="text-3xl font-bold text-solo-purple mb-6 text-center">How It Works</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <StepCard
-            number="1"
-            title="Log Your Climbs"
-            description="Record your attempts and sends as you climb, including grade, style, and attempts."
+        <h2 className="text-3xl font-bold text-solo-purple mb-6 text-center">FAQ</h2>
+        <div className="accordion" id="faqAccordion">
+          <FaqAccordionItem
+            id="faq1"
+            question="How do I log a climb?"
+            answer="To log a route, tap the '+' button in the navigation bar. Fill in the details about your route including the color, grade, and whether it was a Send or a Try. Routes are tracked as either Sends (successful completions) or Tries (unsuccessful attempts)."
           />
-          <StepCard
-            number="2"
-            title="Track Progress"
-            description="View your statistics, analyze your performance, and identify trends."
+          <FaqAccordionItem
+            id="faq2"
+            question="What's the difference between a Send and a Try?"
+            answer="A 'Send' means you successfully completed the route from start to finish without falling. A 'Try' is when you attempted the route but didn't complete it. Both are valuable to track as they show your progress over time."
           />
-          <StepCard
-            number="3"
-            title="Improve & Share"
-            description="Set goals, celebrate achievements, and connect with the climbing community."
+          <FaqAccordionItem
+            id="faq3"
+            question="How are points calculated?"
+            answer="Points are calculated based on the difficulty of the route and whether you sent it or not. A Send earns you 10 points multiplied by your star rating, while Tries earn 5 points multiplied by your star rating. This system rewards both successful completions and the effort put into attempting challenging routes."
+          />
+          <FaqAccordionItem
+            id="faq4"
+            question="What do the stats metrics mean?"
+            answer={`Your statistics show various aspects of your climbing progress:
+              • Send Rate: The percentage of successful sends out of total routes attempted
+              • Average Grade: The typical difficulty level you climb
+              • Points: Your overall achievement score based on your routes
+              • Sessions: Groups of routes climbed within the same timeframe
+              • Star Rating: Your performance rating based on successful sends`}
+          />
+          <FaqAccordionItem
+            id="faq5"
+            question="What are the dimensions of a Send?"
+            answer={`When logging a Send, you'll record:
+              • Grade: The difficulty rating of the route
+              • Color: The hold color used for the route
+              • Type: Whether it's a Send (success) or Try (attempt)
+              • Stars: Your rating of the route quality
+              • Date: When you climbed the route
+              • Session: Which climbing session it belongs to`}
           />
         </div>
       </section>
@@ -79,19 +98,33 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
   </div>
 )
 
-interface StepCardProps {
-  number: string;
-  title: string;
-  description: string;
+interface FaqAccordionItemProps {
+  id: string;
+  question: string;
+  answer: string;
 }
 
-const StepCard: React.FC<StepCardProps> = ({ number, title, description }) => (
-  <div className="text-center p-6">
-    <div className="w-12 h-12 bg-solo-purple rounded-full flex items-center justify-center mx-auto mb-4">
-      <span className="text-white font-bold text-xl">{number}</span>
+const FaqAccordionItem: React.FC<FaqAccordionItemProps> = ({ id, question, answer }) => (
+  <div className="accordion-item bg-dark border-0 mb-4">
+    <h2 className="accordion-header">
+      <button 
+        className="accordion-button collapsed bg-solo-purple text-white border-0 rounded-lg"
+        type="button" 
+        data-bs-toggle="collapse" 
+        data-bs-target={`#${id}`}
+      >
+        {question}
+      </button>
+    </h2>
+    <div 
+      id={id} 
+      className="accordion-collapse collapse"
+      data-bs-parent="#faqAccordion"
+    >
+      <div className="accordion-body text-text-primary bg-bg-card rounded-b-lg">
+        <p className="whitespace-pre-line">{answer}</p>
+      </div>
     </div>
-    <h3 className="text-xl font-semibold text-text-primary mb-2">{title}</h3>
-    <p className="text-text-muted">{description}</p>
   </div>
 )
 

@@ -64,10 +64,6 @@ var environment = process.env.NODE_ENV || 'development';
 var isProduction = environment === 'production';
 var isStaging = environment === 'staging';
 var PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ? 80 : 5000);
-// Add health check endpoint
-app.get('/health', function (req, res) {
-    res.status(200).json({ status: 'healthy', environment: process.env.DEPLOYMENT_COLOR || 'blue' });
-});
 // Debug middleware to log all requests with more details
 app.use(function (req, res, next) {
     console.log("[".concat(new Date().toISOString(), "] ").concat(req.method, " ").concat(req.url));
@@ -75,6 +71,14 @@ app.use(function (req, res, next) {
         console.log('Headers:', req.headers);
     }
     next();
+});
+// Add health check endpoint before any other middleware
+app.get('/health', function (req, res) {
+    res.status(200).json({
+        status: 'healthy',
+        environment: process.env.DEPLOYMENT_COLOR || 'blue',
+        timestamp: new Date().toISOString()
+    });
 });
 // Middleware setup
 app.use((0, morgan_1.default)(isProduction ? 'combined' : 'dev'));
