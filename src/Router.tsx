@@ -1,5 +1,5 @@
 import React from 'react'
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -18,6 +18,7 @@ import Stats from './pages/Stats'
 import Profile from './pages/Profile'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
+import Home from './pages/Home'
 
 const Router: React.FC = () => {
   console.log('Router component rendering...'); // Debug log
@@ -26,7 +27,7 @@ const Router: React.FC = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
-        <Route index element={<Navigate to="/about" replace />} />
+        <Route index element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />

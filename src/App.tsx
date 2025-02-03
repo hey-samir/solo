@@ -6,7 +6,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from './contexts/AuthContext'
-import 'bootstrap/dist/css/bootstrap.min.css'
 import './styles/global.css'
 
 const queryClient = new QueryClient({
@@ -25,23 +24,12 @@ const App: React.FC = () => {
   // Debug logging
   console.log('App rendering, current path:', window.location.pathname);
 
-  // Enhanced error logging for missing configuration
-  React.useEffect(() => {
-    if (!clientId) {
-      console.group('Application Configuration Error');
-      console.error('Missing required environment variable: VITE_GOOGLE_OAUTH_CLIENT_ID');
-      console.error('Current environment:', import.meta.env.MODE);
-      console.error('Available env variables:', Object.keys(import.meta.env));
-      console.error('Stack:', new Error().stack);
-      console.groupEnd();
-    }
-  }, [clientId]);
-
   if (!clientId) {
+    console.error('Missing VITE_GOOGLE_OAUTH_CLIENT_ID environment variable');
     return (
-      <div className="app bg-bg-primary text-text-primary" style={{ minHeight: '100vh' }}>
+      <div className="app bg-bg-primary text-text-primary min-h-screen">
         <Error
-          message="Whoops! Our gear's not properly set up! 🧗‍♂️"
+          message="Application configuration error. Please try again later."
           type="page"
           retry={() => window.location.reload()}
         />
@@ -55,7 +43,7 @@ const App: React.FC = () => {
         <GoogleOAuthProvider clientId={clientId}>
           <AuthProvider>
             <ErrorBoundary>
-              <div className="app bg-bg-primary text-text-primary" style={{ minHeight: '100vh' }}>
+              <div className="app bg-bg-primary text-text-primary min-h-screen">
                 <AppRouter />
               </div>
             </ErrorBoundary>
