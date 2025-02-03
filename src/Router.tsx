@@ -1,8 +1,9 @@
 import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
+import { NotFound } from './pages/ErrorPage'
 
 // Import pages directly for debugging
 import About from './pages/About'
@@ -24,7 +25,7 @@ const Router: React.FC = () => {
     <Routes>
       <Route path="/" element={<Layout />}>
         {/* Public Routes */}
-        <Route index element={<About />} />
+        <Route index element={<Navigate to="/about" replace />} />
         <Route path="/about" element={<About />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Register />} />
@@ -63,8 +64,8 @@ const Router: React.FC = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:username" element={<Profile />} />
 
-        {/* Catch all route */}
-        <Route path="*" element={<Navigate to="/about" replace />} />
+        {/* 404 Route */}
+        <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
   )

@@ -197,9 +197,10 @@ if (isProduction || isStaging) {
   });
 } else {
   // Development mode: Handle API and client routes properly
-  app.get('*', (req, res) => {
+  app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api')) {
-      // Let the API routes handle this
+      // Pass API requests to the API router
+      next();
       return;
     }
 

@@ -1,5 +1,6 @@
 import { FC, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useNavigate } from 'react-router-dom'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Error from '../components/Error'
@@ -45,6 +46,7 @@ const calculatePoints = (grade: string, rating: number, status: boolean, tries: 
 }
 
 const Sends: FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<SendFormData>({
     route_id: 0,
     tries: 1,
@@ -56,12 +58,17 @@ const Sends: FC = () => {
   const { data: routesData, isLoading, error, refetch } = useQuery<Route[]>({
     queryKey: ['routes'],
     queryFn: async () => {
-      const response = await client.get('/api/routes')
-      return response.data
-    }
+      try {
+        const response = await client.get('/api/routes')
+        return response.data
+      } catch (err) {
+        console.error('Error fetching routes:', err)
+        throw err
+      }
+    },
+    retry: 1
   })
 
-  // Ensure routes is always a properly typed array
   const routes = Array.isArray(routesData) ? routesData : [];
 
   const sendMutation = useMutation({
@@ -84,12 +91,13 @@ const Sends: FC = () => {
   }
 
   if (error) {
-    console.error('Routes fetch error:', error)
     return (
       <Error 
-        message="Failed to load routes" 
+        message="Failed to load routes. Please try again." 
         type="page"
-        retry={() => refetch()}
+        retry={() => {
+          refetch()
+        }}
       />
     )
   }
@@ -99,12 +107,17 @@ const Sends: FC = () => {
     ? calculatePoints(selectedRoute.grade, formData.rating, formData.status, formData.tries)
     : 0
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (formData.route_id === 0) {
       return
     }
-    sendMutation.mutate(formData)
+    try {
+      await sendMutation.mutateAsync(formData)
+      navigate('/sessions')  // Redirect to sessions page on success
+    } catch (err) {
+      console.error('Error submitting send:', err)
+    }
   }
 
   return (
