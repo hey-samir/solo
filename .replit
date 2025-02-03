@@ -36,7 +36,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npx concurrently \"npx vite build\" \"npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/ && cp -r src/server/types dist/server/\""
+args = "NODE_ENV=production npx concurrently \"npx vite build\" \"npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/ && cp -r src/server/types dist/server/ && cp -r src/server/deployment dist/server/\""
 
 [[workflows.workflow]]
 name = "Project"
@@ -174,8 +174,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npx concurrently \"npx vite build\" \"npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/ && cp -r src/server/types dist/server/\" && NODE_ENV=production PORT=80 node dist/server/server.js"
-waitForPort = 80
+args = "NODE_ENV=production npx concurrently \"npx vite build\" \"npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/ && cp -r src/server/types dist/server/ && cp -r src/server/deployment dist/server/ && cp src/server/server.ts dist/server/ && npx tsc dist/server/server.ts --outDir dist/server\""
 
 [[workflows.workflow]]
 name = "Full Production Deploy"
@@ -189,7 +188,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = 'NODE_ENV=production npx concurrently \n        "npx vite build" \n        "npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/" && \n        NODE_ENV=production PORT=80 node dist/server/server.js'
+args = "NODE_ENV=production npx vite build && npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/ && NODE_ENV=production PORT=80 node dist/server/server.js"
 waitForPort = 80
 
 [[workflows.workflow]]
