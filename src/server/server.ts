@@ -8,26 +8,22 @@ import cookieParser from 'cookie-parser';
 import routes from './routes';
 import passport from './middleware/auth';
 
-// Initialize express app
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
 const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = Number(process.env.PORT || 5000);
 
-// Basic middleware setup with enhanced logging
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(cookieParser());
 
-// Enhanced error logging
 console.log('Environment:', environment);
 console.log('Session Secret Available:', !!process.env.SESSION_SECRET);
 console.log('Database URL Available:', !!process.env.DATABASE_URL);
 
-// CORS configuration
 const corsOrigins = (() => {
   if (isProduction) return ['https://gosolo.nyc'];
   if (isStaging) return process.env.CORS_ORIGIN ? [process.env.CORS_ORIGIN] : ['https://staging.gosolo.nyc'];
@@ -40,7 +36,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
-// Session configuration with enhanced security for staging
 const sessionConfig: session.SessionOptions = {
   secret: process.env.SESSION_SECRET || 'temporary_staging_secret_key_123',
   resave: false,
@@ -53,19 +48,16 @@ const sessionConfig: session.SessionOptions = {
   }
 };
 
-// Apply session configuration
 app.use(session(sessionConfig));
 
-// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Routes setup
 app.use('/api', routes);
 
-// Static file serving with improved error handling
 if (isProduction || isStaging) {
-  const distPath = path.resolve(__dirname, '..', '..');
+  const distPath = path.join(__dirname, '..', '..');
+  console.log('Static files path:', path.join(distPath, 'dist'));
 
   app.use(express.static(path.join(distPath, 'dist'), {
     maxAge: '1d',
@@ -73,11 +65,15 @@ if (isProduction || isStaging) {
     etag: true
   }));
 
-  // Health check endpoint
   app.get('/health', (_req, res) => {
     res.json({ 
       status: 'ok',
       environment,
+      paths: {
+        distPath,
+        staticPath: path.join(distPath, 'dist'),
+        indexPath: path.join(distPath, 'dist', 'index.html')
+      },
       config: {
         corsOrigins,
         hasDb: !!process.env.DATABASE_URL,
@@ -87,20 +83,25 @@ if (isProduction || isStaging) {
     });
   });
 
-  // Serve index.html for all non-API routes with improved error handling
   app.get('*', (req, res) => {
     try {
       if (req.path.startsWith('/api')) {
         res.status(404).json({ error: 'API endpoint not found' });
       } else {
-        res.sendFile(path.join(distPath, 'dist', 'index.html'));
+        const indexPath = path.join(distPath, 'dist', 'index.html');
+        console.log('Serving index.html from:', indexPath);
+        if (!require('fs').existsSync(indexPath)) {
+          throw new Error(`index.html not found at ${indexPath}`);
+        }
+        res.sendFile(indexPath);
       }
     } catch (err) {
       const error = err as Error;
       console.error('Error serving static file:', error);
       res.status(500).json({ 
         error: 'Internal server error', 
-        details: !isProduction ? error.message : undefined 
+        details: !isProduction ? error.message : undefined,
+        path: !isProduction ? path.join(distPath, 'dist', 'index.html') : undefined
       });
     }
   });
@@ -110,7 +111,6 @@ if (isProduction || isStaging) {
   });
 }
 
-// Enhanced error handling middleware
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server Error:', err);
   res.status(500).json({
