@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 const About: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Features Grid - 2x2 layout */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
         <FeatureCard
           icon="trending_up"
           title="Track Your Progress"
@@ -36,45 +36,40 @@ const About: React.FC = () => {
         />
       </div>
 
-      {/* FAQ Section with Bootstrap Accordion */}
-      <section className="mb-12">
+      {/* FAQ Section with Tailwind Accordion */}
+      <section className="mb-12 max-w-3xl mx-auto">
         <h2 className="text-3xl font-bold text-solo-purple mb-6 text-center">FAQ</h2>
-        <div className="accordion" id="faqAccordion">
-          <FaqAccordionItem
-            id="faq1"
+        <div className="space-y-4">
+          <AccordionItem
             question="How do I log a climb?"
             answer="To log a route, tap the '+' button in the navigation bar. Fill in the details about your route including the color, grade, and whether it was a Send or a Try. Routes are tracked as either Sends (successful completions) or Tries (unsuccessful attempts)."
           />
-          <FaqAccordionItem
-            id="faq2"
+          <AccordionItem
             question="What's the difference between a Send and a Try?"
             answer="A 'Send' means you successfully completed the route from start to finish without falling. A 'Try' is when you attempted the route but didn't complete it. Both are valuable to track as they show your progress over time."
           />
-          <FaqAccordionItem
-            id="faq3"
+          <AccordionItem
             question="How are points calculated?"
             answer="Points are calculated based on the difficulty of the route and whether you sent it or not. A Send earns you 10 points multiplied by your star rating, while Tries earn 5 points multiplied by your star rating. This system rewards both successful completions and the effort put into attempting challenging routes."
           />
-          <FaqAccordionItem
-            id="faq4"
+          <AccordionItem
             question="What do the stats metrics mean?"
             answer={`Your statistics show various aspects of your climbing progress:
-              • Send Rate: The percentage of successful sends out of total routes attempted
-              • Average Grade: The typical difficulty level you climb
-              • Points: Your overall achievement score based on your routes
-              • Sessions: Groups of routes climbed within the same timeframe
-              • Star Rating: Your performance rating based on successful sends`}
+• Send Rate: The percentage of successful sends out of total routes attempted
+• Average Grade: The typical difficulty level you climb
+• Points: Your overall achievement score based on your routes
+• Sessions: Groups of routes climbed within the same timeframe
+• Star Rating: Your performance rating based on successful sends`}
           />
-          <FaqAccordionItem
-            id="faq5"
+          <AccordionItem
             question="What are the dimensions of a Send?"
             answer={`When logging a Send, you'll record:
-              • Grade: The difficulty rating of the route
-              • Color: The hold color used for the route
-              • Type: Whether it's a Send (success) or Try (attempt)
-              • Stars: Your rating of the route quality
-              • Date: When you climbed the route
-              • Session: Which climbing session it belongs to`}
+• Grade: The difficulty rating of the route
+• Color: The hold color used for the route
+• Type: Whether it's a Send (success) or Try (attempt)
+• Stars: Your rating of the route quality
+• Date: When you climbed the route
+• Session: Which climbing session it belongs to`}
           />
         </div>
       </section>
@@ -98,34 +93,40 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
   </div>
 )
 
-interface FaqAccordionItemProps {
-  id: string;
+interface AccordionItemProps {
   question: string;
   answer: string;
 }
 
-const FaqAccordionItem: React.FC<FaqAccordionItemProps> = ({ id, question, answer }) => (
-  <div className="accordion-item bg-dark border-0 mb-4">
-    <h2 className="accordion-header">
-      <button 
-        className="accordion-button collapsed bg-solo-purple text-white border-0 rounded-lg"
-        type="button" 
-        data-bs-toggle="collapse" 
-        data-bs-target={`#${id}`}
+const AccordionItem: React.FC<AccordionItemProps> = ({ question, answer }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="bg-bg-card rounded-lg overflow-hidden">
+      <button
+        className={`w-full px-6 py-4 text-left focus:outline-none flex justify-between items-center transition-colors duration-200 ${
+          isOpen ? 'bg-solo-purple' : 'hover:bg-bg-kpi-card'
+        }`}
+        onClick={() => setIsOpen(!isOpen)}
       >
-        {question}
+        <span className="text-lg font-semibold text-text-primary">{question}</span>
+        <i className={`material-icons transform transition-transform duration-200 ${
+          isOpen ? 'rotate-180' : ''
+        }`}>
+          expand_more
+        </i>
       </button>
-    </h2>
-    <div 
-      id={id} 
-      className="accordion-collapse collapse"
-      data-bs-parent="#faqAccordion"
-    >
-      <div className="accordion-body text-text-primary bg-bg-card rounded-b-lg">
-        <p className="whitespace-pre-line">{answer}</p>
+      <div
+        className={`transition-all duration-300 ease-in-out ${
+          isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+        } overflow-hidden`}
+      >
+        <div className="p-6 bg-bg-kpi-card">
+          <p className="text-text-muted whitespace-pre-line">{answer}</p>
+        </div>
       </div>
     </div>
-  </div>
-)
+  )
+}
 
 export default About
