@@ -150,7 +150,7 @@ task = "shell.exec"
 args = """
 
     echo \"Starting staging server...\" &&
-    NODE_ENV=staging PORT=5000 NODE_PATH=./dist/server tsx src/server/server.ts
+    NODE_ENV=staging PORT=5000 NODE_PATH=./dist/server tsx --require dotenv/config src/server/server.ts dotenv_config_path=.env.staging
     """
 waitForPort = 5000
 

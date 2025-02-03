@@ -37,7 +37,7 @@ app.use(cors({
 
 // Simplified session configuration
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'temporary_secret_123',  // Temporary secret for staging
+  secret: process.env.SESSION_SECRET || 'temporary_staging_secret_key_123',  // Temporary secret for staging
   resave: false,
   saveUninitialized: false,
   cookie: {
