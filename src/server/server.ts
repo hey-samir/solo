@@ -13,7 +13,7 @@ const app = express();
 const environment = process.env.NODE_ENV || 'development';
 const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
-const PORT = isProduction ? 80 : Number(process.env.PORT || 5000);
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ? 80 : 5000);
 
 // Debug middleware to log all requests with more details
 app.use((req, res, next) => {
@@ -33,17 +33,13 @@ app.use(cookieParser());
 
 // Add CORS configuration
 const corsOrigins = [
-  // Production origin
   ...(isProduction ? ['https://gosolo.nyc'] : []),
-  // Staging origins
   ...(isStaging ? ['https://staging.gosolo.nyc'] : []),
-  // Development origins
   ...(!isProduction ? [
     'http://localhost:3000',
     'http://localhost:3003',
     'http://localhost:5000'
   ] : []),
-  // Replit domains (for both staging and development)
   /\.repl\.co$/,
   /\.replit\.dev$/,
   /\.repl\.co:\d+$/,
@@ -71,12 +67,13 @@ app.use(cors({
       if (isAllowed) {
         callback(null, true);
       } else {
+        const error = new Error('Not allowed by CORS');
         console.log('Blocked by CORS:', origin);
-        callback(new Error('Not allowed by CORS'));
+        callback(error);
       }
     } catch (error) {
       console.error('CORS validation error:', error);
-      callback(error);
+      callback(error instanceof Error ? error : new Error('CORS validation failed'));
     }
   },
   credentials: true,
@@ -111,11 +108,12 @@ app.use(passport.session());
 // API Routes
 app.use('/api', routes);
 
+// Serve static files in production/staging
 if (isProduction || isStaging) {
   const rootDir = path.resolve(__dirname, '../..');
   const distDir = path.join(rootDir, 'dist');
 
-  // Serve static files
+  // Serve static files with caching
   app.use(express.static(distDir, {
     index: false,
     etag: true,
@@ -128,6 +126,7 @@ if (isProduction || isStaging) {
       } else if (filePath.endsWith('.html')) {
         res.setHeader('Content-Type', 'text/html');
       }
+      // Cache assets for 1 year
       if (filePath.includes('/assets/')) {
         res.setHeader('Cache-Control', 'public, max-age=31536000');
       }
@@ -165,18 +164,35 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   });
 });
 
-// Only start the server if this file is run directly
-if (require.main === module) {
+// Start server function with promise
+const startServer = async () => {
   try {
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`Server running on http://0.0.0.0:${PORT}`);
-      console.log('Environment:', environment);
-      console.log('API Routes mounted at /api');
+    const server = await new Promise((resolve, reject) => {
+      const server = app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on http://0.0.0.0:${PORT}`);
+        console.log('Environment:', environment);
+        console.log('API Routes mounted at /api');
+        resolve(server);
+      });
+
+      server.on('error', (error: Error) => {
+        console.error('Server failed to start:', error);
+        reject(error);
+      });
     });
+    return server;
   } catch (error) {
     console.error('Failed to start server:', error);
-    process.exit(1);
+    throw error;
   }
+};
+
+// Only start the server if this file is run directly
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error('Server failed to start:', error);
+    process.exit(1);
+  });
 }
 
-export { app };
+export { app, startServer };

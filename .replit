@@ -36,7 +36,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=staging npx vite build"
+args = "NODE_ENV=production npx concurrently \"npx vite build\" \"npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/\""
 
 [[workflows.workflow]]
 name = "Project"
@@ -72,6 +72,18 @@ args = "Development Server"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Production Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Production Deploy"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Full Production Deploy"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -130,6 +142,50 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=production tsx src/server/server.ts"
+waitForPort = 80
+
+[[workflows.workflow]]
+name = "Build Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/"
+
+[[workflows.workflow]]
+name = "Production Deploy"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production PORT=80 node dist/server/server.js"
+waitForPort = 80
+
+[[workflows.workflow]]
+name = "Full Production Deploy"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = 'NODE_ENV=production npx concurrently \n        "npx vite build" \n        "npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/" && \n        NODE_ENV=production PORT=80 node dist/server/server.js'
 waitForPort = 80
 
 [[ports]]
