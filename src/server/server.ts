@@ -15,6 +15,13 @@ const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = Number(process.env.PORT || 5000);
 
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', req.headers);
+  next();
+});
+
 // Middleware setup
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 app.use(express.json());
