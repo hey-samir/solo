@@ -15,12 +15,17 @@ const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = Number(process.env.PORT || 5000);
 
-// Basic middleware setup
+// Basic middleware setup with enhanced logging
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(compression());
 app.use(cookieParser());
+
+// Enhanced error logging
+console.log('Environment:', environment);
+console.log('Session Secret Available:', !!process.env.SESSION_SECRET);
+console.log('Database URL Available:', !!process.env.DATABASE_URL);
 
 // CORS configuration
 const corsOrigins = (() => {
@@ -35,9 +40,9 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
 }));
 
-// Simplified session configuration
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'temporary_staging_secret_key_123',  // Temporary secret for staging
+// Session configuration with enhanced security for staging
+const sessionConfig = {
+  secret: process.env.SESSION_SECRET || 'temporary_staging_secret_key_123',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -46,7 +51,10 @@ app.use(session({
     sameSite: isProduction || isStaging ? 'strict' : 'lax',
     maxAge: 24 * 60 * 60 * 1000
   }
-}));
+};
+
+// Apply session configuration
+app.use(session(sessionConfig));
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -55,7 +63,7 @@ app.use(passport.session());
 // Routes setup
 app.use('/api', routes);
 
-// Static file serving for production/staging
+// Static file serving with improved error handling
 if (isProduction || isStaging) {
   const distPath = path.resolve(__dirname, '..', '..');
 
@@ -65,6 +73,7 @@ if (isProduction || isStaging) {
     etag: true
   }));
 
+  // Health check endpoint
   app.get('/health', (_req, res) => {
     res.json({ 
       status: 'ok',
@@ -72,18 +81,23 @@ if (isProduction || isStaging) {
       config: {
         corsOrigins,
         hasDb: !!process.env.DATABASE_URL,
-        hasSession: true,
-        hasGoogle: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
+        hasGoogle: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+        hasSession: true
       }
     });
   });
 
-  // Serve index.html for all non-API routes
+  // Serve index.html for all non-API routes with improved error handling
   app.get('*', (req, res) => {
-    if (req.path.startsWith('/api')) {
-      res.status(404).json({ error: 'API endpoint not found' });
-    } else {
-      res.sendFile(path.join(distPath, 'dist', 'index.html'));
+    try {
+      if (req.path.startsWith('/api')) {
+        res.status(404).json({ error: 'API endpoint not found' });
+      } else {
+        res.sendFile(path.join(distPath, 'dist', 'index.html'));
+      }
+    } catch (error) {
+      console.error('Error serving static file:', error);
+      res.status(500).json({ error: 'Internal server error', details: !isProduction ? error.message : undefined });
     }
   });
 } else {
@@ -92,7 +106,7 @@ if (isProduction || isStaging) {
   });
 }
 
-// Error handling
+// Enhanced error handling middleware
 app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server Error:', err);
   res.status(err.status || 500).json({
