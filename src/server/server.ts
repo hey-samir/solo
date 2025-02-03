@@ -18,7 +18,6 @@ const PORT = Number(process.env.PORT || 5000);
 // Debug middleware to log all requests
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Headers:', req.headers);
   next();
 });
 
@@ -40,33 +39,51 @@ const corsOrigins = [
   // Staging origins
   ...(isStaging ? ['https://staging.gosolo.nyc'] : []),
   // Development origins
-  ...(!isProduction ? ['http://localhost:3000', 'http://localhost:3003', 'http://localhost:5000'] : []),
+  ...(!isProduction ? [
+    'http://localhost:3000',
+    'http://localhost:3003',
+    'http://localhost:5000'
+  ] : []),
   // Replit domains (for both staging and development)
   /\.repl\.co$/,
-  /\.replit\.dev$/
+  /\.replit\.dev$/,
+  /\.repl\.co:\d+$/,
+  /\.replit\.dev:\d+$/
 ];
 
 console.log('CORS Origins:', corsOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) {
       callback(null, true);
       return;
     }
 
-    const isAllowed = corsOrigins.some(allowedOrigin => {
-      if (allowedOrigin instanceof RegExp) {
-        return allowedOrigin.test(origin);
-      }
-      return allowedOrigin === origin;
-    });
+    try {
+      // Remove protocol and potential port
+      const originWithoutProtocol = origin.replace(/^https?:\/\//, '');
+      const baseOrigin = originWithoutProtocol.split(':')[0];
 
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.log('Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
+      const isAllowed = corsOrigins.some(allowedOrigin => {
+        if (allowedOrigin instanceof RegExp) {
+          return allowedOrigin.test(origin);
+        }
+        // For exact string matches, compare with the full origin
+        return allowedOrigin === origin;
+      });
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        console.log('Blocked by CORS:', origin);
+        console.log('Base origin:', baseOrigin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    } catch (error) {
+      console.error('CORS validation error:', error);
+      callback(error);
     }
   },
   credentials: true,
