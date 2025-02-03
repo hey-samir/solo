@@ -36,14 +36,35 @@ const Router: React.FC = () => {
         <Route path="/standings" element={<Standings />} />
 
         {/* Protected Routes */}
-        <Route path="/sends" element={<Sends />} />
-        <Route path="/sessions" element={<Sessions />} />
-        <Route path="/stats" element={<Stats />} />
+        <Route
+          path="/sends"
+          element={
+            <ProtectedRoute>
+              <Sends />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/sessions"
+          element={
+            <ProtectedRoute>
+              <Sessions />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/stats"
+          element={
+            <ProtectedRoute>
+              <Stats />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:username" element={<Profile />} />
 
         {/* Catch all route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/about" replace />} />
       </Route>
     </Routes>
   )
