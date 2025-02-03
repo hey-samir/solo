@@ -164,9 +164,13 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   });
 });
 
-// Start server function with promise
+// Update the startServer function for better error handling
 const startServer = async () => {
   try {
+    console.log('Starting server with configuration:');
+    console.log('Environment:', environment);
+    console.log('Port:', PORT);
+
     const server = await new Promise((resolve, reject) => {
       const server = app.listen(PORT, '0.0.0.0', () => {
         console.log(`Server running on http://0.0.0.0:${PORT}`);
@@ -183,7 +187,7 @@ const startServer = async () => {
     return server;
   } catch (error) {
     console.error('Failed to start server:', error);
-    throw error;
+    process.exit(1);
   }
 };
 

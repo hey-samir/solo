@@ -170,7 +170,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production PORT=80 node dist/server/server.js"
+args = "NODE_ENV=production npx concurrently \"npx vite build\" \"npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/ && cp -r src/server/types dist/server/\" && NODE_ENV=production PORT=80 node dist/server/server.js"
 waitForPort = 80
 
 [[workflows.workflow]]
