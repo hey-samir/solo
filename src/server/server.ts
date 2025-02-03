@@ -27,30 +27,19 @@ console.log('Session Secret Available:', !!process.env.SESSION_SECRET);
 console.log('Database URL Available:', !!process.env.DATABASE_URL);
 
 // Add CORS configuration for Replit Webview
-const corsOrigins = (() => {
-  const origins = [];
-  if (isProduction) {
-    origins.push('https://gosolo.nyc');
-  }
-  if (isStaging) {
-    origins.push(
-      'https://staging.gosolo.nyc',
-      // Add Replit domains for Webview
-      /\.repl\.co$/,
-      /\.replit\.dev$/
-    );
-    // Add local development URLs when not in production
-    if (process.env.NODE_ENV !== 'production') {
-      origins.push('http://localhost:5000', 'http://localhost:3003');
-    }
-  }
-  if (!isProduction && !isStaging) {
-    origins.push('http://localhost:3003');
-  }
-  return origins;
-})();
+const corsOrigins = [
+  // Production origin
+  ...(isProduction ? ['https://gosolo.nyc'] : []),
+  // Staging origins
+  ...(isStaging ? ['https://staging.gosolo.nyc'] : []),
+  // Development origins
+  ...(!isProduction ? ['http://localhost:3000', 'http://localhost:3003', 'http://localhost:5000'] : []),
+  // Replit domains (for both staging and development)
+  /\.repl\.co$/,
+  /\.replit\.dev$/
+];
 
-console.log('Configured CORS origins:', corsOrigins);
+console.log('CORS Origins:', corsOrigins);
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -70,7 +59,7 @@ app.use(cors({
       callback(null, true);
     } else {
       console.log('Blocked by CORS:', origin);
-      callback(null, false);
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
@@ -101,46 +90,19 @@ if (isProduction || isStaging) {
   const rootDir = path.resolve(__dirname, '../..');
   const distDir = path.join(rootDir, 'dist');
 
-  console.log('Root directory:', rootDir);
-  console.log('Dist directory:', distDir);
 
-  // Debug directory structure
-  try {
-    const files = fs.readdirSync(distDir);
-    console.log('Files in dist:', files);
-
-    if (files.includes('assets')) {
-      const assetFiles = fs.readdirSync(path.join(distDir, 'assets'));
-      console.log('Files in assets:', assetFiles);
-    }
-  } catch (err) {
-    console.error('Error reading dist directory:', err);
-  }
-
-  // Serve static files
+  // Serve static files with proper MIME types
   app.use(express.static(distDir, {
     maxAge: '1d',
-    index: false
-  }));
-
-  // Health check endpoint
-  app.get('/health', (_req, res) => {
-    res.json({
-      status: 'ok',
-      environment,
-      paths: {
-        rootDir,
-        distDir,
-        indexHtml: path.join(distDir, 'index.html')
-      },
-      config: {
-        corsOrigins,
-        hasDb: !!process.env.DATABASE_URL,
-        hasGoogle: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
-        hasSession: true
+    index: false,
+    setHeaders: (res, path) => {
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      } else if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
       }
-    });
-  });
+    }
+  }));
 
   // Serve index.html for client-side routing
   app.get('*', (req, res) => {
@@ -150,26 +112,11 @@ if (isProduction || isStaging) {
     }
 
     const indexPath = path.join(distDir, 'index.html');
-    console.log('Attempting to serve index.html from:', indexPath);
 
     if (!fs.existsSync(indexPath)) {
       console.error('index.html not found at:', indexPath);
-      return res.status(500).send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Solo App</title>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <script>
-            setTimeout(() => window.location.reload(), 2000);
-          </script>
-        </head>
-        <body>
-          <p>Building application... Please wait.</p>
-        </body>
-        </html>
-      `);
+      res.status(500).send('Building application... Please refresh in a few moments.');
+      return;
     }
 
     res.sendFile(indexPath);

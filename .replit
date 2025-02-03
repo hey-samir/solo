@@ -65,6 +65,10 @@ args = "Build"
 task = "workflow.run"
 args = "Staging Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development Server"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -93,6 +97,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "NODE_ENV=staging PORT=5000 tsx src/server/server.ts"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Development Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development PORT=3003 tsx src/server/server.ts"
+waitForPort = 3003
 
 [[ports]]
 localPort = 3000
