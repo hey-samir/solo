@@ -8,12 +8,18 @@ import cookieParser from 'cookie-parser';
 import fs from 'fs';
 import routes from './routes';
 import passport from './middleware/auth';
+import blueGreenDeployment from './deployment/blue-green';
 
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
 const isProduction = environment === 'production';
 const isStaging = environment === 'staging';
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ? 80 : 5000);
+
+// Add health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', environment: process.env.DEPLOYMENT_COLOR || 'blue' });
+});
 
 // Debug middleware to log all requests with more details
 app.use((req, res, next) => {
@@ -164,32 +170,48 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   });
 });
 
-// Update the startServer function for better error handling
+// Update the startServer function to support blue-green deployment
 const startServer = async () => {
   try {
     console.log('Starting server with configuration:');
     console.log('Environment:', environment);
-    console.log('Port:', PORT);
 
-    const server = await new Promise((resolve, reject) => {
-      const server = app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server running on http://0.0.0.0:${PORT}`);
-        console.log('Environment:', environment);
-        console.log('API Routes mounted at /api');
-        resolve(server);
+    if (isProduction) {
+      // In production, use blue-green deployment
+      const deploymentColor = process.env.DEPLOYMENT_COLOR || 'blue';
+      console.log(`Starting ${deploymentColor} environment`);
+
+      await blueGreenDeployment.startEnvironment(app, deploymentColor as 'blue' | 'green');
+
+      return blueGreenDeployment.getActiveEnvironment().server;
+    } else {
+      // In development/staging, use regular deployment
+      const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isStaging ? 5000 : 3003);
+
+      const server = await new Promise((resolve, reject) => {
+        const server = app.listen(PORT, '0.0.0.0', () => {
+          console.log(`Server running on http://0.0.0.0:${PORT}`);
+          console.log('Environment:', environment);
+          console.log('API Routes mounted at /api');
+          resolve(server);
+        });
+
+        server.on('error', (error: Error) => {
+          console.error('Server failed to start:', error);
+          reject(error);
+        });
       });
 
-      server.on('error', (error: Error) => {
-        console.error('Server failed to start:', error);
-        reject(error);
-      });
-    });
-    return server;
+      return server;
+    }
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
   }
 };
+
+// Export the app and startServer function
+export { app, startServer, blueGreenDeployment };
 
 // Only start the server if this file is run directly
 if (require.main === module) {
@@ -198,5 +220,3 @@ if (require.main === module) {
     process.exit(1);
   });
 }
-
-export { app, startServer };

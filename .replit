@@ -85,6 +85,10 @@ args = "Production Deploy"
 task = "workflow.run"
 args = "Full Production Deploy"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Blue-Green Deploy"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -188,6 +192,20 @@ task = "shell.exec"
 args = 'NODE_ENV=production npx concurrently \n        "npx vite build" \n        "npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/" && \n        NODE_ENV=production PORT=80 node dist/server/server.js'
 waitForPort = 80
 
+[[workflows.workflow]]
+name = "Blue-Green Deploy"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production tsx src/server/deployment/deploy.ts"
+
 [[ports]]
 localPort = 80
 externalPort = 3000
@@ -214,6 +232,10 @@ externalPort = 5000
 
 [[ports]]
 localPort = 5001
+
+[[ports]]
+localPort = 5002
+externalPort = 4200
 
 [auth]
 pageEnabled = false
