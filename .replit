@@ -39,21 +39,17 @@ task = "shell.exec"
 args = """
 
 set -e
-
 echo \"Starting build process...\"
 
 # Clean and prepare directories
 rm -rf dist
-mkdir -p dist/server dist/client
+mkdir -p dist/client dist/server
 
-# Install dependencies
-npm install
-
-# Build client
+# Build client (Vite)
 echo \"Building client...\"
 NODE_ENV=production npx vite build --outDir dist/client
 
-# Build server
+# Build server (TypeScript)
 echo \"Building server...\"
 NODE_ENV=production npx tsc --project tsconfig.server.json
 
@@ -158,6 +154,10 @@ args = "Start Production"
 task = "workflow.run"
 args = "Production Build"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build And Start Server"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -242,18 +242,27 @@ echo \"Building server...\"
 # Ensure dist/server directory exists
 mkdir -p dist/server
 
-# Build TypeScript files
-NODE_ENV=production npx tsc --project tsconfig.server.json
+# Build TypeScript files with explicit paths
+NODE_ENV=production npx tsc --project tsconfig.server.json --outDir dist/server --rootDir src/server
+
+# Verify the build output
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"TypeScript compilation failed to generate server.js\"
+    echo \"Contents of dist/server:\"
+    ls -la dist/server
+    exit 1
+fi
 
 # Copy necessary files
-cp -r src/server/routes src/server/middleware src/server/db src/server/types dist/server/
+echo \"Copying additional files...\"
+cp -r src/server/{routes,middleware,db,types} dist/server/
 cp package.json dist/server/
 
 # Install production dependencies
 cd dist/server
 npm install --production
 
-echo \"Server build completed\"
+echo \"Server build completed successfully\"
 """
 
 [[workflows.workflow]]
@@ -416,7 +425,7 @@ export NODE_ENV=production
 export PORT=80
 
 echo \"Starting production server on port ${PORT}...\"
-cd dist && node server.js
+cd dist/server && node server.js
 """
 waitForPort = 80
 
@@ -527,23 +536,64 @@ echo \"Starting production build...\"
 
 # Clean dist directory
 rm -rf dist
-mkdir -p dist
+mkdir -p dist/server dist/client
 
 # Build client
 echo \"Building client...\"
-NODE_ENV=production npx vite build
+NODE_ENV=production npx vite build --outDir dist/client
 
 # Build server
 echo \"Building server...\"
-NODE_ENV=production npx tsc --project tsconfig.server.json --outDir dist
+NODE_ENV=production npx tsc --project tsconfig.server.json
 
-# Ensure all necessary files are copied
+# Copy necessary files
 echo \"Copying additional files...\"
-cp package.json dist/
-cd dist && npm install --production
+cp -r src/server/{routes,middleware,db,types} dist/server/
+cp package.json dist/server/
+
+# Install production dependencies in server directory
+cd dist/server
+npm install --production
 
 echo \"Build completed successfully\"
 """
+
+[[workflows.workflow]]
+name = "Build And Start Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+
+# Build server
+echo \"Building server...\"
+rm -rf dist/server
+mkdir -p dist/server
+NODE_ENV=production npx tsc --project tsconfig.server.json
+
+# Verify build output
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Failed to generate server.js\"
+    echo \"TypeScript compiler output:\"
+    npx tsc --project tsconfig.server.json --listFiles
+    exit 1
+fi
+
+# Start server
+echo \"Starting server...\"
+cd dist/server
+NODE_ENV=production PORT=80 node server.js
+"""
+waitForPort = 80
 
 [[ports]]
 localPort = 80
