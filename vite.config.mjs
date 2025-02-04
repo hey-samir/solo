@@ -12,7 +12,12 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3001,
     strictPort: true,
-    allowedHosts: 'all', // Allow all hosts including Replit
+    allowedHosts: [
+      'localhost',
+      '0.0.0.0',
+      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev',
+      '.replit.dev'
+    ],
     cors: true,
     hmr: {
       protocol: 'ws',
