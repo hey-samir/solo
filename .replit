@@ -91,6 +91,10 @@ args = "Staging Build"
 task = "workflow.run"
 args = "Build Client"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Production Build"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -188,6 +192,29 @@ args = """
     mkdir -p dist/client
     NODE_ENV=production npx vite build
     """
+
+[[workflows.workflow]]
+name = "Production Build"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    set -e
+    echo \"Building for production...\"
+    rm -rf dist/client
+    mkdir -p dist/client
+    NODE_ENV=production npx vite build
+    NODE_ENV=production PORT=3000 node src/server/server.js
+    """
+waitForPort = 3000
 
 [[ports]]
 localPort = 80

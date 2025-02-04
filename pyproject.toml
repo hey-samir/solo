@@ -4,14 +4,5 @@ version = "0.1.0"
 description = "Solo - A climbing performance tracking application"
 requires-python = ">=3.11"
 dependencies = [
-    "pillow>=11.0.0",
-    "psycopg2-binary>=2.9.10",
-    "requests>=2.32.3",
     "qrcode[pil]>=8.0",
-    "gunicorn>=23.0.0",
-    "flask-login>=0.6.3",
-    "oauthlib>=3.2.2",
-    "flask-wtf>=1.2.2",
-    "twilio>=9.4.4",
-    "trafilatura>=2.0.0",
 ]
