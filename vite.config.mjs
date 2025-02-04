@@ -12,11 +12,13 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 3001,
     strictPort: true,
+    allowedHosts: 'all', // Allow all hosts including Replit
     cors: true,
     hmr: {
       protocol: 'ws',
       host: '0.0.0.0',
-      port: 3001
+      port: 3001,
+      clientPort: 443
     },
     proxy: {
       '/api': {
@@ -59,12 +61,7 @@ export default defineConfig({
       '@api': path.resolve(__dirname, './src/api')
     }
   },
-  // Add Replit-specific configuration
   optimizeDeps: {
     exclude: ['fsevents']
-  },
-  // Allow Replit host
-  define: {
-    __REPLIT_HOST__: JSON.stringify(process.env.REPL_SLUG),
   }
 })
