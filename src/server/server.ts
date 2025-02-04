@@ -9,7 +9,7 @@ const app = express();
 const environment: string = process.env.NODE_ENV || 'development';
 const isProduction: boolean = environment === 'production';
 const isStaging: boolean = environment === 'staging';
-const PORT: number = parseInt(process.env.PORT || (isProduction ? '80' : '3000'), 10);
+const PORT: number = parseInt(process.env.PORT || (isStaging ? '5000' : isProduction ? '80' : '3000'), 10);
 
 // Basic middleware setup
 app.use(cors());
@@ -32,25 +32,27 @@ app.get('/health', (_req: Request, res: Response) => {
     status: 'healthy',
     environment,
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    port: PORT
   });
 });
 
 // Serve static files in production/staging
 if (isProduction || isStaging) {
   const staticPath = path.resolve(__dirname, '../../dist/client');
-  console.log(`[${environment}] Configuring static files from: ${staticPath}`);
-  console.log('Current directory:', process.cwd());
-  console.log('__dirname:', __dirname);
+
+  console.log(`[${environment}] Server Configuration:`);
+  console.log(`- Environment: ${environment}`);
+  console.log(`- Port: ${PORT}`);
+  console.log(`- Static Path: ${staticPath}`);
+  console.log(`- Current Directory: ${process.cwd()}`);
 
   // Verify the static directory exists
   if (!fs.existsSync(staticPath)) {
     console.error(`Error: Static directory not found at ${staticPath}`);
-    console.error('Build process may have failed or not been run');
-    process.exit(1);
+    console.error('Creating static directory...');
+    fs.mkdirSync(staticPath, { recursive: true });
   }
-
-  console.log('Static directory verified successfully');
 
   // Serve static files with specific options
   app.use(express.static(staticPath, {
@@ -61,12 +63,12 @@ if (isProduction || isStaging) {
 
   // Handle client-side routing
   app.get('*', (_req: Request, res: Response) => {
-    res.sendFile(path.join(staticPath, 'index.html'), err => {
-      if (err) {
-        console.error('Error sending index.html:', err);
-        res.status(500).send('Error loading application');
-      }
-    });
+    const indexPath = path.join(staticPath, 'index.html');
+    if (!fs.existsSync(indexPath)) {
+      console.error('Error: index.html not found');
+      return res.status(500).send('Error loading application - Build incomplete');
+    }
+    res.sendFile(indexPath);
   });
 }
 
@@ -84,9 +86,6 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 if (require.main === module) {
   try {
     console.log(`[${environment}] Starting server on port ${PORT}...`);
-    console.log('Current working directory:', process.cwd());
-    console.log('Available files in current directory:');
-    console.log(fs.readdirSync('.'));
 
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log('='.repeat(50));
@@ -94,7 +93,6 @@ if (require.main === module) {
       console.log(`Listening on http://0.0.0.0:${PORT}`);
       console.log(`Process ID: ${process.pid}`);
       console.log(`Node version: ${process.version}`);
-      console.log(`Current directory: ${process.cwd()}`);
       console.log('='.repeat(50));
     });
 
@@ -104,24 +102,6 @@ if (require.main === module) {
       server.close(() => {
         console.log('Server closed');
         process.exit(0);
-      });
-    });
-
-    // Handle uncaught exceptions
-    process.on('uncaughtException', (err: Error) => {
-      console.error('Uncaught Exception:', err);
-      server.close(() => {
-        console.log('Server closed due to uncaught exception');
-        process.exit(1);
-      });
-    });
-
-    // Handle unhandled promise rejections
-    process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
-      console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-      server.close(() => {
-        console.log('Server closed due to unhandled rejection');
-        process.exit(1);
       });
     });
 
