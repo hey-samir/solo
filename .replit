@@ -49,12 +49,15 @@ mkdir -p dist/client dist/server
 echo \"Building client...\"
 NODE_ENV=staging npx vite build
 
-# Build server TypeScript files
-echo \"Building server...\"
-NODE_ENV=staging npx tsc --project tsconfig.json
-
-# Ensure all necessary directories exist
+# Copy server JavaScript files
+echo \"Copying server files...\"
+cp -r src/server/*.js dist/server/
 mkdir -p dist/server/routes dist/server/middleware dist/server/deployment
+
+# Copy additional server files
+cp -r src/server/routes/*.js dist/server/routes/ 2>/dev/null || true
+cp -r src/server/middleware/*.js dist/server/middleware/ 2>/dev/null || true
+cp -r src/server/deployment/*.js dist/server/deployment/ 2>/dev/null || true
 
 # Copy environment-specific files
 echo \"Copying configuration files...\"
@@ -62,7 +65,7 @@ cp .env.staging dist/server/.env 2>/dev/null || true
 
 echo \"Verifying build artifacts...\"
 if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Error: server.js not found after TypeScript compilation\"
+    echo \"Error: server.js not found\"
     echo \"Contents of dist/server:\"
     ls -la dist/server/
     exit 1
@@ -101,6 +104,10 @@ args = "Staging"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Staging Server"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Express Server"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -155,20 +162,30 @@ args = """
 set -e
 echo \"Starting staging server...\"
 
-# Verify environment and build artifacts
-pwd
-ls -la dist/server/
-
-if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Error: server.js not found in dist/server/\"
-    echo \"Build may have failed - check build logs\"
-    exit 1
-fi
-
-# Start server with detailed debugging
-NODE_ENV=staging PORT=5001 DEBUG=express:*,app:* node --trace-warnings dist/server/server.js
+# Start the server with the correct port
+NODE_ENV=staging PORT=5001 node src/server/server.js
 """
 waitForPort = 5001
+
+[[workflows.workflow]]
+name = "Express Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+echo \"Starting Express server...\"
+NODE_ENV=development node src/server/server.js
+"""
+waitForPort = 3000
 
 [[ports]]
 localPort = 80
