@@ -5,10 +5,9 @@ const ComingSoon: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
       <section className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-solo-purple mb-4">Solo - Coming Soon</h1>
+        <h1 className="text-4xl font-bold text-solo-purple mb-4">Quantify your Ascent</h1>
         <p className="text-xl text-text-primary max-w-3xl mx-auto">
-          The first and only beautifully functional app dedicated to solo indoor climbing. 
-          Track your progress, analyze your performance, and join a community of passionate climbers.
+          Track your progress, analyze your performance, compete globally and join a community of passionate climbers.
         </p>
       </section>
 
@@ -24,10 +23,20 @@ const ComingSoon: React.FC = () => {
           title="Compete Globally"
           description="See how you rank worldwide"
         />
+        <FeatureCard
+          icon="calendar_today"
+          title="View Sessions"
+          description="Track your sessions"
+        />
+        <FeatureCard
+          icon="bar_chart"
+          title="Track Progress"
+          description="Analyze your climbing stats"
+        />
       </div>
 
       {/* Newsletter Signup */}
-      <section className="max-w-md mx-auto text-center">
+      <section className="max-w-md mx-auto text-center mb-16">
         <h2 className="text-2xl font-bold text-solo-purple mb-4">Get Notified When We Launch</h2>
         <p className="text-text-muted mb-6">
           Be the first to know when Solo is ready for your climbing journey.
@@ -46,6 +55,31 @@ const ComingSoon: React.FC = () => {
           </button>
         </form>
       </section>
+
+      {/* Footer */}
+      <footer className="text-center text-text-muted text-sm">
+        <p>
+          Copyright{' '}
+          <a 
+            href="https://samir.xyz" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-solo-purple hover:text-solo-purple-light"
+          >
+            Interspace Labs
+          </a>
+          {' '}2025. Built with{' '}
+          <a 
+            href="https://replit.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-solo-purple hover:text-solo-purple-light"
+          >
+            Replit
+          </a>
+          {' '}by coding at the speed of thought.
+        </p>
+      </footer>
     </div>
   )
 }
