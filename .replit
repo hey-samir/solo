@@ -41,25 +41,20 @@ args = """
 set -e
 echo \"Starting build process...\"
 
-# Clean build directory
+# Clean dist directory
 rm -rf dist
-mkdir -p dist/server
+mkdir -p dist/client dist/server
 
-# Build TypeScript files with project configuration
-echo \"Compiling TypeScript...\"
-NODE_ENV=production npx tsc --project tsconfig.server.json
+# Build client using vite
+echo \"Building client...\"
+NODE_ENV=production npx vite build
 
-# Copy necessary files
-echo \"Copying dependencies...\"
-cp package.json dist/server/
-cp -r src/server/{routes,middleware,db,types} dist/server/ 2>/dev/null || :
-
-# Install dependencies
-cd dist/server
-npm install --omit=dev
+# Copy server files
+echo \"Copying server files...\"
+cp -r src/server/* dist/server/
 
 echo \"Build completed successfully\"
-ls -la
+ls -la dist/client dist/server
 """
 
 [[workflows.workflow]]
@@ -92,34 +87,6 @@ args = "Staging Server"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Production Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Full Production Deploy"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Blue-Green Deploy"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Production Deploy"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "TypeScript Build Check"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "TypeScript Check"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start Production Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
@@ -190,198 +157,6 @@ cd dist/server || {
 # Start the server
 echo \"Starting server from $(pwd)\"
 node server.js
-"""
-waitForPort = 80
-
-[[workflows.workflow]]
-name = "Build Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-set -e
-echo \"Building server...\"
-
-# Ensure dist/server directory exists
-mkdir -p dist/server
-
-# Build TypeScript files with explicit paths
-NODE_ENV=production npx tsc --project tsconfig.server.json --outDir dist/server --rootDir src/server
-
-# Verify the build output
-if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"TypeScript compilation failed to generate server.js\"
-    echo \"Contents of dist/server:\"
-    ls -la dist/server
-    exit 1
-fi
-
-# Copy necessary files
-echo \"Copying additional files...\"
-cp -r src/server/{routes,middleware,db,types} dist/server/
-cp package.json dist/server/
-
-# Install production dependencies
-cd dist/server
-npm install --production
-
-echo \"Server build completed successfully\"
-"""
-
-[[workflows.workflow]]
-name = "Full Production Deploy"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-set -e
-
-# Build both client and server
-NODE_ENV=production npx vite build
-NODE_ENV=production npx tsc --project tsconfig.server.json
-
-# Copy necessary files
-cp -r src/server/routes src/server/middleware src/server/db src/server/types src/server/deployment dist/server/
-
-# Start the server
-cd dist/server && NODE_ENV=production PORT=80 node server.js
-"""
-waitForPort = 80
-
-[[workflows.workflow]]
-name = "Blue-Green Deploy"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=production tsx src/server/deployment/deploy.ts"
-waitForPort = 5002
-
-[[workflows.workflow]]
-name = "Production Deploy"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-set -e
-
-echo \"Starting production deployment...\"
-
-# Verify build artifacts and rebuild if needed
-echo \"Verifying build...\"
-if [ ! -f \"dist/server/server.js\" ] || [ ! -f \"dist/index.html\" ]; then
-    echo \"Build artifacts missing, running build first...\"
-    npm run build
-fi
-
-# Prepare environment
-echo \"Setting up environment...\"
-export NODE_ENV=production
-export PORT=80
-
-# Start server with debugging information
-echo \"Starting server...\"
-cd dist/server || {
-    echo \"Failed to find server directory. Current structure:\"
-    pwd
-    ls -R ../
-    exit 1
-}
-
-# Start the server with detailed error reporting
-node -r source-map-support/register server.js || {
-    echo \"Server failed to start. Debug info:\"
-    echo \"Current directory: $(pwd)\"
-    echo \"Environment: $NODE_ENV\"
-    echo \"Port: $PORT\"
-    echo \"Available files:\"
-    ls -la
-    echo \"Server.js exists: $(test -f server.js && echo 'Yes' || echo 'No')\"
-    exit 1
-}
-"""
-waitForPort = 80
-
-[[workflows.workflow]]
-name = "TypeScript Build Check"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsc --project tsconfig.server.json --noEmit"
-
-[[workflows.workflow]]
-name = "TypeScript Check"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsc --project tsconfig.server.json --noEmit --verbose"
-
-[[workflows.workflow]]
-name = "Start Production Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-set -e
-
-# Set environment variables
-export NODE_ENV=production
-export PORT=80
-
-echo \"Starting production server on port ${PORT}...\"
-cd dist/server && node server.js
 """
 waitForPort = 80
 
