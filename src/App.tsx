@@ -1,4 +1,5 @@
 import React from 'react'
+import ProductionRouter from './ProductionRouter'
 import AppRouter from './Router'
 import ErrorBoundary from './components/ErrorBoundary'
 import Error from './components/Error'
@@ -21,6 +22,7 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
+  const isProduction = import.meta.env.MODE === 'production'
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -29,7 +31,7 @@ const App: React.FC = () => {
           <AuthProvider>
             <ErrorBoundary>
               <div className="min-vh-100 bg-bg-primary text-text-primary">
-                <AppRouter />
+                {isProduction ? <ProductionRouter /> : <AppRouter />}
               </div>
             </ErrorBoundary>
           </AuthProvider>

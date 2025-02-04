@@ -21,18 +21,6 @@ import Feedback from './pages/Feedback'
 import ComingSoon from './pages/ComingSoon'
 
 const Router: React.FC = () => {
-  // Show Coming Soon page in production mode
-  if (process.env.NODE_ENV === 'production') {
-    return (
-      <Routes>
-        <Route element={<Layout />}>
-          <Route path="*" element={<ComingSoon />} />
-        </Route>
-      </Routes>
-    )
-  }
-
-  // Show full app in staging/development
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
