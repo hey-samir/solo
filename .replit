@@ -85,7 +85,11 @@ args = "Staging Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Express Server"
+args = "Staging Build"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Client"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -137,16 +141,14 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-set -e
-echo \"Starting staging server...\"
-
-# Start the server with the correct port
-NODE_ENV=staging PORT=5001 node src/server/server.js
-"""
-waitForPort = 5001
+    set -e
+    echo \"Starting staging server...\"
+    NODE_ENV=staging PORT=5000 node src/server/server.js
+    """
+waitForPort = 5000
 
 [[workflows.workflow]]
-name = "Express Server"
+name = "Staging Build"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -159,10 +161,33 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-set -e
-echo \"Starting Express server...\"
-NODE_ENV=development node src/server/server.js
-"""
+    set -e
+    echo \"Starting staging build...\"
+    NODE_ENV=staging npx vite build
+    NODE_ENV=staging PORT=5000 node src/server/server.js
+    """
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Build Client"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    set -e
+    echo \"Building client application...\"
+    rm -rf dist/client
+    mkdir -p dist/client
+    NODE_ENV=production npx vite build
+    """
 
 [[ports]]
 localPort = 80
