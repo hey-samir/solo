@@ -20,57 +20,60 @@ import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
 
 const Router: React.FC = () => {
-  console.log('Router component rendering...'); // Debug log
-
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        {/* Public Routes */}
-        <Route index element={<Navigate to="/about" replace />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Register />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/feedback" element={<Feedback />} />
+    <React.Suspense fallback={<LoadingSpinner />}>
+      <Routes>
+        <Route element={<Layout />}>
+          {/* Public Routes */}
+          <Route index element={<Navigate to="/about" replace />} />
+          <Route path="about" element={<About />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Register />} />
+          <Route path="pricing" element={<Pricing />} />
+          <Route path="feedback" element={<Feedback />} />
 
-        {/* Public Squad Routes */}
-        <Route path="/squads" element={<Squads />} />
-        <Route path="/standings" element={<Standings />} />
+          {/* Public Squad Routes */}
+          <Route path="squads" element={<Squads />} />
+          <Route path="standings" element={<Standings />} />
 
-        {/* Protected Routes */}
-        <Route
-          path="/sends"
-          element={
-            <ProtectedRoute>
-              <Sends />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sessions"
-          element={
-            <ProtectedRoute>
-              <Sessions />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/stats"
-          element={
-            <ProtectedRoute>
-              <Stats />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Routes */}
+          <Route
+            path="sends"
+            element={
+              <ProtectedRoute>
+                <Sends />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="sessions"
+            element={
+              <ProtectedRoute>
+                <Sessions />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="stats"
+            element={
+              <ProtectedRoute>
+                <Stats />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/profile/:username" element={<Profile />} />
+          {/* Profile Routes */}
+          <Route path="profile">
+            <Route index element={<Profile />} />
+            <Route path=":username" element={<Profile />} />
+          </Route>
 
-        {/* Error Routes */}
-        <Route path="/server-error" element={<ServerError />} />
-        <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+          {/* Error Routes */}
+          <Route path="server-error" element={<ServerError code={500} message="Internal Server Error" />} />
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </React.Suspense>
   )
 }
 

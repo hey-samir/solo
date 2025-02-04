@@ -22,26 +22,10 @@ const queryClient = new QueryClient({
 const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
 
-  // Debug logging
-  console.log('App rendering, current path:', window.location.pathname);
-
-  if (!clientId) {
-    console.error('Missing VITE_GOOGLE_OAUTH_CLIENT_ID environment variable');
-    return (
-      <div className="vh-100 d-flex align-items-center justify-content-center bg-bg-primary text-text-primary">
-        <Error
-          message="Application configuration error. Please try again later."
-          type="page"
-          retry={() => window.location.reload()}
-        />
-      </div>
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <GoogleOAuthProvider clientId={clientId}>
+        <GoogleOAuthProvider clientId={clientId || ''}>
           <AuthProvider>
             <ErrorBoundary>
               <div className="min-vh-100 bg-bg-primary text-text-primary">
