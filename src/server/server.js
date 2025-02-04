@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const morgan = require('morgan');
 
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
@@ -11,8 +12,15 @@ const PORT = process.env.PORT || (isProduction ? 80 : 3000);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev')); // Add logging
 
-// Health check endpoint
+// Import routes
+const routes = require('./routes');
+
+// API routes
+app.use('/api', routes);
+
+// Health check endpoint (available in all environments)
 app.get('/health', (_req, res) => {
   res.json({ 
     status: 'healthy',
@@ -21,27 +29,24 @@ app.get('/health', (_req, res) => {
   });
 });
 
-// Basic route
-app.get('/api/status', (_req, res) => {
-  res.json({
-    status: 'operational',
-    environment,
-    serverTime: new Date().toISOString()
-  });
-});
+// Serve static files in production/staging
+if (isProduction || environment === 'staging') {
+  console.log('Setting up static file serving for', environment);
+  const staticPath = path.resolve(__dirname, '../../dist/client');
+  console.log('Static path:', staticPath);
 
-// Serve static files in production
-if (isProduction) {
-  const clientDir = path.join(process.cwd(), 'dist', 'client');
-  app.use(express.static(clientDir));
+  // Serve static files
+  app.use(express.static(staticPath));
 
-  // Handle client-side routing
+  // Serve index.html for client-side routing
   app.get('*', (_req, res) => {
-    res.sendFile(path.join(clientDir, 'index.html'));
+    const indexPath = path.join(staticPath, 'index.html');
+    console.log('Serving index.html from:', indexPath);
+    res.sendFile(indexPath);
   });
 }
 
-// Error handler (from original, adapted)
+// Error handler
 app.use((err, _req, res, _next) => {
   console.error('Server Error:', err);
   res.status(500).json({ 
@@ -50,10 +55,22 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-// Start server (from original, adapted)
+// Start server
 if (require.main === module) {
+  // Ensure the client build exists in production/staging
+  if (isProduction || environment === 'staging') {
+    const indexPath = path.resolve(__dirname, '../../dist/client/index.html');
+    if (!require('fs').existsSync(indexPath)) {
+      console.error('Error: Client build not found at', indexPath);
+      console.error('Please run the build process first');
+      process.exit(1);
+    }
+  }
+
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT} (${environment} mode)`);
+    console.log('Node.js version:', process.version);
+    console.log('Current directory:', process.cwd());
   });
 }
 
