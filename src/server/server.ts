@@ -129,7 +129,6 @@ if (isProduction || isStaging) {
 
   console.log('Static files directory:', distDir);
 
-  // Serve static files with caching
   app.use(express.static(distDir, {
     index: false,
     etag: true,
@@ -142,14 +141,12 @@ if (isProduction || isStaging) {
       } else if (filePath.endsWith('.html')) {
         res.setHeader('Content-Type', 'text/html');
       }
-      // Cache assets for 1 year
       if (filePath.includes('/assets/')) {
         res.setHeader('Cache-Control', 'public, max-age=31536000');
       }
     }
   }));
 
-  // Handle all other routes by serving index.html
   app.get('*', (req, res) => {
     if (req.path.startsWith('/api')) {
       res.status(404).json({ error: 'API endpoint not found' });
@@ -158,7 +155,6 @@ if (isProduction || isStaging) {
 
     const indexPath = path.join(distDir, 'index.html');
     try {
-      console.log('Attempting to serve:', indexPath);
       const indexContent = fs.readFileSync(indexPath, 'utf-8');
       res.set('Content-Type', 'text/html');
       res.send(indexContent);
@@ -181,38 +177,22 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   });
 });
 
-// Update the startServer function to support blue-green deployment
+// Function to start the server
 const startServer = async () => {
   try {
-    console.log('Starting server with configuration:');
-    console.log('Environment:', environment);
-    console.log('Port:', PORT);
-
     if (isProduction) {
-      // In production, use blue-green deployment
       const deploymentColor = process.env.DEPLOYMENT_COLOR || 'blue';
-      console.log(`Starting ${deploymentColor} environment`);
-
+      console.log(`Starting ${deploymentColor} environment on port ${PORT}`);
       await blueGreenDeployment.startEnvironment(app, deploymentColor as 'blue' | 'green');
-
       return blueGreenDeployment.getActiveEnvironment().server;
     } else {
-      // In development/staging, use regular deployment
-      const server = await new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const server = app.listen(PORT, '0.0.0.0', () => {
           console.log(`Server running on http://0.0.0.0:${PORT}`);
           console.log('Environment:', environment);
-          console.log('API Routes mounted at /api');
           resolve(server);
         });
-
-        server.on('error', (error: Error) => {
-          console.error('Server failed to start:', error);
-          reject(error);
-        });
       });
-
-      return server;
     }
   } catch (error) {
     console.error('Failed to start server:', error);
@@ -220,13 +200,12 @@ const startServer = async () => {
   }
 };
 
-// Export the app and startServer function
-export { app, startServer, blueGreenDeployment };
-
-// Only start the server if this file is run directly
+// Start the server if this file is run directly
 if (require.main === module) {
   startServer().catch((error) => {
     console.error('Server failed to start:', error);
     process.exit(1);
   });
 }
+
+export { app, startServer, blueGreenDeployment };

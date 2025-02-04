@@ -39,28 +39,61 @@ task = "shell.exec"
 args = """
 
 set -e
-echo \"Cleaning dist directory...\"
-rm -rf dist && mkdir -p dist/server
 
-echo \"Compiling TypeScript server files...\"
-NODE_ENV=production npx tsc --project tsconfig.server.json 2>&1
+echo \"Starting build process...\"
 
-echo \"Checking compilation result...\"
+# Clean and prepare directories
+echo \"Cleaning previous build...\"
+rm -rf dist
+mkdir -p dist/server
+
+# Compile TypeScript server files with verbose output
+echo \"Compiling server TypeScript files...\"
+NODE_ENV=production npx tsc --project tsconfig.server.json --listFiles || {
+    echo \"TypeScript compilation failed. Checking configuration...\"
+    cat tsconfig.server.json
+    exit 1
+}
+
+# Verify server compilation
+echo \"Verifying server compilation...\"
 if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Checking TypeScript errors...\"
-    npx tsc --project tsconfig.server.json --noEmit
-    echo \"TypeScript compilation failed to generate server.js\"
+    echo \"server.js was not generated. Directory contents:\"
+    find dist -type f
+    echo \"TypeScript output:\"
+    NODE_ENV=production npx tsc --project tsconfig.server.json --listEmittedFiles
     exit 1
 fi
 
-echo \"Copying additional server files...\"
-cp -r src/server/routes src/server/middleware src/server/db src/server/types src/server/deployment dist/server/
+# Copy server files
+echo \"Copying server files...\"
+for dir in routes middleware db types deployment; do
+    if [ -d \"src/server/$dir\" ]; then
+        echo \"Copying $dir...\"
+        cp -r \"src/server/$dir\" \"dist/server/\"
+    fi
+done
 
-echo \"Building client files...\"
-npx vite build
+# Build client
+echo \"Building client...\"
+NODE_ENV=production npx vite build
 
-echo \"Build complete. Checking server files...\"
-ls -la dist/server/
+# Verify entire build
+echo \"Verifying complete build...\"
+if [ ! -f \"dist/index.html\" ]; then
+    echo \"Client build failed - missing index.html\"
+    exit 1
+fi
+
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Server build failed - missing server.js\"
+    exit 1
+fi
+
+echo \"Final build structure:\"
+ls -R dist/
+
+echo \"Build completed successfully\"
 """
 
 [[workflows.workflow]]
@@ -113,6 +146,18 @@ args = "Development Server"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Production Deploy"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "TypeScript Build Check"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "TypeScript Check"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start Production Server"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -184,7 +229,20 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npx vite build && npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/ && cp -r src/server/db dist/server/ && NODE_ENV=production PORT=80 node dist/server/server.js"
+args = """
+
+set -e
+
+# Build both client and server
+NODE_ENV=production npx vite build
+NODE_ENV=production npx tsc --project tsconfig.server.json
+
+# Copy necessary files
+cp -r src/server/routes src/server/middleware src/server/db src/server/types src/server/deployment dist/server/
+
+# Start the server
+cd dist/server && NODE_ENV=production PORT=80 node server.js
+"""
 waitForPort = 80
 
 [[workflows.workflow]]
@@ -229,7 +287,111 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd dist/server && NODE_ENV=production PORT=80 node server.js"
+args = """
+
+set -e
+
+echo \"Starting production deployment...\"
+
+# Verify build artifacts and rebuild if needed
+echo \"Verifying build...\"
+if [ ! -f \"dist/server/server.js\" ] || [ ! -f \"dist/index.html\" ]; then
+    echo \"Build artifacts missing, running build first...\"
+    npm run build
+fi
+
+# Prepare environment
+echo \"Setting up environment...\"
+export NODE_ENV=production
+export PORT=80
+
+# Start server with debugging information
+echo \"Starting server...\"
+cd dist/server || {
+    echo \"Failed to find server directory. Current structure:\"
+    pwd
+    ls -R ../
+    exit 1
+}
+
+# Start the server with detailed error reporting
+node -r source-map-support/register server.js || {
+    echo \"Server failed to start. Debug info:\"
+    echo \"Current directory: $(pwd)\"
+    echo \"Environment: $NODE_ENV\"
+    echo \"Port: $PORT\"
+    echo \"Available files:\"
+    ls -la
+    echo \"Server.js exists: $(test -f server.js && echo 'Yes' || echo 'No')\"
+    exit 1
+}
+"""
+waitForPort = 80
+
+[[workflows.workflow]]
+name = "TypeScript Build Check"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsc --project tsconfig.server.json --noEmit"
+
+[[workflows.workflow]]
+name = "TypeScript Check"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsc --project tsconfig.server.json --noEmit --verbose"
+
+[[workflows.workflow]]
+name = "Start Production Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+
+echo \"Starting production server...\"
+
+# Set environment variables
+export NODE_ENV=production
+export PORT=80
+export HOST=0.0.0.0
+
+# Ensure dist/server exists
+if [ ! -d \"dist/server\" ]; then
+    echo \"Server directory missing, running build...\"
+    rm -rf dist
+    mkdir -p dist/server
+    NODE_ENV=production npx tsc --project tsconfig.server.json
+fi
+
+# Start the server with debugging enabled
+echo \"Starting server with debugging...\"
+cd dist/server
+NODE_ENV=production DEBUG=* node -r source-map-support/register server.js
+"""
 waitForPort = 80
 
 [[ports]]

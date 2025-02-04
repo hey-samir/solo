@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "module": "CommonJS",
-    "outDir": "dist/server",
+    "outDir": "./dist/server",
     "noEmit": false,
     "moduleResolution": "Node",
     "allowJs": true,
@@ -12,11 +12,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "rootDir": "src/server",
+    "rootDir": "./src/server",
     "baseUrl": ".",
     "resolveJsonModule": true,
+    "composite": true,
+    "declaration": true,
     "paths": {
-      "@/*": ["src/server/*"]
+      "@/*": ["./src/server/*"]
     }
   },
   "include": ["src/server/**/*"],
