@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
+// Import routes
+const authRoutes = require('./auth');
+const userRoutes = require('./user');
+
 // Health check endpoint
 router.get('/health', (_req, res) => {
   res.json({ 
@@ -19,7 +23,8 @@ router.get('/test', (_req, res) => {
   });
 });
 
-// Mount other route modules here as they're converted to JS
-// Example: router.use('/auth', require('./auth'));
+// Mount routes
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
 
 module.exports = router;

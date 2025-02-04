@@ -1,40 +1,24 @@
-import express from 'express';
-import passport from '../middleware/auth';
-import { createClient } from '@vercel/postgres';
+const express = require('express');
+const { createClient } = require('@vercel/postgres');
 
 const router = express.Router();
 const db = createClient({ connectionString: process.env.DATABASE_URL });
 
-// Google OAuth routes
-router.get('/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-router.get('/google/callback',
-  passport.authenticate('google', { 
-    failureRedirect: '/login',
-    session: true
-  }),
-  (req, res) => {
-    // Successful authentication, redirect home
-    res.redirect('/');
-  }
-);
-
-// Logout route
-router.get('/logout', (req, res) => {
-  req.logout(() => {
-    res.redirect('/');
+// Basic authentication status check
+router.get('/status', (req, res) => {
+  res.json({ 
+    authenticated: false,
+    message: 'Authentication is currently disabled',
+    authType: 'none'
   });
 });
 
-// Get current user
+// Get current user - returns null when auth is disabled
 router.get('/current-user', (req, res) => {
-  if (req.user) {
-    res.json(req.user);
-  } else {
-    res.status(401).json({ error: 'Not authenticated' });
-  }
+  res.json({
+    user: null,
+    message: 'Authentication is currently disabled'
+  });
 });
 
 // Get leaderboard data
@@ -69,4 +53,4 @@ router.get('/leaderboard', async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;

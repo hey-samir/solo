@@ -41,35 +41,13 @@ args = """
 set -e
 echo \"Starting build process...\"
 
-# Clean dist directory
-rm -rf dist
-mkdir -p dist/client dist/server
+# Clean directories
+rm -rf client
+mkdir -p client
 
-# Build client using vite
+# Build frontend only
 echo \"Building client...\"
 NODE_ENV=staging npx vite build
-
-# Copy server JavaScript files
-echo \"Copying server files...\"
-cp -r src/server/*.js dist/server/
-mkdir -p dist/server/routes dist/server/middleware dist/server/deployment
-
-# Copy additional server files
-cp -r src/server/routes/*.js dist/server/routes/ 2>/dev/null || true
-cp -r src/server/middleware/*.js dist/server/middleware/ 2>/dev/null || true
-cp -r src/server/deployment/*.js dist/server/deployment/ 2>/dev/null || true
-
-# Copy environment-specific files
-echo \"Copying configuration files...\"
-cp .env.staging dist/server/.env 2>/dev/null || true
-
-echo \"Verifying build artifacts...\"
-if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Error: server.js not found\"
-    echo \"Contents of dist/server:\"
-    ls -la dist/server/
-    exit 1
-fi
 
 echo \"Build completed successfully\"
 """
@@ -185,7 +163,6 @@ set -e
 echo \"Starting Express server...\"
 NODE_ENV=development node src/server/server.js
 """
-waitForPort = 3000
 
 [[ports]]
 localPort = 80

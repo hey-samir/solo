@@ -22,8 +22,7 @@ export default defineConfig({
     }
   },
   build: {
-    sourcemap: true,
-    outDir: 'dist/client',
+    outDir: 'client',
     assetsDir: 'assets',
     emptyOutDir: true,
     rollupOptions: {
