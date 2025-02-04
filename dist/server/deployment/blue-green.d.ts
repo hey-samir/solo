@@ -1,41 +1,32 @@
-import express from 'express';
 import { Server } from 'http';
-interface DeploymentEnvironment {
+import express from 'express';
+interface Environment {
     server: Server | null;
-    status: 'active' | 'inactive';
     port: number;
-    healthStatus: 'healthy' | 'unhealthy' | 'unknown';
+    status: 'active' | 'inactive';
     lastDeployment: Date | null;
     version?: string;
-    deploymentMetrics?: {
-        startTime: Date;
-        errorCount: number;
-        responseTime: number[];
-    };
 }
+type DeploymentHistory = {
+    timestamp: Date;
+    color: 'blue' | 'green';
+    version: string;
+    status: 'success' | 'failed';
+}[];
 declare class BlueGreenDeployment {
     private blue;
     private green;
-    private activeEnvironment;
-    private deploymentHistory;
-    private rollbackConfig;
-    private monitoringInterval;
+    private activeColor;
+    private history;
     constructor();
-    getActiveEnvironment(): DeploymentEnvironment;
-    getInactiveEnvironment(): DeploymentEnvironment;
-    private startHealthMonitoring;
-    private shouldTriggerRollback;
+    startEnvironment(app: express.Application, color: 'blue' | 'green', version?: string): Promise<Server>;
+    stopEnvironment(color: 'blue' | 'green'): Promise<void>;
+    performHealthCheck(env: Environment): Promise<boolean>;
     performRollback(): Promise<void>;
     switchEnvironment(): Promise<void>;
-    performHealthCheck(environment: DeploymentEnvironment): Promise<boolean>;
-    startEnvironment(app: express.Application, env: 'blue' | 'green', version?: string): Promise<void>;
-    stopEnvironment(env: 'blue' | 'green'): Promise<void>;
-    getDeploymentHistory(): {
-        timestamp: Date;
-        environment: "blue" | "green";
-        version?: string;
-        success: boolean;
-    }[];
+    getActiveEnvironment(): Environment;
+    getInactiveEnvironment(): Environment;
+    getDeploymentHistory(): DeploymentHistory;
 }
-export declare const blueGreenDeployment: BlueGreenDeployment;
-export default blueGreenDeployment;
+export declare const deployment: BlueGreenDeployment;
+export {};

@@ -44,46 +44,44 @@ echo \"Starting build process...\"
 
 # Clean and prepare directories
 rm -rf dist
-mkdir -p dist/server
+mkdir -p dist/server dist/client
 
-# Install dependencies if needed
+# Install dependencies
 npm install
-
-# Compile server TypeScript
-echo \"Compiling server files...\"
-NODE_ENV=production npx tsc --project tsconfig.server.json
 
 # Build client
 echo \"Building client...\"
-NODE_ENV=production npx vite build
+NODE_ENV=production npx vite build --outDir dist/client
 
-# Copy necessary files with error checking
+# Build server
+echo \"Building server...\"
+NODE_ENV=production npx tsc --project tsconfig.server.json
+
+# Copy necessary files and verify structure
 echo \"Copying server files...\"
 for dir in routes middleware db types deployment; do
     if [ -d \"src/server/$dir\" ]; then
         echo \"Copying $dir...\"
-        cp -r \"src/server/$dir\" \"dist/server/\" || {
-            echo \"Failed to copy $dir\"
-            exit 1
-        }
+        cp -r \"src/server/$dir\" \"dist/server/\"
     fi
 done
 
-# Verify build artifacts
-if [ ! -f \"dist/server/server.js\" ]; then
+# Copy package.json for production dependencies
+cp package.json dist/server/
+
+# Install production dependencies in dist/server
+cd dist/server
+npm install --production
+
+# Verify the build
+if [ ! -f \"server.js\" ]; then
     echo \"Error: server.js not found after build\"
-    ls -la dist/server/
+    echo \"Contents of current directory:\"
+    ls -la
     exit 1
 fi
 
-if [ ! -f \"dist/index.html\" ]; then
-    echo \"Error: index.html not found after client build\"
-    ls -la dist/
-    exit 1
-fi
-
-echo \"Build completed successfully. Contents of dist/server:\"
-ls -la dist/server/
+echo \"Build completed successfully\"
 """
 
 [[workflows.workflow]]
@@ -149,6 +147,10 @@ args = "TypeScript Check"
 task = "workflow.run"
 args = "Start Production Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Production"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -201,25 +203,15 @@ export NODE_ENV=production
 export PORT=80
 export HOST=0.0.0.0
 
-# Install dependencies if needed
-npm install
+# Ensure we're in the right directory
+cd dist/server || {
+    echo \"Failed to find server directory\"
+    exit 1
+}
 
-# Verify build exists
-if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Build artifacts missing, running build workflow first...\"
-    npm run workflow Build
-fi
-
-# Add verbose logging for debugging
-echo \"Current directory: $(pwd)\"
-echo \"Server file exists: $(test -f dist/server/server.js && echo 'Yes' || echo 'No')\"
-echo \"Contents of dist/server:\"
-ls -la dist/server/
-
-# Start the server with enhanced error reporting
-cd dist/server
-echo \"Starting server from $(pwd) on port ${PORT}\"
-NODE_OPTIONS='--trace-warnings --trace-uncaught' node -r source-map-support/register server.js
+# Start the server
+echo \"Starting server from $(pwd)\"
+node server.js
 """
 waitForPort = 80
 
@@ -293,7 +285,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development npx concurrently \"npx vite --port 3000\" \"PORT=3003 tsx src/server/server.ts\""
-waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Production Deploy"
@@ -400,6 +391,42 @@ export PORT=80
 export HOST=0.0.0.0
 
 # Run build if server.js doesn't exist
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Server file missing, running build workflow first...\"
+    npm run workflow Build
+fi
+
+# Start the server
+cd dist/server
+echo \"Starting server from $(pwd) on port ${PORT}\"
+node server.js
+"""
+waitForPort = 80
+
+[[workflows.workflow]]
+name = "Production"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+
+echo \"Starting production server...\"
+
+# Set environment variables
+export NODE_ENV=production
+export PORT=80
+export HOST=0.0.0.0
+
+# Verify the build first
 if [ ! -f \"dist/server/server.js\" ]; then
     echo \"Server file missing, running build workflow first...\"
     npm run workflow Build
