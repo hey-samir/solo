@@ -12,10 +12,24 @@ async function main() {
   console.log("Connecting to database...");
 
   try {
+    console.log("Creating migrations directory if it doesn't exist...");
+    const fs = require('fs');
+    const path = require('path');
+    const migrationsDir = path.join(process.cwd(), 'drizzle');
+
+    if (!fs.existsSync(migrationsDir)) {
+      fs.mkdirSync(migrationsDir, { recursive: true });
+      console.log("Created migrations directory:", migrationsDir);
+    }
+
     console.log("Applying migrations...");
-    // Use the correct migrations folder path relative to project root
-    await migrate(db, { migrationsFolder: "./drizzle" });
+    await migrate(db, { migrationsFolder: './drizzle' });
     console.log("Migrations completed successfully");
+
+    // Verify database connection and schema
+    const result = await sql`SELECT current_database()`;
+    console.log("Connected to database:", result[0].current_database);
+
     process.exit(0);
   } catch (error) {
     console.error("Error during migration:", error);
