@@ -13,7 +13,10 @@ import passport from './middleware/auth';
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
 const isProduction = environment === 'production';
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ? 80 : 3003);
+
+// Ensure PORT is always set and defaults to 80 for production
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 80;
+const HOST = '0.0.0.0';
 
 // Debug middleware to log all requests
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -22,7 +25,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Health check endpoint
-app.get('/health', (req: Request, res: Response) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({ 
     status: 'healthy',
     environment,
@@ -41,7 +44,7 @@ app.use(cookieParser());
 const corsOptions = {
   origin: isProduction 
     ? ['https://gosolo.nyc']
-    : ['http://localhost:3000', 'http://0.0.0.0:3000'],
+    : [`http://${HOST}:${PORT}`, 'http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -62,6 +65,10 @@ const sessionConfig: session.SessionOptions = {
 };
 
 if (isProduction) {
+  if (!process.env.DATABASE_URL) {
+    throw new Error('DATABASE_URL environment variable is required in production');
+  }
+
   const PostgreSQLStore = connectPgSimple(session);
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -78,27 +85,15 @@ app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// API Routes - all API routes should be prefixed with /api
+// API Routes
 app.use('/api', routes);
 
-// Development specific middleware
-if (!isProduction) {
-  // In development, proxy requests to the Vite dev server
-  app.use('/', (req: Request, res: Response, next: NextFunction) => {
-    if (req.url.startsWith('/api')) {
-      return next();
-    }
-    // Proxy to Vite dev server
-    res.redirect(`http://localhost:3000${req.url}`);
-  });
-} else {
-  // Serve static files in production
-  const clientDir = path.resolve(__dirname, '../client');
+// Serve static files in production
+if (isProduction) {
+  const clientDir = path.join(__dirname, '../../client');
+  console.log('Serving static files from:', clientDir);
 
-  app.use(express.static(clientDir, {
-    maxAge: '1y',
-    etag: true
-  }));
+  app.use(express.static(clientDir));
 
   // Handle client-side routing
   app.get('*', (req: Request, res: Response) => {
@@ -119,9 +114,16 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
+// Only start the server if this file is run directly
 if (require.main === module) {
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT} (${environment} mode)`);
+  app.listen(PORT, HOST, () => {
+    console.log(`Server running on http://${HOST}:${PORT} (${environment} mode)`);
+    console.log('Environment variables:', {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: process.env.PORT,
+      DATABASE_URL: process.env.DATABASE_URL ? 'Set' : 'Not set',
+      SESSION_SECRET: process.env.SESSION_SECRET ? 'Set' : 'Not set'
+    });
   });
 }
 

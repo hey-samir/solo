@@ -158,6 +158,14 @@ args = "Production Build"
 task = "workflow.run"
 args = "Build And Start Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Production Build And Start"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Simple Production Server"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -592,6 +600,98 @@ fi
 echo \"Starting server...\"
 cd dist/server
 NODE_ENV=production PORT=80 node server.js
+"""
+waitForPort = 80
+
+[[workflows.workflow]]
+name = "Production Build And Start"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+echo \"Starting production deployment...\"
+
+# Clean and prepare directories
+rm -rf dist
+mkdir -p dist/client dist/server
+
+# Build client
+echo \"Building client...\"
+NODE_ENV=production npx vite build --outDir dist/client
+
+# Build server
+echo \"Building server...\"
+NODE_ENV=production npx tsc --project tsconfig.server.json
+
+# Verify server.js was created
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Error: server.js was not generated\"
+    exit 1
+fi
+
+# Copy necessary files
+echo \"Copying additional files...\"
+cp -r src/server/{routes,middleware,db,types} dist/server/
+cp package.json dist/server/
+
+# Install production dependencies
+cd dist/server
+npm install --production
+
+# Start the server
+echo \"Starting server...\"
+NODE_ENV=production PORT=80 node server.js
+"""
+waitForPort = 80
+
+[[workflows.workflow]]
+name = "Simple Production Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+
+# Clean the output directory
+rm -rf dist/server
+mkdir -p dist/server
+
+# Build TypeScript files
+echo \"Building server...\"
+NODE_ENV=production npx tsc --project tsconfig.server.json
+
+# Copy essential files
+echo \"Copying dependencies...\"
+cp package.json dist/server/
+cp -r src/server/routes dist/server/
+cp -r src/server/middleware dist/server/
+cp -r src/server/db dist/server/
+cp -r src/server/types dist/server/
+
+# Install production dependencies
+cd dist/server
+npm install --omit=dev
+
+# Start the server
+echo \"Starting server...\"
+NODE_ENV=production PORT=80 HOST=0.0.0.0 node server.js
 """
 waitForPort = 80
 
