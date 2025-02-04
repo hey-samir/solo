@@ -60,7 +60,6 @@ if (isProduction || isStaging) {
   // Verify the static directory exists
   if (!fs.existsSync(staticPath)) {
     console.error(`Error: Static directory not found at ${staticPath}`);
-    console.error('Creating static directory...');
     fs.mkdirSync(staticPath, { recursive: true });
   }
 
@@ -103,6 +102,7 @@ if (require.main === module) {
       console.log(`Listening on http://0.0.0.0:${PORT}`);
       console.log(`Process ID: ${process.pid}`);
       console.log(`Node version: ${process.version}`);
+      console.log(`Current directory: ${process.cwd()}`);
       console.log('='.repeat(50));
     });
 

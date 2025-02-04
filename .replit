@@ -82,6 +82,10 @@ args = "Build"
 task = "workflow.run"
 args = "Production"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Staging"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -121,6 +125,21 @@ args = """
     NODE_ENV=production PORT=80 node src/server/server.js
     """
 waitForPort = 80
+
+[[workflows.workflow]]
+name = "Staging"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=staging tsx src/server/server.ts"
+waitForPort = 5000
 
 [[ports]]
 localPort = 80
