@@ -1,13 +1,15 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const morgan = require('morgan');
+import express, { Express, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import path from 'path';
+import morgan from 'morgan';
+import fs from 'fs';
+import routes from './routes';
 
-const app = express();
-const environment = process.env.NODE_ENV || 'development';
-const isProduction = environment === 'production';
-const isStaging = environment === 'staging';
-const PORT = parseInt(process.env.PORT || (isProduction ? '80' : '3000'), 10);
+const app: Express = express();
+const environment: string = process.env.NODE_ENV || 'development';
+const isProduction: boolean = environment === 'production';
+const isStaging: boolean = environment === 'staging';
+const PORT: number = parseInt(process.env.PORT || (isProduction ? '80' : '3000'), 10);
 
 // Basic middleware setup
 app.use(cors());
@@ -17,7 +19,6 @@ app.use(morgan('dev')); // Add logging
 
 // Import routes
 try {
-  const routes = require('./routes');
   app.use('/api', routes);
 } catch (error) {
   console.error('Error loading routes:', error);
@@ -25,7 +26,7 @@ try {
 }
 
 // Health check endpoint (available in all environments)
-app.get('/health', (_req, res) => {
+app.get('/health', (_req: Request, res: Response): void => {
   res.json({ 
     status: 'healthy',
     environment,
@@ -43,7 +44,6 @@ if (isProduction || isStaging) {
   console.log('__dirname:', __dirname);
 
   // Verify the static directory exists
-  const fs = require('fs');
   if (!fs.existsSync(staticPath)) {
     console.error(`Error: Static directory not found at ${staticPath}`);
     console.error('Build process may have failed or not been run');
@@ -60,8 +60,8 @@ if (isProduction || isStaging) {
   }));
 
   // Handle client-side routing - must come after static file serving
-  app.get('*', (_req, res) => {
-    res.sendFile(path.join(staticPath, 'index.html'), err => {
+  app.get('*', (_req: Request, res: Response): void => {
+    res.sendFile(path.join(staticPath, 'index.html'), (err: Error | null) => {
       if (err) {
         console.error('Error sending index.html:', err);
         res.status(500).send('Error loading application');
@@ -71,7 +71,7 @@ if (isProduction || isStaging) {
 }
 
 // Enhanced error handler
-app.use((err, _req, res, _next) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {
   console.error('[Server Error]:', err);
   res.status(500).json({ 
     error: isProduction ? 'Internal Server Error' : err.message,
@@ -86,7 +86,6 @@ if (require.main === module) {
     console.log(`[${environment}] Starting server on port ${PORT}...`);
     console.log('Current working directory:', process.cwd());
     console.log('Available files in current directory:');
-    const fs = require('fs');
     console.log(fs.readdirSync('.'));
 
     const server = app.listen(PORT, '0.0.0.0', () => {
@@ -109,7 +108,7 @@ if (require.main === module) {
     });
 
     // Handle uncaught exceptions
-    process.on('uncaughtException', (err) => {
+    process.on('uncaughtException', (err: Error) => {
       console.error('Uncaught Exception:', err);
       server.close(() => {
         console.log('Server closed due to uncaught exception');
@@ -118,7 +117,7 @@ if (require.main === module) {
     });
 
     // Handle unhandled promise rejections
-    process.on('unhandledRejection', (reason, promise) => {
+    process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
       console.error('Unhandled Rejection at:', promise, 'reason:', reason);
       server.close(() => {
         console.log('Server closed due to unhandled rejection');
@@ -132,4 +131,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = app;
+export default app;

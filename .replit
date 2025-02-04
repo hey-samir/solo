@@ -49,12 +49,26 @@ mkdir -p dist/client dist/server
 echo \"Building client...\"
 NODE_ENV=staging npx vite build
 
-# Copy server files
-echo \"Copying server files...\"
-cp -r src/server/* dist/server/
+# Build server TypeScript files
+echo \"Building server...\"
+NODE_ENV=staging npx tsc --project tsconfig.json
+
+# Ensure all necessary directories exist
+mkdir -p dist/server/routes dist/server/middleware dist/server/deployment
+
+# Copy environment-specific files
+echo \"Copying configuration files...\"
+cp .env.staging dist/server/.env 2>/dev/null || true
+
+echo \"Verifying build artifacts...\"
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Error: server.js not found after TypeScript compilation\"
+    echo \"Contents of dist/server:\"
+    ls -la dist/server/
+    exit 1
+fi
 
 echo \"Build completed successfully\"
-ls -la dist/client dist/server
 """
 
 [[workflows.workflow]]
@@ -140,7 +154,19 @@ args = """
 
 set -e
 echo \"Starting staging server...\"
-NODE_ENV=staging PORT=5001 node dist/server/server.js
+
+# Verify environment and build artifacts
+pwd
+ls -la dist/server/
+
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Error: server.js not found in dist/server/\"
+    echo \"Build may have failed - check build logs\"
+    exit 1
+fi
+
+# Start server with detailed debugging
+NODE_ENV=staging PORT=5001 DEBUG=express:*,app:* node --trace-warnings dist/server/server.js
 """
 waitForPort = 5001
 
