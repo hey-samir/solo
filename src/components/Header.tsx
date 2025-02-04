@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import soloLogo from '../assets/solo.png'
 
 const Header: React.FC = () => {
   console.log('Header component rendering') // Debug log
@@ -18,7 +19,7 @@ const Header: React.FC = () => {
         <div className="header-container d-flex justify-content-between align-items-center px-3 py-2">
           <Link to="/" className="d-inline-block">
             <img 
-              src="/attached_assets/solo.png"
+              src={soloLogo}
               alt="Solo Logo" 
               className="header-logo"
               height="50"
