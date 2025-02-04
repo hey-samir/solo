@@ -138,13 +138,10 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-    set -e
-    echo \"Building client...\"
-    NODE_ENV=staging npx vite build
     echo \"Starting staging server...\"
-    NODE_ENV=staging PORT=5000 node src/server/server.js
+    NODE_ENV=staging PORT=5001 node src/server/deployment/deploy.js
     """
-waitForPort = 5000
+waitForPort = 5001
 
 [[ports]]
 localPort = 80
