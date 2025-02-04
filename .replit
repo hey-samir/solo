@@ -39,9 +39,9 @@ task = "shell.exec"
 args = """
 
 set -e
-echo \"Starting optimized build process...\"
+echo \"Starting build process...\"
 
-# Clean and prepare directories
+# Clean directories
 rm -rf dist
 mkdir -p dist/server dist/client
 
@@ -49,16 +49,13 @@ mkdir -p dist/server dist/client
 echo \"Building client...\"
 NODE_ENV=production npx vite build
 
-# Build server (TypeScript)
+# Build server
 echo \"Building server...\"
-NODE_ENV=production npx tsc --project tsconfig.server.json
+NODE_ENV=production npx tsc -p tsconfig.server.json
 
-# Copy necessary files
-echo \"Copying server files...\"
-cp -r src/server/{routes,middleware,db,types} dist/server/
+# Copy package.json and install dependencies
+echo \"Setting up server...\"
 cp package.json dist/server/
-
-# Install production dependencies
 cd dist/server
 npm install --omit=dev
 
@@ -403,7 +400,6 @@ task = "shell.exec"
 args = """
 
 set -e
-
 echo \"Starting production server...\"
 
 # Set environment variables
@@ -411,19 +407,6 @@ export NODE_ENV=production
 export PORT=80
 export HOST=0.0.0.0
 
-# Verify server.js exists
-if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Error: server.js not found, running build first\"
-    npm run workflow Build
-fi
-
-# Verify build completed successfully
-if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Error: Build failed to create server.js\"
-    exit 1
-fi
-
-# Start the server
 cd dist/server
 echo \"Starting server from $(pwd)\"
 node server.js
@@ -442,13 +425,13 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = """
+args = '''
 
 set -e
 export NODE_ENV=development
-export PORT=80
-npx concurrently   \"npx vite --port 3000\"   \"tsx watch src/server/server.ts\"
-"""
+export PORT=3003
+npx concurrently \n  "npx vite" \n  "tsx watch src/server/server.ts"
+'''
 waitForPort = 80
 
 [[ports]]

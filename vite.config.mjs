@@ -12,36 +12,12 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 80,
     strictPort: true,
-    allowedHosts: [
-      'localhost',
-      '0.0.0.0',
-      '1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev',
-      '.replit.dev'
-    ],
-    cors: true,
-    hmr: {
-      protocol: 'ws',
-      host: '0.0.0.0',
-      port: 80,
-      clientPort: 443
-    },
     proxy: {
       '/api': {
         target: 'http://0.0.0.0:3003',
         changeOrigin: true,
         secure: false,
-        ws: true,
-        configure: (proxy, _options) => {
-          proxy.on('error', (err, _req, _res) => {
-            console.log('proxy error', err);
-          });
-          proxy.on('proxyReq', (proxyReq, req, _res) => {
-            console.log('Sending Request to the Target:', req.method, req.url);
-          });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
-            console.log('Received Response from the Target:', proxyRes.statusCode, req.url);
-          });
-        }
+        ws: true
       }
     }
   },
@@ -65,8 +41,5 @@ export default defineConfig({
       '@pages': path.resolve(__dirname, './src/pages'),
       '@api': path.resolve(__dirname, './src/api')
     }
-  },
-  optimizeDeps: {
-    exclude: ['fsevents']
   }
 })
