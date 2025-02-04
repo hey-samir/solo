@@ -21,9 +21,9 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
-  // Get environment from server-side
-  const env = process.env.NODE_ENV || 'development'
-  const isProduction = env === 'production'
+  // Use Vite's environment variable
+  const isProduction = import.meta.env.MODE === 'production'
+  console.log('Environment:', import.meta.env.MODE) // Debug log
 
   return (
     <QueryClientProvider client={queryClient}>
