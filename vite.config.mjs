@@ -20,7 +20,7 @@ const envConfigs = {
     server: {
       port: 5000,
       proxy: {
-        '/api': 'http://localhost:5001'
+        '/api': 'http://localhost:5000'
       }
     }
   },
@@ -28,7 +28,7 @@ const envConfigs = {
     server: {
       port: 80,
       proxy: {
-        '/api': 'http://localhost:3003'
+        '/api': 'http://localhost:80'
       }
     }
   }
