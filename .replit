@@ -41,25 +41,25 @@ args = """
 set -e
 echo \"Starting build process...\"
 
-# Clean directories
+# Clean build directory
 rm -rf dist
-mkdir -p dist/server dist/client
+mkdir -p dist/server
 
-# Build client
-echo \"Building client...\"
-NODE_ENV=production npx vite build
+# Build TypeScript files with project configuration
+echo \"Compiling TypeScript...\"
+NODE_ENV=production npx tsc --project tsconfig.server.json
 
-# Build server
-echo \"Building server...\"
-NODE_ENV=production npx tsc -p tsconfig.server.json
-
-# Copy package.json and install dependencies
-echo \"Setting up server...\"
+# Copy necessary files
+echo \"Copying dependencies...\"
 cp package.json dist/server/
+cp -r src/server/{routes,middleware,db,types} dist/server/ 2>/dev/null || :
+
+# Install dependencies
 cd dist/server
 npm install --omit=dev
 
 echo \"Build completed successfully\"
+ls -la
 """
 
 [[workflows.workflow]]
@@ -400,7 +400,6 @@ task = "shell.exec"
 args = """
 
 set -e
-echo \"Starting production server...\"
 
 # Set environment variables
 export NODE_ENV=production
@@ -408,7 +407,13 @@ export PORT=80
 export HOST=0.0.0.0
 
 cd dist/server
-echo \"Starting server from $(pwd)\"
+
+# Debug information
+echo \"Current directory: $(pwd)\"
+echo \"Files in directory:\"
+ls -la
+
+# Start the server
 node server.js
 """
 waitForPort = 80

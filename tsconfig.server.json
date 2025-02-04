@@ -11,7 +11,8 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "types": ["node"],
-    "sourceMap": true
+    "sourceMap": true,
+    "declaration": false
   },
   "include": ["src/server/**/*"],
   "exclude": ["node_modules", "**/*.test.ts"]
