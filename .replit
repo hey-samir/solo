@@ -96,6 +96,14 @@ args = "Production"
 task = "workflow.run"
 args = "Development"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Staging"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development Server"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -122,7 +130,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=staging PORT=5000 node src/server/app.js"
+args = "NODE_ENV=staging PORT=5000 node src/server/server.js"
 waitForPort = 5000
 
 [[workflows.workflow]]
@@ -137,27 +145,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = """
-
-set -e
-
-echo \"Starting production server...\"
-
-# Set environment variables
-export NODE_ENV=production
-export PORT=80
-export HOST=0.0.0.0
-
-# Ensure we're in the right directory
-cd dist/server || {
-    echo \"Failed to find server directory\"
-    exit 1
-}
-
-# Start the server
-echo \"Starting server from $(pwd)\"
-node server.js
-"""
+args = "NODE_ENV=production PORT=80 node src/server/server.js"
 waitForPort = 80
 
 [[workflows.workflow]]
@@ -176,9 +164,8 @@ args = """
 
 export NODE_ENV=production
 export PORT=80
-node src/server/app.js
+node src/server/server.js
 """
-waitForPort = 80
 
 [[workflows.workflow]]
 name = "Development"
@@ -196,9 +183,42 @@ args = """
 
 export NODE_ENV=development
 export PORT=3003
-node src/server/app.js
+node src/server/server.js
 """
-waitForPort = 3003
+
+[[workflows.workflow]]
+name = "Staging"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+export NODE_ENV=staging
+export PORT=5000
+node src/server/server.js
+"""
+
+[[workflows.workflow]]
+name = "Development Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development PORT=3000 node src/server/server.js"
+waitForPort = 3000
 
 [[ports]]
 localPort = 80
