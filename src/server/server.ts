@@ -9,7 +9,6 @@ import { Pool } from 'pg';
 import connectPgSimple from 'connect-pg-simple';
 import routes from './routes';
 import passport from './middleware/auth';
-import { deployment } from './deployment/blue-green';
 
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
@@ -113,25 +112,10 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: isProduction ? 'Internal Server Error' : err.message });
 });
 
-const startServer = async () => {
-  try {
-    if (isProduction) {
-      console.log(`Starting server in production mode on port ${PORT}`);
-      const server = await deployment.startEnvironment(app, 'blue');
-      return server;
-    } else {
-      return app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server running on http://0.0.0.0:${PORT}`);
-      });
-    }
-  } catch (error) {
-    console.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
-
 if (require.main === module) {
-  startServer();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
+  });
 }
 
-export { app, deployment as blueGreenDeployment };
+export default app;

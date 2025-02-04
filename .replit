@@ -57,29 +57,24 @@ NODE_ENV=production npx vite build --outDir dist/client
 echo \"Building server...\"
 NODE_ENV=production npx tsc --project tsconfig.server.json
 
-# Copy necessary files and verify structure
-echo \"Copying server files...\"
-for dir in routes middleware db types deployment; do
-    if [ -d \"src/server/$dir\" ]; then
-        echo \"Copying $dir...\"
-        cp -r \"src/server/$dir\" \"dist/server/\"
-    fi
-done
-
-# Copy package.json for production dependencies
-cp package.json dist/server/
-
-# Install production dependencies in dist/server
-cd dist/server
-npm install --production
-
-# Verify the build
-if [ ! -f \"server.js\" ]; then
-    echo \"Error: server.js not found after build\"
-    echo \"Contents of current directory:\"
-    ls -la
+# Verify server.js was created
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Error: server.js was not generated\"
+    echo \"Contents of dist/server:\"
+    ls -la dist/server/
     exit 1
 fi
+
+# Copy necessary files
+echo \"Copying server files...\"
+cp -r src/server/{routes,middleware,db,types} dist/server/
+
+# Copy package files
+cp package.json dist/server/
+
+# Install production dependencies
+cd dist/server
+npm install --production
 
 echo \"Build completed successfully\"
 """
@@ -150,6 +145,18 @@ args = "Start Production Server"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Production"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Client"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start Production"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Production Build"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -227,7 +234,27 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsc --project tsconfig.server.json && cp -r src/server/routes dist/server/ && cp -r src/server/middleware dist/server/"
+args = """
+
+set -e
+echo \"Building server...\"
+
+# Ensure dist/server directory exists
+mkdir -p dist/server
+
+# Build TypeScript files
+NODE_ENV=production npx tsc --project tsconfig.server.json
+
+# Copy necessary files
+cp -r src/server/routes src/server/middleware src/server/db src/server/types dist/server/
+cp package.json dist/server/
+
+# Install production dependencies
+cd dist/server
+npm install --production
+
+echo \"Server build completed\"
+"""
 
 [[workflows.workflow]]
 name = "Full Production Deploy"
@@ -285,6 +312,7 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development npx concurrently \"npx vite --port 3000\" \"PORT=3003 tsx src/server/server.ts\""
+waitForPort = 3003
 
 [[workflows.workflow]]
 name = "Production Deploy"
@@ -383,23 +411,12 @@ args = """
 
 set -e
 
-echo \"Starting production server...\"
-
 # Set environment variables
 export NODE_ENV=production
 export PORT=80
-export HOST=0.0.0.0
 
-# Run build if server.js doesn't exist
-if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Server file missing, running build workflow first...\"
-    npm run workflow Build
-fi
-
-# Start the server
-cd dist/server
-echo \"Starting server from $(pwd) on port ${PORT}\"
-node server.js
+echo \"Starting production server on port ${PORT}...\"
+cd dist && node server.js
 """
 waitForPort = 80
 
@@ -426,18 +443,107 @@ export NODE_ENV=production
 export PORT=80
 export HOST=0.0.0.0
 
-# Verify the build first
+# Verify server.js exists
 if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Server file missing, running build workflow first...\"
+    echo \"Error: server.js not found, running build first\"
     npm run workflow Build
+fi
+
+# Verify build completed successfully
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Error: Build failed to create server.js\"
+    exit 1
 fi
 
 # Start the server
 cd dist/server
-echo \"Starting server from $(pwd) on port ${PORT}\"
+echo \"Starting server from $(pwd)\"
 node server.js
 """
 waitForPort = 80
+
+[[workflows.workflow]]
+name = "Build Client"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+echo \"Building client...\"
+NODE_ENV=production npx vite build
+"""
+
+[[workflows.workflow]]
+name = "Start Production"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+echo \"Starting production server...\"
+
+# Set environment variables
+export NODE_ENV=production
+export PORT=80
+
+# Start the server
+cd dist/server
+node server.js
+"""
+waitForPort = 80
+
+[[workflows.workflow]]
+name = "Production Build"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+set -e
+echo \"Starting production build...\"
+
+# Clean dist directory
+rm -rf dist
+mkdir -p dist
+
+# Build client
+echo \"Building client...\"
+NODE_ENV=production npx vite build
+
+# Build server
+echo \"Building server...\"
+NODE_ENV=production npx tsc --project tsconfig.server.json --outDir dist
+
+# Ensure all necessary files are copied
+echo \"Copying additional files...\"
+cp package.json dist/
+cd dist && npm install --production
+
+echo \"Build completed successfully\"
+"""
 
 [[ports]]
 localPort = 80
