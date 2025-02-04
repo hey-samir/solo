@@ -10,16 +10,29 @@ const db = drizzle(sql, { schema });
 
 async function main() {
   console.log("Connecting to database...");
-  
+
   try {
     console.log("Applying migrations...");
-    await migrate(db, { migrationsFolder: "drizzle" });
+    // Use the correct migrations folder path relative to project root
+    await migrate(db, { migrationsFolder: "./drizzle" });
     console.log("Migrations completed successfully");
     process.exit(0);
   } catch (error) {
     console.error("Error during migration:", error);
+    console.error("Migration stack trace:", error.stack);
     process.exit(1);
   }
 }
+
+// Add process error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+process.on('uncaughtException', error => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
 
 main();

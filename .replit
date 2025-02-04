@@ -26,7 +26,7 @@ args = """
 
     set -e
     echo \"Running database migrations...\"
-    npx drizzle-kit generate:pg --schema=src/server/db/schema.ts
+    npx drizzle-kit generate
     tsx src/server/db/migrate.ts
     echo \"Migrations completed\"
     """
