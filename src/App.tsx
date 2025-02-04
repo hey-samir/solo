@@ -1,6 +1,6 @@
 import React from 'react'
-import ProductionRouter from './ProductionRouter'
 import AppRouter from './Router'
+import ProductionRouter from './ProductionRouter'
 import ErrorBoundary from './components/ErrorBoundary'
 import Error from './components/Error'
 import { GoogleOAuthProvider } from '@react-oauth/google'
@@ -22,7 +22,7 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
-  const isProduction = import.meta.env.MODE === 'production'
+  const env = import.meta.env.MODE
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -31,7 +31,7 @@ const App: React.FC = () => {
           <AuthProvider>
             <ErrorBoundary>
               <div className="min-vh-100 bg-bg-primary text-text-primary">
-                {isProduction ? <ProductionRouter /> : <AppRouter />}
+                {env === 'production' ? <ProductionRouter /> : <AppRouter />}
               </div>
             </ErrorBoundary>
           </AuthProvider>
