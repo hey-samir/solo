@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
-    port: 3001,
+    port: 80,
     strictPort: true,
     allowedHosts: [
       'localhost',
@@ -22,7 +22,7 @@ export default defineConfig({
     hmr: {
       protocol: 'ws',
       host: '0.0.0.0',
-      port: 3001,
+      port: 80,
       clientPort: 443
     },
     proxy: {

@@ -447,9 +447,9 @@ args = """
 set -e
 export NODE_ENV=development
 export PORT=3003
-npx concurrently   \"npx vite --port 3001\"   \"tsx watch src/server/server.ts --port 3003\"
+npx concurrently   \"npx vite --port 80\"   \"tsx watch src/server/server.ts --port 3003\"
 """
-waitForPort = 3003
+waitForPort = 80
 
 [[ports]]
 localPort = 80
