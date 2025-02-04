@@ -47,7 +47,7 @@ mkdir -p dist/client dist/server
 
 # Build client using vite
 echo \"Building client...\"
-NODE_ENV=production npx vite build
+NODE_ENV=staging npx vite build
 
 # Copy server files
 echo \"Copying server files...\"
@@ -138,9 +138,10 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-    echo \"Starting staging server...\"
-    NODE_ENV=staging PORT=5001 node src/server/deployment/deploy.js
-    """
+set -e
+echo \"Starting staging server...\"
+NODE_ENV=staging PORT=5001 node dist/server/server.js
+"""
 waitForPort = 5001
 
 [[ports]]

@@ -6,7 +6,8 @@ const morgan = require('morgan');
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
 const isProduction = environment === 'production';
-const PORT = process.env.PORT || (isProduction ? 80 : 3000);
+const isStaging = environment === 'staging';
+const PORT = parseInt(process.env.PORT || (isProduction ? '80' : '3000'), 10);
 
 // Basic middleware
 app.use(cors());
@@ -30,48 +31,73 @@ app.get('/health', (_req, res) => {
 });
 
 // Serve static files in production/staging
-if (isProduction || environment === 'staging') {
-  console.log('Setting up static file serving for', environment);
+if (isProduction || isStaging) {
   const staticPath = path.resolve(__dirname, '../../dist/client');
-  console.log('Static path:', staticPath);
+
+  // Log the static file configuration
+  console.log(`[${environment}] Serving static files from:`, staticPath);
+
+  // Verify the static directory exists
+  const fs = require('fs');
+  if (!fs.existsSync(staticPath)) {
+    console.warn(`Warning: Static directory not found at ${staticPath}`);
+    console.warn('Make sure to run the build process first');
+  }
 
   // Serve static files
   app.use(express.static(staticPath));
 
-  // Serve index.html for client-side routing
+  // Handle client-side routing
   app.get('*', (_req, res) => {
-    const indexPath = path.join(staticPath, 'index.html');
-    console.log('Serving index.html from:', indexPath);
-    res.sendFile(indexPath);
+    res.sendFile(path.join(staticPath, 'index.html'));
   });
 }
 
 // Error handler
 app.use((err, _req, res, _next) => {
-  console.error('Server Error:', err);
+  console.error('[Server Error]:', err);
   res.status(500).json({ 
     error: isProduction ? 'Internal Server Error' : err.message,
     timestamp: new Date().toISOString()
   });
 });
 
-// Start server
+// Only start the server if this file is run directly
 if (require.main === module) {
-  // Ensure the client build exists in production/staging
-  if (isProduction || environment === 'staging') {
-    const indexPath = path.resolve(__dirname, '../../dist/client/index.html');
-    if (!require('fs').existsSync(indexPath)) {
-      console.error('Error: Client build not found at', indexPath);
-      console.error('Please run the build process first');
-      process.exit(1);
-    }
-  }
+  try {
+    console.log(`Attempting to start server on port ${PORT}...`);
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      console.log('='.repeat(50));
+      console.log(`Server started in ${environment} mode`);
+      console.log(`Listening on http://0.0.0.0:${PORT}`);
+      console.log(`Process ID: ${process.pid}`);
+      console.log(`Node version: ${process.version}`);
+      console.log(`Current directory: ${process.cwd()}`);
+      console.log('='.repeat(50));
+    });
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT} (${environment} mode)`);
-    console.log('Node.js version:', process.version);
-    console.log('Current directory:', process.cwd());
-  });
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('Received SIGTERM signal, shutting down gracefully');
+      server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+      });
+    });
+
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (err) => {
+      console.error('Uncaught Exception:', err);
+      server.close(() => {
+        console.log('Server closed due to uncaught exception');
+        process.exit(1);
+      });
+    });
+
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 }
 
 module.exports = app;
