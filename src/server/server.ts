@@ -18,8 +18,6 @@ const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ?
 // Debug middleware to log all requests
 app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Environment:', environment);
-  console.log('Port:', PORT);
   next();
 });
 
@@ -27,7 +25,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ 
     status: 'healthy',
-    environment
+    environment,
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -39,21 +38,16 @@ app.use(compression());
 app.use(cookieParser());
 
 // CORS configuration
-const corsOrigins = [
-  ...(isProduction ? ['https://gosolo.nyc'] : []),
-  ...(!isProduction ? ['http://localhost:3000', 'http://localhost:3003', 'http://0.0.0.0:3000', 'http://0.0.0.0:80'] : [])
-];
+const corsOptions = {
+  origin: isProduction 
+    ? ['https://gosolo.nyc']
+    : ['http://localhost:3000', 'http://0.0.0.0:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || corsOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true
-}));
+app.use(cors(corsOptions));
 
 // Session configuration
 const sessionConfig: session.SessionOptions = {
@@ -62,7 +56,7 @@ const sessionConfig: session.SessionOptions = {
   saveUninitialized: false,
   cookie: {
     secure: isProduction,
-    sameSite: 'lax',
+    sameSite: isProduction ? 'strict' : 'lax',
     maxAge: 24 * 60 * 60 * 1000
   }
 };
@@ -84,19 +78,29 @@ app.use(session(sessionConfig));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// API Routes
+// API Routes - all API routes should be prefixed with /api
 app.use('/api', routes);
 
-// Serve static files in production
-if (isProduction) {
+// Development specific middleware
+if (!isProduction) {
+  // In development, proxy requests to the Vite dev server
+  app.use('/', (req: Request, res: Response, next: NextFunction) => {
+    if (req.url.startsWith('/api')) {
+      return next();
+    }
+    // Proxy to Vite dev server
+    res.redirect(`http://localhost:3000${req.url}`);
+  });
+} else {
+  // Serve static files in production
   const clientDir = path.resolve(__dirname, '../client');
-  console.log('Static files directory:', clientDir);
 
   app.use(express.static(clientDir, {
     maxAge: '1y',
     etag: true
   }));
 
+  // Handle client-side routing
   app.get('*', (req: Request, res: Response) => {
     if (req.path.startsWith('/api')) {
       res.status(404).json({ error: 'API endpoint not found' });
@@ -109,12 +113,15 @@ if (isProduction) {
 // Error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Server Error:', err);
-  res.status(500).json({ error: isProduction ? 'Internal Server Error' : err.message });
+  res.status(500).json({ 
+    error: isProduction ? 'Internal Server Error' : err.message,
+    timestamp: new Date().toISOString()
+  });
 });
 
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log(`Server running on http://0.0.0.0:${PORT} (${environment} mode)`);
   });
 }
 
