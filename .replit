@@ -43,23 +43,30 @@ echo \"Starting optimized build process...\"
 
 # Clean and prepare directories
 rm -rf dist
-mkdir -p dist/client dist/server
+mkdir -p dist
 
-# Build client (Vite)
+# Build client
 echo \"Building client...\"
-NODE_ENV=production npx vite build --outDir dist/client
+NODE_ENV=production npx vite build
 
 # Build server (TypeScript)
 echo \"Building server...\"
 NODE_ENV=production npx tsc --project tsconfig.server.json
 
+# Ensure key server files are in the right place
+echo \"Organizing server files...\"
+if [ ! -f \"dist/server.js\" ]; then
+    echo \"Moving server.js to root dist folder\"
+    mv dist/server/server.js dist/
+fi
+
 # Copy necessary files
 echo \"Copying server files...\"
-cp -r src/server/{routes,middleware,db,types} dist/server/
-cp package.json dist/server/
+cp -r src/server/{routes,middleware,db,types} dist/
+cp package.json dist/
 
 # Install production dependencies
-cd dist/server
+cd dist
 npm install --omit=dev
 
 echo \"Build completed successfully\"
