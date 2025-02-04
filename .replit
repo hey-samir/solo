@@ -43,7 +43,7 @@ echo \"Starting optimized build process...\"
 
 # Clean and prepare directories
 rm -rf dist
-mkdir -p dist
+mkdir -p dist/server dist/client
 
 # Build client
 echo \"Building client...\"
@@ -53,20 +53,13 @@ NODE_ENV=production npx vite build
 echo \"Building server...\"
 NODE_ENV=production npx tsc --project tsconfig.server.json
 
-# Ensure key server files are in the right place
-echo \"Organizing server files...\"
-if [ ! -f \"dist/server.js\" ]; then
-    echo \"Moving server.js to root dist folder\"
-    mv dist/server/server.js dist/
-fi
-
 # Copy necessary files
 echo \"Copying server files...\"
-cp -r src/server/{routes,middleware,db,types} dist/
-cp package.json dist/
+cp -r src/server/{routes,middleware,db,types} dist/server/
+cp package.json dist/server/
 
 # Install production dependencies
-cd dist
+cd dist/server
 npm install --omit=dev
 
 echo \"Build completed successfully\"
@@ -453,8 +446,8 @@ args = """
 
 set -e
 export NODE_ENV=development
-export PORT=3003
-npx concurrently   \"npx vite --port 80\"   \"tsx watch src/server/server.ts --port 3003\"
+export PORT=80
+npx concurrently   \"npx vite --port 3000\"   \"tsx watch src/server/server.ts\"
 """
 waitForPort = 80
 

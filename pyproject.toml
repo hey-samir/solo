@@ -13,4 +13,5 @@ dependencies = [
     "oauthlib>=3.2.2",
     "flask-wtf>=1.2.2",
     "twilio>=9.4.4",
+    "trafilatura>=2.0.0",
 ]
