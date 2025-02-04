@@ -86,6 +86,10 @@ args = "Staging"
 task = "workflow.run"
 args = "Deploy"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Production"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -153,13 +157,41 @@ args = """
 
     set -e
     echo \"Starting deployment process...\"
-    # Ensure clean state
-    pkill -f \"node.*:3000\" || true
-    sleep 2
+    # Clean state
+    rm -rf dist/client
+    mkdir -p dist/client
+    # Build with production settings
+    NODE_ENV=production npx vite build
     # Start deployment server
-    NODE_ENV=production PORT=3000 node src/server/deployment/deploy.js
+    NODE_ENV=production PORT=3000 node dist/server/deployment/deploy.js
     """
 waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Production"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    set -e
+    echo \"Starting production server...\"
+    # Clean state
+    rm -rf dist/client
+    mkdir -p dist/client
+    # Build with production settings
+    NODE_ENV=production npx vite build
+    # Start production server
+    NODE_ENV=production PORT=80 node src/server/server.js
+    """
+waitForPort = 80
 
 [[ports]]
 localPort = 80

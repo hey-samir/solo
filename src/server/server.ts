@@ -9,7 +9,16 @@ const app = express();
 const environment: string = process.env.NODE_ENV || 'development';
 const isProduction: boolean = environment === 'production';
 const isStaging: boolean = environment === 'staging';
-const PORT: number = parseInt(process.env.PORT || (isStaging ? '5000' : isProduction ? '80' : '3000'), 10);
+
+// Port configuration:
+// - Production: 80
+// - Staging: 5000
+// - Development: 3000
+const PORT: number = parseInt(
+  process.env.PORT || 
+  (isStaging ? '5000' : isProduction ? '80' : '3000'), 
+  10
+);
 
 // Basic middleware setup
 app.use(cors());
@@ -26,11 +35,12 @@ try {
   process.exit(1);
 }
 
-// Health check endpoint
+// Health check endpoint with environment info
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ 
     status: 'healthy',
     environment,
+    server_type: isProduction ? 'production' : isStaging ? 'staging' : 'development',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     port: PORT
