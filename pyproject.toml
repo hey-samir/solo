@@ -12,4 +12,5 @@ dependencies = [
     "flask-login>=0.6.3",
     "oauthlib>=3.2.2",
     "flask-wtf>=1.2.2",
+    "twilio>=9.4.4",
 ]

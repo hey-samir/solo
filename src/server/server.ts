@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import path from 'path';
 import session from 'express-session';
@@ -6,9 +6,11 @@ import compression from 'compression';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
+import { Pool } from 'pg';
+import connectPgSimple from 'connect-pg-simple';
 import routes from './routes';
 import passport from './middleware/auth';
-import blueGreenDeployment from './deployment/blue-green';
+import * as blueGreenDeployment from './deployment/blue-green';
 
 const app = express();
 const environment = process.env.NODE_ENV || 'development';
@@ -17,7 +19,7 @@ const isStaging = environment === 'staging';
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : (isProduction ? 80 : 3003);
 
 // Debug middleware to log all requests with more details
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   console.log('Environment:', environment);
   console.log('Port:', PORT);
@@ -28,7 +30,7 @@ app.use((req, res, next) => {
 });
 
 // Add health check endpoint before any other middleware
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ 
     status: 'healthy', 
     environment: process.env.DEPLOYMENT_COLOR || 'blue',
@@ -69,9 +71,6 @@ app.use(cors({
     }
 
     try {
-      const originWithoutProtocol = origin.replace(/^https?:\/\//, '');
-      const baseOrigin = originWithoutProtocol.split(':')[0];
-
       const isAllowed = corsOrigins.some(allowedOrigin => {
         if (allowedOrigin instanceof RegExp) {
           return allowedOrigin.test(origin);
@@ -99,23 +98,32 @@ const sessionConfig: session.SessionOptions = {
   secret: process.env.SESSION_SECRET || 'temporary_staging_secret_key_123',
   resave: false,
   saveUninitialized: false,
+  name: 'solo.sid',
   cookie: {
     secure: isProduction || isStaging,
     httpOnly: true,
     sameSite: (isProduction || isStaging ? 'strict' : 'lax') as 'strict' | 'lax' | 'none',
-    maxAge: 24 * 60 * 60 * 1000
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 };
 
 if (isProduction) {
-  const PostgreSQLStore = require('connect-pg-simple')(session);
+  const PostgreSQLStore = connectPgSimple(session);
+  const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+
   sessionConfig.store = new PostgreSQLStore({
-    conString: process.env.DATABASE_URL,
+    pool,
     createTableIfMissing: true,
+    tableName: 'session'
   });
 }
 
 app.use(session(sessionConfig));
+
+// Initialize passport after session middleware
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -133,7 +141,7 @@ if (isProduction || isStaging) {
     index: false,
     etag: true,
     lastModified: true,
-    setHeaders: (res, filePath) => {
+    setHeaders: (res: Response, filePath: string) => {
       if (filePath.endsWith('.js')) {
         res.setHeader('Content-Type', 'application/javascript');
       } else if (filePath.endsWith('.css')) {
@@ -147,14 +155,15 @@ if (isProduction || isStaging) {
     }
   }));
 
-  app.get('*', (req, res) => {
-    if (req.path.startsWith('/api')) {
-      res.status(404).json({ error: 'API endpoint not found' });
-      return;
-    }
-
+  // Serve index.html for client-side routing
+  app.get('*', (req: Request, res: Response) => {
     const indexPath = path.join(distDir, 'index.html');
     try {
+      if (req.path.startsWith('/api')) {
+        res.status(404).json({ error: 'API endpoint not found' });
+        return;
+      }
+
       const indexContent = fs.readFileSync(indexPath, 'utf-8');
       res.set('Content-Type', 'text/html');
       res.send(indexContent);
@@ -166,7 +175,7 @@ if (isProduction || isStaging) {
 }
 
 // Error handler
-app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Server Error:', {
     message: err.message,
     stack: !isProduction ? err.stack : undefined
@@ -183,7 +192,7 @@ const startServer = async () => {
     if (isProduction) {
       const deploymentColor = process.env.DEPLOYMENT_COLOR || 'blue';
       console.log(`Starting ${deploymentColor} environment on port ${PORT}`);
-      await blueGreenDeployment.startEnvironment(app, deploymentColor as 'blue' | 'green');
+      await blueGreenDeployment.startEnvironment(app, deploymentColor);
       return blueGreenDeployment.getActiveEnvironment().server;
     } else {
       return new Promise((resolve) => {

@@ -43,57 +43,47 @@ set -e
 echo \"Starting build process...\"
 
 # Clean and prepare directories
-echo \"Cleaning previous build...\"
 rm -rf dist
 mkdir -p dist/server
 
-# Compile TypeScript server files with verbose output
-echo \"Compiling server TypeScript files...\"
-NODE_ENV=production npx tsc --project tsconfig.server.json --listFiles || {
-    echo \"TypeScript compilation failed. Checking configuration...\"
-    cat tsconfig.server.json
-    exit 1
-}
+# Install dependencies if needed
+npm install
 
-# Verify server compilation
-echo \"Verifying server compilation...\"
-if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"server.js was not generated. Directory contents:\"
-    find dist -type f
-    echo \"TypeScript output:\"
-    NODE_ENV=production npx tsc --project tsconfig.server.json --listEmittedFiles
-    exit 1
-fi
-
-# Copy server files
-echo \"Copying server files...\"
-for dir in routes middleware db types deployment; do
-    if [ -d \"src/server/$dir\" ]; then
-        echo \"Copying $dir...\"
-        cp -r \"src/server/$dir\" \"dist/server/\"
-    fi
-done
+# Compile server TypeScript
+echo \"Compiling server files...\"
+NODE_ENV=production npx tsc --project tsconfig.server.json
 
 # Build client
 echo \"Building client...\"
 NODE_ENV=production npx vite build
 
-# Verify entire build
-echo \"Verifying complete build...\"
-if [ ! -f \"dist/index.html\" ]; then
-    echo \"Client build failed - missing index.html\"
-    exit 1
-fi
+# Copy necessary files with error checking
+echo \"Copying server files...\"
+for dir in routes middleware db types deployment; do
+    if [ -d \"src/server/$dir\" ]; then
+        echo \"Copying $dir...\"
+        cp -r \"src/server/$dir\" \"dist/server/\" || {
+            echo \"Failed to copy $dir\"
+            exit 1
+        }
+    fi
+done
 
+# Verify build artifacts
 if [ ! -f \"dist/server/server.js\" ]; then
-    echo \"Server build failed - missing server.js\"
+    echo \"Error: server.js not found after build\"
+    ls -la dist/server/
     exit 1
 fi
 
-echo \"Final build structure:\"
-ls -R dist/
+if [ ! -f \"dist/index.html\" ]; then
+    echo \"Error: index.html not found after client build\"
+    ls -la dist/
+    exit 1
+fi
 
-echo \"Build completed successfully\"
+echo \"Build completed successfully. Contents of dist/server:\"
+ls -la dist/server/
 """
 
 [[workflows.workflow]]
@@ -200,7 +190,37 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production tsx src/server/server.ts"
+args = """
+
+set -e
+
+echo \"Starting production server...\"
+
+# Set environment variables
+export NODE_ENV=production
+export PORT=80
+export HOST=0.0.0.0
+
+# Install dependencies if needed
+npm install
+
+# Verify build exists
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Build artifacts missing, running build workflow first...\"
+    npm run workflow Build
+fi
+
+# Add verbose logging for debugging
+echo \"Current directory: $(pwd)\"
+echo \"Server file exists: $(test -f dist/server/server.js && echo 'Yes' || echo 'No')\"
+echo \"Contents of dist/server:\"
+ls -la dist/server/
+
+# Start the server with enhanced error reporting
+cd dist/server
+echo \"Starting server from $(pwd) on port ${PORT}\"
+NODE_OPTIONS='--trace-warnings --trace-uncaught' node -r source-map-support/register server.js
+"""
 waitForPort = 80
 
 [[workflows.workflow]]
@@ -379,18 +399,16 @@ export NODE_ENV=production
 export PORT=80
 export HOST=0.0.0.0
 
-# Ensure dist/server exists
-if [ ! -d \"dist/server\" ]; then
-    echo \"Server directory missing, running build...\"
-    rm -rf dist
-    mkdir -p dist/server
-    NODE_ENV=production npx tsc --project tsconfig.server.json
+# Run build if server.js doesn't exist
+if [ ! -f \"dist/server/server.js\" ]; then
+    echo \"Server file missing, running build workflow first...\"
+    npm run workflow Build
 fi
 
-# Start the server with debugging enabled
-echo \"Starting server with debugging...\"
+# Start the server
 cd dist/server
-NODE_ENV=production DEBUG=* node -r source-map-support/register server.js
+echo \"Starting server from $(pwd) on port ${PORT}\"
+node server.js
 """
 waitForPort = 80
 

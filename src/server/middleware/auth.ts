@@ -4,6 +4,16 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { db } from '../db';
 import { users } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import session from 'express-session';
+
+// Type augmentation for Express session
+declare module 'express-session' {
+  interface SessionData {
+    passport: {
+      user: number;
+    };
+  }
+}
 
 // Will be replaced by actual credentials from environment variables
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
@@ -78,7 +88,7 @@ passport.use(
 );
 
 // Serialize user for the session
-passport.serializeUser((user, done) => {
+passport.serializeUser((user: Express.User, done) => {
   console.log('Serializing user:', user.id);
   done(null, user.id);
 });
@@ -110,7 +120,7 @@ export const isAuthenticated = (req: Request, res: Response, next: NextFunction)
   console.log('Auth check:', { 
     isAuthenticated: req.isAuthenticated(),
     user: req.user?.id,
-    session: req.session
+    sessionID: req.sessionID
   });
 
   if (req.isAuthenticated()) {
