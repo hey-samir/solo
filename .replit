@@ -80,11 +80,11 @@ args = "Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Staging"
+args = "Production"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production"
+args = "Staging"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -99,21 +99,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development tsx src/server/db/seed.ts"
-
-[[workflows.workflow]]
-name = "Staging"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=staging tsx src/server/server.ts"
-waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Production"
@@ -140,6 +125,32 @@ args = """
     NODE_ENV=production PORT=80 node src/server/server.js
     """
 waitForPort = 80
+
+[[workflows.workflow]]
+name = "Staging"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    set -e
+    echo \"Starting staging server...\"
+    # Clean state
+    rm -rf dist/client
+    mkdir -p dist/client
+    # Build with staging settings
+    NODE_ENV=staging npx vite build
+    # Start staging server with full features
+    NODE_ENV=staging PORT=5000 tsx src/server/server.ts
+    """
+waitForPort = 5000
 
 [[ports]]
 localPort = 80

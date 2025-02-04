@@ -16,7 +16,7 @@ const isStaging: boolean = environment === 'staging';
 // - Development: 3000
 const PORT: number = parseInt(
   process.env.PORT || 
-  (isStaging ? '5000' : isProduction ? '80' : '3000'), 
+  (isProduction ? '80' : isStaging ? '5000' : '3000'), 
   10
 );
 
@@ -47,38 +47,41 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// Handle static files based on environment
+// Handle static files and routing based on environment
 if (isProduction || isStaging) {
   const staticPath = path.resolve(__dirname, '../../dist/client');
-
   console.log(`[${environment}] Server Configuration:`);
   console.log(`- Environment: ${environment}`);
   console.log(`- Port: ${PORT}`);
   console.log(`- Static Path: ${staticPath}`);
-  console.log(`- Current Directory: ${process.cwd()}`);
 
-  // Verify the static directory exists and create if needed
   if (!fs.existsSync(staticPath)) {
     fs.mkdirSync(staticPath, { recursive: true });
   }
 
-  // Environment-specific static file serving
+  // Configure static file serving based on environment
   if (isProduction) {
-    // In production, only serve the Coming Soon page
+    // Production: Only serve Coming Soon page
+    app.use(express.static(staticPath));
     app.get('*', (_req: Request, res: Response) => {
       res.sendFile(path.join(staticPath, 'index.html'));
     });
-  } else {
-    // In staging, serve all static files normally
+  } else if (isStaging) {
+    // Staging: Serve full application with all features
     app.use(express.static(staticPath, {
       etag: true,
       lastModified: true,
       maxAge: '1h'
     }));
 
-    // Handle client-side routing for non-static requests
+    // Handle SPA routing in staging
     app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.join(staticPath, 'index.html'));
+      const indexPath = path.join(staticPath, 'index.html');
+      if (!fs.existsSync(indexPath)) {
+        console.error('Error: index.html not found in staging');
+        return res.status(500).send('Error loading application');
+      }
+      res.sendFile(indexPath);
     });
   }
 }
@@ -93,7 +96,7 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-// Only start the server if this file is run directly
+// Start server
 if (require.main === module) {
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('='.repeat(50));
@@ -105,7 +108,6 @@ if (require.main === module) {
     console.log('='.repeat(50));
   });
 
-  // Graceful shutdown
   process.on('SIGTERM', () => {
     console.log('Received SIGTERM signal, shutting down gracefully');
     server.close(() => {
