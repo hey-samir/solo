@@ -28,7 +28,7 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/staging',
-    template: path.resolve(__dirname, 'src/index.html')
+    template: path.resolve(__dirname, './index.html')  // Changed from src/index.html to ./index.html
   },
   production: {
     entry: path.resolve(__dirname, 'src/production.tsx'),
