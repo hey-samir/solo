@@ -69,6 +69,13 @@ export default defineConfig(({ mode }) => {
     if (!fs.existsSync(productionOutDir)) {
       fs.mkdirSync(productionOutDir, { recursive: true })
     }
+
+    // Copy the production HTML file
+    const productionHtmlSrc = path.resolve(__dirname, 'src/production.html')
+    if (fs.existsSync(productionHtmlSrc)) {
+      const productionHtmlDest = path.resolve(productionOutDir, 'production.html')
+      fs.copyFileSync(productionHtmlSrc, productionHtmlDest)
+    }
   }
 
   return {
@@ -80,7 +87,9 @@ export default defineConfig(({ mode }) => {
       sourcemap: env !== 'production',
       chunkSizeWarningLimit: 600,
       rollupOptions: {
-        input: envConfig.template,
+        input: {
+          main: envConfig.template
+        },
         output: {
           entryFileNames: '[name].[hash].js',
           chunkFileNames: '[name].[hash].js',

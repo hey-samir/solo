@@ -60,12 +60,12 @@ if (isProduction) {
   }));
 
   // Production SPA fallback
-  app.get('*', (req: Request, res: Response) => {
-    console.log(`[Production] Serving request for path: ${req.path}`);
+  app.get('*', (_req: Request, res: Response) => {
+    console.log(`[Production] Serving request for path: ${_req.path}`);
 
     // List of possible HTML file locations
     const possibleHtmlFiles = [
-      path.join(productionDir, 'src/production.html'),
+      path.join(productionDir, 'src', 'production.html'),
       path.join(productionDir, 'production.html'),
       path.join(productionDir, 'index.html')
     ];
