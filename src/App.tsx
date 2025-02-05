@@ -23,6 +23,7 @@ const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
   // Use Vite's environment variable
   const isProduction = import.meta.env.MODE === 'production'
+  const isStaging = import.meta.env.MODE === 'staging'
   console.log('Environment:', import.meta.env.MODE) // Debug log
 
   return (
