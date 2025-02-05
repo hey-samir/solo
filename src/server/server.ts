@@ -30,28 +30,9 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 if (isProduction) {
-  // Define multiple possible paths for production assets
-  const possiblePaths = [
-    // Replit workspace path
-    path.resolve(__dirname, '../../dist/client/production'),
-    // Root-relative path for traditional hosting
-    path.resolve('/app/dist/client/production'),
-    // Current directory relative path
-    path.resolve('./dist/client/production'),
-    // Public directory
-    path.resolve('./public')
-  ];
-
-  // Find the first valid production directory
-  const productionDir = possiblePaths.find(p => {
-    try {
-      return require('fs').existsSync(p);
-    } catch (e) {
-      return false;
-    }
-  }) || possiblePaths[0]; // Fallback to first path if none exist
-
-  console.log('Production directory resolved to:', productionDir);
+  // Production directory setup
+  const productionDir = path.resolve(__dirname, '../../dist/client/production');
+  console.log('Production directory:', productionDir);
 
   // Serve static files with proper caching headers
   app.use(express.static(productionDir, {
@@ -61,34 +42,14 @@ if (isProduction) {
 
   // Production SPA fallback
   app.get('*', (_req: Request, res: Response) => {
-    console.log(`[Production] Serving request for path: ${_req.path}`);
-
-    // List of possible HTML file locations
-    const possibleHtmlFiles = [
-      path.join(productionDir, 'src', 'production.html'),
-      path.join(productionDir, 'production.html'),
-      path.join(productionDir, 'index.html')
-    ];
-
-    // Try each possible HTML file location
-    const tryNextHtmlFile = (index: number) => {
-      if (index >= possibleHtmlFiles.length) {
-        console.error('[Production] No valid HTML file found in any location');
-        return res.status(500).send('Error loading application');
+    const htmlFile = path.join(productionDir, 'src', 'production.html');
+    console.log(`[Production] Attempting to serve: ${htmlFile}`);
+    res.sendFile(htmlFile, (err) => {
+      if (err) {
+        console.error(`[Production] Error serving ${htmlFile}:`, err);
+        res.status(500).send('Error loading application');
       }
-
-      const htmlFile = possibleHtmlFiles[index];
-      console.log(`[Production] Attempting to serve: ${htmlFile}`);
-
-      res.sendFile(htmlFile, (err) => {
-        if (err) {
-          console.error(`[Production] Error serving ${htmlFile}:`, err);
-          tryNextHtmlFile(index + 1);
-        }
-      });
-    };
-
-    tryNextHtmlFile(0);
+    });
   });
 }
 
