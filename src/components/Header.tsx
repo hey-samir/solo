@@ -10,9 +10,15 @@ const Header: React.FC = () => {
   const environment = import.meta.env.MODE
   const isStaging = environment === 'staging' || process.env.NODE_ENV === 'staging'
 
+  // Add debug logs for environment and auth state
+  console.log('Current environment:', environment)
+  console.log('Authentication state:', { isAuthenticated, user })
+
   const handleLogout = async () => {
+    console.log('Logout initiated') // Debug log
     await logout();
     setIsMenuOpen(false);
+    console.log('Logout completed') // Debug log
   };
 
   return (
@@ -25,13 +31,20 @@ const Header: React.FC = () => {
               alt="Solo Logo" 
               className="header-logo"
               height="50"
+              onError={(e) => {
+                console.error('Logo failed to load:', e) // Debug log
+                e.currentTarget.onerror = null // Prevent infinite loop
+              }}
             />
           </Link>
           <div className="d-flex align-items-center">
             <button 
               className="btn menu-toggle" 
               type="button"
-              onClick={() => setIsMenuOpen(true)}
+              onClick={() => {
+                console.log('Menu toggle clicked') // Debug log
+                setIsMenuOpen(true)
+              }}
               aria-label="Open menu"
             >
               <i className="material-icons">menu</i>
