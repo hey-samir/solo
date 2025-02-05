@@ -39,7 +39,7 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/production',
-    template: path.resolve(__dirname, 'src/production.html')
+    template: path.resolve(__dirname, 'index.html')
   }
 }
 
@@ -60,7 +60,9 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: env !== 'production',
       rollupOptions: {
-        input: envConfig.template,
+        input: {
+          main: envConfig.entry,
+        },
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom'],
