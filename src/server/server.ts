@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import morgan from 'morgan';
-import fs from 'fs';
 import type { Request, Response, NextFunction } from 'express';
 
 const app = express();
@@ -19,7 +18,7 @@ console.log(`Starting server in ${environment} mode on port ${PORT}`);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev')); // Add logging
+app.use(morgan('dev'));
 
 // Import routes
 try {
@@ -27,7 +26,6 @@ try {
   app.use('/api', routes);
 } catch (error) {
   console.error('Error loading routes:', error);
-  process.exit(1);
 }
 
 // Health check endpoint (available in all environments)
@@ -35,57 +33,40 @@ app.get('/health', (_req: Request, res: Response) => {
   res.json({ 
     status: 'healthy',
     environment,
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    timestamp: new Date().toISOString()
   });
 });
 
-// Production: Serve static coming soon page and assets
 if (isProduction) {
+  // Serve static files from production build directory
   const productionDir = path.resolve(__dirname, '../../dist/client/production');
-  const productionHtml = path.join(productionDir, 'production.html');
+  const publicDir = path.resolve(__dirname, '../../public');
 
-  console.log(`[${environment}] Production mode: Serving from ${productionDir}`);
+  console.log('Production directories:', {
+    production: productionDir,
+    public: publicDir
+  });
 
-  // Serve static assets from the production build directory
-  app.use(express.static(productionDir, {
-    etag: true,
-    lastModified: true,
-    maxAge: '1h'
-  }));
+  // Serve public files first (for logos, etc.)
+  app.use(express.static(publicDir));
 
-  // Serve all routes with the production HTML
-  app.get('*', (req: Request, res: Response) => {
-    if (!fs.existsSync(productionHtml)) {
-      console.error('Error: production.html not found at', productionHtml);
-      return res.status(500).send('Error loading application');
-    }
-    res.sendFile(productionHtml);
+  // Then serve production build files
+  app.use(express.static(productionDir));
+
+  // SPA fallback for production HTML
+  app.get('*', (_req: Request, res: Response) => {
+    const htmlPath = path.join(productionDir, 'src/production.html');
+    console.log('Attempting to serve:', htmlPath);
+    res.sendFile(htmlPath);
   });
 }
 
-// Staging: Serve the full application
 if (isStaging) {
   const staticPath = path.resolve(__dirname, '../../dist/client/staging');
-  console.log(`[${environment}] Serving static files from: ${staticPath}`);
+  app.use(express.static(staticPath));
 
-  // Configure static file serving
-  app.use(express.static(staticPath, {
-    etag: true,
-    lastModified: true,
-    maxAge: '1h'
-  }));
-
-  // SPA routing
-  app.get('*', (req: Request, res: Response) => {
-    const indexPath = path.join(staticPath, 'index.html');
-
-    if (!fs.existsSync(indexPath)) {
-      console.error('Error: index.html not found at', indexPath);
-      return res.status(500).send('Error loading application');
-    }
-
-    res.sendFile(indexPath);
+  app.get('*', (_req: Request, res: Response) => {
+    res.sendFile(path.join(staticPath, 'index.html'));
   });
 }
 
@@ -99,25 +80,13 @@ app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-// Only start server if this file is run directly
 if (require.main === module) {
-  const server = app.listen(PORT, '0.0.0.0', () => {
+  app.listen(PORT, '0.0.0.0', () => {
     console.log('='.repeat(50));
     console.log(`Server started in ${environment} mode`);
     console.log(`Listening on http://0.0.0.0:${PORT}`);
     console.log(`Process ID: ${process.pid}`);
-    console.log(`Node version: ${process.version}`);
-    console.log(`Current directory: ${process.cwd()}`);
     console.log('='.repeat(50));
-  });
-
-  // Graceful shutdown
-  process.on('SIGTERM', () => {
-    console.log('Received SIGTERM signal, shutting down gracefully');
-    server.close(() => {
-      console.log('Server closed');
-      process.exit(0);
-    });
   });
 }
 

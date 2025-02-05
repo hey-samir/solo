@@ -40,11 +40,7 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/production',
-    template: path.resolve(__dirname, 'production.html'),
-    assets: {
-      // Copy logo to production assets
-      'solo-clear.png': path.resolve(__dirname, 'attached_assets/solo-clear.png')
-    }
+    template: path.resolve(__dirname, 'src/production.html')
   }
 }
 
@@ -52,40 +48,34 @@ export default defineConfig(({ mode }) => {
   const env = mode || 'development'
   const envConfig = envConfigs[env]
 
-  // Copy production assets if in production mode
-  if (env === 'production' && envConfig.assets) {
-    Object.entries(envConfig.assets).forEach(([dest, src]) => {
-      if (fs.existsSync(src)) {
-        const destDir = path.join(envConfig.outDir, 'assets')
-        if (!fs.existsSync(destDir)) {
-          fs.mkdirSync(destDir, { recursive: true })
-        }
-        fs.copyFileSync(src, path.join(destDir, dest))
-      }
-    })
+  // Ensure public directory exists
+  const publicDir = path.resolve(__dirname, 'public')
+  if (!fs.existsSync(publicDir)) {
+    fs.mkdirSync(publicDir, { recursive: true })
+  }
+
+  // Copy logo to public directory if it doesn't exist
+  const logoSrc = path.resolve(__dirname, 'attached_assets/solo-clear.png')
+  const logoDest = path.resolve(publicDir, 'images/solo-clear.png')
+  if (fs.existsSync(logoSrc) && !fs.existsSync(logoDest)) {
+    fs.mkdirSync(path.dirname(logoDest), { recursive: true })
+    fs.copyFileSync(logoSrc, logoDest)
   }
 
   return {
     plugins: [react()],
-    server: {
-      host: '0.0.0.0',
-      ...envConfig.server,
-      strictPort: true,
-    },
+    server: envConfig.server,
     build: {
       outDir: envConfig.outDir,
-      assetsDir: 'assets',
       emptyOutDir: true,
       sourcemap: env !== 'production',
       rollupOptions: {
-        input: envConfig.template,
-        output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom'],
-          }
+        input: {
+          main: envConfig.template
         }
       }
     },
+    publicDir,
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

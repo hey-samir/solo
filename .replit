@@ -25,10 +25,19 @@ task = "shell.exec"
 args = """
 
     set -e
-    echo \"Running database migrations...\"
+    echo \"Initializing database migrations...\"
+    # Ensure migrations directory exists
+    mkdir -p drizzle
+    mkdir -p migrations/meta
+    # Initialize Drizzle configuration
+    echo '{
+      \"version\": \"5\",
+      \"dialect\": \"pg\",
+      \"entries\": []
+    }' > migrations/meta/_journal.json
+    # Generate and run migrations
     npx drizzle-kit generate:pg
     tsx src/server/db/migrate.ts
-    echo \"Migrations completed\"
     """
 
 [[workflows.workflow]]
@@ -115,13 +124,18 @@ task = "shell.exec"
 args = """
 
     set -e
-    echo \"Starting production server...\"
-    # Build frontend first
-    rm -rf dist/client
-    mkdir -p dist/client
+    echo \"Starting production deployment...\"
+    
+    # First ensure public directory exists and copy logo
+    mkdir -p public/images
+    cp -f attached_assets/solo-clear.png public/images/
+    
+    # Clean and build
+    rm -rf dist/client/production
     NODE_ENV=production npx vite build
+    
     # Start server
-    NODE_ENV=production tsx src/server/server.ts
+    NODE_ENV=production PORT=3000 node_modules/.bin/tsx src/server/server.ts
     """
 waitForPort = 3000
 
@@ -144,10 +158,12 @@ args = """
     # Clean and prepare build directory
     rm -rf dist/client/staging
     mkdir -p dist/client/staging
+    # Copy index.html to staging directory
+    cp index.html dist/client/staging/
     # Build frontend with staging mode
     NODE_ENV=staging npx vite build --mode staging
     # Start server
-    NODE_ENV=staging tsx src/server/server.ts
+    NODE_ENV=staging PORT=5000 tsx src/server/server.ts
     """
 waitForPort = 5000
 
