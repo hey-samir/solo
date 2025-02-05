@@ -29,7 +29,9 @@ const corsOptions = {
     if (!origin) return callback(null, true);
 
     const allowedOrigins = [
-      // Production origins (no port required)
+      // Production origins
+      'https://gosolo.nyc',
+      'https://www.gosolo.nyc',
       'https://1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev',
       // Staging origins (with port 5000)
       'https://1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev:5000'
