@@ -23,10 +23,10 @@ const StagingRouter: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       {/* Environment Indicator */}
-      <div className="bg-solo-purple text-white text-center py-1 text-sm">
+      <div className="bg-black text-white text-center py-1 text-sm font-bold" style={{ backgroundColor: 'black' }}>
         Staging Environment
       </div>
-      
+
       <Routes>
         <Route element={<Layout />}>
           {/* Public Routes */}
