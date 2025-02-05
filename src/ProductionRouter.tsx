@@ -3,9 +3,11 @@ import ComingSoon from './pages/ComingSoon'
 
 const ProductionRouter: React.FC = () => {
   return (
-    <main className="min-h-screen bg-bg-primary text-text-primary flex items-center justify-center">
-      <ComingSoon />
-    </main>
+    <div className="min-h-screen bg-bg-primary text-text-primary">
+      <main className="flex items-center justify-center h-screen">
+        <ComingSoon />
+      </main>
+    </div>
   )
 }
 
