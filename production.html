@@ -9,8 +9,6 @@
     <!-- Core CSS -->
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@coreui/coreui@4.3.0/dist/css/coreui.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/@coreui/icons@2.1.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root {
@@ -19,7 +17,6 @@
             --bg-primary: #1e2638;
             --bg-card: #4A5D79;
             --text-primary: #ffffff;
-            --text-primary-rgb: 255, 255, 255;
             --text-secondary: rgba(255, 255, 255, 0.6);
             --text-muted: rgba(255, 255, 255, 0.4);
             --border-color: rgba(255, 255, 255, 0.1);
@@ -51,24 +48,43 @@
             max-width: 800px;
             margin: 2rem auto;
             padding: 0 1rem;
+            text-align: center;
+        }
+
+        .main-heading {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 2rem 0;
+            color: var(--solo-purple);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin: 2rem 0;
         }
 
         .feature-card {
             background: var(--bg-card);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
+            border-radius: 12px;
+            padding: 2rem 1rem;
             text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
         }
 
         .feature-card i {
-            font-size: 2rem;
+            font-size: 2.5rem;
             color: var(--solo-purple);
             margin-bottom: 1rem;
         }
 
         .feature-card h3 {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
         }
@@ -76,27 +92,24 @@
         .feature-card p {
             color: var(--text-secondary);
             margin: 0;
-            font-size: 0.875rem;
+            font-size: 1rem;
         }
 
         .coming-soon {
             text-align: center;
-            padding: 3rem 1rem;
-            background: var(--bg-card);
-            border-radius: 8px;
-            margin: 2rem auto;
+            margin: 3rem 0;
         }
 
         .coming-soon h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+            font-size: 2rem;
             color: var(--text-primary);
+            margin-bottom: 1rem;
         }
 
         .coming-soon p {
             color: var(--text-secondary);
             font-size: 1.25rem;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .follow-link {
@@ -121,28 +134,28 @@
     </header>
 
     <div class="content">
-        <!-- Feature Cards -->
-        <div class="row g-3">
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <i class="material-icons">trending_up</i>
-                    <h3>Track Progress</h3>
-                    <p>Monitor your climbing performance with detailed analytics</p>
-                </div>
+        <h1 class="main-heading">Quantify your Ascent</h1>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="material-icons">arrow_upward</i>
+                <h3>Log Sends Instantly</h3>
+                <p>Track all metrics for routes</p>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <i class="material-icons">groups</i>
-                    <h3>Join Squads</h3>
-                    <p>Climb and compete with your friends</p>
-                </div>
+            <div class="feature-card">
+                <i class="material-icons">public</i>
+                <h3>Compete Globally</h3>
+                <p>See how you rank worldwide</p>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <i class="material-icons">insights</i>
-                    <h3>Get Insights</h3>
-                    <p>Understand your climbing patterns and improve</p>
-                </div>
+            <div class="feature-card">
+                <i class="material-icons">calendar_today</i>
+                <h3>View Sessions</h3>
+                <p>Track your sessions</p>
+            </div>
+            <div class="feature-card">
+                <i class="material-icons">trending_up</i>
+                <h3>Track Progress</h3>
+                <p>Analyze your climbing stats</p>
             </div>
         </div>
 
