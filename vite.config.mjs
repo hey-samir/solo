@@ -40,7 +40,7 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/production',
-    template: path.resolve(__dirname, 'src/production.html')
+    template: path.resolve(__dirname, 'production.html')
   }
 }
 
@@ -70,11 +70,18 @@ export default defineConfig(({ mode }) => {
       fs.mkdirSync(productionOutDir, { recursive: true })
     }
 
-    // Copy the production HTML file
+    // Copy the production HTML file to both locations to ensure it's found
     const productionHtmlSrc = path.resolve(__dirname, 'src/production.html')
     if (fs.existsSync(productionHtmlSrc)) {
-      const productionHtmlDest = path.resolve(productionOutDir, 'production.html')
-      fs.copyFileSync(productionHtmlSrc, productionHtmlDest)
+      fs.copyFileSync(
+        productionHtmlSrc,
+        path.resolve(productionOutDir, 'production.html')
+      )
+      // Also copy to root directory
+      fs.copyFileSync(
+        productionHtmlSrc,
+        path.resolve(__dirname, 'production.html')
+      )
     }
   }
 

@@ -42,7 +42,7 @@ if (isProduction) {
 
   // Production SPA fallback
   app.get('*', (_req: Request, res: Response) => {
-    const htmlFile = path.join(productionDir, 'src', 'production.html');
+    const htmlFile = path.join(productionDir, 'production.html');
     console.log(`[Production] Attempting to serve: ${htmlFile}`);
     res.sendFile(htmlFile, (err) => {
       if (err) {
