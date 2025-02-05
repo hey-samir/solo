@@ -23,10 +23,10 @@ import FAQ from './pages/FAQ'
 const StagingRouter: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
-      {/* Environment Indicator */}
+      {/* Staging Environment Banner */}
       <div 
-        className="text-white text-center py-1 text-sm font-bold" 
-        style={{ backgroundColor: 'black' }}
+        className="text-white text-center py-2 text-sm font-bold"
+        style={{ backgroundColor: '#000000' }}
       >
         Staging Environment
       </div>
