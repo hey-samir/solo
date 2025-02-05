@@ -116,15 +116,16 @@ args = """
 
     set -e
     echo \"Starting production server...\"
-    # Clean state
+    export NODE_ENV=production
+    # Clean and prepare build directory
     rm -rf dist/client
     mkdir -p dist/client
-    # Build with production settings
-    NODE_ENV=production npx vite build
-    # Start production server
-    NODE_ENV=production PORT=80 node src/server/server.js
+    # Build frontend
+    npx vite build
+    # Start server
+    tsx src/server/server.ts
     """
-waitForPort = 80
+waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Staging"
@@ -142,13 +143,14 @@ args = """
 
     set -e
     echo \"Starting staging server...\"
-    # Clean state
+    export NODE_ENV=staging
+    # Clean and prepare build directory
     rm -rf dist/client
     mkdir -p dist/client
-    # Build with staging settings
-    NODE_ENV=staging npx vite build
-    # Start staging server with full features
-    NODE_ENV=staging PORT=5000 tsx src/server/server.ts
+    # Build frontend
+    npx vite build
+    # Start server
+    tsx src/server/server.ts
     """
 waitForPort = 5000
 

@@ -11,12 +11,12 @@ const isProduction: boolean = environment === 'production';
 const isStaging: boolean = environment === 'staging';
 
 // Port configuration:
-// - Production: 80
+// - Production: 3000
 // - Staging: 5000
-// - Development: 3000
+// - Development: 3001
 const PORT: number = parseInt(
   process.env.PORT || 
-  (isProduction ? '80' : isStaging ? '5000' : '3000'), 
+  (isProduction ? '3000' : isStaging ? '5000' : '3001'), 
   10
 );
 
@@ -24,7 +24,7 @@ const PORT: number = parseInt(
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(morgan('dev'));
+app.use(morgan('dev')); // Add logging
 
 // Import routes
 try {
@@ -35,15 +35,13 @@ try {
   process.exit(1);
 }
 
-// Health check endpoint with environment info
+// Health check endpoint (available in all environments)
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ 
     status: 'healthy',
     environment,
-    server_type: isProduction ? 'production' : isStaging ? 'staging' : 'development',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    port: PORT
+    uptime: process.uptime()
   });
 });
 
