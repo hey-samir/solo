@@ -20,14 +20,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Import routes
-try {
-  const routes = require('./routes');
-  app.use('/api', routes);
-} catch (error) {
-  console.error('Error loading routes:', error);
-}
-
 // Health check endpoint (available in all environments)
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ 
@@ -38,7 +30,7 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 if (isProduction) {
-  // Serve static files from production build directory
+  // Production static file serving
   const productionDir = path.resolve(__dirname, '../../dist/client/production');
   const publicDir = path.resolve(__dirname, '../../public');
 
@@ -47,17 +39,13 @@ if (isProduction) {
     public: publicDir
   });
 
-  // Serve public files first (for logos, etc.)
+  // Serve static files
   app.use(express.static(publicDir));
-
-  // Then serve production build files
   app.use(express.static(productionDir));
 
-  // SPA fallback for production HTML
-  app.get('*', (_req: Request, res: Response) => {
-    const htmlPath = path.join(productionDir, 'src/production.html');
-    console.log('Attempting to serve:', htmlPath);
-    res.sendFile(htmlPath);
+  // SPA fallback - send production.html for all routes
+  app.get('/*', (_req: Request, res: Response) => {
+    res.sendFile(path.join(productionDir, 'src/production.html'));
   });
 }
 
@@ -65,7 +53,8 @@ if (isStaging) {
   const staticPath = path.resolve(__dirname, '../../dist/client/staging');
   app.use(express.static(staticPath));
 
-  app.get('*', (_req: Request, res: Response) => {
+  // SPA fallback for staging
+  app.get('/*', (_req: Request, res: Response) => {
     res.sendFile(path.join(staticPath, 'index.html'));
   });
 }

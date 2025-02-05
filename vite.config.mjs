@@ -69,9 +69,26 @@ export default defineConfig(({ mode }) => {
       outDir: envConfig.outDir,
       emptyOutDir: true,
       sourcemap: env !== 'production',
+      chunkSizeWarningLimit: 600,
       rollupOptions: {
         input: {
           main: envConfig.template
+        },
+        output: {
+          manualChunks: {
+            vendor: [
+              'react',
+              'react-dom',
+              'react-router-dom',
+              '@tanstack/react-query',
+              '@react-oauth/google'
+            ],
+            ui: [
+              '@coreui/coreui',
+              'bootstrap',
+              '@popperjs/core'
+            ]
+          }
         }
       }
     },
