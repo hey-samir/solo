@@ -126,21 +126,24 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-    set -e
-    echo \"Starting production server...\"
+    #!/bin/bash
+    set -ex
     
-    # Clean everything
-    rm -rf dist/client/production
-    mkdir -p dist/client/production public/images
+    # Print timestamp and environment
+    echo \"[$(date)] Starting production server in debug mode...\"
     
-    # Copy required assets
-    cp -f attached_assets/solo-clear.png public/images/
+    # Clean everything with verbose output
+    rm -rfv dist/client/production
+    mkdir -pv dist/client/production public/images
     
-    # Build production bundle
+    # Copy assets with verbose output
+    cp -vf attached_assets/solo-clear.png public/images/
+    
+    # Build with verbose output
     NODE_ENV=production npx vite build
     
-    # Start server with debug logging
-    NODE_ENV=production DEBUG=express:* PORT=3000 tsx src/server/server.ts
+    # Start server with maximum debug output
+    NODE_ENV=production DEBUG=* PORT=3000 tsx src/server/server.ts
     """
 waitForPort = 3000
 
@@ -158,21 +161,22 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-    set -e
-    echo \"Starting fresh staging deployment at $(date)\"
+    #!/bin/bash
+    set -ex
     
-    # Clean and prepare build directory
-    rm -rf dist/client/staging
-    mkdir -p dist/client/staging
+    echo \"[$(date)] Starting staging deployment...\"
     
-    # Copy index.html to staging directory
-    cp index.html dist/client/staging/
+    # Clean with verbose output
+    rm -rfv dist/client/staging
+    mkdir -pv dist/client/staging
     
-    # Build frontend with staging mode
+    cp -v index.html dist/client/staging/
+    
+    # Build with verbose output
     NODE_ENV=staging npx vite build --mode staging
     
-    # Start server
-    NODE_ENV=staging PORT=5000 tsx src/server/server.ts
+    # Start server with debug output
+    NODE_ENV=staging DEBUG=* PORT=5000 tsx src/server/server.ts
     """
 waitForPort = 5000
 
