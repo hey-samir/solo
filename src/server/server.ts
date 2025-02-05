@@ -40,9 +40,25 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// Serve static files in production/staging
-if (isProduction || isStaging) {
-  const staticPath = path.resolve(__dirname, '../../dist/client', environment);
+// Production: Serve static coming soon page
+if (isProduction) {
+  const productionHtml = path.resolve(__dirname, '../../production.html');
+
+  console.log(`[${environment}] Production mode: Serving coming soon page`);
+
+  // Serve all routes with the production HTML
+  app.get('*', (req: Request, res: Response) => {
+    if (!fs.existsSync(productionHtml)) {
+      console.error('Error: production.html not found at', productionHtml);
+      return res.status(500).send('Error loading application');
+    }
+    res.sendFile(productionHtml);
+  });
+}
+
+// Staging: Serve the full application
+if (isStaging) {
+  const staticPath = path.resolve(__dirname, '../../dist/client/staging');
   console.log(`[${environment}] Serving static files from: ${staticPath}`);
 
   // Configure static file serving
@@ -52,22 +68,17 @@ if (isProduction || isStaging) {
     maxAge: '1h'
   }));
 
-  // SPA routing handler function
-  const handleSpaRouting = (req: Request, res: Response) => {
-    // For production, we use production.html, for staging we use index.html
-    const indexFile = isProduction ? 'production.html' : 'index.html';
-    const indexPath = path.join(staticPath, indexFile);
+  // SPA routing
+  app.get('*', (req: Request, res: Response) => {
+    const indexPath = path.join(staticPath, 'index.html');
 
     if (!fs.existsSync(indexPath)) {
-      console.error(`Error: ${indexFile} not found at`, indexPath);
-      return res.status(500).send('Error loading application - Build incomplete');
+      console.error('Error: index.html not found at', indexPath);
+      return res.status(500).send('Error loading application');
     }
 
     res.sendFile(indexPath);
-  };
-
-  // Use the handler for all unmatched routes
-  app.get('*', handleSpaRouting);
+  });
 }
 
 // Enhanced error handler
