@@ -129,12 +129,15 @@ args = """
     set -e
     echo \"Starting production deployment...\"
     
+    # Clean build
+    rm -rf dist/client/production
+    mkdir -p dist/client/production
+    
     # First ensure public directory exists and copy logo
     mkdir -p public/images
     cp -f attached_assets/solo-clear.png public/images/
     
     # Clean and rebuild
-    rm -rf dist/client/production
     NODE_ENV=production npx vite build
     
     # Start server with debug logging
