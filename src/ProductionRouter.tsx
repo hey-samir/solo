@@ -1,13 +1,15 @@
 import React from 'react'
+import { Routes, Route } from 'react-router-dom'
+import ProductionLayout from './components/ProductionLayout'
 import ComingSoon from './pages/ComingSoon'
 
 const ProductionRouter: React.FC = () => {
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
-      <main className="flex items-center justify-center h-screen">
-        <ComingSoon />
-      </main>
-    </div>
+    <Routes>
+      <Route element={<ProductionLayout />}>
+        <Route path="*" element={<ComingSoon />} />
+      </Route>
+    </Routes>
   )
 }
 
