@@ -20,27 +20,19 @@ const queryClient = new QueryClient({
   },
 })
 
+// Get environment from build-time define
+declare const __ENV__: string
+
 const App: React.FC = () => {
   const clientId = process.env.VITE_GOOGLE_OAUTH_CLIENT_ID || ''
-  const environment = process.env.NODE_ENV
+  const isProduction = __ENV__ === 'production'
+  const isStaging = __ENV__ === 'staging'
 
-  // Strict environment checks
-  const isProduction = environment === 'production'
-  const isStaging = environment === 'staging'
+  console.log('Current Environment:', __ENV__)
 
-  console.log('Environment:', environment)
-  console.log('Is Production:', isProduction)
-  console.log('Is Staging:', isStaging)
-
-  // Production mode - minimal setup without Auth and Query providers
+  // Production mode - minimal setup with no shared components
   if (isProduction) {
-    return (
-      <BrowserRouter>
-        <ErrorBoundary>
-          <ProductionRouter />
-        </ErrorBoundary>
-      </BrowserRouter>
-    )
+    return <ProductionRouter />
   }
 
   // Staging/Development mode - full setup

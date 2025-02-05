@@ -42,7 +42,7 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // Serve static files in production/staging
 if (isProduction || isStaging) {
-  const staticPath = path.resolve(__dirname, '../../dist/client');
+  const staticPath = path.resolve(__dirname, '../../dist/client', environment);
   console.log(`[${environment}] Serving static files from: ${staticPath}`);
 
   // Configure static file serving
@@ -65,7 +65,7 @@ if (isProduction || isStaging) {
   };
 
   // Use the handler for all unmatched routes
-  app.use('*', handleSpaRouting);
+  app.get('*', handleSpaRouting);
 }
 
 // Enhanced error handler

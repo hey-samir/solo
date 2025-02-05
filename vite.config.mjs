@@ -9,28 +9,35 @@ const __dirname = path.dirname(__filename)
 // Environment-specific configurations
 const envConfigs = {
   development: {
+    entry: path.resolve(__dirname, 'src/main.tsx'),
     server: {
       port: 3000,
       proxy: {
         '/api': 'http://localhost:3003'
       }
-    }
+    },
+    outDir: 'dist/client/development'
   },
   staging: {
+    entry: path.resolve(__dirname, 'src/main.tsx'),
     server: {
       port: 5000,
       proxy: {
         '/api': 'http://localhost:5000'
       }
-    }
+    },
+    outDir: 'dist/client/staging'
   },
   production: {
+    entry: path.resolve(__dirname, 'src/production.tsx'),
     server: {
-      port: 80,
+      port: 3000,
       proxy: {
-        '/api': 'http://localhost:80'
+        '/api': 'http://localhost:3000'
       }
-    }
+    },
+    outDir: 'dist/client/production',
+    html: path.resolve(__dirname, 'src/production.html')
   }
 }
 
@@ -46,14 +53,19 @@ export default defineConfig(({ mode }) => {
       strictPort: true,
     },
     build: {
-      outDir: 'dist/client',
+      outDir: envConfig.outDir,
       assetsDir: 'assets',
       emptyOutDir: true,
       sourcemap: env !== 'production',
       rollupOptions: {
+        input: {
+          main: env === 'production' ? 
+            path.resolve(__dirname, 'src/production.html') : 
+            path.resolve(__dirname, 'index.html')
+        },
         output: {
           manualChunks: {
-            vendor: ['react', 'react-dom', 'react-router-dom'],
+            vendor: ['react', 'react-dom'],
           }
         }
       }
