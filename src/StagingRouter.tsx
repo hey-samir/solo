@@ -24,7 +24,10 @@ const StagingRouter: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       {/* Environment Indicator */}
-      <div className="bg-black text-white text-center py-1 text-sm font-bold" style={{ backgroundColor: 'black' }}>
+      <div 
+        className="text-white text-center py-1 text-sm font-bold" 
+        style={{ backgroundColor: 'black' }}
+      >
         Staging Environment
       </div>
 
