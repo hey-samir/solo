@@ -20,37 +20,38 @@ const queryClient = new QueryClient({
   },
 })
 
-declare global {
-  interface ImportMetaEnv {
-    VITE_GOOGLE_OAUTH_CLIENT_ID: string
-    MODE: string
-  }
-}
-
 const App: React.FC = () => {
-  const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
-  const environment = import.meta.env.MODE
-  const isProduction = environment === 'production' && process.env.NODE_ENV === 'production'
-  const isStaging = environment === 'staging' || process.env.NODE_ENV === 'staging'
+  const clientId = process.env.VITE_GOOGLE_OAUTH_CLIENT_ID || ''
+  const environment = process.env.NODE_ENV
 
-  console.log('App Environment:', environment)
-  console.log('NODE_ENV:', process.env.NODE_ENV)
-  console.log('Router Mode:', isProduction ? 'Production' : isStaging ? 'Staging' : 'Development')
+  // Strict environment checks
+  const isProduction = environment === 'production'
+  const isStaging = environment === 'staging'
 
-  const getRouter = () => {
-    if (isProduction) return <ProductionRouter />
-    if (isStaging) return <StagingRouter />
-    return <AppRouter />
+  console.log('Environment:', environment)
+  console.log('Is Production:', isProduction)
+  console.log('Is Staging:', isStaging)
+
+  // Production mode - minimal setup without Auth and Query providers
+  if (isProduction) {
+    return (
+      <BrowserRouter>
+        <ErrorBoundary>
+          <ProductionRouter />
+        </ErrorBoundary>
+      </BrowserRouter>
+    )
   }
 
+  // Staging/Development mode - full setup
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <GoogleOAuthProvider clientId={clientId || ''}>
+        <GoogleOAuthProvider clientId={clientId}>
           <AuthProvider>
             <ErrorBoundary>
               <div className="min-vh-100 bg-bg-primary text-text-primary">
-                {getRouter()}
+                {isStaging ? <StagingRouter /> : <AppRouter />}
               </div>
             </ErrorBoundary>
           </AuthProvider>
