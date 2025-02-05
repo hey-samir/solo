@@ -127,7 +127,7 @@ task = "shell.exec"
 args = """
 
     set -e
-    echo \"Starting production deployment...\"
+    echo \"Starting fresh production deployment at $(date)\"
     
     # Clean build
     rm -rf dist/client/production
@@ -160,14 +160,18 @@ task = "shell.exec"
 args = """
 
     set -e
-    echo \"Starting staging server...\"
+    echo \"Starting fresh staging deployment at $(date)\"
+    
     # Clean and prepare build directory
     rm -rf dist/client/staging
     mkdir -p dist/client/staging
+    
     # Copy index.html to staging directory
     cp index.html dist/client/staging/
+    
     # Build frontend with staging mode
     NODE_ENV=staging npx vite build --mode staging
+    
     # Start server
     NODE_ENV=staging PORT=5000 tsx src/server/server.ts
     """
