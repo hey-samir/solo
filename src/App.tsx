@@ -23,6 +23,8 @@ const App: React.FC = () => {
   const features = useFeatureFlags()
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || ''
 
+  // Add explicit console logs for debugging
+  console.log('App Component Render - Current Time:', new Date().toISOString())
   console.log('Current Environment:', config.environment)
   console.log('Enabled Features:', features)
 
