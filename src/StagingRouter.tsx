@@ -23,14 +23,6 @@ import FAQ from './pages/FAQ'
 const StagingRouter: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
-      {/* Staging Environment Banner */}
-      <div 
-        className="text-white text-center py-2 text-sm font-bold"
-        style={{ backgroundColor: '#000000' }}
-      >
-        Staging Environment
-      </div>
-
       <Routes>
         <Route element={<Layout />}>
           {/* Public Routes */}
