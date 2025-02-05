@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import fs from 'fs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -39,13 +40,30 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/production',
-    template: path.resolve(__dirname, 'production.html')
+    template: path.resolve(__dirname, 'production.html'),
+    assets: {
+      // Copy logo to production assets
+      'solo-clear.png': path.resolve(__dirname, 'attached_assets/solo-clear.png')
+    }
   }
 }
 
 export default defineConfig(({ mode }) => {
   const env = mode || 'development'
   const envConfig = envConfigs[env]
+
+  // Copy production assets if in production mode
+  if (env === 'production' && envConfig.assets) {
+    Object.entries(envConfig.assets).forEach(([dest, src]) => {
+      if (fs.existsSync(src)) {
+        const destDir = path.join(envConfig.outDir, 'assets')
+        if (!fs.existsSync(destDir)) {
+          fs.mkdirSync(destDir, { recursive: true })
+        }
+        fs.copyFileSync(src, path.join(destDir, dest))
+      }
+    })
+  }
 
   return {
     plugins: [react()],
