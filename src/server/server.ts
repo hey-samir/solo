@@ -54,10 +54,12 @@ if (isProduction || isStaging) {
 
   // SPA routing handler function
   const handleSpaRouting = (req: Request, res: Response) => {
-    const indexPath = path.join(staticPath, 'index.html');
+    // For production, we use production.html, for staging we use index.html
+    const indexFile = isProduction ? 'production.html' : 'index.html';
+    const indexPath = path.join(staticPath, indexFile);
 
     if (!fs.existsSync(indexPath)) {
-      console.error('Error: index.html not found at', indexPath);
+      console.error(`Error: ${indexFile} not found at`, indexPath);
       return res.status(500).send('Error loading application - Build incomplete');
     }
 

@@ -16,7 +16,8 @@ const envConfigs = {
         '/api': 'http://localhost:3003'
       }
     },
-    outDir: 'dist/client/development'
+    outDir: 'dist/client/development',
+    template: path.resolve(__dirname, 'index.html')
   },
   staging: {
     entry: path.resolve(__dirname, 'src/main.tsx'),
@@ -26,7 +27,8 @@ const envConfigs = {
         '/api': 'http://localhost:5000'
       }
     },
-    outDir: 'dist/client/staging'
+    outDir: 'dist/client/staging',
+    template: path.resolve(__dirname, 'index.html')
   },
   production: {
     entry: path.resolve(__dirname, 'src/production.tsx'),
@@ -37,7 +39,7 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/production',
-    html: path.resolve(__dirname, 'src/production.html')
+    template: path.resolve(__dirname, 'src/production.html')
   }
 }
 
@@ -58,11 +60,7 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: env !== 'production',
       rollupOptions: {
-        input: {
-          main: env === 'production' ? 
-            path.resolve(__dirname, 'src/production.html') : 
-            path.resolve(__dirname, 'index.html')
-        },
+        input: envConfig.template,
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom'],

@@ -116,9 +116,12 @@ args = """
 
     set -e
     echo \"Starting production server...\"
+    # Clean and prepare build directory
     rm -rf dist/client/production
     mkdir -p dist/client/production
+    # Build frontend with production mode
     NODE_ENV=production npx vite build --mode production
+    # Start server
     NODE_ENV=production tsx src/server/server.ts
     """
 waitForPort = 3000
@@ -142,7 +145,7 @@ args = """
     # Clean and prepare build directory
     rm -rf dist/client/staging
     mkdir -p dist/client/staging
-    # Build frontend with staging mode and entry point
+    # Build frontend with staging mode
     NODE_ENV=staging npx vite build --mode staging
     # Start server
     NODE_ENV=staging tsx src/server/server.ts

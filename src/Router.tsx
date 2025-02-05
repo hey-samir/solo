@@ -5,6 +5,7 @@ import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFound from './pages/NotFound'
 import ServerError from './pages/ErrorPage'
+import { useFeatureFlags } from './config/environment'
 
 // Import pages
 import About from './pages/About'
@@ -18,9 +19,11 @@ import Stats from './pages/Stats'
 import Profile from './pages/Profile'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
-import ComingSoon from './pages/ComingSoon'
+import FAQ from './pages/FAQ'
 
 const Router: React.FC = () => {
+  const features = useFeatureFlags()
+
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
@@ -28,14 +31,28 @@ const Router: React.FC = () => {
           {/* Public Routes */}
           <Route index element={<Navigate to="/about" replace />} />
           <Route path="about" element={<About />} />
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Register />} />
-          <Route path="pricing" element={<Pricing />} />
-          <Route path="feedback" element={<Feedback />} />
 
-          {/* Public Squad Routes */}
-          <Route path="squads" element={<Squads />} />
-          <Route path="standings" element={<Standings />} />
+          {features.enableAuth && (
+            <>
+              <Route path="login" element={<Login />} />
+              <Route path="signup" element={<Register />} />
+            </>
+          )}
+
+          {features.enablePro && (
+            <Route path="pricing" element={<Pricing />} />
+          )}
+
+          {features.enableFeedback && (
+            <Route path="feedback" element={<Feedback />} />
+          )}
+
+          {features.enableSquads && (
+            <>
+              <Route path="squads" element={<Squads />} />
+              <Route path="standings" element={<Standings />} />
+            </>
+          )}
 
           {/* Protected Routes */}
           <Route
@@ -46,22 +63,28 @@ const Router: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="sessions"
-            element={
-              <ProtectedRoute>
-                <Sessions />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="stats"
-            element={
-              <ProtectedRoute>
-                <Stats />
-              </ProtectedRoute>
-            }
-          />
+
+          {features.enableSessions && (
+            <Route
+              path="sessions"
+              element={
+                <ProtectedRoute>
+                  <Sessions />
+                </ProtectedRoute>
+              }
+            />
+          )}
+
+          {features.enableStats && (
+            <Route
+              path="stats"
+              element={
+                <ProtectedRoute>
+                  <Stats />
+                </ProtectedRoute>
+              }
+            />
+          )}
 
           {/* Profile Routes */}
           <Route path="profile">
