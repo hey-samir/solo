@@ -28,7 +28,7 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/staging',
-    template: path.resolve(__dirname, './index.html')  // Changed from src/index.html to ./index.html
+    template: path.resolve(__dirname, 'index.html')
   },
   production: {
     entry: path.resolve(__dirname, 'src/production.tsx'),
@@ -60,9 +60,7 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: env !== 'production',
       rollupOptions: {
-        input: {
-          main: envConfig.entry,
-        },
+        input: envConfig.template,
         output: {
           manualChunks: {
             vendor: ['react', 'react-dom'],

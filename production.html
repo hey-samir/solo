@@ -53,15 +53,15 @@
         }
 
         .main-heading {
-            font-size: 3rem;
-            font-weight: bold;
+            font-size: 2.25rem;
+            font-weight: 600;
             margin: 2rem 0;
             color: var(--solo-purple);
         }
 
         .intro-text {
             color: var(--text-secondary);
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             margin: 2rem auto;
             max-width: 600px;
             line-height: 1.6;
@@ -77,7 +77,7 @@
         .feature-card {
             background: var(--bg-card);
             border-radius: 12px;
-            padding: 2rem 1rem;
+            padding: 1.5rem 1rem;
             text-align: center;
             transition: transform 0.2s;
         }
@@ -87,21 +87,22 @@
         }
 
         .feature-card i {
-            font-size: 2.5rem;
+            font-size: 2rem;
             color: var(--solo-purple);
             margin-bottom: 1rem;
         }
 
         .feature-card h3 {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
+            font-weight: 500;
         }
 
         .feature-card p {
             color: var(--text-secondary);
             margin: 0;
-            font-size: 1rem;
+            font-size: 0.875rem;
         }
 
         .coming-soon {
@@ -110,14 +111,15 @@
         }
 
         .coming-soon h2 {
-            font-size: 2rem;
+            font-size: 1.75rem;
             color: var(--text-primary);
             margin-bottom: 1rem;
+            font-weight: 600;
         }
 
         .coming-soon p {
             color: var(--text-secondary);
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             margin-bottom: 1.5rem;
         }
     </style>
@@ -126,7 +128,7 @@
     <!-- Header -->
     <header>
         <div class="header-container">
-            <img src="/solo-clear.png" alt="Solo Logo" class="header-logo">
+            <img src="{{ url_for('static', filename='images/solo-clear.png') }}" alt="Solo Logo" class="header-logo">
         </div>
     </header>
 
