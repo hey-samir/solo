@@ -39,7 +39,7 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/production',
-    template: path.resolve(__dirname, 'index.html')
+    template: path.resolve(__dirname, 'production.html')
   }
 }
 
