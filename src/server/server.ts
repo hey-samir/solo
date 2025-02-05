@@ -53,12 +53,19 @@ if (isProduction) {
   // Production SPA fallback
   app.get('*', (req: Request, res: Response) => {
     console.log(`[Production] Serving request for path: ${req.path}`);
-    const htmlFile = path.join(productionDir, 'production.html');
+    const htmlFile = path.join(productionDir, 'src/production.html');
     console.log(`[Production] Attempting to serve: ${htmlFile}`);
     res.sendFile(htmlFile, (err) => {
       if (err) {
         console.error(`[Production] Error serving ${htmlFile}:`, err);
-        res.status(500).send('Error loading application');
+        // Try fallback to root production.html
+        const fallbackHtml = path.join(productionDir, 'production.html');
+        res.sendFile(fallbackHtml, (fallbackErr) => {
+          if (fallbackErr) {
+            console.error(`[Production] Error serving fallback ${fallbackHtml}:`, fallbackErr);
+            res.status(500).send('Error loading application');
+          }
+        });
       }
     });
   });

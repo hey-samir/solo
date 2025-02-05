@@ -62,15 +62,12 @@ export default defineConfig(({ mode }) => {
     fs.copyFileSync(logoSrc, logoDest)
   }
 
-  // Ensure the production HTML is copied correctly
+  // For production, ensure the HTML file is in the correct location
   if (env === 'production') {
-    const prodHtmlSrc = path.resolve(__dirname, 'src/production.html')
-    const prodHtmlDest = path.resolve(__dirname, 'dist/client/production/production.html')
-    if (!fs.existsSync(path.dirname(prodHtmlDest))) {
-      fs.mkdirSync(path.dirname(prodHtmlDest), { recursive: true })
-    }
-    if (fs.existsSync(prodHtmlSrc)) {
-      fs.copyFileSync(prodHtmlSrc, prodHtmlDest)
+    // Create production output directory
+    const productionOutDir = path.resolve(__dirname, envConfig.outDir)
+    if (!fs.existsSync(productionOutDir)) {
+      fs.mkdirSync(productionOutDir, { recursive: true })
     }
   }
 
@@ -83,10 +80,11 @@ export default defineConfig(({ mode }) => {
       sourcemap: env !== 'production',
       chunkSizeWarningLimit: 600,
       rollupOptions: {
-        input: {
-          main: envConfig.template
-        },
+        input: envConfig.template,
         output: {
+          entryFileNames: '[name].[hash].js',
+          chunkFileNames: '[name].[hash].js',
+          assetFileNames: '[name].[hash].[ext]',
           manualChunks: {
             vendor: [
               'react',
