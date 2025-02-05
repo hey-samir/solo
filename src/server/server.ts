@@ -22,14 +22,34 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
-// Basic middleware setup
-app.use(cors({
-  origin: true,
-  credentials: true
-}));
+// CORS configuration based on environment
+const corsOptions = {
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = [
+      // Production origins (no port required)
+      'https://1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev',
+      // Staging origins (with port 5000)
+      'https://1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev:5000'
+    ];
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log(`Rejected CORS request from origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 // Health check endpoint (available in all environments)
 app.get('/health', (_req: Request, res: Response) => {
