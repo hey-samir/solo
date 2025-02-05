@@ -32,7 +32,7 @@ const envConfigs = {
     template: path.resolve(__dirname, 'index.html')
   },
   production: {
-    entry: path.resolve(__dirname, 'src/main.tsx'),
+    entry: path.resolve(__dirname, 'src/production.tsx'),
     server: {
       port: 3000,
       proxy: {
@@ -40,7 +40,7 @@ const envConfigs = {
       }
     },
     outDir: 'dist/client/production',
-    template: path.resolve(__dirname, 'index.html')
+    template: path.resolve(__dirname, 'src/production.html')
   }
 }
 
@@ -62,10 +62,13 @@ export default defineConfig(({ mode }) => {
     fs.copyFileSync(logoSrc, logoDest)
   }
 
-  // Create output directory
-  const outDir = path.resolve(__dirname, envConfig.outDir)
-  if (!fs.existsSync(outDir)) {
-    fs.mkdirSync(outDir, { recursive: true })
+  // For production, ensure the HTML file is in the correct location
+  if (env === 'production') {
+    // Create production output directory
+    const productionOutDir = path.resolve(__dirname, envConfig.outDir)
+    if (!fs.existsSync(productionOutDir)) {
+      fs.mkdirSync(productionOutDir, { recursive: true })
+    }
   }
 
   return {

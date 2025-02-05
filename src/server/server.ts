@@ -29,13 +29,13 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-if (isProduction || isStaging) {
-  // Static file serving for both production and staging
-  const staticDir = path.resolve(__dirname, `../../dist/client/${isProduction ? 'production' : 'staging'}`);
+if (isProduction) {
+  // Production static file serving
+  const productionDir = path.resolve(__dirname, '../../dist/client/production');
   const publicDir = path.resolve(__dirname, '../../public');
 
-  console.log(`Static directories for ${environment}:`, {
-    static: staticDir,
+  console.log('Production directories:', {
+    production: productionDir,
     public: publicDir
   });
 
@@ -45,19 +45,39 @@ if (isProduction || isStaging) {
     etag: true
   }));
 
-  app.use(express.static(staticDir, {
+  app.use(express.static(productionDir, {
     maxAge: '1h',
     etag: true
   }));
 
-  // SPA fallback for both environments
-  app.get('*', (_req: Request, res: Response) => {
-    res.sendFile(path.join(staticDir, 'index.html'), (err) => {
+  // Production SPA fallback
+  app.get('*', (req: Request, res: Response) => {
+    console.log(`[Production] Serving request for path: ${req.path}`);
+    const htmlFile = path.join(productionDir, 'src/production.html');
+    console.log(`[Production] Attempting to serve: ${htmlFile}`);
+    res.sendFile(htmlFile, (err) => {
       if (err) {
-        console.error(`[${environment}] Error serving index.html:`, err);
-        res.status(500).send('Error loading application');
+        console.error(`[Production] Error serving ${htmlFile}:`, err);
+        // Try fallback to root production.html
+        const fallbackHtml = path.join(productionDir, 'production.html');
+        res.sendFile(fallbackHtml, (fallbackErr) => {
+          if (fallbackErr) {
+            console.error(`[Production] Error serving fallback ${fallbackHtml}:`, fallbackErr);
+            res.status(500).send('Error loading application');
+          }
+        });
       }
     });
+  });
+}
+
+if (isStaging) {
+  const staticPath = path.resolve(__dirname, '../../dist/client/staging');
+  app.use(express.static(staticPath));
+
+  // Staging SPA fallback
+  app.get('*', (_req: Request, res: Response) => {
+    res.sendFile(path.join(staticPath, 'index.html'));
   });
 }
 
