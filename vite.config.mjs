@@ -62,6 +62,18 @@ export default defineConfig(({ mode }) => {
     fs.copyFileSync(logoSrc, logoDest)
   }
 
+  // Ensure the production HTML is copied correctly
+  if (env === 'production') {
+    const prodHtmlSrc = path.resolve(__dirname, 'src/production.html')
+    const prodHtmlDest = path.resolve(__dirname, 'dist/client/production/production.html')
+    if (!fs.existsSync(path.dirname(prodHtmlDest))) {
+      fs.mkdirSync(path.dirname(prodHtmlDest), { recursive: true })
+    }
+    if (fs.existsSync(prodHtmlSrc)) {
+      fs.copyFileSync(prodHtmlSrc, prodHtmlDest)
+    }
+  }
+
   return {
     plugins: [react()],
     server: envConfig.server,

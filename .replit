@@ -26,18 +26,21 @@ args = """
 
     set -e
     echo \"Initializing database migrations...\"
-    # Ensure migrations directory exists
-    mkdir -p drizzle
+    
+    # Create migration directories
+    mkdir -p drizzle/migrations
     mkdir -p migrations/meta
-    # Initialize Drizzle configuration
+    
+    # Initialize meta journal
     echo '{
       \"version\": \"5\",
       \"dialect\": \"pg\",
       \"entries\": []
-    }' > migrations/meta/_journal.json
-    # Generate and run migrations
+    }' > drizzle/migrations/meta/_journal.json
+    
+    # Run migrations
     npx drizzle-kit generate:pg
-    tsx src/server/db/migrate.ts
+    NODE_ENV=production tsx src/server/db/migrate.ts
     """
 
 [[workflows.workflow]]
@@ -130,12 +133,12 @@ args = """
     mkdir -p public/images
     cp -f attached_assets/solo-clear.png public/images/
     
-    # Clean and build
+    # Clean and rebuild
     rm -rf dist/client/production
     NODE_ENV=production npx vite build
     
-    # Start server
-    NODE_ENV=production PORT=3000 node_modules/.bin/tsx src/server/server.ts
+    # Start server with debug logging
+    NODE_ENV=production DEBUG=express:* PORT=3000 node_modules/.bin/tsx src/server/server.ts
     """
 waitForPort = 3000
 

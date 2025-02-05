@@ -39,13 +39,28 @@ if (isProduction) {
     public: publicDir
   });
 
-  // Serve static files
-  app.use(express.static(publicDir));
-  app.use(express.static(productionDir));
+  // Serve static files with proper caching headers
+  app.use(express.static(publicDir, {
+    maxAge: '1h',
+    etag: true
+  }));
 
-  // SPA fallback - send production.html for all routes
-  app.get('/*', (_req: Request, res: Response) => {
-    res.sendFile(path.join(productionDir, 'src/production.html'));
+  app.use(express.static(productionDir, {
+    maxAge: '1h',
+    etag: true
+  }));
+
+  // Production SPA fallback
+  app.get('*', (req: Request, res: Response) => {
+    console.log(`[Production] Serving request for path: ${req.path}`);
+    const htmlFile = path.join(productionDir, 'production.html');
+    console.log(`[Production] Attempting to serve: ${htmlFile}`);
+    res.sendFile(htmlFile, (err) => {
+      if (err) {
+        console.error(`[Production] Error serving ${htmlFile}:`, err);
+        res.status(500).send('Error loading application');
+      }
+    });
   });
 }
 
@@ -53,8 +68,8 @@ if (isStaging) {
   const staticPath = path.resolve(__dirname, '../../dist/client/staging');
   app.use(express.static(staticPath));
 
-  // SPA fallback for staging
-  app.get('/*', (_req: Request, res: Response) => {
+  // Staging SPA fallback
+  app.get('*', (_req: Request, res: Response) => {
     res.sendFile(path.join(staticPath, 'index.html'));
   });
 }
