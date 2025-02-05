@@ -7,6 +7,8 @@ const Header: React.FC = () => {
   console.log('Header component rendering') // Debug log
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { isAuthenticated, user, logout } = useAuth()
+  const environment = import.meta.env.MODE
+  const isStaging = environment === 'staging' || process.env.NODE_ENV === 'staging'
 
   const handleLogout = async () => {
     await logout();
@@ -67,6 +69,17 @@ const Header: React.FC = () => {
               <i className="material-icons">help</i>
               <span className="ms-3">About</span>
             </Link>
+
+            {isStaging && (
+              <Link 
+                to="/faq"
+                className="list-group-item list-group-item-action d-flex align-items-center bg-transparent border-0 text-white"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <i className="material-icons">help_center</i>
+                <span className="ms-3">FAQ</span>
+              </Link>
+            )}
 
             <Link 
               to="/feedback"
