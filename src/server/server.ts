@@ -40,11 +40,19 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// Production: Serve static coming soon page
+// Production: Serve static coming soon page and assets
 if (isProduction) {
-  const productionHtml = path.resolve(__dirname, '../../production.html');
+  const productionDir = path.resolve(__dirname, '../../dist/client/production');
+  const productionHtml = path.join(productionDir, 'production.html');
 
-  console.log(`[${environment}] Production mode: Serving coming soon page`);
+  console.log(`[${environment}] Production mode: Serving from ${productionDir}`);
+
+  // Serve static assets from the production build directory
+  app.use(express.static(productionDir, {
+    etag: true,
+    lastModified: true,
+    maxAge: '1h'
+  }));
 
   // Serve all routes with the production HTML
   app.get('*', (req: Request, res: Response) => {
