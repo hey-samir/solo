@@ -10,15 +10,10 @@ const environment: string = process.env.NODE_ENV || 'development';
 const isProduction: boolean = environment === 'production';
 const isStaging: boolean = environment === 'staging';
 
-// Port configuration:
-// - Production: 3000
-// - Staging: 5000
-// - Development: 3001
-const PORT: number = parseInt(
-  process.env.PORT || 
-  (isProduction ? '3000' : isStaging ? '5000' : '3001'), 
-  10
-);
+// Port configuration based on environment
+const PORT: number = parseInt(process.env.PORT || (isStaging ? '5000' : '3000'), 10);
+
+console.log(`Starting server in ${environment} mode on port ${PORT}`);
 
 // Basic middleware setup
 app.use(cors());
@@ -45,56 +40,45 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// Handle static files and routing based on environment
+// Serve static files in production/staging
 if (isProduction || isStaging) {
   const staticPath = path.resolve(__dirname, '../../dist/client');
-  console.log(`[${environment}] Server Configuration:`);
-  console.log(`- Environment: ${environment}`);
-  console.log(`- Port: ${PORT}`);
-  console.log(`- Static Path: ${staticPath}`);
+  console.log(`[${environment}] Serving static files from: ${staticPath}`);
 
-  if (!fs.existsSync(staticPath)) {
-    fs.mkdirSync(staticPath, { recursive: true });
-  }
+  // Configure static file serving
+  app.use(express.static(staticPath, {
+    etag: true,
+    lastModified: true,
+    maxAge: '1h'
+  }));
 
-  // Configure static file serving based on environment
-  if (isProduction) {
-    // Production: Only serve Coming Soon page
-    app.use(express.static(staticPath));
-    app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.join(staticPath, 'index.html'));
-    });
-  } else if (isStaging) {
-    // Staging: Serve full application with all features
-    app.use(express.static(staticPath, {
-      etag: true,
-      lastModified: true,
-      maxAge: '1h'
-    }));
+  // SPA routing handler function
+  const handleSpaRouting = (req: Request, res: Response) => {
+    const indexPath = path.join(staticPath, 'index.html');
 
-    // Handle SPA routing in staging
-    app.get('*', (_req: Request, res: Response) => {
-      const indexPath = path.join(staticPath, 'index.html');
-      if (!fs.existsSync(indexPath)) {
-        console.error('Error: index.html not found in staging');
-        return res.status(500).send('Error loading application');
-      }
-      res.sendFile(indexPath);
-    });
-  }
+    if (!fs.existsSync(indexPath)) {
+      console.error('Error: index.html not found at', indexPath);
+      return res.status(500).send('Error loading application - Build incomplete');
+    }
+
+    res.sendFile(indexPath);
+  };
+
+  // Use the handler for all unmatched routes
+  app.use('*', handleSpaRouting);
 }
 
 // Enhanced error handler
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   console.error('[Server Error]:', err);
   res.status(500).json({ 
     error: isProduction ? 'Internal Server Error' : err.message,
     timestamp: new Date().toISOString(),
-    path: _req.path
+    path: req.path
   });
 });
 
-// Start server
+// Only start server if this file is run directly
 if (require.main === module) {
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('='.repeat(50));
@@ -106,6 +90,7 @@ if (require.main === module) {
     console.log('='.repeat(50));
   });
 
+  // Graceful shutdown
   process.on('SIGTERM', () => {
     console.log('Received SIGTERM signal, shutting down gracefully');
     server.close(() => {

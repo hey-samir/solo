@@ -19,12 +19,22 @@ const queryClient = new QueryClient({
   },
 })
 
+declare global {
+  interface ImportMetaEnv {
+    VITE_GOOGLE_OAUTH_CLIENT_ID: string
+    MODE: string
+  }
+}
+
 const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID
-  // Use Vite's environment variable
-  const isProduction = import.meta.env.MODE === 'production'
-  const isStaging = import.meta.env.MODE === 'staging'
-  console.log('Environment:', import.meta.env.MODE) // Debug log
+  const environment = import.meta.env.MODE
+  // Show ProductionRouter only in strict production mode, not in staging
+  const showProductionRouter = environment === 'production' && process.env.NODE_ENV === 'production'
+
+  console.log('App Environment:', environment) // Debug log
+  console.log('NODE_ENV:', process.env.NODE_ENV) // Additional debug log
+  console.log('Using router:', showProductionRouter ? 'ProductionRouter' : 'AppRouter')
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -33,7 +43,7 @@ const App: React.FC = () => {
           <AuthProvider>
             <ErrorBoundary>
               <div className="min-vh-100 bg-bg-primary text-text-primary">
-                {isProduction ? <ProductionRouter /> : <AppRouter />}
+                {showProductionRouter ? <ProductionRouter /> : <AppRouter />}
               </div>
             </ErrorBoundary>
           </AuthProvider>

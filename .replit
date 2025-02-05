@@ -144,10 +144,11 @@ args = """
     set -e
     echo \"Starting staging server...\"
     export NODE_ENV=staging
+    export VITE_NODE_ENV=staging
     # Clean and prepare build directory
     rm -rf dist/client
     mkdir -p dist/client
-    # Build frontend
+    # Build frontend with staging environment
     npx vite build
     # Start server
     tsx src/server/server.ts
