@@ -92,11 +92,11 @@ args = "Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Staging"
+args = "Production"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production"
+args = "Staging"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -111,6 +111,38 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development tsx src/server/db/seed.ts"
+
+[[workflows.workflow]]
+name = "Production"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    set -e
+    echo \"Starting production server...\"
+    
+    # Clean everything
+    rm -rf dist/client/production
+    mkdir -p dist/client/production public/images
+    
+    # Copy required assets
+    cp -f attached_assets/solo-clear.png public/images/
+    
+    # Build production bundle
+    NODE_ENV=production npx vite build
+    
+    # Start server with debug logging
+    NODE_ENV=production DEBUG=express:* PORT=3000 tsx src/server/server.ts
+    """
+waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Staging"
@@ -143,38 +175,6 @@ args = """
     NODE_ENV=staging PORT=5000 tsx src/server/server.ts
     """
 waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Production"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-    set -e
-    echo \"=== Starting Production Build at $(date) ===\"
-    
-    # Clean everything
-    rm -rf dist/client/production node_modules/.vite
-    mkdir -p dist/client/production public/images
-    
-    # Copy required assets
-    cp -f attached_assets/solo-clear.png public/images/
-    
-    # Build production bundle
-    NODE_ENV=production npx vite build
-    
-    # Start server
-    NODE_ENV=production DEBUG=express:* PORT=3000 tsx src/server/server.ts
-    """
-waitForPort = 3000
 
 [[ports]]
 localPort = 80
