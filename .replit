@@ -160,24 +160,10 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = """
-
-    #!/bin/bash
-    set -ex
-    
-    echo \"[$(date)] Starting staging deployment...\"
-    
-    # Clean with verbose output
-    rm -rfv dist/client/staging
-    mkdir -pv dist/client/staging
-    
-    cp -v index.html dist/client/staging/
-    
-    # Build with verbose output
-    NODE_ENV=staging npx vite build --mode staging
-    
-    # Start server with debug output
-    NODE_ENV=staging DEBUG=* PORT=5000 tsx src/server/server.ts
-    """
+#!/bin/bash
+set -e
+echo \"[$(date)] Starting staging environment...\"
+NODE_ENV=staging npx concurrently   \"npx vite --host 0.0.0.0 --port 5000\"   \"NODE_ENV=staging PORT=3000 tsx src/server/server.ts\" """
 waitForPort = 5000
 
 [[ports]]
