@@ -2,33 +2,54 @@ import { drizzle } from "drizzle-orm/vercel-postgres";
 import { migrate } from "drizzle-orm/vercel-postgres/migrator";
 import { sql } from "@vercel/postgres";
 import * as schema from "./schema";
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Enable debug logging
 console.log("Starting database migration process...");
 
+// Use DATABASE_URL environment variable
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error("DATABASE_URL environment variable is not set");
+  process.exit(1);
+}
+
+// Configure database with connection string
 const db = drizzle(sql, { schema });
 
 async function main() {
   console.log("Connecting to database...");
+  console.log("Using connection string:", connectionString.replace(/:[^:@]*@/, ':****@')); // Hide password in logs
 
   try {
-    console.log("Creating migrations directory if it doesn't exist...");
-    const fs = require('fs');
-    const path = require('path');
-    const migrationsDir = path.join(process.cwd(), 'drizzle');
+    // Ensure migrations directory structure exists
+    const migrationsDir = path.join(process.cwd(), 'drizzle/migrations');
+    const metaDir = path.join(migrationsDir, 'meta');
 
-    if (!fs.existsSync(migrationsDir)) {
-      fs.mkdirSync(migrationsDir, { recursive: true });
-      console.log("Created migrations directory:", migrationsDir);
+    console.log("Creating directory structure...");
+    fs.mkdirSync(migrationsDir, { recursive: true });
+    fs.mkdirSync(metaDir, { recursive: true });
+
+    // Create meta journal if it doesn't exist
+    const journalPath = path.join(metaDir, '_journal.json');
+    if (!fs.existsSync(journalPath)) {
+      console.log("Creating meta journal...");
+      const initialJournal = {
+        version: "5",
+        dialect: "pg",
+        entries: []
+      };
+      fs.writeFileSync(journalPath, JSON.stringify(initialJournal, null, 2));
     }
 
     console.log("Applying migrations...");
-    await migrate(db, { migrationsFolder: './drizzle' });
+    await migrate(db, { migrationsFolder: './drizzle/migrations' });
     console.log("Migrations completed successfully");
 
-    // Verify database connection and schema
+    // Verify database connection
     const result = await sql`SELECT current_database()`;
-    console.log("Connected to database:", result[0].current_database);
+    console.log("Connected to database:", result.rows[0].current_database);
 
     process.exit(0);
   } catch (error) {

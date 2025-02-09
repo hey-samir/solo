@@ -26,19 +26,6 @@ args = """
 
     set -e
     echo \"Initializing database migrations...\"
-    
-    # Create complete directory structure
-    mkdir -p drizzle/migrations/meta
-    
-    # Initialize meta journal in correct location
-    echo '{
-      \"version\": \"5\",
-      \"dialect\": \"pg\",
-      \"entries\": []
-    }' > drizzle/migrations/meta/_journal.json
-    
-    # Generate and run migrations
-    npx drizzle-kit generate:pg
     NODE_ENV=staging tsx src/server/db/migrate.ts
     """
 
@@ -64,8 +51,17 @@ echo \"Starting build process...\"
 rm -rf dist/client
 mkdir -p dist/client/{staging,production}
 
-# Copy production.html for staging and production
-cp src/production.html index.html
+# First, ensure the staging and production templates exist
+echo \"Preparing templates...\"
+if [ ! -f \"staging.html\" ] || [ ! -f \"src/production.html\" ]; then
+    echo \"Error: Missing required template files\"
+    exit 1
+fi
+
+# Copy templates with correct names before building
+echo \"Setting up templates...\"
+cp staging.html dist/client/staging/index.html
+cp src/production.html dist/client/production/index.html
 
 # Build for production
 echo \"Building production...\"
@@ -75,21 +71,25 @@ NODE_ENV=production npx vite build --mode production --outDir dist/client/produc
 echo \"Building staging...\"
 NODE_ENV=staging npx vite build --mode staging --outDir dist/client/staging
 
-# Verify build output
+# Verify the index.html files still exist after build
 echo \"Verifying build output...\"
-if [ ! -f \"dist/client/production/index.html\" ]; then
-    echo \"Error: Production build failed - index.html not found\"
-    exit 1
-fi
-
 if [ ! -f \"dist/client/staging/index.html\" ]; then
-    echo \"Error: Staging build failed - index.html not found\"
+    echo \"Error: staging index.html not found\"
     exit 1
 fi
 
+if [ ! -f \"dist/client/production/index.html\" ]; then
+    echo \"Error: production index.html not found\"
+    exit 1
+fi
+
+# Show final structure
 echo \"Build completed successfully\"
+echo \"Production files:\"
 ls -la dist/client/production
-ls -la dist/client/staging"""
+echo \"Staging files:\"
+ls -la dist/client/staging
+"""
 
 [[workflows.workflow]]
 name = "Project"

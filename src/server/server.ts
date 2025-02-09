@@ -28,7 +28,7 @@ app.use(cors({
         `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
       ] : [])
     ];
-    callback(null, allowedOrigins.includes(origin) || origin?.includes('repl.co'));
+    callback(null, allowedOrigins.includes(origin) || origin?.includes('repl.co') || origin?.includes('replit.dev'));
   },
   credentials: true
 }));
@@ -41,6 +41,17 @@ app.get('/health', (_req: Request, res: Response) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Import API routes based on environment
+if (isStaging || isProduction) {
+  try {
+    const routes = require('./routes');
+    app.use('/api', routes);
+  } catch (error) {
+    console.error('Error loading API routes:', error);
+    process.exit(1);
+  }
+}
 
 // Static file serving based on environment
 const staticPath = path.resolve(__dirname, `../../dist/client/${environment}`);
@@ -71,29 +82,12 @@ try {
 app.use(express.static(staticPath, {
   maxAge: isProduction ? '1h' : '0',
   etag: true,
-  index: 'index.html'
+  index: false // Don't auto-serve index.html
 }));
-
-// Import API routes based on environment
-if (isStaging || isProduction) {
-  try {
-    const routes = require('./routes');
-    app.use('/api', routes);
-  } catch (error) {
-    console.error('Error loading API routes:', error);
-    process.exit(1);
-  }
-}
 
 // SPA fallback route
 app.get('*', (_req: Request, res: Response) => {
-  const indexPath = path.join(staticPath, 'index.html');
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('Error sending index.html:', err);
-      res.status(500).send('Error loading application');
-    }
-  });
+  res.sendFile(path.join(staticPath, 'index.html'));
 });
 
 // Error handler

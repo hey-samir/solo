@@ -14,11 +14,13 @@ const envConfigs = {
   },
   staging: {
     port: 5000,
-    apiUrl: 'http://localhost:5001'
+    apiUrl: 'http://localhost:5001',
+    template: 'staging.html'
   },
   production: {
     port: 3000,
-    apiUrl: 'http://localhost:3000'
+    apiUrl: 'http://localhost:3000',
+    template: 'src/production.html'
   }
 }
 
@@ -43,14 +45,15 @@ export default defineConfig(({ mode }) => {
         clientPort: 443,
         host: '0.0.0.0'
       },
-      // Allow all replit.dev domains
       cors: true,
       strictPort: true,
       allowedHosts: [
         'localhost',
         '0.0.0.0',
         '.replit.dev',
-        '.repl.co'
+        '.repl.co',
+        '*.picard.replit.dev',
+        '*.replit.dev'
       ]
     },
     build: {
@@ -59,23 +62,11 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       copyPublicDir: true,
       rollupOptions: {
-        input: {
-          main: path.resolve(__dirname, 'index.html')
-        },
+        input: path.resolve(__dirname, config.template || 'index.html'),
         output: {
-          entryFileNames: '[name].[hash].js',
-          chunkFileNames: '[name].[hash].js',
-          assetFileNames: '[name].[hash].[ext]',
-          manualChunks: {
-            vendor: [
-              'react',
-              'react-dom',
-              'react-router-dom',
-              '@tanstack/react-query',
-              '@react-oauth/google'
-            ],
-            ui: ['@coreui/coreui', 'bootstrap', '@popperjs/core']
-          }
+          entryFileNames: 'assets/[name].[hash].js',
+          chunkFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]'
         }
       }
     },
