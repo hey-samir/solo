@@ -161,21 +161,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 #!/bin/bash
-set -ex
-echo \"[$(date)] Starting staging environment...\"
+set -e
 
-# Debug info
-echo \"Debug: Current directory $(pwd)\"
-echo \"Debug: Node version $(node -v)\"
-echo \"Debug: Starting servers...\"
+# Print timestamp and environment
+date
+echo \"Starting staging environment...\"
+pwd
+node -v
 
 # Set environment variables
 export NODE_ENV=staging
 export PORT=5001
 export VITE_API_URL=http://localhost:5001
 
-# Start both servers with more verbose output
-npx concurrently   \"npx vite --host 0.0.0.0 --port 5000 --mode staging --debug\"   \"NODE_ENV=staging DEBUG=* PORT=5001 tsx --inspect src/server/server.ts\"
+# Start both servers concurrently
+npx concurrently \"npx vite --host 0.0.0.0 --port 5000 --mode staging --debug\" \"NODE_ENV=staging DEBUG=* PORT=5001 tsx --inspect src/server/server.ts\"
 """
 waitForPort = 5000
 
