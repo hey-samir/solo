@@ -56,16 +56,41 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = """
+#!/bin/bash
+set -e
 
-    set -e
-    echo \"Starting build process...\"
-    # Clean build directories
-    rm -rf dist/client
-    mkdir -p dist/client
-    # Build frontend
-    NODE_ENV=production npx vite build
-    echo \"Build completed successfully\"
-    """
+echo \"Starting build process...\"
+
+# Clean build directories
+rm -rf dist/client
+mkdir -p dist/client/{staging,production}
+
+# Copy production.html for staging and production
+cp src/production.html index.html
+
+# Build for production
+echo \"Building production...\"
+NODE_ENV=production npx vite build --mode production --outDir dist/client/production
+
+# Build for staging
+echo \"Building staging...\"
+NODE_ENV=staging npx vite build --mode staging --outDir dist/client/staging
+
+# Verify build output
+echo \"Verifying build output...\"
+if [ ! -f \"dist/client/production/index.html\" ]; then
+    echo \"Error: Production build failed - index.html not found\"
+    exit 1
+fi
+
+if [ ! -f \"dist/client/staging/index.html\" ]; then
+    echo \"Error: Staging build failed - index.html not found\"
+    exit 1
+fi
+
+echo \"Build completed successfully\"
+ls -la dist/client/production
+ls -la dist/client/staging"""
 
 [[workflows.workflow]]
 name = "Project"
@@ -125,26 +150,13 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = """
+#!/bin/bash
+set -e
 
-    #!/bin/bash
-    set -ex
-    
-    # Print timestamp and environment
-    echo \"[$(date)] Starting production server in debug mode...\"
-    
-    # Clean everything with verbose output
-    rm -rfv dist/client/production
-    mkdir -pv dist/client/production public/images
-    
-    # Copy assets with verbose output
-    cp -vf attached_assets/solo-clear.png public/images/
-    
-    # Build with verbose output
-    NODE_ENV=production npx vite build
-    
-    # Start server with maximum debug output
-    NODE_ENV=production DEBUG=* PORT=3000 tsx src/server/server.ts
-    """
+# Start production server
+echo \"Starting production server...\"
+NODE_ENV=production PORT=3000 tsx src/server/server.ts
+"""
 waitForPort = 3000
 
 [[workflows.workflow]]
@@ -163,38 +175,14 @@ args = """
 #!/bin/bash
 set -e
 
-# Print basic info
-date
-echo \"Starting staging environment...\"
-pwd
-
-# Set environment variables
-export NODE_ENV=staging
-export PORT=5001
-
-# Start backend server with proper error handling
-echo \"Starting backend server...\"
-NODE_ENV=staging tsx src/server/server.ts &
+# Start backend server
+echo \"Starting staging backend server...\"
+NODE_ENV=staging PORT=5001 tsx src/server/server.ts &
 SERVER_PID=$!
 
-# Wait for backend to be ready
-echo \"Waiting for backend server to be ready...\"
-for i in {1..30}; do
-    if curl -s http://localhost:5001/health > /dev/null; then
-        echo \"Backend server is ready!\"
-        break
-    fi
-    if [ $i -eq 30 ]; then
-        echo \"Backend server failed to start\"
-        exit 1
-    fi
-    sleep 1
-done
-
-# Start frontend development server
-echo \"Starting frontend server...\"
-cd /home/runner/workspace
-npx vite --host 0.0.0.0 --port 5000 --mode staging &
+# Start frontend
+echo \"Starting frontend dev server...\"
+NODE_ENV=staging npx vite --host 0.0.0.0 --port 5000 --mode staging &
 VITE_PID=$!
 
 # Wait for both processes

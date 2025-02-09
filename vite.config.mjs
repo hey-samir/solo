@@ -9,56 +9,49 @@ const __dirname = path.dirname(__filename)
 // Environment-specific configurations
 const envConfigs = {
   development: {
-    entry: path.resolve(__dirname, 'src/main.tsx'),
-    server: {
-      port: 3000,
-      proxy: {
-        '/api': 'http://localhost:3003'
-      }
-    },
-    outDir: 'dist/client/development'
+    port: 3000,
+    apiUrl: 'http://localhost:3003'
   },
   staging: {
-    entry: path.resolve(__dirname, 'src/main.tsx'),
+    port: 5000,
+    apiUrl: 'http://localhost:5001'
+  },
+  production: {
+    port: 3000,
+    apiUrl: 'http://localhost:3000'
+  }
+}
+
+export default defineConfig(({ mode }) => {
+  const env = mode || 'development'
+  const config = envConfigs[env]
+
+  return {
+    root: __dirname,
+    plugins: [react()],
     server: {
-      port: 5000,
+      port: config.port,
+      host: '0.0.0.0',
       proxy: {
         '/api': {
-          target: 'http://localhost:5001',
+          target: config.apiUrl,
           changeOrigin: true,
           secure: false
         }
       },
       hmr: {
-        clientPort: process.env.REPL_SLUG ? 443 : undefined,
+        clientPort: 443,
         host: '0.0.0.0'
       }
     },
-    outDir: 'dist/client/staging'
-  }
-};
-
-export default defineConfig(({ mode }) => {
-  const env = mode || 'development'
-  const envConfig = envConfigs[env]
-
-  console.log(`Starting Vite in ${env} mode with config:`, {
-    entry: envConfig.entry,
-    server: envConfig.server,
-    outDir: envConfig.outDir
-  })
-
-  return {
-    plugins: [react()],
-    server: envConfig.server,
     build: {
-      outDir: envConfig.outDir,
-      emptyOutDir: true,
+      outDir: `dist/client/${env}`,
       sourcemap: true,
-      chunkSizeWarningLimit: 600,
+      emptyOutDir: true,
+      copyPublicDir: true,
       rollupOptions: {
         input: {
-          main: envConfig.template || path.resolve(__dirname, 'index.html') // added fallback for template
+          app: path.resolve(__dirname, 'index.html')
         },
         output: {
           entryFileNames: '[name].[hash].js',
@@ -72,16 +65,11 @@ export default defineConfig(({ mode }) => {
               '@tanstack/react-query',
               '@react-oauth/google'
             ],
-            ui: [
-              '@coreui/coreui',
-              'bootstrap',
-              '@popperjs/core'
-            ]
+            ui: ['@coreui/coreui', 'bootstrap', '@popperjs/core']
           }
         }
       }
     },
-    publicDir: path.resolve(__dirname, 'public'), //Added back publicDir
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
@@ -89,6 +77,10 @@ export default defineConfig(({ mode }) => {
         '@pages': path.resolve(__dirname, './src/pages'),
         '@api': path.resolve(__dirname, './src/api')
       }
+    },
+    define: {
+      'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),
+      'process.env.VITE_USER_NODE_ENV': JSON.stringify(env)
     }
   }
 })
