@@ -163,7 +163,7 @@ args = """
 #!/bin/bash
 set -e
 echo \"[$(date)] Starting staging environment...\"
-export VITE_API_URL=http://localhost:5001
+export VITE_API_URL=https://$REPL_SLUG-5001.${REPL_OWNER}.repl.co
 NODE_ENV=staging npx concurrently   \"npx vite --host 0.0.0.0 --port 5000 --mode staging\"   \"NODE_ENV=staging PORT=5001 tsx src/server/server.ts\"
 """
 waitForPort = 5000
