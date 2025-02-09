@@ -74,6 +74,17 @@ app.use(express.static(staticPath, {
   index: 'index.html'
 }));
 
+// Import API routes based on environment
+if (isStaging || isProduction) {
+  try {
+    const routes = require('./routes');
+    app.use('/api', routes);
+  } catch (error) {
+    console.error('Error loading API routes:', error);
+    process.exit(1);
+  }
+}
+
 // SPA fallback route
 app.get('*', (_req: Request, res: Response) => {
   const indexPath = path.join(staticPath, 'index.html');

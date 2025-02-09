@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => {
       copyPublicDir: true,
       rollupOptions: {
         input: {
-          app: path.resolve(__dirname, 'index.html')
+          main: path.resolve(__dirname, 'index.html')
         },
         output: {
           entryFileNames: '[name].[hash].js',

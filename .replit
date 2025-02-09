@@ -27,20 +27,19 @@ args = """
     set -e
     echo \"Initializing database migrations...\"
     
-    # Create migration directories
-    mkdir -p drizzle/migrations
-    mkdir -p migrations/meta
+    # Create complete directory structure
+    mkdir -p drizzle/migrations/meta
     
-    # Initialize meta journal
+    # Initialize meta journal in correct location
     echo '{
       \"version\": \"5\",
       \"dialect\": \"pg\",
       \"entries\": []
     }' > drizzle/migrations/meta/_journal.json
     
-    # Run migrations
+    # Generate and run migrations
     npx drizzle-kit generate:pg
-    NODE_ENV=production tsx src/server/db/migrate.ts
+    NODE_ENV=staging tsx src/server/db/migrate.ts
     """
 
 [[workflows.workflow]]
