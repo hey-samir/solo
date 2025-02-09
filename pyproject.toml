@@ -8,6 +8,7 @@ dependencies = [
     "flask-wtf>=1.2.2",
     "oauthlib>=3.2.2",
     "qrcode[pil]>=8.0",
+    "slack-sdk>=3.34.0",
     "trafilatura>=2.0.0",
     "twilio>=9.4.4",
 ]
