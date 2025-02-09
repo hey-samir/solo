@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import fs from 'fs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -17,8 +16,7 @@ const envConfigs = {
         '/api': 'http://localhost:3003'
       }
     },
-    outDir: 'dist/client/development',
-    template: path.resolve(__dirname, 'index.html')
+    outDir: 'dist/client/development'
   },
   staging: {
     entry: path.resolve(__dirname, 'src/main.tsx'),
@@ -32,65 +30,23 @@ const envConfigs = {
         }
       },
       hmr: {
-        clientPort: 443,
+        clientPort: process.env.REPL_SLUG ? 443 : undefined,
         host: '0.0.0.0'
       }
     },
-    outDir: 'dist/client/staging',
-    template: path.resolve(__dirname, 'index.html')
-  },
-  production: {
-    entry: path.resolve(__dirname, 'src/production.tsx'),
-    server: {
-      port: 3000,
-      proxy: {
-        '/api': 'http://localhost:3000'
-      }
-    },
-    outDir: 'dist/client/production',
-    template: path.resolve(__dirname, 'production.html')
+    outDir: 'dist/client/staging'
   }
-}
+};
 
 export default defineConfig(({ mode }) => {
   const env = mode || 'development'
   const envConfig = envConfigs[env]
 
-  console.log(`Starting Vite in ${env} mode with config:`, envConfig)
-
-  // Ensure public directory exists
-  const publicDir = path.resolve(__dirname, 'public')
-  if (!fs.existsSync(publicDir)) {
-    fs.mkdirSync(publicDir, { recursive: true })
-  }
-
-  // Copy logo to public directory if it doesn't exist
-  const logoSrc = path.resolve(__dirname, 'attached_assets/solo-clear.png')
-  const logoDest = path.resolve(publicDir, 'images/solo-clear.png')
-  if (fs.existsSync(logoSrc) && !fs.existsSync(logoDest)) {
-    fs.mkdirSync(path.dirname(logoDest), { recursive: true })
-    fs.copyFileSync(logoSrc, logoDest)
-  }
-
-  // For production, ensure the HTML file is in the correct location
-  if (env === 'production') {
-    const productionOutDir = path.resolve(__dirname, envConfig.outDir)
-    if (!fs.existsSync(productionOutDir)) {
-      fs.mkdirSync(productionOutDir, { recursive: true })
-    }
-
-    const productionHtmlSrc = path.resolve(__dirname, 'src/production.html')
-    if (fs.existsSync(productionHtmlSrc)) {
-      fs.copyFileSync(
-        productionHtmlSrc,
-        path.resolve(productionOutDir, 'production.html')
-      )
-      fs.copyFileSync(
-        productionHtmlSrc,
-        path.resolve(__dirname, 'production.html')
-      )
-    }
-  }
+  console.log(`Starting Vite in ${env} mode with config:`, {
+    entry: envConfig.entry,
+    server: envConfig.server,
+    outDir: envConfig.outDir
+  })
 
   return {
     plugins: [react()],
@@ -98,11 +54,11 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: envConfig.outDir,
       emptyOutDir: true,
-      sourcemap: env !== 'production',
+      sourcemap: true,
       chunkSizeWarningLimit: 600,
       rollupOptions: {
         input: {
-          main: envConfig.template
+          main: envConfig.template || path.resolve(__dirname, 'index.html') // added fallback for template
         },
         output: {
           entryFileNames: '[name].[hash].js',
@@ -125,7 +81,7 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
-    publicDir,
+    publicDir: path.resolve(__dirname, 'public'), //Added back publicDir
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

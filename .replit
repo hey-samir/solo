@@ -163,19 +163,42 @@ args = """
 #!/bin/bash
 set -e
 
-# Print timestamp and environment
+# Print basic info
 date
 echo \"Starting staging environment...\"
 pwd
-node -v
 
 # Set environment variables
 export NODE_ENV=staging
 export PORT=5001
-export VITE_API_URL=http://localhost:5001
 
-# Start both servers concurrently
-npx concurrently \"npx vite --host 0.0.0.0 --port 5000 --mode staging --debug\" \"NODE_ENV=staging DEBUG=* PORT=5001 tsx --inspect src/server/server.ts\"
+# Start backend server with proper error handling
+echo \"Starting backend server...\"
+NODE_ENV=staging tsx src/server/server.ts &
+SERVER_PID=$!
+
+# Wait for backend to be ready
+echo \"Waiting for backend server to be ready...\"
+for i in {1..30}; do
+    if curl -s http://localhost:5001/health > /dev/null; then
+        echo \"Backend server is ready!\"
+        break
+    fi
+    if [ $i -eq 30 ]; then
+        echo \"Backend server failed to start\"
+        exit 1
+    fi
+    sleep 1
+done
+
+# Start frontend development server
+echo \"Starting frontend server...\"
+cd /home/runner/workspace
+npx vite --host 0.0.0.0 --port 5000 --mode staging &
+VITE_PID=$!
+
+# Wait for both processes
+wait $SERVER_PID $VITE_PID
 """
 waitForPort = 5000
 

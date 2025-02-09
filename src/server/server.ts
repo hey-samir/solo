@@ -8,36 +8,38 @@ const app = express();
 const environment: string = process.env.NODE_ENV || 'development';
 const isProduction: boolean = environment === 'production';
 const isStaging: boolean = environment === 'staging';
+const PORT: number = parseInt(process.env.PORT || (isStaging ? '5001' : '3000'), 10);
 
-// Port configuration based on environment
-const PORT: number = parseInt(process.env.PORT || (isStaging ? '5000' : '3000'), 10);
+// Enhanced logging
+console.log('='.repeat(50));
+console.log(`Starting server in ${environment} mode`);
+console.log(`Server port: ${PORT}`);
+console.log(`Process ID: ${process.pid}`);
+console.log('='.repeat(50));
 
-console.log(`Starting server in ${environment} mode on port ${PORT}`);
-
-// Enhanced logging middleware setup
+// Basic middleware setup with enhanced logging
 app.use(morgan('dev'));
 app.use((req: Request, _res: Response, next: NextFunction) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Request Headers:', req.headers);
   next();
 });
 
-// CORS configuration based on environment
+// CORS configuration
 const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
     const allowedOrigins = [
-      // Production origins
-      'https://gosolo.nyc',
-      'https://www.gosolo.nyc',
-      'https://1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev',
-      // Staging origins (with port 5000)
-      'https://1f44956e-bc47-48a8-a13e-c5f6222c2089-00-35jfb2x2btqr5.picard.replit.dev:5000'
+      'http://localhost:5000',
+      'http://0.0.0.0:5000',
+      ...(process.env.REPL_SLUG ? [
+        `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`,
+        `https://${process.env.REPL_SLUG}-5000.${process.env.REPL_OWNER}.repl.co`
+      ] : [])
     ];
 
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || origin.includes('repl.co')) {
+      console.log(`Allowed CORS for origin: ${origin}`);
       callback(null, true);
     } else {
       console.log(`Rejected CORS request from origin: ${origin}`);
@@ -53,17 +55,19 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Health check endpoint (available in all environments)
+// Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ 
     status: 'healthy',
     environment,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    port: PORT,
+    pid: process.pid
   });
 });
 
+// Production directory setup
 if (isProduction) {
-  // Production directory setup
   const productionDir = path.resolve(__dirname, '../../dist/client/production');
   console.log('Production directory:', productionDir);
 
@@ -92,6 +96,7 @@ if (isProduction) {
   });
 }
 
+// Staging directory setup
 if (isStaging) {
   const staticPath = path.resolve(__dirname, '../../dist/client/staging');
   console.log('Staging directory:', staticPath);
@@ -135,13 +140,27 @@ app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
+// Start server with enhanced error handling
 if (require.main === module) {
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('='.repeat(50));
-    console.log(`Server started in ${environment} mode`);
+    console.log(`Server started successfully in ${environment} mode`);
     console.log(`Listening on http://0.0.0.0:${PORT}`);
     console.log(`Process ID: ${process.pid}`);
+    console.log(`Node version: ${process.version}`);
     console.log('='.repeat(50));
+  }).on('error', (error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('Received SIGTERM signal, shutting down gracefully');
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
   });
 }
 
