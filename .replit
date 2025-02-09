@@ -180,9 +180,12 @@ echo \"Starting staging backend server...\"
 NODE_ENV=staging PORT=5001 tsx src/server/server.ts &
 SERVER_PID=$!
 
+echo \"Waiting for backend server to start...\"
+sleep 5
+
 # Start frontend
 echo \"Starting frontend dev server...\"
-NODE_ENV=staging npx vite --host 0.0.0.0 --port 5000 --mode staging &
+NODE_ENV=staging VITE_API_URL=http://localhost:5001 npx vite --host 0.0.0.0 --port 5000 --mode staging &
 VITE_PID=$!
 
 # Wait for both processes
