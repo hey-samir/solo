@@ -11,6 +11,7 @@ interface Route {
   grade: string
   wall_sector: string
   anchor_number: number
+  gym: string
 }
 
 interface SendFormData {
@@ -46,7 +47,7 @@ const calculatePoints = (grade: string, rating: number, status: boolean, tries: 
 }
 
 const Sends: FC = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const [formData, setFormData] = useState<SendFormData>({
     route_id: 0,
     tries: 1,
@@ -59,7 +60,7 @@ const Sends: FC = () => {
     queryKey: ['routes'],
     queryFn: async () => {
       try {
-        const response = await client.get('/api/routes')
+        const response = await client.get('/api/routes?gym=Movement+Gowanus')
         return response.data
       } catch (err) {
         console.error('Error fetching routes:', err)
@@ -114,7 +115,7 @@ const Sends: FC = () => {
     }
     try {
       await sendMutation.mutateAsync(formData)
-      navigate('/sessions')  // Redirect to sessions page on success
+      navigate('/sessions')
     } catch (err) {
       console.error('Error submitting send:', err)
     }
@@ -122,110 +123,117 @@ const Sends: FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="card">
-        <div className="card-body p-0">
-          <form onSubmit={handleSubmit} className="w-100">
-            <div className="p-4 space-y-4">
-              <div className="mb-4">
-                <label className="form-label required-field">Route</label>
-                <select 
-                  className="form-select form-select-lg"
-                  value={formData.route_id || ''}
+      <div className="bg-bg-card rounded-lg shadow-lg">
+        <form onSubmit={handleSubmit} className="p-6">
+          <div className="space-y-6">
+            {/* Two Column Layout */}
+            <div className="grid grid-cols-[200px_1fr] gap-4 items-center">
+              {/* Route Selection */}
+              <label className="text-text-primary font-medium">Route</label>
+              <select 
+                className="form-select bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
+                value={formData.route_id || ''}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  route_id: Number(e.target.value) 
+                }))}
+                required
+              >
+                <option value="">Select a route</option>
+                {routes.map(route => (
+                  <option 
+                    key={route.id} 
+                    value={route.id}
+                  >
+                    {route.wall_sector} - {route.anchor_number} - {route.color} {route.grade}
+                  </option>
+                ))}
+              </select>
+
+              {/* Tries with Slider */}
+              <label className="text-text-primary font-medium">Tries</label>
+              <div className="flex items-center space-x-4">
+                <input 
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={formData.tries}
                   onChange={(e) => setFormData(prev => ({ 
                     ...prev, 
-                    route_id: Number(e.target.value) 
+                    tries: Number(e.target.value) 
                   }))}
-                  required
-                >
-                  <option value="">Select a route</option>
-                  {routes.map(route => (
-                    <option 
-                      key={route.id} 
-                      value={route.id}
-                    >
-                      {route.wall_sector} - {route.anchor_number} - {route.color} {route.grade}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="form-label required-field">Tries</label>
-                <div className="d-flex align-items-center gap-3">
-                  <input 
-                    type="range"
-                    min="1"
-                    max="10"
-                    value={formData.tries}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      tries: Number(e.target.value) 
-                    }))}
-                    className="form-range"
-                  />
-                  <span className="text-white">{formData.tries}</span>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="form-label required-field">Status</label>
-                <div className="form-check form-switch">
-                  <input 
-                    className="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    checked={formData.status}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      status: e.target.checked 
-                    }))}
-                  />
-                  <label className="form-check-label">
-                    {formData.status ? 'Sent' : 'Attempted'}
-                  </label>
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="form-label required-field">Stars</label>
-                <div className="rating d-flex gap-2">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <i
-                      key={star}
-                      className={`bi bi-star${star <= formData.rating ? '-fill' : ''} fs-4 cursor-pointer`}
-                      onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mb-4">
-                <label className="form-label">Notes</label>
-                <textarea 
-                  className="form-control"
-                  rows={3}
-                  value={formData.notes}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    notes: e.target.value 
-                  }))}
+                  className="w-full h-2 bg-bg-kpi-card rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-solo-purple [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
                 />
+                <span className="text-text-primary min-w-[2rem] text-center">{formData.tries}</span>
               </div>
 
+              {/* Status Toggle */}
+              <label className="text-text-primary font-medium">Status</label>
+              <div className="flex items-center space-x-3">
+                <div 
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    formData.status ? 'bg-solo-purple' : 'bg-gray-600'
+                  }`}
+                  onClick={() => setFormData(prev => ({ ...prev, status: !prev.status }))}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      formData.status ? 'translate-x-6' : 'translate-x-1'
+                    }`}
+                  />
+                </div>
+                <span className="text-text-primary">
+                  {formData.status ? 'Sent' : 'Attempted'}
+                </span>
+              </div>
+
+              {/* Star Rating */}
+              <label className="text-text-primary font-medium">Stars</label>
+              <div className="flex space-x-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+                    className="text-2xl focus:outline-none"
+                  >
+                    <i className={`material-icons ${
+                      star <= formData.rating ? 'text-solo-purple' : 'text-gray-400'
+                    }`}>
+                      star
+                    </i>
+                  </button>
+                ))}
+              </div>
+
+              {/* Notes */}
+              <label className="text-text-primary font-medium">Notes</label>
+              <textarea 
+                className="form-textarea bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
+                rows={3}
+                value={formData.notes}
+                onChange={(e) => setFormData(prev => ({ 
+                  ...prev, 
+                  notes: e.target.value 
+                }))}
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-end space-x-4 items-center">
+              <div className="text-text-primary">
+                Points: {points}
+              </div>
               <button 
                 type="submit" 
-                className="btn bg-solo-purple hover:bg-solo-purple-light text-white w-100"
+                className="px-6 py-2 bg-solo-purple hover:bg-solo-purple-light text-white rounded-lg transition-colors disabled:opacity-50"
                 disabled={sendMutation.isPending || formData.route_id === 0}
               >
                 {sendMutation.isPending ? 'Sending...' : formData.status ? 'Send' : 'Log'}
               </button>
-
-              <div className="text-center mt-3">
-                Points: {points}
-              </div>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   )
