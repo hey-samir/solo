@@ -15,12 +15,14 @@ const envConfigs = {
   staging: {
     port: 5000,
     apiUrl: 'http://localhost:5001',
-    template: 'staging.html'
+    template: 'staging.html',
+    outDir: 'dist/client/staging'
   },
   production: {
     port: 3000,
     apiUrl: 'http://localhost:3000',
-    template: 'src/production.html'
+    template: 'src/production.html',
+    outDir: 'dist/client/production'
   }
 }
 
@@ -57,7 +59,7 @@ export default defineConfig(({ mode }) => {
       ]
     },
     build: {
-      outDir: `dist/client/${env}`,
+      outDir: config.outDir,
       sourcemap: true,
       emptyOutDir: true,
       copyPublicDir: true,

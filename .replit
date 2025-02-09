@@ -58,37 +58,35 @@ if [ ! -f \"staging.html\" ] || [ ! -f \"src/production.html\" ]; then
     exit 1
 fi
 
-# Copy templates with correct names before building
-echo \"Setting up templates...\"
-cp staging.html dist/client/staging/index.html
-cp src/production.html dist/client/production/index.html
+# Build for staging
+echo \"Building staging...\"
+NODE_ENV=staging npx vite build --mode staging
+if [ ! -f \"dist/client/staging/index.html\" ]; then
+    cp staging.html dist/client/staging/index.html
+fi
 
 # Build for production
 echo \"Building production...\"
-NODE_ENV=production npx vite build --mode production --outDir dist/client/production
+NODE_ENV=production npx vite build --mode production
+if [ ! -f \"dist/client/production/index.html\" ]; then
+    cp src/production.html dist/client/production/index.html
+fi
 
-# Build for staging
-echo \"Building staging...\"
-NODE_ENV=staging npx vite build --mode staging --outDir dist/client/staging
-
-# Verify the index.html files still exist after build
+# Verify the builds
 echo \"Verifying build output...\"
 if [ ! -f \"dist/client/staging/index.html\" ]; then
     echo \"Error: staging index.html not found\"
+    ls -la dist/client/staging
     exit 1
 fi
 
 if [ ! -f \"dist/client/production/index.html\" ]; then
     echo \"Error: production index.html not found\"
+    ls -la dist/client/production
     exit 1
 fi
 
-# Show final structure
 echo \"Build completed successfully\"
-echo \"Production files:\"
-ls -la dist/client/production
-echo \"Staging files:\"
-ls -la dist/client/staging
 """
 
 [[workflows.workflow]]
@@ -152,6 +150,12 @@ args = """
 #!/bin/bash
 set -e
 
+# Ensure the production build exists
+if [ ! -f \"dist/client/production/index.html\" ]; then
+    echo \"Error: Production build missing. Running build first...\"
+    NODE_ENV=production npx vite build --mode production
+fi
+
 # Start production server
 echo \"Starting production server...\"
 NODE_ENV=production PORT=3000 tsx src/server/server.ts
@@ -174,7 +178,7 @@ args = """
 #!/bin/bash
 set -e
 
-# Start backend server
+# Start backend server first
 echo \"Starting staging backend server...\"
 NODE_ENV=staging PORT=5001 tsx src/server/server.ts &
 SERVER_PID=$!
@@ -182,10 +186,14 @@ SERVER_PID=$!
 echo \"Waiting for backend server to start...\"
 sleep 5
 
-# Start frontend
+# Start frontend dev server with proper template
 echo \"Starting frontend dev server...\"
-NODE_ENV=staging VITE_API_URL=http://localhost:5001 npx vite --host 0.0.0.0 --port 5000 --mode staging &
+NODE_ENV=staging VITE_API_URL=http://localhost:5001 npx vite --port 5000 --host 0.0.0.0 --config vite.config.mjs --mode staging &
 VITE_PID=$!
+
+# Keep track of processes
+echo $SERVER_PID > /tmp/staging_server.pid
+echo $VITE_PID > /tmp/staging_vite.pid
 
 # Wait for both processes
 wait $SERVER_PID $VITE_PID
