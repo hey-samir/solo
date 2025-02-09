@@ -42,7 +42,16 @@ export default defineConfig(({ mode }) => {
       hmr: {
         clientPort: 443,
         host: '0.0.0.0'
-      }
+      },
+      // Allow all replit.dev domains
+      cors: true,
+      strictPort: true,
+      allowedHosts: [
+        'localhost',
+        '0.0.0.0',
+        '.replit.dev',
+        '.repl.co'
+      ]
     },
     build: {
       outDir: `dist/client/${env}`,
