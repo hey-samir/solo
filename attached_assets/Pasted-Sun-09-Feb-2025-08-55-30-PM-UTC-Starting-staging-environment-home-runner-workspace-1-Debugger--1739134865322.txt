@@ -1,0 +1,677 @@
+Sun 09 Feb 2025 08:55:30 PM UTC
+Starting staging environment...
+/home/runner/workspace
+[1] Debugger listening on ws://127.0.0.1:9229/9c61ce38-e9e2-44f7-be0b-885891ce6bc1
+[1] For help, see: https://nodejs.org/en/docs/inspector
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "x-powered-by" to true
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "etag" to 'weak'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "etag fn" to [Function: generateETag]
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "env" to 'staging'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "query parser" to 'extended'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "query parser fn" to [Function: parseExtendedQueryString]
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "subdomain offset" to 2
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "trust proxy" to false
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "trust proxy fn" to [Function: trustNone]
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application booting in staging mode
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "view" to [Function: View]
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "views" to '/home/runner/workspace/views'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:application set "jsonp callback name" to 'callback'
+[1] Starting server in staging mode on port 5001
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' query
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' expressInit
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' logger
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' <anonymous>
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' corsMiddleware
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' jsonParser
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' urlencodedParser
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:route new '/health'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/health'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:route get '/health'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Staging directory: /home/runner/workspace/dist/client/staging
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' serveStatic
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:route new '*'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '*'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:route get '*'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router use '/' <anonymous>
+[1] Sun, 09 Feb 2025 20:55:31 GMT express:router:layer new '/'
+[1] ==================================================
+[1] Server started in staging mode
+[1] Listening on http://0.0.0.0:5001
+[1] Process ID: 4927
+[1] ==================================================
+[0] 2025-02-09T20:55:31.859Z vite:config config file loaded in 23.81ms
+[0] Starting Vite in staging mode with config: {
+[0]   entry: '/home/runner/workspace/src/main.tsx',
+[0]   server: {
+[0]     port: 5000,
+[0]     proxy: { '/api': [Object] },
+[0]     hmr: { clientPort: 443, host: '0.0.0.0' }
+[0]   },
+[0]   outDir: 'dist/client/staging',
+[0]   template: '/home/runner/workspace/index.html'
+[0] }
+[0] 2025-02-09T20:55:31.876Z vite:config using resolved config: {
+[0]   plugins: [
+[0]     'vite:optimized-deps',
+[0]     'vite:watch-package-data',
+[0]     'vite:pre-alias',
+[0]     'alias',
+[0]     'vite:react-babel',
+[0]     'vite:react-refresh',
+[0]     'vite:modulepreload-polyfill',
+[0]     'vite:resolve',
+[0]     'vite:html-inline-proxy',
+[0]     'vite:css',
+[0]     'vite:esbuild',
+[0]     'vite:json',
+[0]     'vite:wasm-helper',
+[0]     'vite:worker',
+[0]     'vite:asset',
+[0]     'vite:wasm-fallback',
+[0]     'vite:define',
+[0]     'vite:css-post',
+[0]     'vite:worker-import-meta-url',
+[0]     'vite:asset-import-meta-url',
+[0]     'vite:dynamic-import-vars',
+[0]     'vite:import-glob',
+[0]     'vite:client-inject',
+[0]     'vite:css-analysis',
+[0]     'vite:import-analysis'
+[0]   ],
+[0]   server: {
+[0]     port: 5000,
+[0]     strictPort: false,
+[0]     host: '0.0.0.0',
+[0]     allowedHosts: [],
+[0]     https: undefined,
+[0]     open: false,
+[0]     proxy: {
+[0]       '/api': {
+[0]         target: 'http://localhost:5001',
+[0]         changeOrigin: true,
+[0]         secure: false
+[0]       }
+[0]     },
+[0]     cors: {
+[0]       origin: /^https?:\/\/(?:(?:[^:]+\.)?localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/
+[0]     },
+[0]     headers: {},
+[0]     warmup: { clientFiles: [], ssrFiles: [] },
+[0]     middlewareMode: false,
+[0]     fs: {
+[0]       strict: true,
+[0]       deny: [ '.env', '.env.*', '*.{crt,pem}', '**/.git/**' ],
+[0]       allow: [ '/home/runner/workspace' ]
+[0]     },
+[0]     preTransformRequests: true,
+[0]     perEnvironmentStartEndDuringDev: false,
+[0]     sourcemapIgnoreList: [Function: isInNodeModules$1],
+[0]     hmr: { clientPort: 443, host: '0.0.0.0' }
+[0]   },
+[0]   build: {
+[0]     target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+[0]     polyfillModulePreload: true,
+[0]     modulePreload: { polyfill: true },
+[0]     outDir: 'dist/client/staging',
+[0]     assetsDir: 'assets',
+[0]     assetsInlineLimit: 4096,
+[0]     sourcemap: true,
+[0]     terserOptions: {},
+[0]     rollupOptions: {
+[0]       input: { main: '/home/runner/workspace/index.html' },
+[0]       output: {
+[0]         entryFileNames: '[name].[hash].js',
+[0]         chunkFileNames: '[name].[hash].js',
+[0]         assetFileNames: '[name].[hash].[ext]',
+[0]         manualChunks: {
+[0]           vendor: [
+[0]             'react',
+[0]             'react-dom',
+[0]             'react-router-dom',
+[0]             '@tanstack/react-query',
+[0]             '@react-oauth/google'
+[0]           ],
+[0]           ui: [ '@coreui/coreui', 'bootstrap', '@popperjs/core' ]
+[0]         }
+[0]       },
+[0]       onwarn: [Function: onwarn]
+[0]     },
+[0]     commonjsOptions: { include: [ /node_modules/ ], extensions: [ '.js', '.cjs' ] },
+[0]     dynamicImportVarsOptions: { warnOnError: true, exclude: [ /node_modules/ ] },
+[0]     write: true,
+[0]     emptyOutDir: true,
+[0]     copyPublicDir: true,
+[0]     manifest: false,
+[0]     lib: false,
+[0]     ssrManifest: false,
+[0]     ssrEmitAssets: false,
+[0]     reportCompressedSize: true,
+[0]     chunkSizeWarningLimit: 600,
+[0]     watch: null,
+[0]     cssCodeSplit: true,
+[0]     minify: 'esbuild',
+[0]     ssr: false,
+[0]     emitAssets: false,
+[0]     createEnvironment: [Function: createEnvironment],
+[0]     cssTarget: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+[0]     cssMinify: true
+[0]   },
+[0]   publicDir: '/home/runner/workspace/public',
+[0]   resolve: {
+[0]     externalConditions: [ 'node' ],
+[0]     extensions: [ '.mjs', '.js', '.ts', '.jsx', '.tsx', '.json' ],
+[0]     dedupe: [ 'react', 'react-dom' ],
+[0]     noExternal: [],
+[0]     external: [],
+[0]     preserveSymlinks: false,
+[0]     alias: [
+[0]       { find: '@', replacement: '/home/runner/workspace/src' },
+[0]       {
+[0]         find: '@components',
+[0]         replacement: '/home/runner/workspace/src/components'
+[0]       },
+[0]       {
+[0]         find: '@pages',
+[0]         replacement: '/home/runner/workspace/src/pages'
+[0]       },
+[0]       { find: '@api', replacement: '/home/runner/workspace/src/api' },
+[0]       {
+[0]         find: /^\/?@vite\/env/,
+[0]         replacement: '/@fs/home/runner/workspace/node_modules/vite/dist/client/env.mjs'
+[0]       },
+[0]       {
+[0]         find: /^\/?@vite\/client/,
+[0]         replacement: '/@fs/home/runner/workspace/node_modules/vite/dist/client/client.mjs'
+[0]       }
+[0]     ],
+[0]     mainFields: [ 'browser', 'module', 'jsnext:main', 'jsnext' ],
+[0]     conditions: [ 'module', 'browser', 'development|production' ],
+[0]     builtins: []
+[0]   },
+[0]   mode: 'staging',
+[0]   esbuild: { jsxDev: true, jsx: 'automatic', jsxImportSource: undefined },
+[0]   optimizeDeps: {
+[0]     include: [
+[0]       'react',
+[0]       'react-dom',
+[0]       'react/jsx-dev-runtime',
+[0]       'react/jsx-runtime'
+[0]     ],
+[0]     exclude: [],
+[0]     needsInterop: [],
+[0]     extensions: [],
+[0]     disabled: undefined,
+[0]     holdUntilCrawlEnd: true,
+[0]     force: false,
+[0]     noDiscovery: false,
+[0]     esbuildOptions: { preserveSymlinks: false, jsx: 'automatic' }
+[0]   },
+[0]   environments: {
+[0]     client: {
+[0]       define: undefined,
+[0]       resolve: {
+[0]         externalConditions: [ 'node' ],
+[0]         extensions: [ '.mjs', '.js', '.ts', '.jsx', '.tsx', '.json' ],
+[0]         dedupe: [ 'react', 'react-dom' ],
+[0]         noExternal: [],
+[0]         external: [],
+[0]         preserveSymlinks: false,
+[0]         alias: [
+[0]           { find: '@', replacement: '/home/runner/workspace/src' },
+[0]           {
+[0]             find: '@components',
+[0]             replacement: '/home/runner/workspace/src/components'
+[0]           },
+[0]           {
+[0]             find: '@pages',
+[0]             replacement: '/home/runner/workspace/src/pages'
+[0]           },
+[0]           {
+[0]             find: '@api',
+[0]             replacement: '/home/runner/workspace/src/api'
+[0]           },
+[0]           {
+[0]             find: /^\/?@vite\/env/,
+[0]             replacement: '/@fs/home/runner/workspace/node_modules/vite/dist/client/env.mjs'
+[0]           },
+[0]           {
+[0]             find: /^\/?@vite\/client/,
+[0]             replacement: '/@fs/home/runner/workspace/node_modules/vite/dist/client/client.mjs'
+[0]           }
+[0]         ],
+[0]         mainFields: [ 'browser', 'module', 'jsnext:main', 'jsnext' ],
+[0]         conditions: [ 'module', 'browser', 'development|production' ],
+[0]         builtins: []
+[0]       },
+[0]       keepProcessEnv: false,
+[0]       consumer: 'client',
+[0]       optimizeDeps: {
+[0]         include: [
+[0]           'react',
+[0]           'react-dom',
+[0]           'react/jsx-dev-runtime',
+[0]           'react/jsx-runtime'
+[0]         ],
+[0]         exclude: [],
+[0]         needsInterop: [],
+[0]         extensions: [],
+[0]         disabled: undefined,
+[0]         holdUntilCrawlEnd: true,
+[0]         force: false,
+[0]         noDiscovery: false,
+[0]         esbuildOptions: { preserveSymlinks: false, jsx: 'automatic' }
+[0]       },
+[0]       dev: {
+[0]         warmup: [],
+[0]         sourcemap: { js: true },
+[0]         sourcemapIgnoreList: [Function: isInNodeModules$1],
+[0]         preTransformRequests: true,
+[0]         createEnvironment: [Function: defaultCreateClientDevEnvironment],
+[0]         recoverable: true,
+[0]         moduleRunnerTransform: false
+[0]       },
+[0]       build: {
+[0]         target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+[0]         polyfillModulePreload: true,
+[0]         modulePreload: { polyfill: true },
+[0]         outDir: 'dist/client/staging',
+[0]         assetsDir: 'assets',
+[0]         assetsInlineLimit: 4096,
+[0]         sourcemap: true,
+[0]         terserOptions: {},
+[0]         rollupOptions: {
+[0]           input: { main: '/home/runner/workspace/index.html' },
+[0]           output: {
+[0]             entryFileNames: '[name].[hash].js',
+[0]             chunkFileNames: '[name].[hash].js',
+[0]             assetFileNames: '[name].[hash].[ext]',
+[0]             manualChunks: {
+[0]               vendor: [
+[0]                 'react',
+[0]                 'react-dom',
+[0]                 'react-router-dom',
+[0]                 '@tanstack/react-query',
+[0]                 '@react-oauth/google'
+[0]               ],
+[0]               ui: [ '@coreui/coreui', 'bootstrap', '@popperjs/core' ]
+[0]             }
+[0]           },
+[0]           onwarn: [Function: onwarn]
+[0]         },
+[0]         commonjsOptions: { include: [ /node_modules/ ], extensions: [ '.js', '.cjs' ] },
+[0]         dynamicImportVarsOptions: { warnOnError: true, exclude: [ /node_modules/ ] },
+[0]         write: true,
+[0]         emptyOutDir: true,
+[0]         copyPublicDir: true,
+[0]         manifest: false,
+[0]         lib: false,
+[0]         ssrManifest: false,
+[0]         ssrEmitAssets: false,
+[0]         reportCompressedSize: true,
+[0]         chunkSizeWarningLimit: 600,
+[0]         watch: null,
+[0]         cssCodeSplit: true,
+[0]         minify: 'esbuild',
+[0]         ssr: false,
+[0]         emitAssets: true,
+[0]         createEnvironment: [Function: createEnvironment],
+[0]         cssTarget: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+[0]         cssMinify: true
+[0]       }
+[0]     },
+[0]     ssr: {
+[0]       define: undefined,
+[0]       resolve: {
+[0]         externalConditions: [ 'node' ],
+[0]         extensions: [ '.mjs', '.js', '.ts', '.jsx', '.tsx', '.json' ],
+[0]         dedupe: [ 'react', 'react-dom' ],
+[0]         noExternal: [],
+[0]         external: [],
+[0]         preserveSymlinks: false,
+[0]         alias: [
+[0]           { find: '@', replacement: '/home/runner/workspace/src' },
+[0]           {
+[0]             find: '@components',
+[0]             replacement: '/home/runner/workspace/src/components'
+[0]           },
+[0]           {
+[0]             find: '@pages',
+[0]             replacement: '/home/runner/workspace/src/pages'
+[0]           },
+[0]           {
+[0]             find: '@api',
+[0]             replacement: '/home/runner/workspace/src/api'
+[0]           },
+[0]           {
+[0]             find: /^\/?@vite\/env/,
+[0]             replacement: '/@fs/home/runner/workspace/node_modules/vite/dist/client/env.mjs'
+[0]           },
+[0]           {
+[0]             find: /^\/?@vite\/client/,
+[0]             replacement: '/@fs/home/runner/workspace/node_modules/vite/dist/client/client.mjs'
+[0]           }
+[0]         ],
+[0]         mainFields: [ 'module', 'jsnext:main', 'jsnext' ],
+[0]         conditions: [ 'module', 'node', 'development|production' ],
+[0]         builtins: [
+[0]           '_http_agent',         '_http_client',        '_http_common',
+[0]           '_http_incoming',      '_http_outgoing',      '_http_server',
+[0]           '_stream_duplex',      '_stream_passthrough', '_stream_readable',
+[0]           '_stream_transform',   '_stream_wrap',        '_stream_writable',
+[0]           '_tls_common',         '_tls_wrap',           'assert',
+[0]           'assert/strict',       'async_hooks',         'buffer',
+[0]           'child_process',       'cluster',             'console',
+[0]           'constants',           'crypto',              'dgram',
+[0]           'diagnostics_channel', 'dns',                 'dns/promises',
+[0]           'domain',              'events',              'fs',
+[0]           'fs/promises',         'http',                'http2',
+[0]           'https',               'inspector',           'inspector/promises',
+[0]           'module',              'net',                 'os',
+[0]           'path',                'path/posix',          'path/win32',
+[0]           'perf_hooks',          'process',             'punycode',
+[0]           'querystring',         'readline',            'readline/promises',
+[0]           'repl',                'stream',              'stream/consumers',
+[0]           'stream/promises',     'stream/web',          'string_decoder',
+[0]           'sys',                 'timers',              'timers/promises',
+[0]           'tls',                 'trace_events',        'tty',
+[0]           'url',                 'util',                'util/types',
+[0]           'v8',                  'vm',                  'wasi',
+[0]           'worker_threads',      'zlib',                /^node:/,
+[0]           /^npm:/,               /^bun:/
+[0]         ]
+[0]       },
+[0]       keepProcessEnv: true,
+[0]       consumer: 'server',
+[0]       optimizeDeps: {
+[0]         include: [],
+[0]         exclude: [],
+[0]         needsInterop: [],
+[0]         extensions: [],
+[0]         disabled: undefined,
+[0]         holdUntilCrawlEnd: true,
+[0]         force: false,
+[0]         noDiscovery: true,
+[0]         esbuildOptions: { preserveSymlinks: false }
+[0]       },
+[0]       dev: {
+[0]         warmup: [],
+[0]         sourcemap: { js: true },
+[0]         sourcemapIgnoreList: [Function: isInNodeModules$1],
+[0]         preTransformRequests: false,
+[0]         createEnvironment: [Function: defaultCreateDevEnvironment],
+[0]         recoverable: false,
+[0]         moduleRunnerTransform: true
+[0]       },
+[0]       build: {
+[0]         target: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+[0]         polyfillModulePreload: true,
+[0]         modulePreload: { polyfill: true },
+[0]         outDir: 'dist/client/staging',
+[0]         assetsDir: 'assets',
+[0]         assetsInlineLimit: 4096,
+[0]         sourcemap: true,
+[0]         terserOptions: {},
+[0]         rollupOptions: {
+[0]           input: { main: '/home/runner/workspace/index.html' },
+[0]           output: {
+[0]             entryFileNames: '[name].[hash].js',
+[0]             chunkFileNames: '[name].[hash].js',
+[0]             assetFileNames: '[name].[hash].[ext]',
+[0]             manualChunks: {
+[0]               vendor: [
+[0]                 'react',
+[0]                 'react-dom',
+[0]                 'react-router-dom',
+[0]                 '@tanstack/react-query',
+[0]                 '@react-oauth/google'
+[0]               ],
+[0]               ui: [ '@coreui/coreui', 'bootstrap', '@popperjs/core' ]
+[0]             }
+[0]           },
+[0]           onwarn: [Function: onwarn]
+[0]         },
+[0]         commonjsOptions: { include: [ /node_modules/ ], extensions: [ '.js', '.cjs' ] },
+[0]         dynamicImportVarsOptions: { warnOnError: true, exclude: [ /node_modules/ ] },
+[0]         write: true,
+[0]         emptyOutDir: true,
+[0]         copyPublicDir: true,
+[0]         manifest: false,
+[0]         lib: false,
+[0]         ssrManifest: false,
+[0]         ssrEmitAssets: false,
+[0]         reportCompressedSize: true,
+[0]         chunkSizeWarningLimit: 600,
+[0]         watch: null,
+[0]         cssCodeSplit: true,
+[0]         minify: false,
+[0]         ssr: true,
+[0]         emitAssets: false,
+[0]         createEnvironment: [Function: createEnvironment],
+[0]         cssTarget: [ 'es2020', 'edge88', 'firefox78', 'chrome87', 'safari14' ],
+[0]         cssMinify: 'esbuild'
+[0]       }
+[0]     }
+[0]   },
+[0]   configFile: '/home/runner/workspace/vite.config.mjs',
+[0]   configFileDependencies: [ '/home/runner/workspace/vite.config.mjs' ],
+[0]   inlineConfig: {
+[0]     root: undefined,
+[0]     base: undefined,
+[0]     mode: 'staging',
+[0]     configFile: undefined,
+[0]     configLoader: undefined,
+[0]     logLevel: undefined,
+[0]     clearScreen: undefined,
+[0]     server: { host: '0.0.0.0', port: 5000 },
+[0]     forceOptimizeDeps: undefined
+[0]   },
+[0]   root: '/home/runner/workspace',
+[0]   base: '/',
+[0]   decodedBase: '/',
+[0]   rawBase: '/',
+[0]   cacheDir: '/home/runner/workspace/node_modules/.vite',
+[0]   command: 'serve',
+[0]   isWorker: false,
+[0]   mainConfig: null,
+[0]   bundleChain: [],
+[0]   isProduction: false,
+[0]   css: {
+[0]     transformer: 'postcss',
+[0]     preprocessorMaxWorkers: 0,
+[0]     devSourcemap: false,
+[0]     lightningcss: undefined
+[0]   },
+[0]   json: { namedExports: true, stringify: 'auto' },
+[0]   builder: undefined,
+[0]   preview: {
+[0]     port: 4173,
+[0]     strictPort: false,
+[0]     host: '0.0.0.0',
+[0]     allowedHosts: [],
+[0]     https: undefined,
+[0]     open: false,
+[0]     proxy: {
+[0]       '/api': {
+[0]         target: 'http://localhost:5001',
+[0]         changeOrigin: true,
+[0]         secure: false
+[0]       }
+[0]     },
+[0]     cors: {
+[0]       origin: /^https?:\/\/(?:(?:[^:]+\.)?localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/
+[0]     },
+[0]     headers: {}
+[0]   },
+[0]   envDir: '/home/runner/workspace',
+[0]   env: {
+[0]     VITE_API_URL: 'http://localhost:5001',
+[0]     VITE_USER_NODE_ENV: 'staging',
+[0]     BASE_URL: '/',
+[0]     MODE: 'staging',
+[0]     DEV: true,
+[0]     PROD: false
+[0]   },
+[0]   assetsInclude: [Function: assetsInclude],
+[0]   logger: {
+[0]     hasWarned: false,
+[0]     info: [Function: info],
+[0]     warn: [Function: warn],
+[0]     warnOnce: [Function: warnOnce],
+[0]     error: [Function: error],
+[0]     clearScreen: [Function: clearScreen],
+[0]     hasErrorLogged: [Function: hasErrorLogged]
+[0]   },
+[0]   packageCache: Map(1) {
+[0]     'fnpd_/home/runner/workspace' => {
+[0]       dir: '/home/runner/workspace',
+[0]       data: {
+[0]         name: 'solo',
+[0]         version: '1.0.0',
+[0]         main: 'index.js',
+[0]         scripts: { test: 'echo "Error: no test specified" && exit 1' },
+[0]         keywords: [],
+[0]         author: '',
+[0]         license: 'ISC',
+[0]         description: '',
+[0]         dependencies: {
+[0]           '@coreui/coreui': '^5.2.0',
+[0]           '@popperjs/core': '^2.11.8',
+[0]           '@react-oauth/google': '^0.12.1',
+[0]           '@tailwindcss/forms': '^0.5.10',
+[0]           '@tanstack/react-query': '^5.64.2',
+[0]           '@types/cors': '^2.8.17',
+[0]           '@types/express': '^5.0.0',
+[0]           '@types/morgan': '^1.9.9',
+[0]           '@types/node': '^22.13.1',
+[0]           '@types/react': '^19.0.8',
+[0]           '@types/react-dom': '^19.0.3',
+[0]           '@vercel/postgres': '^0.10.0',
+[0]           '@vitejs/plugin-react': '^4.3.4',
+[0]           autoprefixer: '^10.4.20',
+[0]           axios: '^1.7.9',
+[0]           bcryptjs: '^2.4.3',
+[0]           bootstrap: '^5.3.3',
+[0]           'bootstrap-slider': '^11.0.2',
+[0]           'chart.js': '^4.4.7',
+[0]           compression: '^1.7.5',
+[0]           concurrently: '^9.1.2',
+[0]           'connect-pg-simple': '^10.0.0',
+[0]           'cookie-parser': '^1.4.7',
+[0]           cors: '^2.8.5',
+[0]           dotenv: '^16.4.7',
+[0]           'drizzle-kit': '^0.30.2',
+[0]           'drizzle-orm': '^0.38.4',
+[0]           express: '^4.21.2',
+[0]           'express-session': '^1.18.1',
+[0]           jsonwebtoken: '^9.0.2',
+[0]           'jwt-decode': '^4.0.0',
+[0]           morgan: '^1.10.0',
+[0]           multer: '^1.4.5-lts.1',
+[0]           passport: '^0.7.0',
+[0]           'passport-google-oauth20': '^2.0.0',
+[0]           'passport-local': '^1.0.0',
+[0]           postcss: '^8.5.1',
+[0]           postgres: '^3.4.5',
+[0]           react: '^19.0.0',
+[0]           'react-chartjs-2': '^5.3.0',
+[0]           'react-dom': '^19.0.0',
+[0]           'react-hot-toast': '^2.5.1',
+[0]           'react-router-dom': '^7.1.3',
+[0]           tailwindcss: '^3.4.17',
+[0]           terser: '^5.37.0',
+[0]           tsx: '^4.19.2',
+[0]           typescript: '^5.7.3',
+[0]           vite: '^6.1.0',
+[0]           zod: '^3.24.1'
+[0]         }
+[0]       },
+[0]       hasSideEffects: [Function: hasSideEffects],
+[0]       setResolvedCache: [Function: setResolvedCache],
+[0]       getResolvedCache: [Function: getResolvedCache]
+[0]     },
+[0]     set: [Function (anonymous)]
+[0]   },
+[0]   worker: { format: 'iife', plugins: '() => plugins', rollupOptions: {} },
+[0]   appType: 'spa',
+[0]   experimental: { importGlobRestoreExtension: false, hmrPartialAccept: false },
+[0]   future: undefined,
+[0]   ssr: {
+[0]     target: 'node',
+[0]     optimizeDeps: {
+[0]       esbuildOptions: { preserveSymlinks: false },
+[0]       include: [],
+[0]       exclude: [],
+[0]       needsInterop: [],
+[0]       extensions: [],
+[0]       holdUntilCrawlEnd: true,
+[0]       force: false,
+[0]       noDiscovery: true
+[0]     },
+[0]     external: [],
+[0]     noExternal: [],
+[0]     resolve: {
+[0]       conditions: [ 'module', 'node', 'development|production' ],
+[0]       externalConditions: [ 'node' ]
+[0]     }
+[0]   },
+[0]   dev: {
+[0]     warmup: [],
+[0]     sourcemap: { js: true },
+[0]     sourcemapIgnoreList: [Function: isInNodeModules$1],
+[0]     preTransformRequests: false,
+[0]     createEnvironment: [Function: defaultCreateDevEnvironment],
+[0]     recoverable: false,
+[0]     moduleRunnerTransform: false
+[0]   },
+[0]   webSocketToken: 'K0gmCd0xGVNp',
+[0]   getSortedPlugins: [Function: getSortedPlugins],
+[0]   getSortedPluginHooks: [Function: getSortedPluginHooks],
+[0]   createResolver: [Function: createResolver],
+[0]   fsDenyGlob: [Function: arrayMatcher],
+[0]   safeModulePaths: Set(0) {},
+[0]   additionalAllowedHosts: [ '0.0.0.0', '0.0.0.0', '0.0.0.0' ]
+[0] }
+[0] 2025-02-09T20:55:31.894Z vite:deps (client) Hash is consistent. Skipping. Use --force to override.
+[0] 
+[0]   VITE v6.1.0  ready in 160 ms
+[0] 
+[0]   ➜  Local:   http://localhost:5000/
+[0]   ➜  Network: http://172.31.128.41:5000/
+[0] 2025-02-09T20:55:32.012Z vite:time 4.68ms /about
+[0] 2025-02-09T20:55:33.126Z vite:time 1.27ms /?initialPath=%2F&id=%3Ar2qi%3A
+[0] 2025-02-09T20:55:39.771Z vite:hmr [file change] .local/state/replit/agent/repl_state.bin
+[0] 2025-02-09T20:55:39.772Z vite:hmr (client) [no modules matched] .local/state/replit/agent/repl_state.bin
+[0] 2025-02-09T20:55:39.772Z vite:hmr (ssr) [no modules matched] .local/state/replit/agent/repl_state.bin
+[0] 2025-02-09T20:55:39.911Z vite:hmr [file change] .local/state/replit/agent/.latest.json
+[0] 2025-02-09T20:55:39.911Z vite:hmr (client) [no modules matched] .local/state/replit/agent/.latest.json
+[0] 2025-02-09T20:55:39.912Z vite:hmr (ssr) [no modules matched] .local/state/replit/agent/.latest.json
+[0] 2025-02-09T20:55:39.912Z vite:hmr [file change] .local/state/replit/agent/rapid_build_success
+[0] 2025-02-09T20:55:39.913Z vite:hmr (client) [no modules matched] .local/state/replit/agent/rapid_build_success
+[0] 2025-02-09T20:55:39.913Z vite:hmr (ssr) [no modules matched] .local/state/replit/agent/rapid_build_success
+[0] 2025-02-09T20:55:39.937Z vite:hmr [file change] .local/state/replit/agent/.agent_state_48f4c00ab79d77fcc2afa3c47ea5c241b687d55b.bin
+[0] 2025-02-09T20:55:39.938Z vite:hmr (client) [no modules matched] .local/state/replit/agent/.agent_state_48f4c00ab79d77fcc2afa3c47ea5c241b687d55b.bin
+[0] 2025-02-09T20:55:39.939Z vite:hmr (ssr) [no modules matched] .local/state/replit/agent/.agent_state_48f4c00ab79d77fcc2afa3c47ea5c241b687d55b.bin
+[0] 2025-02-09T20:55:40.507Z vite:hmr [file change] .local/state/replit/agent/repl_state.bin
+[0] 2025-02-09T20:55:40.513Z vite:hmr (client) [no modules matched] .local/state/replit/agent/repl_state.bin
+[0] 2025-02-09T20:55:40.513Z vite:hmr (ssr) [no modules matched] .local/state/replit/agent/repl_state.bin
+[0] 2025-02-09T20:55:40.513Z vite:hmr [file change] .local/state/replit/agent/.agent_state_main.bin
+[0] 2025-02-09T20:55:40.513Z vite:hmr (client) [no modules matched] .local/state/replit/agent/.agent_state_main.bin
+[0] 2025-02-09T20:55:40.513Z vite:hmr (ssr) [no modules matched] .local/state/replit/agent/.agent_state_main.bin
+[0] 2025-02-09T20:55:40.533Z vite:hmr [file change] .local/state/replit/agent/.latest.json
+[0] 2025-02-09T20:55:40.533Z vite:hmr (client) [no modules matched] .local/state/replit/agent/.latest.json
+[0] 2025-02-09T20:55:40.533Z vite:hmr (ssr) [no modules matched] .local/state/replit/agent/.latest.json
+[0] 2025-02-09T20:55:40.533Z vite:hmr [file change] .local/state/replit/agent/rapid_build_success
+[0] 2025-02-09T20:55:40.533Z vite:hmr (client) [no modules matched] .local/state/replit/agent/rapid_build_success
+[0] 2025-02-09T20:55:40.533Z vite:hmr (ssr) [no modules matched] .local/state/replit/agent/rapid_build_success
+[0] 2025-02-09T21:00:01.911Z vite:time 0.23ms /about
+[0] 2025-02-09T21:00:02.664Z vite:time 0.26ms /about
