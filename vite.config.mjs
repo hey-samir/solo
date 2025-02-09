@@ -25,7 +25,15 @@ const envConfigs = {
     server: {
       port: 5000,
       proxy: {
-        '/api': 'http://localhost:5000'
+        '/api': {
+          target: 'http://localhost:5001',
+          changeOrigin: true,
+          secure: false
+        }
+      },
+      hmr: {
+        clientPort: 443,
+        host: '0.0.0.0'
       }
     },
     outDir: 'dist/client/staging',
@@ -48,6 +56,8 @@ export default defineConfig(({ mode }) => {
   const env = mode || 'development'
   const envConfig = envConfigs[env]
 
+  console.log(`Starting Vite in ${env} mode with config:`, envConfig)
+
   // Ensure public directory exists
   const publicDir = path.resolve(__dirname, 'public')
   if (!fs.existsSync(publicDir)) {
@@ -64,20 +74,17 @@ export default defineConfig(({ mode }) => {
 
   // For production, ensure the HTML file is in the correct location
   if (env === 'production') {
-    // Create production output directory
     const productionOutDir = path.resolve(__dirname, envConfig.outDir)
     if (!fs.existsSync(productionOutDir)) {
       fs.mkdirSync(productionOutDir, { recursive: true })
     }
 
-    // Copy the production HTML file to both locations to ensure it's found
     const productionHtmlSrc = path.resolve(__dirname, 'src/production.html')
     if (fs.existsSync(productionHtmlSrc)) {
       fs.copyFileSync(
         productionHtmlSrc,
         path.resolve(productionOutDir, 'production.html')
       )
-      // Also copy to root directory
       fs.copyFileSync(
         productionHtmlSrc,
         path.resolve(__dirname, 'production.html')
