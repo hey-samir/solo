@@ -44,15 +44,21 @@ echo \"Starting build process...\"
 
 # Clean build directories
 rm -rf dist/client
-mkdir -p dist/client/staging
+mkdir -p dist/client/staging dist/client/production
 
 echo \"Building staging...\"
 NODE_ENV=staging npx vite build --mode staging
 
-echo \"Build completed successfully\"
+echo \"Building production...\"
+NODE_ENV=production npx vite build --mode production
 
-# List the contents of the staging directory for debugging
-ls -la dist/client/staging/
+# Verify build output
+if [ ! -f \"dist/client/staging/index.html\" ] || [ ! -f \"dist/client/production/index.html\" ]; then
+  echo \"Error: Build failed - missing index.html files\"
+  exit 1
+fi
+
+echo \"Build completed successfully\"
 """
 
 [[workflows.workflow]]
@@ -86,6 +92,14 @@ args = "Production"
 task = "workflow.run"
 args = "Staging Backend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build and Serve"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Staging"
+
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -116,15 +130,8 @@ args = """
 #!/bin/bash
 set -e
 
-# Ensure the production build exists
-if [ ! -f \"dist/client/production/index.html\" ]; then
-    echo \"Error: Production build missing. Running build first...\"
-    NODE_ENV=production npx vite build --mode production
-fi
-
-# Start production server
 echo \"Starting production server...\"
-NODE_ENV=production PORT=3000 tsx src/server/server.ts
+NODE_ENV=production PORT=3000 node src/server/server.js
 """
 waitForPort = 3000
 
@@ -147,6 +154,68 @@ set -e
 echo \"Starting staging server...\"
 NODE_ENV=staging PORT=5000 node src/server/server.js
 """
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Build and Serve"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+#!/bin/bash
+set -e
+
+echo \"Starting build process...\"
+
+# Clean build directories
+rm -rf dist/client
+mkdir -p dist/client/staging dist/client/production
+
+echo \"Building staging...\"
+NODE_ENV=staging npx vite build --mode staging
+
+echo \"Building production...\"
+NODE_ENV=production npx vite build --mode production
+
+# Verify build output
+if [ ! -f \"dist/client/staging/index.html\" ] || [ ! -f \"dist/client/production/index.html\" ]; then
+  echo \"Error: Build failed - missing index.html files\"
+  exit 1
+fi
+
+echo \"Build completed successfully\"
+
+# Start servers
+echo \"Starting staging server...\"
+NODE_ENV=staging PORT=5000 node src/server/server.js &
+echo \"Starting production server...\"
+NODE_ENV=production PORT=3000 node src/server/server.js &
+
+# Wait for both servers
+wait
+"""
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Staging"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=staging PORT=5000 node src/server/server.js"
 waitForPort = 5000
 
 [[ports]]

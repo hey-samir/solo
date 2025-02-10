@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 
 // Enable error logging for uncaught exceptions immediately
@@ -21,21 +22,56 @@ console.log(`Node Version: ${process.version}`);
 console.log('='.repeat(50));
 
 // Configure static file serving based on environment
-const staticPath = path.join(__dirname, '../../dist/client', NODE_ENV === 'production' ? 'production' : 'staging');
+const staticPath = path.join(process.cwd(), 'dist/client', NODE_ENV);
 console.log(`Static files path: ${staticPath}`);
 
-// Serve static files
-app.use(express.static(staticPath));
+// Verify index.html exists
+const indexPath = path.join(staticPath, 'index.html');
+if (!fs.existsSync(staticPath)) {
+  console.error(`Static directory not found: ${staticPath}`);
+} else if (!fs.existsSync(indexPath)) {
+  console.error(`index.html not found: ${indexPath}`);
+} else {
+  console.log(`Found index.html at: ${indexPath}`);
+}
+
+// Add environment-specific middleware
+app.use((req, res, next) => {
+  // Add environment info to all responses
+  res.locals.environment = NODE_ENV;
+  next();
+});
+
+// Serve static files with proper MIME types
+app.use(express.static(staticPath, {
+  index: false, // Don't serve index.html automatically
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    environment: NODE_ENV,
+    timestamp: new Date().toISOString() 
+  });
 });
 
-// Serve the appropriate HTML file for all other routes (SPA support)
-app.get('*', (_req, res) => {
-  const htmlFile = NODE_ENV === 'production' ? 'production.html' : 'staging.html';
-  res.sendFile(path.join(staticPath, htmlFile));
+// Serve index.html for all other routes (SPA support)
+app.get('*', (req, res) => {
+  // Log the request for debugging
+  console.log(`Serving index.html for ${req.path} in ${NODE_ENV} environment`);
+
+  if (!fs.existsSync(indexPath)) {
+    console.error(`Error: index.html not found at ${indexPath}`);
+    return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment`);
+  }
+
+  res.sendFile(indexPath);
 });
 
 if (require.main === module) {

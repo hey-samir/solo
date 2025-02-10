@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Environment-specific configurations
+// Simplified environment configuration
 const envConfigs = {
   development: {
     port: 3000,
@@ -14,13 +14,11 @@ const envConfigs = {
   },
   staging: {
     port: 5000,
-    apiUrl: 'http://localhost:5000',
-    template: 'staging.html'
+    apiUrl: 'http://localhost:5000'
   },
   production: {
     port: 5000,
-    apiUrl: 'http://localhost:5000',
-    template: 'production.html'
+    apiUrl: 'http://localhost:5000'
   }
 };
 
@@ -32,7 +30,15 @@ export default defineConfig(({ mode }) => {
 
   return {
     root: __dirname,
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: 'html-transform',
+        transformIndexHtml(html) {
+          return html.replace('%MODE%', env.charAt(0).toUpperCase() + env.slice(1));
+        }
+      }
+    ],
     server: {
       port: config.port,
       host: '0.0.0.0',
@@ -47,12 +53,7 @@ export default defineConfig(({ mode }) => {
       outDir: `dist/client/${env}`,
       sourcemap: true,
       emptyOutDir: true,
-      copyPublicDir: true,
-      rollupOptions: {
-        input: {
-          main: path.resolve(__dirname, config.template || 'index.html')
-        }
-      }
+      copyPublicDir: true
     },
     define: {
       'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),
