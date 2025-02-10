@@ -8,11 +8,26 @@ import * as path from 'path';
 // Enable debug logging
 console.log("Starting database migration process...");
 
-// Use DATABASE_URL environment variable
-const connectionString = process.env.DATABASE_URL;
+// Get connection string from environment variables
+let connectionString = process.env.DATABASE_URL;
+
+// If DATABASE_URL is not set, construct it from individual variables
 if (!connectionString) {
-  console.error("DATABASE_URL environment variable is not set");
-  process.exit(1);
+  const {
+    PGUSER,
+    PGPASSWORD,
+    PGHOST,
+    PGPORT,
+    PGDATABASE
+  } = process.env;
+
+  if (PGUSER && PGPASSWORD && PGHOST && PGPORT && PGDATABASE) {
+    connectionString = `postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}?sslmode=require`;
+    console.log("Created connection string from individual variables");
+  } else {
+    console.error("Neither DATABASE_URL nor individual Postgres variables are set");
+    process.exit(1);
+  }
 }
 
 // Configure database with connection string using createClient for direct connection
@@ -21,7 +36,8 @@ const db = drizzle(client, { schema });
 
 async function main() {
   console.log("Connecting to database...");
-  console.log("Using connection string:", connectionString.replace(/:[^:@]*@/, ':****@')); // Hide password in logs
+  // Hide sensitive info in logs
+  console.log("Using connection string:", connectionString.replace(/:[^:@]*@/, ':****@'));
 
   try {
     // Connect the client

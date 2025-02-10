@@ -20,6 +20,6 @@
       "@api/*": ["./src/api/*"]
     }
   },
-  "include": ["src/**/*.js"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"],
   "exclude": ["node_modules", "src/server/**/*", "dist/**/*"]
 }

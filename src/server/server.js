@@ -23,13 +23,20 @@ console.log(`Current working directory: ${process.cwd()}`);
 console.log('='.repeat(50));
 
 // Configure static file serving based on environment
-const staticPath = path.join(process.cwd(), 'dist', 'client', NODE_ENV);
+const staticPath = path.resolve(process.cwd(), 'dist', 'client', NODE_ENV);
 console.log(`Static files path: ${staticPath}`);
 
-// Verify directory structure
+// Verify directory structure and contents
 if (!fs.existsSync(staticPath)) {
   console.log('Creating directory structure...');
   fs.mkdirSync(staticPath, { recursive: true });
+}
+
+// List contents of static directory
+console.log('Contents of static directory:');
+if (fs.existsSync(staticPath)) {
+  const files = fs.readdirSync(staticPath);
+  console.log(files);
 }
 
 // Add environment-specific middleware
@@ -47,6 +54,10 @@ app.use(express.static(staticPath, {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
+    } else if (filePath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    } else if (filePath.endsWith('.png')) {
+      res.setHeader('Content-Type', 'image/png');
     }
     // Add caching headers in production
     if (NODE_ENV === 'production') {
@@ -75,15 +86,20 @@ app.get('*', (req, res) => {
   console.log(`- Environment: ${NODE_ENV}`);
   console.log(`- Static path: ${staticPath}`);
   console.log(`- Index path: ${indexPath}`);
-  console.log(`- Index exists: ${fs.existsSync(indexPath)}`);
 
+  // List directory contents if index.html not found
   if (!fs.existsSync(indexPath)) {
     console.error(`Error: index.html not found at ${indexPath}`);
     try {
-      const dirs = fs.readdirSync(staticPath);
-      console.log(`Contents of ${staticPath}:`, dirs);
-      return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment. Available files: ${dirs.join(', ')}`);
+      const dirs = fs.readdirSync(staticPath, { withFileTypes: true });
+      const fileList = dirs.map(dirent => ({
+        name: dirent.name,
+        type: dirent.isDirectory() ? 'directory' : 'file'
+      }));
+      console.log(`Contents of ${staticPath}:`, fileList);
+      return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment. Available files: ${JSON.stringify(fileList, null, 2)}`);
     } catch (error) {
+      console.error('Error reading directory:', error);
       return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment`);
     }
   }
