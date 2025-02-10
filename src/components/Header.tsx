@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import soloLogo from '../assets/images/solo-clear.png'
+import soloLogo from '@/assets/images/solo-clear.svg'
 
 const Header: React.FC = () => {
   return (
@@ -16,8 +16,8 @@ const Header: React.FC = () => {
           <img 
             src={soloLogo}
             alt="Solo Logo" 
-            className="h-12 w-auto"  // Increased logo height
-            style={{ maxHeight: '42px' }}  // Ensure logo fits within navbar
+            className="h-12 w-auto"
+            style={{ maxHeight: '42px' }}
           />
         </Link>
       </div>

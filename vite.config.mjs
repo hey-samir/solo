@@ -53,11 +53,17 @@ export default defineConfig(({ mode }) => {
       outDir: `dist/client/${env}`,
       sourcemap: true,
       emptyOutDir: true,
-      copyPublicDir: true
+      copyPublicDir: true,
+      assetsDir: 'assets'
     },
     define: {
       'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),
       'process.env.VITE_USER_NODE_ENV': JSON.stringify(env)
+    },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src')
+      }
     }
   };
 });
