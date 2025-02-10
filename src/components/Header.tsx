@@ -4,14 +4,15 @@ import soloLogo from '../assets/solo.png'
 
 const Header: React.FC = () => {
   return (
-    <header className="navbar" style={{ backgroundColor: 'var(--solo-purple)' }}>
-      <div className="container">
-        <Link to="/" className="navbar-brand">
+    <header className="navbar navbar-dark py-2" style={{ backgroundColor: 'var(--solo-purple)' }}>
+      <div className="container-fluid px-3">
+        <Link to="/" className="navbar-brand m-0 p-0">
           <img 
             src={soloLogo}
             alt="Solo Logo" 
-            height="32"
-            className="d-inline-block align-text-top"
+            height="24"
+            className="d-inline-block"
+            style={{ objectFit: 'contain' }}
           />
         </Link>
       </div>
