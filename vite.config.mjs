@@ -17,8 +17,8 @@ const envConfigs = {
     apiUrl: 'http://localhost:5000'
   },
   production: {
-    port: 5000,
-    apiUrl: 'http://localhost:5000'
+    port: 3000,
+    apiUrl: 'http://localhost:3000'
   }
 };
 
