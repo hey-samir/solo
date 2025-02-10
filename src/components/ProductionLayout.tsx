@@ -13,11 +13,10 @@ const ProductionLayout: React.FC = () => {
         Solo is sending soon. Follow @gosolonyc for updates.
       </div>
 
-      {/* Simplified header for production - Adjusted for banner */}
+      {/* Header for production - Adjusted for banner */}
       <header 
-        className="fixed left-0 right-0 flex items-center justify-center z-40"
+        className="fixed left-0 right-0 flex items-center justify-center z-40 bg-solo-purple"
         style={{ 
-          backgroundColor: 'var(--solo-purple)',
           height: '48px',
           top: '32px' // Height of the banner
         }}
@@ -29,12 +28,7 @@ const ProductionLayout: React.FC = () => {
             className="h-12 w-auto"
             style={{ 
               maxHeight: '42px',
-              filter: 'brightness(0) invert(1)' // Makes the logo white
-            }}
-            onError={(e) => {
-              console.error('Failed to load logo:', e)
-              const img = e.target as HTMLImageElement
-              console.log('Attempted image path:', img.src)
+              filter: 'brightness(0) invert(1)'
             }}
           />
         </div>
@@ -43,7 +37,7 @@ const ProductionLayout: React.FC = () => {
       {/* Main content - Adjusted margin for fixed header and banner */}
       <main 
         className="flex-grow container mx-auto px-4 py-8" 
-        style={{ marginTop: '80px' }} // 32px (banner) + 48px (header) 
+        style={{ marginTop: '96px' }} // 32px (banner) + 48px (header) + 16px (spacing)
       > 
         <Outlet />
       </main>

@@ -7,9 +7,10 @@ echo "Starting build process..."
 echo "Current directory: $(pwd)"
 echo "Node environment: $NODE_ENV"
 
-# Clean build directories
-echo "Cleaning build directories..."
+# Clean build directories and node_modules cache
+echo "Cleaning build directories and cache..."
 rm -rf dist/client
+rm -rf .vite
 mkdir -p dist/client/staging dist/client/production
 echo "Created directory structure:"
 ls -la dist/client/

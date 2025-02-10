@@ -57,6 +57,13 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       rollupOptions: {
         external: env === 'production' ? ['@/pages/FAQ'] : [], // Exclude FAQ in production
+        output: {
+          manualChunks(id) {
+            if (env === 'production' && id.includes('FAQ.tsx')) {
+              return null; // Don't include FAQ in any chunk for production
+            }
+          }
+        }
       }
     },
     define: {
@@ -67,6 +74,9 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, './src')
       }
+    },
+    optimizeDeps: {
+      exclude: env === 'production' ? ['@/pages/FAQ'] : [] // Also exclude FAQ from optimization in production
     }
   };
 });
