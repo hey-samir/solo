@@ -3,16 +3,28 @@ set -e
 
 echo "Starting build process..."
 
+# Print current directory and Node environment
+echo "Current directory: $(pwd)"
+echo "Node environment: $NODE_ENV"
+
 # Clean build directories
+echo "Cleaning build directories..."
 rm -rf dist/client
 mkdir -p dist/client/staging dist/client/production
+echo "Created directory structure:"
+ls -la dist/client/
 
-# Build both environments
-echo "Building staging environment..."
+# Build staging environment
+echo "Building staging..."
 NODE_ENV=staging npx vite build --mode staging
+echo "Staging build complete. Contents of dist/client/staging:"
+ls -la dist/client/staging/
 
-echo "Building production environment..."
+# Build production environment
+echo "Building production..."
 NODE_ENV=production npx vite build --mode production
+echo "Production build complete. Contents of dist/client/production:"
+ls -la dist/client/production/
 
 # Verify build output
 if [ ! -f "dist/client/staging/index.html" ] || [ ! -f "dist/client/production/index.html" ]; then
@@ -21,3 +33,5 @@ if [ ! -f "dist/client/staging/index.html" ] || [ ! -f "dist/client/production/i
 fi
 
 echo "Build completed successfully"
+echo "Final directory structure:"
+find dist/client -type f

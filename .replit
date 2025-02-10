@@ -36,30 +36,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = """
-#!/bin/bash
-set -e
-
-echo \"Starting build process...\"
-
-# Clean build directories
-rm -rf dist/client
-mkdir -p dist/client/staging dist/client/production
-
-echo \"Building staging...\"
-NODE_ENV=staging npx vite build --mode staging
-
-echo \"Building production...\"
-NODE_ENV=production npx vite build --mode production
-
-# Verify build output
-if [ ! -f \"dist/client/staging/index.html\" ] || [ ! -f \"dist/client/production/index.html\" ]; then
-  echo \"Error: Build failed - missing index.html files\"
-  exit 1
-fi
-
-echo \"Build completed successfully\"
-"""
+args = "./build.sh"
 
 [[workflows.workflow]]
 name = "Project"
@@ -91,10 +68,6 @@ args = "Production"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Staging Backend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build and Serve"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
@@ -153,53 +126,6 @@ set -e
 
 echo \"Starting staging server...\"
 NODE_ENV=staging PORT=5000 node src/server/server.js
-"""
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Build and Serve"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-#!/bin/bash
-set -e
-
-echo \"Starting build process...\"
-
-# Clean build directories
-rm -rf dist/client
-mkdir -p dist/client/staging dist/client/production
-
-echo \"Building staging...\"
-NODE_ENV=staging npx vite build --mode staging
-
-echo \"Building production...\"
-NODE_ENV=production npx vite build --mode production
-
-# Verify build output
-if [ ! -f \"dist/client/staging/index.html\" ] || [ ! -f \"dist/client/production/index.html\" ]; then
-  echo \"Error: Build failed - missing index.html files\"
-  exit 1
-fi
-
-echo \"Build completed successfully\"
-
-# Start servers
-echo \"Starting staging server...\"
-NODE_ENV=staging PORT=5000 node src/server/server.js &
-echo \"Starting production server...\"
-NODE_ENV=production PORT=3000 node src/server/server.js &
-
-# Wait for both servers
-wait
 """
 waitForPort = 5000
 

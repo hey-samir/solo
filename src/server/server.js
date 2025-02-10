@@ -19,24 +19,24 @@ console.log(`Environment: ${NODE_ENV}`);
 console.log(`Port to bind: ${PORT}`);
 console.log(`Process ID: ${process.pid}`);
 console.log(`Node Version: ${process.version}`);
+console.log(`Current working directory: ${process.cwd()}`);
 console.log('='.repeat(50));
 
 // Configure static file serving based on environment
-const staticPath = path.join(process.cwd(), 'dist/client', NODE_ENV);
+const staticPath = path.join(process.cwd(), 'dist', 'client', NODE_ENV);
 console.log(`Static files path: ${staticPath}`);
 
-// Verify index.html exists
-const indexPath = path.join(staticPath, 'index.html');
+// Verify directory structure
 if (!fs.existsSync(staticPath)) {
   console.error(`Static directory not found: ${staticPath}`);
-} else if (!fs.existsSync(indexPath)) {
-  console.error(`index.html not found: ${indexPath}`);
-} else {
-  console.log(`Found index.html at: ${indexPath}`);
+  console.log('Creating directory structure...');
+  fs.mkdirSync(staticPath, { recursive: true });
 }
 
 // Add environment-specific middleware
 app.use((req, res, next) => {
+  // Log all requests
+  console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
   // Add environment info to all responses
   res.locals.environment = NODE_ENV;
   next();
@@ -57,18 +57,28 @@ app.get('/health', (_req, res) => {
   res.json({ 
     status: 'ok', 
     environment: NODE_ENV,
-    timestamp: new Date().toISOString() 
+    timestamp: new Date().toISOString(),
+    static_path: staticPath
   });
 });
 
 // Serve index.html for all other routes (SPA support)
 app.get('*', (req, res) => {
-  // Log the request for debugging
-  console.log(`Serving index.html for ${req.path} in ${NODE_ENV} environment`);
+  const indexPath = path.join(staticPath, 'index.html');
+
+  // Enhanced logging for debugging
+  console.log('Request Details:');
+  console.log(`- Path requested: ${req.path}`);
+  console.log(`- Environment: ${NODE_ENV}`);
+  console.log(`- Static path: ${staticPath}`);
+  console.log(`- Index path: ${indexPath}`);
+  console.log(`- Index exists: ${fs.existsSync(indexPath)}`);
 
   if (!fs.existsSync(indexPath)) {
     console.error(`Error: index.html not found at ${indexPath}`);
-    return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment`);
+    const dirs = fs.readdirSync(staticPath);
+    console.log(`Contents of ${staticPath}:`, dirs);
+    return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment. Available files: ${dirs.join(', ')}`);
   }
 
   res.sendFile(indexPath);
