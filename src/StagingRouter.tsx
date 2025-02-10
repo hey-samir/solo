@@ -24,7 +24,6 @@ const StagingRouter: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        {/* Single Layout wrapper for all routes */}
         <Route element={<Layout />}>
           {/* Public Routes */}
           <Route index element={<About />} />
@@ -40,30 +39,9 @@ const StagingRouter: React.FC = () => {
           <Route path="standings" element={<Standings />} />
 
           {/* Protected Routes */}
-          <Route
-            path="sends"
-            element={
-              <ProtectedRoute>
-                <Sends />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="sessions"
-            element={
-              <ProtectedRoute>
-                <Sessions />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="stats"
-            element={
-              <ProtectedRoute>
-                <Stats />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="sends" element={<ProtectedRoute><Sends /></ProtectedRoute>} />
+          <Route path="sessions" element={<ProtectedRoute><Sessions /></ProtectedRoute>} />
+          <Route path="stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
 
           {/* Profile Routes */}
           <Route path="profile">
