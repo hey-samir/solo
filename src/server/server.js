@@ -23,34 +23,37 @@ console.log(`Current working directory: ${process.cwd()}`);
 console.log('='.repeat(50));
 
 // Configure static file serving based on environment
-const staticPath = path.resolve(process.cwd(), 'dist', 'client', NODE_ENV);
+const staticPath = path.join(process.cwd(), 'dist', 'client', NODE_ENV);
 console.log(`Static files path: ${staticPath}`);
-
-// Verify directory structure and contents
-if (!fs.existsSync(staticPath)) {
-  console.log('Creating directory structure...');
-  fs.mkdirSync(staticPath, { recursive: true });
-}
 
 // List contents of static directory
 console.log('Contents of static directory:');
-if (fs.existsSync(staticPath)) {
-  const files = fs.readdirSync(staticPath);
-  console.log(files);
+try {
+  if (fs.existsSync(staticPath)) {
+    const files = fs.readdirSync(staticPath, { withFileTypes: true });
+    const fileList = files.map(dirent => ({
+      name: dirent.name,
+      type: dirent.isDirectory() ? 'directory' : 'file'
+    }));
+    console.log(JSON.stringify(fileList, null, 2));
+  } else {
+    console.log('Static directory does not exist, creating it...');
+    fs.mkdirSync(staticPath, { recursive: true });
+  }
+} catch (error) {
+  console.error('Error accessing static directory:', error);
 }
 
 // Add environment-specific middleware
 app.use((req, res, next) => {
-  // Log all requests
   console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
-  // Add environment info to all responses
   res.locals.environment = NODE_ENV;
   next();
 });
 
-// Serve static files with proper MIME types
+// Serve static files
 app.use(express.static(staticPath, {
-  index: false, // Don't serve index.html automatically
+  index: false,
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
@@ -59,9 +62,8 @@ app.use(express.static(staticPath, {
     } else if (filePath.endsWith('.png')) {
       res.setHeader('Content-Type', 'image/png');
     }
-    // Add caching headers in production
     if (NODE_ENV === 'production') {
-      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
+      res.setHeader('Cache-Control', 'public, max-age=3600');
     }
   }
 }));
@@ -87,17 +89,17 @@ app.get('*', (req, res) => {
   console.log(`- Static path: ${staticPath}`);
   console.log(`- Index path: ${indexPath}`);
 
-  // List directory contents if index.html not found
   if (!fs.existsSync(indexPath)) {
     console.error(`Error: index.html not found at ${indexPath}`);
     try {
       const dirs = fs.readdirSync(staticPath, { withFileTypes: true });
       const fileList = dirs.map(dirent => ({
         name: dirent.name,
-        type: dirent.isDirectory() ? 'directory' : 'file'
+        type: dirent.isDirectory() ? 'directory' : 'file',
+        path: path.join(staticPath, dirent.name)
       }));
-      console.log(`Contents of ${staticPath}:`, fileList);
-      return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment. Available files: ${JSON.stringify(fileList, null, 2)}`);
+      console.log('Available files in static directory:', JSON.stringify(fileList, null, 2));
+      return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment. Directory contents: ${JSON.stringify(fileList, null, 2)}`);
     } catch (error) {
       console.error('Error reading directory:', error);
       return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment`);
@@ -107,8 +109,9 @@ app.get('*', (req, res) => {
   res.sendFile(indexPath);
 });
 
+// Start server if not being required as a module
 if (require.main === module) {
-  app.listen(PORT, '0.0.0.0', () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('\nServer Status:');
     console.log('='.repeat(50));
     console.log(`Server is running in ${NODE_ENV} mode`);
@@ -122,6 +125,15 @@ if (require.main === module) {
     console.error('Error:', error);
     console.error('='.repeat(50));
     process.exit(1);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
   });
 }
 

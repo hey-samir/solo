@@ -1,6 +1,6 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import soloLogo from '@/assets/images/solo-clear.svg'
+import soloLogo from '@/assets/images/logos/solo-clear.png'
 
 const ProductionLayout: React.FC = () => {
   return (
@@ -27,7 +27,15 @@ const ProductionLayout: React.FC = () => {
             src={soloLogo}
             alt="Solo Logo" 
             className="h-12 w-auto"
-            style={{ maxHeight: '42px' }}
+            style={{ 
+              maxHeight: '42px',
+              filter: 'brightness(0) invert(1)' // Makes the logo white
+            }}
+            onError={(e) => {
+              console.error('Failed to load logo:', e)
+              const img = e.target as HTMLImageElement
+              console.log('Attempted image path:', img.src)
+            }}
           />
         </div>
       </header>
@@ -35,7 +43,7 @@ const ProductionLayout: React.FC = () => {
       {/* Main content - Adjusted margin for fixed header and banner */}
       <main 
         className="flex-grow container mx-auto px-4 py-8" 
-        style={{ marginTop: '70px' }} // 32px (banner) + 48px (header) 
+        style={{ marginTop: '80px' }} // 32px (banner) + 48px (header) 
       > 
         <Outlet />
       </main>
