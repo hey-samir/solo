@@ -1,6 +1,9 @@
 import React from 'react'
+import { config } from '../config/environment'
 
 const ComingSoon: React.FC = () => {
+  const isProduction = config.environment === 'production'
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}

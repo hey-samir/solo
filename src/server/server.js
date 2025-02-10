@@ -28,7 +28,6 @@ console.log(`Static files path: ${staticPath}`);
 
 // Verify directory structure
 if (!fs.existsSync(staticPath)) {
-  console.error(`Static directory not found: ${staticPath}`);
   console.log('Creating directory structure...');
   fs.mkdirSync(staticPath, { recursive: true });
 }
@@ -45,9 +44,13 @@ app.use((req, res, next) => {
 // Serve static files with proper MIME types
 app.use(express.static(staticPath, {
   index: false, // Don't serve index.html automatically
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript');
+    }
+    // Add caching headers in production
+    if (NODE_ENV === 'production') {
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
     }
   }
 }));
@@ -76,9 +79,13 @@ app.get('*', (req, res) => {
 
   if (!fs.existsSync(indexPath)) {
     console.error(`Error: index.html not found at ${indexPath}`);
-    const dirs = fs.readdirSync(staticPath);
-    console.log(`Contents of ${staticPath}:`, dirs);
-    return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment. Available files: ${dirs.join(', ')}`);
+    try {
+      const dirs = fs.readdirSync(staticPath);
+      console.log(`Contents of ${staticPath}:`, dirs);
+      return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment. Available files: ${dirs.join(', ')}`);
+    } catch (error) {
+      return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment`);
+    }
   }
 
   res.sendFile(indexPath);

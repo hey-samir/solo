@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import morgan from 'morgan';
 import type { Request, Response, NextFunction } from 'express';
+import fs from 'fs';
 
 const app = express();
 const environment: string = process.env.NODE_ENV || 'development';
@@ -42,28 +43,15 @@ app.get('/health', (_req: Request, res: Response) => {
   });
 });
 
-// Import API routes based on environment
-if (isStaging || isProduction) {
-  try {
-    const routes = require('./routes');
-    app.use('/api', routes);
-  } catch (error) {
-    console.error('Error loading API routes:', error);
-    process.exit(1);
-  }
-}
-
 // Determine static file path based on environment
-let staticPath: string;
-if (isStaging) {
-  staticPath = path.resolve(__dirname, '../../dist/client/staging');
-} else if (isProduction) {
-  staticPath = path.resolve(__dirname, '../../dist/client/production');
-} else {
-  staticPath = path.resolve(__dirname, '../../public');
-}
+const staticPath = path.join(process.cwd(), 'dist', 'client', environment);
+console.log(`[${environment}] Static files path:`, staticPath);
 
-console.log(`[${environment}] Static files path: ${staticPath}`);
+// Verify static directory exists and create if necessary
+if (!fs.existsSync(staticPath)) {
+  console.log(`Creating static directory: ${staticPath}`);
+  fs.mkdirSync(staticPath, { recursive: true });
+}
 
 // Configure static file serving
 app.use(express.static(staticPath, {
@@ -74,7 +62,14 @@ app.use(express.static(staticPath, {
 
 // SPA fallback route
 app.get('*', (_req: Request, res: Response) => {
-  res.sendFile(path.join(staticPath, 'index.html'));
+  const indexPath = path.join(staticPath, 'index.html');
+
+  if (!fs.existsSync(indexPath)) {
+    console.error(`Index file not found at ${indexPath}`);
+    return res.status(500).send(`Error: index.html not found in ${environment} environment`);
+  }
+
+  res.sendFile(indexPath);
 });
 
 // Error handler
