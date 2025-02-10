@@ -8,16 +8,16 @@ const Header: React.FC = () => {
       className="fixed top-0 left-0 right-0 flex items-center justify-center z-40"
       style={{ 
         backgroundColor: 'var(--solo-purple)',
-        height: '48px',
-        marginTop: '18px'  
+        height: '48px'
       }}
     >
-      <div>
-        <Link to="/" className="flex items-center">
+      <div className="flex justify-center items-center w-full">
+        <Link to="/" className="flex items-center justify-center">
           <img 
             src={soloLogo}
             alt="Solo Logo" 
-            className="h-9 w-auto"  
+            className="h-12 w-auto"  // Increased logo height
+            style={{ maxHeight: '42px' }}  // Ensure logo fits within navbar
           />
         </Link>
       </div>

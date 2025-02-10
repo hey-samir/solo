@@ -118,6 +118,10 @@ args = "Production"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
+args = "Staging Backend"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
 args = "Staging"
 
 [[workflows.workflow]]
@@ -163,6 +167,21 @@ NODE_ENV=production PORT=3000 tsx src/server/server.ts
 waitForPort = 3000
 
 [[workflows.workflow]]
+name = "Staging Backend"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=staging PORT=5001 tsx src/server/server.ts"
+waitForPort = 5001
+
+[[workflows.workflow]]
 name = "Staging"
 author = "agent"
 
@@ -176,24 +195,23 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 #!/bin/bash
-set -e
+# Build the staging assets first
+echo \"Building staging assets...\"
+NODE_ENV=staging npx vite build --mode staging
 
-# Start backend server first
+# Start backend server
 echo \"Starting staging backend server...\"
 NODE_ENV=staging PORT=5001 tsx src/server/server.ts &
 SERVER_PID=$!
 
+# Wait for backend to be ready
 echo \"Waiting for backend server to start...\"
 sleep 5
 
-# Start frontend dev server with proper template
-echo \"Starting frontend dev server...\"
-NODE_ENV=staging VITE_API_URL=http://localhost:5001 npx vite --port 5000 --host 0.0.0.0 --config vite.config.mjs --mode staging &
+# Start frontend preview server
+echo \"Starting frontend preview server...\"
+NODE_ENV=staging npx vite preview --mode staging --port 5000 --host 0.0.0.0 &
 VITE_PID=$!
-
-# Keep track of processes
-echo $SERVER_PID > /tmp/staging_server.pid
-echo $VITE_PID > /tmp/staging_vite.pid
 
 # Wait for both processes
 wait $SERVER_PID $VITE_PID

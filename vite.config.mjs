@@ -15,13 +15,13 @@ const envConfigs = {
   staging: {
     port: 5000,
     apiUrl: 'http://localhost:5001',
-    template: 'staging.html',
+    template: 'index.html',
     outDir: 'dist/client/staging'
   },
   production: {
     port: 3000,
     apiUrl: 'http://localhost:3000',
-    template: 'src/production.html',
+    template: 'production.html',
     outDir: 'dist/client/production'
   }
 }
@@ -61,13 +61,13 @@ export default defineConfig(({ mode }) => {
       ]
     },
     build: {
-      outDir: config.outDir || 'dist',
+      outDir: config.outDir,
       sourcemap: true,
       emptyOutDir: true,
       copyPublicDir: true,
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, config.template || 'index.html')
+          main: path.resolve(__dirname, config.template)
         },
         output: {
           entryFileNames: 'assets/[name].[hash].js',
