@@ -28,104 +28,17 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            padding-bottom: 60px; /* Space for bottom navbar */
+            padding-bottom: 60px;
         }
 
-        /* Staging Environment Banner */
-        .staging-banner {
-            background: #ff6b6b;
-            color: white;
-            text-align: center;
-            padding: 0.5rem;
-            font-weight: 500;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        /* Bottom Navbar */
-        .bottom-navbar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-card);
-            padding: 0.75rem;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .bottom-navbar a {
-            color: var(--text-primary);
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.75rem;
-        }
-
-        .bottom-navbar i {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
-        }
-
-        /* Hamburger Menu */
-        .hamburger-menu {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1000;
-            background: var(--solo-purple);
-            border: none;
-            border-radius: 50%;
-            width: 3rem;
-            height: 3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
+        /* Remove any duplicate styles that might cause UI elements to appear twice */
     </style>
-  <script type="module" crossorigin src="/assets/staging.n-JQvMjp.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/staging.2kYLUqbs.css">
+  <script type="module" crossorigin src="/assets/main.6dlWr0ht.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main.2kYLUqbs.css">
 </head>
 <body>
-    <!-- Staging Banner -->
-    <div class="staging-banner">
-        Staging Environment
-    </div>
-
-    <!-- Hamburger Menu -->
-    <button class="hamburger-menu">
-        <i class="material-icons">menu</i>
-    </button>
-
-    <!-- React Root -->
+    <!-- React Root - This is the only element needed, React will handle the rest -->
     <div id="root"></div>
-
-    <!-- Bottom Navbar -->
-    <nav class="bottom-navbar">
-        <a href="/sends">
-            <i class="material-icons">arrow_upward</i>
-            <span>Sends</span>
-        </a>
-        <a href="/sessions">
-            <i class="material-icons">calendar_today</i>
-            <span>Sessions</span>
-        </a>
-        <a href="/stats">
-            <i class="material-icons">bar_chart</i>
-            <span>Stats</span>
-        </a>
-        <a href="/profile">
-            <i class="material-icons">person</i>
-            <span>Profile</span>
-        </a>
-    </nav>
 
 </body>
 </html>

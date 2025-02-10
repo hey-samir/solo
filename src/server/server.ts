@@ -53,30 +53,17 @@ if (isStaging || isProduction) {
   }
 }
 
-// Static file serving based on environment
-const staticPath = path.resolve(__dirname, `../../dist/client/${environment}`);
-console.log(`[${environment}] Static files path: ${staticPath}`);
-
-// Verify static directory exists
-try {
-  const fs = require('fs');
-  if (!fs.existsSync(staticPath)) {
-    console.error(`Error: Static directory not found at ${staticPath}`);
-    console.error('Please ensure the build process has completed');
-    process.exit(1);
-  }
-
-  const files = fs.readdirSync(staticPath);
-  console.log('Available files:', files);
-
-  if (!files.includes('index.html')) {
-    console.error('Error: index.html not found in static directory');
-    process.exit(1);
-  }
-} catch (error) {
-  console.error('Error checking static directory:', error);
-  process.exit(1);
+// Determine static file path based on environment
+let staticPath: string;
+if (isStaging) {
+  staticPath = path.resolve(__dirname, '../../dist/client/staging');
+} else if (isProduction) {
+  staticPath = path.resolve(__dirname, '../../dist/client/production');
+} else {
+  staticPath = path.resolve(__dirname, '../../public');
 }
+
+console.log(`[${environment}] Static files path: ${staticPath}`);
 
 // Configure static file serving
 app.use(express.static(staticPath, {

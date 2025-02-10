@@ -5,13 +5,12 @@ import Header from './Header'
 import { config } from '../config/environment'
 
 const Layout: React.FC = () => {
-  console.log('Layout rendering') // Debug log
   const isStaging = config.environment === 'staging'
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-primary text-text-primary">
       {isStaging && (
-        <div className="bg-black text-white text-center py-1 text-sm font-semibold">
+        <div className="bg-solo-purple text-white text-center py-1 text-sm font-semibold">
           Staging Environment
         </div>
       )}
@@ -19,7 +18,7 @@ const Layout: React.FC = () => {
       <main className="flex-grow container mx-auto px-4 py-8">
         <Outlet />
       </main>
-      <Navbar />
+      {isStaging && <Navbar />}
     </div>
   )
 }

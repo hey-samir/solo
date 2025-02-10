@@ -30,6 +30,8 @@ export default defineConfig(({ mode }) => {
   const env = mode || 'development'
   const config = envConfigs[env]
 
+  console.log(`Building for ${env} environment:`, config)
+
   return {
     root: __dirname,
     plugins: [react()],
@@ -59,12 +61,14 @@ export default defineConfig(({ mode }) => {
       ]
     },
     build: {
-      outDir: config.outDir,
+      outDir: config.outDir || 'dist',
       sourcemap: true,
       emptyOutDir: true,
       copyPublicDir: true,
       rollupOptions: {
-        input: path.resolve(__dirname, config.template || 'index.html'),
+        input: {
+          main: path.resolve(__dirname, config.template || 'index.html')
+        },
         output: {
           entryFileNames: 'assets/[name].[hash].js',
           chunkFileNames: 'assets/[name].[hash].js',

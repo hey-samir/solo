@@ -24,6 +24,7 @@ const StagingRouter: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
+        {/* Single Layout wrapper for all routes */}
         <Route element={<Layout />}>
           {/* Public Routes */}
           <Route index element={<About />} />

@@ -61,15 +61,20 @@ fi
 # Build for staging
 echo \"Building staging...\"
 NODE_ENV=staging npx vite build --mode staging
-if [ ! -f \"dist/client/staging/index.html\" ]; then
-    cp staging.html dist/client/staging/index.html
-fi
+mkdir -p dist/client/staging
+cp staging.html dist/client/staging/index.html
 
 # Build for production
 echo \"Building production...\"
 NODE_ENV=production npx vite build --mode production
-if [ ! -f \"dist/client/production/index.html\" ]; then
-    cp src/production.html dist/client/production/index.html
+mkdir -p dist/client/production
+cp src/production.html dist/client/production/index.html
+
+# Copy assets to appropriate directories
+echo \"Copying assets...\"
+if [ -d \"dist/assets\" ]; then
+    cp -r dist/assets/* dist/client/staging/assets/
+    cp -r dist/assets/* dist/client/production/assets/
 fi
 
 # Verify the builds
