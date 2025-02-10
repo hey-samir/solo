@@ -28,10 +28,9 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            padding-bottom: 60px; /* Space for bottom navbar */
+            padding-bottom: 60px;
         }
 
-        /* Staging Environment Banner */
         .staging-banner {
             background: #000000;
             color: white;
@@ -43,7 +42,6 @@
             z-index: 1000;
         }
 
-        /* Bottom Navbar */
         .bottom-navbar {
             position: fixed;
             bottom: 0;
@@ -83,6 +81,14 @@
 
     <!-- Bottom Navbar -->
     <nav class="bottom-navbar">
+        <a href="/squads">
+            <i class="material-icons">group</i>
+            <span>Squads</span>
+        </a>
+        <a href="/standings">
+            <i class="material-icons">leaderboard</i>
+            <span>Standings</span>
+        </a>
         <a href="/sends">
             <i class="material-icons">arrow_upward</i>
             <span>Sends</span>
