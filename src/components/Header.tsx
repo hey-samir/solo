@@ -4,18 +4,18 @@ import soloLogo from '../assets/solo.png'
 
 const Header: React.FC = () => {
   return (
-    <header className="bg-dark">
-      <div className="header-container d-flex justify-content-between align-items-center px-3 py-2">
-        <Link to="/" className="d-inline-block">
+    <nav className="navbar navbar-dark bg-dark">
+      <div className="container-fluid">
+        <Link to="/" className="navbar-brand">
           <img 
             src={soloLogo}
             alt="Solo Logo" 
-            className="header-logo"
-            height="50"
+            height="40"
+            className="d-inline-block align-text-top"
           />
         </Link>
       </div>
-    </header>
+    </nav>
   )
 }
 
