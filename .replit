@@ -178,8 +178,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=staging PORT=5001 tsx src/server/server.ts"
-waitForPort = 5001
+args = "NODE_ENV=staging PORT=5002 node src/server/server.js"
+waitForPort = 5002
 
 [[workflows.workflow]]
 name = "Staging"
@@ -201,7 +201,7 @@ NODE_ENV=staging npx vite build --mode staging
 
 # Start backend server
 echo \"Starting staging backend server...\"
-NODE_ENV=staging PORT=5001 tsx src/server/server.ts &
+NODE_ENV=staging PORT=5001 node src/server/server.js &
 SERVER_PID=$!
 
 # Wait for backend to be ready

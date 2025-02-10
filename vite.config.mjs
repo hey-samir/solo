@@ -15,7 +15,7 @@ const envConfigs = {
   staging: {
     port: 5000,
     apiUrl: 'http://localhost:5001',
-    template: 'index.html',
+    template: 'staging.html',
     outDir: 'dist/client/staging'
   },
   production: {
@@ -67,7 +67,7 @@ export default defineConfig(({ mode }) => {
       copyPublicDir: true,
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, config.template)
+          main: path.resolve(__dirname, config.template || 'index.html')
         },
         output: {
           entryFileNames: 'assets/[name].[hash].js',
