@@ -17,7 +17,7 @@ const Header: React.FC = () => {
           <img 
             src={soloLogo}
             alt="Solo Logo" 
-            className="h-5 w-auto"  
+            className="h-7 w-auto"  
           />
         </Link>
       </div>
