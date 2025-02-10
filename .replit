@@ -22,12 +22,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = """
-
-    set -e
-    echo \"Initializing database migrations...\"
-    NODE_ENV=staging tsx src/server/db/migrate.ts
-    """
+args = "NODE_ENV=staging tsx src/server/db/migrate.ts"
 
 [[workflows.workflow]]
 name = "Build"

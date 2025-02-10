@@ -19,6 +19,7 @@ import Profile from './pages/Profile'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
 import FAQ from './pages/FAQ'
+import Settings from './pages/Settings'
 
 const StagingRouter: React.FC = () => {
   return (
@@ -33,6 +34,7 @@ const StagingRouter: React.FC = () => {
           <Route path="pricing" element={<Pricing />} />
           <Route path="feedback" element={<Feedback />} />
           <Route path="faq" element={<FAQ />} />
+          <Route path="settings" element={<Settings />} />
 
           {/* Public Squad Routes */}
           <Route path="squads" element={<Squads />} />

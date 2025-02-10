@@ -33,7 +33,7 @@
 
         /* Staging Environment Banner */
         .staging-banner {
-            background: #ff6b6b;
+            background: #000000;
             color: white;
             text-align: center;
             padding: 0.5rem;
@@ -70,25 +70,6 @@
             font-size: 1.5rem;
             margin-bottom: 0.25rem;
         }
-
-        /* Hamburger Menu */
-        .hamburger-menu {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 1000;
-            background: var(--solo-purple);
-            border: none;
-            border-radius: 50%;
-            width: 3rem;
-            height: 3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-        }
     </style>
 </head>
 <body>
@@ -96,11 +77,6 @@
     <div class="staging-banner">
         Staging Environment
     </div>
-
-    <!-- Hamburger Menu -->
-    <button class="hamburger-menu">
-        <i class="material-icons">menu</i>
-    </button>
 
     <!-- React Root -->
     <div id="root"></div>
@@ -119,9 +95,9 @@
             <i class="material-icons">bar_chart</i>
             <span>Stats</span>
         </a>
-        <a href="/profile">
-            <i class="material-icons">person</i>
-            <span>Profile</span>
+        <a href="/settings">
+            <i class="material-icons">settings</i>
+            <span>Settings</span>
         </a>
     </nav>
 
