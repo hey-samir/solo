@@ -54,7 +54,10 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
       emptyOutDir: true,
       copyPublicDir: true,
-      assetsDir: 'assets'
+      assetsDir: 'assets',
+      rollupOptions: {
+        external: env === 'production' ? ['@/pages/FAQ'] : [], // Exclude FAQ in production
+      }
     },
     define: {
       'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),

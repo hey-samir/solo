@@ -11,7 +11,7 @@ const Header: React.FC = () => {
       style={{ 
         backgroundColor: 'var(--solo-purple)',
         height: '48px',
-        top: isStaging ? '24px' : '0' // Add extra space for staging banner
+        top: isStaging ? '32px' : '0', // Increased space for staging banner (32px instead of 24px)
       }}
     >
       <div className="flex justify-center items-center w-full">

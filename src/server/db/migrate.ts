@@ -30,8 +30,11 @@ if (!connectionString) {
   }
 }
 
+// Set POSTGRES_URL for Vercel client compatibility
+process.env.POSTGRES_URL = connectionString;
+
 // Configure database with connection string using createClient for direct connection
-const client = createClient({ connectionString });
+const client = createClient();
 const db = drizzle(client, { schema });
 
 async function main() {

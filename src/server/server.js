@@ -23,7 +23,7 @@ console.log(`Current working directory: ${process.cwd()}`);
 console.log('='.repeat(50));
 
 // Configure static file serving based on environment
-const staticPath = path.join(process.cwd(), 'dist', 'client', NODE_ENV);
+const staticPath = path.resolve(__dirname, '../../dist/client', NODE_ENV);
 console.log(`Static files path: ${staticPath}`);
 
 // List contents of static directory
@@ -33,7 +33,8 @@ try {
     const files = fs.readdirSync(staticPath, { withFileTypes: true });
     const fileList = files.map(dirent => ({
       name: dirent.name,
-      type: dirent.isDirectory() ? 'directory' : 'file'
+      type: dirent.isDirectory() ? 'directory' : 'file',
+      path: path.join(staticPath, dirent.name)
     }));
     console.log(JSON.stringify(fileList, null, 2));
   } else {
@@ -52,21 +53,7 @@ app.use((req, res, next) => {
 });
 
 // Serve static files
-app.use(express.static(staticPath, {
-  index: false,
-  setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (filePath.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    } else if (filePath.endsWith('.png')) {
-      res.setHeader('Content-Type', 'image/png');
-    }
-    if (NODE_ENV === 'production') {
-      res.setHeader('Cache-Control', 'public, max-age=3600');
-    }
-  }
-}));
+app.use(express.static(staticPath));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
@@ -91,19 +78,7 @@ app.get('*', (req, res) => {
 
   if (!fs.existsSync(indexPath)) {
     console.error(`Error: index.html not found at ${indexPath}`);
-    try {
-      const dirs = fs.readdirSync(staticPath, { withFileTypes: true });
-      const fileList = dirs.map(dirent => ({
-        name: dirent.name,
-        type: dirent.isDirectory() ? 'directory' : 'file',
-        path: path.join(staticPath, dirent.name)
-      }));
-      console.log('Available files in static directory:', JSON.stringify(fileList, null, 2));
-      return res.status(500).send(`Error: index.html not found in ${NODE_ENV} environment. Directory contents: ${JSON.stringify(fileList, null, 2)}`);
-    } catch (error) {
-      console.error('Error reading directory:', error);
-      return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment`);
-    }
+    return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment. Please ensure the application is built for this environment.`);
   }
 
   res.sendFile(indexPath);
