@@ -44,49 +44,15 @@ echo \"Starting build process...\"
 
 # Clean build directories
 rm -rf dist/client
-mkdir -p dist/client/{staging,production}
+mkdir -p dist/client/staging
 
-# First, ensure the staging and production templates exist
-echo \"Preparing templates...\"
-if [ ! -f \"staging.html\" ] || [ ! -f \"src/production.html\" ]; then
-    echo \"Error: Missing required template files\"
-    exit 1
-fi
-
-# Build for staging
 echo \"Building staging...\"
 NODE_ENV=staging npx vite build --mode staging
-mkdir -p dist/client/staging
-cp staging.html dist/client/staging/index.html
-
-# Build for production
-echo \"Building production...\"
-NODE_ENV=production npx vite build --mode production
-mkdir -p dist/client/production
-cp src/production.html dist/client/production/index.html
-
-# Copy assets to appropriate directories
-echo \"Copying assets...\"
-if [ -d \"dist/assets\" ]; then
-    cp -r dist/assets/* dist/client/staging/assets/
-    cp -r dist/assets/* dist/client/production/assets/
-fi
-
-# Verify the builds
-echo \"Verifying build output...\"
-if [ ! -f \"dist/client/staging/index.html\" ]; then
-    echo \"Error: staging index.html not found\"
-    ls -la dist/client/staging
-    exit 1
-fi
-
-if [ ! -f \"dist/client/production/index.html\" ]; then
-    echo \"Error: production index.html not found\"
-    ls -la dist/client/production
-    exit 1
-fi
 
 echo \"Build completed successfully\"
+
+# List the contents of the staging directory for debugging
+ls -la dist/client/staging/
 """
 
 [[workflows.workflow]]
@@ -119,10 +85,6 @@ args = "Production"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Staging Backend"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Staging"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -178,43 +140,12 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=staging PORT=5000 node src/server/server.js"
-waitForPort = 5000
-
-[[workflows.workflow]]
-name = "Staging"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
 args = """
 #!/bin/bash
-# Build the staging assets first
-echo \"Building staging assets...\"
-NODE_ENV=staging npx vite build --mode staging
+set -e
 
-# Start backend server
-echo \"Starting staging backend server...\"
-NODE_ENV=staging PORT=5001 node src/server/server.js &
-SERVER_PID=$!
-
-# Wait for backend to be ready
-echo \"Waiting for backend server to start...\"
-sleep 5
-
-# Start frontend preview server
-echo \"Starting frontend preview server...\"
-NODE_ENV=staging npx vite preview --mode staging --port 5000 --host 0.0.0.0 &
-VITE_PID=$!
-
-# Wait for both processes
-wait $SERVER_PID $VITE_PID
+echo \"Starting staging server...\"
+NODE_ENV=staging PORT=5000 node src/server/server.js
 """
 waitForPort = 5000
 
