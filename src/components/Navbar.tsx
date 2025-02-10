@@ -53,6 +53,15 @@ export default function Navbar(): React.ReactElement {
               <i className="material-icons" style={{ fontSize: '28px' }}>bar_chart</i>
             </Link>
           </li>
+          <li className="nav-item">
+            <Link 
+              to="/settings" 
+              className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}
+              aria-label="Settings"
+            >
+              <i className="material-icons" style={{ fontSize: '28px' }}>settings</i>
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>

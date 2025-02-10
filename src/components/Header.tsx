@@ -4,8 +4,8 @@ import soloLogo from '../assets/solo.png'
 
 const Header: React.FC = () => {
   return (
-    <nav className="navbar navbar-dark bg-dark">
-      <div className="container-fluid">
+    <header className="navbar navbar-dark bg-dark">
+      <div className="container">
         <Link to="/" className="navbar-brand">
           <img 
             src={soloLogo}
@@ -15,7 +15,7 @@ const Header: React.FC = () => {
           />
         </Link>
       </div>
-    </nav>
+    </header>
   )
 }
 
