@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import soloLogo from '../assets/solo.png'
+import soloLogo from '../assets/images/solo-clear.png'
 
 const Header: React.FC = () => {
   return (

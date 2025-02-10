@@ -1,59 +1,20 @@
 import React from 'react'
 import { Routes, Route } from 'react-router-dom'
-import Layout from './components/Layout'
+import ProductionLayout from './components/ProductionLayout'
 import LoadingSpinner from './components/LoadingSpinner'
-import ProtectedRoute from './components/ProtectedRoute'
-import NotFound from './pages/NotFound'
-import ServerError from './pages/ErrorPage'
-
-// Import pages
 import About from './pages/About'
-import Login from './pages/Login'
-import Register from './pages/Register'
-import Squads from './pages/Squads'
-import Standings from './pages/Standings'
-import Sends from './pages/Sends'
-import Sessions from './pages/Sessions'
-import Stats from './pages/Stats'
-import Profile from './pages/Profile'
-import Pricing from './pages/Pricing'
-import Feedback from './pages/Feedback'
-import FAQ from './pages/FAQ'
-import Settings from './pages/Settings'
+import ComingSoon from './pages/ComingSoon'
 
 const ProductionRouter: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        <Route element={<Layout />}>
-          {/* Public Routes */}
+        <Route element={<ProductionLayout />}>
+          {/* Production only shows About and Coming Soon pages */}
           <Route index element={<About />} />
           <Route path="about" element={<About />} />
-          <Route path="login" element={<Login />} />
-          <Route path="signup" element={<Register />} />
-          <Route path="pricing" element={<Pricing />} />
-          <Route path="feedback" element={<Feedback />} />
-          <Route path="faq" element={<FAQ />} />
-          <Route path="settings" element={<Settings />} />
-
-          {/* Public Squad Routes */}
-          <Route path="squads" element={<Squads />} />
-          <Route path="standings" element={<Standings />} />
-
-          {/* Protected Routes */}
-          <Route path="sends" element={<ProtectedRoute><Sends /></ProtectedRoute>} />
-          <Route path="sessions" element={<ProtectedRoute><Sessions /></ProtectedRoute>} />
-          <Route path="stats" element={<ProtectedRoute><Stats /></ProtectedRoute>} />
-
-          {/* Profile Routes */}
-          <Route path="profile">
-            <Route index element={<Profile />} />
-            <Route path=":username" element={<Profile />} />
-          </Route>
-
-          {/* Error Routes */}
-          <Route path="server-error" element={<ServerError code={500} message="Internal Server Error" />} />
-          <Route path="*" element={<NotFound />} />
+          {/* All other routes show ComingSoon */}
+          <Route path="*" element={<ComingSoon />} />
         </Route>
       </Routes>
     </React.Suspense>

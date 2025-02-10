@@ -63,11 +63,11 @@ args = "Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Server"
+args = "Staging Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Staging Server"
+args = "Production Server"
 
 [[workflows.workflow]]
 name = "Seed Test Data"
@@ -82,26 +82,6 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development tsx src/server/db/seed.ts"
-
-[[workflows.workflow]]
-name = "Production Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-#!/bin/bash
-    export NODE_ENV=production
-    export PORT=3000
-    node src/server/server.js
-    """
-waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Staging Server"
@@ -122,6 +102,26 @@ args = """
     node src/server/server.js
     """
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Production Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+#!/bin/bash
+    export NODE_ENV=production
+    export PORT=3000
+    node src/server/server.js
+    """
+waitForPort = 3000
 
 [[ports]]
 localPort = 80
