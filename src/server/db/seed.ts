@@ -11,6 +11,8 @@ if (!connectionString) {
   process.exit(1);
 }
 
+console.log("Using database URL:", connectionString.replace(/:[^:]+@/, ':****@'));
+
 const client = createClient({ connectionString });
 const db = drizzle(client, { schema });
 
@@ -19,6 +21,7 @@ async function seed() {
 
   try {
     await client.connect();
+    console.log("Successfully connected to database");
 
     // Add test data once schema is defined
     console.log("Seed completed successfully");
