@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import soloLogo from '@/assets/images/solo-clear.svg'
+import soloLogo from '../assets/images/logos/solo-clear.png'
 
 const Header: React.FC = () => {
   return (
@@ -17,7 +17,10 @@ const Header: React.FC = () => {
             src={soloLogo}
             alt="Solo Logo" 
             className="h-12 w-auto"
-            style={{ maxHeight: '42px' }}
+            style={{ 
+              maxHeight: '42px',
+              filter: 'brightness(0) invert(1)' // Makes the logo white
+            }}
           />
         </Link>
       </div>
