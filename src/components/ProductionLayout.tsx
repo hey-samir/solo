@@ -5,28 +5,38 @@ import soloLogo from '@/assets/images/solo-clear.svg'
 const ProductionLayout: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-bg-primary text-text-primary">
-      {/* Black banner at the top */}
-      <div className="w-full bg-black text-white text-center py-2 text-sm">
+      {/* Black banner at the top - Made sticky */}
+      <div 
+        className="fixed top-0 left-0 right-0 bg-black text-white text-center py-2 text-sm z-50"
+        style={{ fontFamily: 'Lexend, sans-serif' }}
+      >
         Solo is sending soon. Follow @gosolonyc for updates.
       </div>
 
-      {/* Simplified header for production */}
-      <header className="fixed top-0 left-0 right-0 flex items-center justify-center z-40"
+      {/* Simplified header for production - Adjusted for banner */}
+      <header 
+        className="fixed left-0 right-0 flex items-center justify-center z-40"
         style={{ 
           backgroundColor: 'var(--solo-purple)',
           height: '48px',
-          marginTop: '32px' 
-        }}>
-        <img 
-          src={soloLogo}
-          alt="Solo Logo" 
-          className="h-12 w-auto"
-          style={{ maxHeight: '42px' }}
-        />
+          top: '32px' // Height of the banner
+        }}
+      >
+        <div className="flex justify-center items-center">
+          <img 
+            src={soloLogo}
+            alt="Solo Logo" 
+            className="h-12 w-auto"
+            style={{ maxHeight: '42px' }}
+          />
+        </div>
       </header>
 
-      {/* Main content */}
-      <main className="flex-grow container mx-auto px-4 py-8" style={{ marginTop: '98px' }}> 
+      {/* Main content - Adjusted margin for fixed header and banner */}
+      <main 
+        className="flex-grow container mx-auto px-4 py-8" 
+        style={{ marginTop: '70px' }} // 32px (banner) + 48px (header) 
+      > 
         <Outlet />
       </main>
     </div>
