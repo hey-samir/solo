@@ -1,11 +1,13 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
+import ProductionLayout from './components/ProductionLayout'
 import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFound from './pages/NotFound'
 import ServerError from './pages/ErrorPage'
 import { useFeatureFlags } from './contexts/FeatureFlagsContext'
+import { config } from './config/environment'
 
 // Import pages
 import About from './pages/About'
@@ -23,6 +25,7 @@ import FAQ from './pages/FAQ'
 
 const Router: React.FC = () => {
   const { flags, isLoading, error } = useFeatureFlags()
+  const isProduction = config.environment === 'production'
 
   if (isLoading) {
     return (
@@ -43,7 +46,7 @@ const Router: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        <Route element={<Layout />}>
+        <Route element={isProduction ? <ProductionLayout /> : <Layout />}>
           {/* Public Routes */}
           <Route index element={<Navigate to="/about" replace />} />
           <Route path="about" element={<About />} />
