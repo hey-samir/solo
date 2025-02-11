@@ -25,15 +25,15 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [initError, setInitError] = useState<string | null>(null)
 
+  // Remove feature flag initialization from App.tsx since it's now handled by FeatureFlagsContext
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        await FeatureFlagService.initialize()
-        console.log('Feature flags initialized:', FeatureFlagService.getFlags())
+        // App-specific initialization can go here
+        setIsLoading(false)
       } catch (error) {
-        console.error('Failed to initialize feature flags:', error)
-        setInitError('Failed to load application configuration')
-      } finally {
+        console.error('Failed to initialize app:', error)
+        setInitError('Failed to initialize application')
         setIsLoading(false)
       }
     }

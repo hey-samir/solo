@@ -3,8 +3,10 @@ import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Navbar from './Navbar'
 import { config } from '../config/environment'
+import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
 const Layout: React.FC = () => {
+  const { flags } = useFeatureFlags()
   const isStaging = config.environment === 'staging'
 
   return (
@@ -20,7 +22,7 @@ const Layout: React.FC = () => {
       <main className="flex-grow container mx-auto px-4 py-8" style={{ marginTop: '66px' }}>
         <Outlet />
       </main>
-      <Navbar />
+      {flags?.showBottomNav && <Navbar />}
     </div>
   )
 }

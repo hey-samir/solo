@@ -22,8 +22,8 @@ export const config = {
   apiUrl: '/api',
 }
 
-// Production defaults
-export const productionDefaults: FeatureFlags = {
+// Production defaults (used as fallback)
+const productionDefaults: FeatureFlags = {
   enableAuth: true,
   enableStats: true,
   enablePro: true,
@@ -53,17 +53,10 @@ class FeatureFlagServiceClass {
 
       // Validate the response data
       this.flags = FeatureFlagsSchema.parse(data)
-
-      // Force production settings in production environment
-      if (config.environment === 'production') {
-        this.flags.showBottomNav = false
-        this.flags.showFAQ = false
-      }
-
-      console.log('[FeatureFlags] Successfully initialized:', this.flags)
       return this.flags
     } catch (error) {
       console.error('[FeatureFlags] Error fetching flags:', error)
+      console.log('[FeatureFlags] Using production defaults')
       this.flags = productionDefaults
       return this.flags
     }
@@ -78,7 +71,8 @@ class FeatureFlagServiceClass {
   }
 }
 
-// Export a singleton instance
+// Create and export singleton instance
 export const FeatureFlagService = new FeatureFlagServiceClass()
 
-export { FeatureFlagsSchema, productionDefaults }
+// Export schema
+export { FeatureFlagsSchema }
