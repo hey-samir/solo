@@ -4,7 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import ErrorBoundary from './components/ErrorBoundary'
 import { AuthProvider } from './contexts/AuthContext'
-import { config, useFeatureFlags } from './config/environment'
+import { FeatureFlagProvider } from './contexts/FeatureFlagContext'
+import { config } from './config/environment'
 import StagingRouter from './StagingRouter'
 import ProductionRouter from './ProductionRouter'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -21,24 +22,23 @@ const queryClient = new QueryClient({
 })
 
 const App: React.FC = () => {
-  const features = useFeatureFlags()
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || ''
   const isStaging = config.environment === 'staging'
 
   // Add explicit console logs for debugging
   console.log('App Component Render - Current Time:', new Date().toISOString())
   console.log('Current Environment:', config.environment)
-  console.log('Enabled Features:', features)
-
 
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <GoogleOAuthProvider clientId={clientId}>
           <AuthProvider>
-            <ErrorBoundary>
-              {isStaging ? <StagingRouter /> : <ProductionRouter />}
-            </ErrorBoundary>
+            <FeatureFlagProvider>
+              <ErrorBoundary>
+                {isStaging ? <StagingRouter /> : <ProductionRouter />}
+              </ErrorBoundary>
+            </FeatureFlagProvider>
           </AuthProvider>
         </GoogleOAuthProvider>
       </BrowserRouter>

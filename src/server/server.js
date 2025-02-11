@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const app = express();
+const { getFeatureFlags } = require('../config/features');
 
 // Enable error logging for uncaught exceptions immediately
 process.on('uncaughtException', (error) => {
@@ -26,20 +27,32 @@ console.log('='.repeat(50));
 const staticPath = path.resolve(__dirname, '../../dist/client', NODE_ENV);
 console.log(`Static files path: ${staticPath}`);
 
-// List contents of static directory
-console.log('Contents of static directory:');
+// Verify static directory and index.html existence
+const indexPath = path.join(staticPath, 'index.html');
+console.log('Checking static directory and index.html:');
 try {
-  if (fs.existsSync(staticPath)) {
-    const files = fs.readdirSync(staticPath, { withFileTypes: true });
-    const fileList = files.map(dirent => ({
-      name: dirent.name,
-      type: dirent.isDirectory() ? 'directory' : 'file',
-      path: path.join(staticPath, dirent.name)
-    }));
-    console.log(JSON.stringify(fileList, null, 2));
-  } else {
-    console.log('Static directory does not exist, creating it...');
+  if (!fs.existsSync(staticPath)) {
+    console.log('Creating static directory...');
     fs.mkdirSync(staticPath, { recursive: true });
+  }
+
+  console.log('Contents of static directory:');
+  const files = fs.readdirSync(staticPath, { withFileTypes: true });
+  const fileList = files.map(dirent => ({
+    name: dirent.name,
+    type: dirent.isDirectory() ? 'directory' : 'file',
+    path: path.join(staticPath, dirent.name)
+  }));
+  console.log(JSON.stringify(fileList, null, 2));
+
+  if (!fs.existsSync(indexPath)) {
+    console.error(`Warning: index.html not found at ${indexPath}`);
+    // Copy index.html from project root if it doesn't exist
+    const sourceIndexPath = path.join(process.cwd(), 'index.html');
+    if (fs.existsSync(sourceIndexPath)) {
+      fs.copyFileSync(sourceIndexPath, indexPath);
+      console.log(`Copied index.html from ${sourceIndexPath} to ${indexPath}`);
+    }
   }
 } catch (error) {
   console.error('Error accessing static directory:', error);
@@ -53,8 +66,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files
-app.use(express.static(staticPath));
+// Serve static files with proper caching
+app.use(express.static(staticPath, {
+  maxAge: NODE_ENV === 'production' ? '1h' : '0',
+  etag: true,
+  index: false // Don't auto-serve index.html
+}));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
@@ -81,10 +98,23 @@ app.get('/api/environment', (_req, res) => {
   });
 });
 
-// Serve index.html for all other routes (SPA support)
-app.get('*', (req, res) => {
-  const indexPath = path.join(staticPath, 'index.html');
+// Add this new endpoint after the environment endpoint
+app.get('/api/features', (_req, res) => {
+  console.log('Features endpoint called');
+  console.log('Current NODE_ENV:', NODE_ENV);
 
+  const features = getFeatureFlags(NODE_ENV);
+  console.log('Returning features:', features);
+
+  res.json({ 
+    features,
+    environment: NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// SPA fallback route with enhanced error handling
+app.get('*', (req, res) => {
   // Enhanced logging for debugging
   console.log('Request Details:');
   console.log(`- Path requested: ${req.path}`);

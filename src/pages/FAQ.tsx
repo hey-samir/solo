@@ -1,10 +1,22 @@
 import React from 'react'
+import { useFeatureFlags } from '../contexts/FeatureFlagContext'
+import { Navigate } from 'react-router-dom'
 
 const FAQ: React.FC = () => {
+  const { features, isLoading } = useFeatureFlags();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!features.enableFAQ) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Frequently Asked Questions</h1>
-      
+
       <div className="space-y-6">
         <div className="bg-bg-card rounded-lg p-6">
           <h2 className="text-xl font-semibold mb-3">What is Solo?</h2>
