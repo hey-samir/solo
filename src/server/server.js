@@ -16,38 +16,8 @@ process.on('uncaughtException', (error) => {
 // Basic configuration
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-
-console.log('='.repeat(50));
-console.log('Server Pre-initialization:');
-console.log(`Environment: ${NODE_ENV}`);
-console.log(`Port to bind: ${PORT}`);
-console.log(`Process ID: ${process.pid}`);
-console.log(`Node Version: ${process.version}`);
-console.log(`Current working directory: ${process.cwd()}`);
-console.log('='.repeat(50));
-
-// Configure static file serving based on environment
 const staticPath = path.resolve(__dirname, '../../dist/client', NODE_ENV);
-console.log(`Static files path: ${staticPath}`);
 
-// List contents of static directory
-console.log('Contents of static directory:');
-try {
-  if (fs.existsSync(staticPath)) {
-    const files = fs.readdirSync(staticPath, { withFileTypes: true });
-    const fileList = files.map(dirent => ({
-      name: dirent.name,
-      type: dirent.isDirectory() ? 'directory' : 'file',
-      path: path.join(staticPath, dirent.name)
-    }));
-    console.log(JSON.stringify(fileList, null, 2));
-  } else {
-    console.log('Static directory does not exist, creating it...');
-    fs.mkdirSync(staticPath, { recursive: true });
-  }
-} catch (error) {
-  console.error('Error accessing static directory:', error);
-}
 
 // CORS configuration
 app.use(cors({
@@ -67,13 +37,14 @@ app.use(cors({
 // Parse JSON bodies
 app.use(express.json());
 
-// Mount API routes before static files
+// Mount API routes
 app.use('/api', apiRoutes);
 
-// Add environment-specific middleware
+// Add environment-specific middleware - simplified logging
 app.use((req, res, next) => {
-  console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
-  // Set environment variable for client
+  if (req.path !== '/health' && !req.path.startsWith('/assets/')) {
+    console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
+  }
   res.set('X-Environment', NODE_ENV);
   next();
 });
@@ -86,51 +57,25 @@ app.get('/health', (_req, res) => {
   res.json({ 
     status: 'ok', 
     environment: NODE_ENV,
-    timestamp: new Date().toISOString(),
-    static_path: staticPath
+    timestamp: new Date().toISOString()
   });
 });
 
-// Add environment endpoint with detailed logging
+// Environment endpoint
 app.get('/api/environment', (_req, res) => {
-  console.log('Environment endpoint called');
-  console.log('Current NODE_ENV:', NODE_ENV);
-  console.log('Process env:', {
-    NODE_ENV: process.env.NODE_ENV,
-    PORT: process.env.PORT
-  });
-
   res.json({ 
     environment: NODE_ENV,
     server_time: new Date().toISOString()
   });
 });
 
-// Serve index.html for all other routes (SPA support)
-app.get('*', async (req, res) => {
+// Modified SPA support to handle feature flags in React Router
+app.get('*', (req, res) => {
   const indexPath = path.join(staticPath, 'index.html');
-  const environment = process.env.NODE_ENV || 'development';
-
-  // Enhanced logging for debugging
-  console.log('Request Details:');
-  console.log(`- Path requested: ${req.path}`);
-  console.log(`- Environment: ${environment}`);
-
-  // Check if the route should be blocked based on feature flags
-  const flags = featureFlags.featureFlags[environment];
-  if (
-    (req.path === '/faq' && !flags.showFAQ) ||
-    (req.path.startsWith('/feedback') && !flags.enableFeedback) ||
-    (req.path === '/pricing' && !flags.enablePro) ||
-    ((req.path === '/squads' || req.path === '/standings') && !flags.enableSquads)
-  ) {
-    console.log(`Route ${req.path} is disabled by feature flags`);
-    return res.status(404).send('Page not found');
-  }
 
   if (!fs.existsSync(indexPath)) {
     console.error(`Error: index.html not found at ${indexPath}`);
-    return res.status(500).send(`Error: Unable to serve index.html in ${environment} environment`);
+    return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment`);
   }
 
   res.sendFile(indexPath);
@@ -139,18 +84,9 @@ app.get('*', async (req, res) => {
 // Start server if not being required as a module
 if (require.main === module) {
   const server = app.listen(PORT, '0.0.0.0', () => {
-    console.log('\nServer Status:');
-    console.log('='.repeat(50));
-    console.log(`Server is running in ${NODE_ENV} mode`);
-    console.log(`Listening on http://0.0.0.0:${PORT}`);
-    console.log(`Static files being served from: ${staticPath}`);
-    console.log('='.repeat(50));
+    console.log(`Server running in ${NODE_ENV} mode on http://0.0.0.0:${PORT}`);
   }).on('error', (error) => {
-    console.error('\nServer Error:');
-    console.error('='.repeat(50));
-    console.error('Failed to start server');
-    console.error('Error:', error);
-    console.error('='.repeat(50));
+    console.error('Failed to start server:', error);
     process.exit(1);
   });
 
