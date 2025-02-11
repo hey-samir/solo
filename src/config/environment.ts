@@ -38,7 +38,7 @@ export const config = {
   ...envConfigs[environment as keyof typeof envConfigs],
 }
 
-// Default feature flags - will be overridden by API
+// Default feature flags
 const defaultFlags: FeatureFlags = {
   enableAuth: false,
   enableStats: false,
@@ -64,7 +64,7 @@ export const FeatureFlagService = {
       currentFlags = FeatureFlagsSchema.parse(flags)
     } catch (error) {
       console.error('Error fetching feature flags:', error)
-      // Fallback to environment-specific defaults
+      // Environment-specific defaults
       if (environment === 'staging') {
         currentFlags = {
           ...defaultFlags,
@@ -82,10 +82,9 @@ export const FeatureFlagService = {
       } else if (environment === 'production') {
         currentFlags = {
           ...defaultFlags,
-          // Production specific flags as requested
-          showBottomNav: false, // Bottom nav off
-          showFAQ: false, // FAQ off
-          showEnvironmentBanner: true, // Banner on
+          showBottomNav: false,
+          showFAQ: false,
+          showEnvironmentBanner: true,
           environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
         }
       }
