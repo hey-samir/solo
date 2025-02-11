@@ -1,9 +1,31 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import soloLogo from '@/assets/images/logos/solo-clear.png'
 
 const Header: React.FC = () => {
-  const isStaging = process.env.VITE_USER_NODE_ENV === 'staging'
+  const [isStaging, setIsStaging] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    console.log('Header component mounted, fetching environment...');
+
+    fetch('/api/environment')
+      .then(res => {
+        console.log('Environment API response status:', res.status);
+        return res.json();
+      })
+      .then(data => {
+        console.log('Environment data received:', data);
+        const isStaging = data.environment === 'staging';
+        console.log('Is staging environment?', isStaging);
+        setIsStaging(isStaging);
+      })
+      .catch(err => {
+        console.error('Failed to fetch environment:', err);
+        setError(err.message);
+        setIsStaging(false);
+      });
+  }, []);
 
   return (
     <>
@@ -12,7 +34,7 @@ const Header: React.FC = () => {
           className="fixed top-0 left-0 right-0 bg-black text-white text-center py-2 text-sm z-50"
           style={{ fontFamily: 'Lexend, sans-serif' }}
         >
-          Staging Environment
+          Staging Environment {error && `(Error: ${error})`}
         </div>
       )}
       <header 

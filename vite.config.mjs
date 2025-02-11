@@ -56,11 +56,11 @@ export default defineConfig(({ mode }) => {
       copyPublicDir: true,
       assetsDir: 'assets',
       rollupOptions: {
-        external: env === 'production' ? ['@/pages/FAQ'] : [], // Exclude FAQ in production
+        external: env === 'production' ? ['@/pages/FAQ.tsx', '@/pages/FAQ'] : [],
         output: {
           manualChunks(id) {
-            if (env === 'production' && id.includes('FAQ.tsx')) {
-              return null; // Don't include FAQ in any chunk for production
+            if (env === 'production' && (id.includes('FAQ.tsx') || id.includes('FAQ.jsx'))) {
+              return null; // Exclude FAQ from production build
             }
           }
         }
@@ -76,7 +76,7 @@ export default defineConfig(({ mode }) => {
       }
     },
     optimizeDeps: {
-      exclude: env === 'production' ? ['@/pages/FAQ'] : [] // Also exclude FAQ from optimization in production
+      exclude: env === 'production' ? ['@/pages/FAQ.tsx', '@/pages/FAQ'] : []
     }
   };
 });

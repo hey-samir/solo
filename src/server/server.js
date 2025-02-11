@@ -48,7 +48,8 @@ try {
 // Add environment-specific middleware
 app.use((req, res, next) => {
   console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
-  res.locals.environment = NODE_ENV;
+  // Set environment variable for client
+  res.set('X-Environment', NODE_ENV);
   next();
 });
 
@@ -62,6 +63,21 @@ app.get('/health', (_req, res) => {
     environment: NODE_ENV,
     timestamp: new Date().toISOString(),
     static_path: staticPath
+  });
+});
+
+// Add environment endpoint with detailed logging
+app.get('/api/environment', (_req, res) => {
+  console.log('Environment endpoint called');
+  console.log('Current NODE_ENV:', NODE_ENV);
+  console.log('Process env:', {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT
+  });
+
+  res.json({ 
+    environment: NODE_ENV,
+    server_time: new Date().toISOString()
   });
 });
 
