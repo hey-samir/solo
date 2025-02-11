@@ -21,7 +21,6 @@ import Stats from './pages/Stats'
 import Profile from './pages/Profile'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
-import FAQ from './pages/FAQ'
 
 const Router: React.FC = () => {
   const { flags, isLoading, error } = useFeatureFlags()
@@ -103,9 +102,6 @@ const Router: React.FC = () => {
               }
             />
           )}
-
-          {/* FAQ Route */}
-          {flags.showFAQ && <Route path="faq" element={<FAQ />} />}
 
           {/* Profile Routes */}
           <Route path="profile">

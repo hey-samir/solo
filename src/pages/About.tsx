@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
+import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
 const About: React.FC = () => {
+  const { flags } = useFeatureFlags()
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
@@ -36,43 +39,45 @@ const About: React.FC = () => {
         />
       </div>
 
-      {/* FAQ Section with Tailwind Accordion */}
-      <section className="mb-12 max-w-3xl mx-auto">
-        <h2 className="text-3xl font-bold text-solo-purple mb-6 text-center">FAQ</h2>
-        <div className="space-y-4">
-          <AccordionItem
-            question="How do I log a climb?"
-            answer="To log a route, tap the '+' button in the navigation bar. Fill in the details about your route including the color, grade, and whether it was a Send or a Try. Routes are tracked as either Sends (successful completions) or Tries (unsuccessful attempts)."
-          />
-          <AccordionItem
-            question="What's the difference between a Send and a Try?"
-            answer="A 'Send' means you successfully completed the route from start to finish without falling. A 'Try' is when you attempted the route but didn't complete it. Both are valuable to track as they show your progress over time."
-          />
-          <AccordionItem
-            question="How are points calculated?"
-            answer="Points are calculated based on the difficulty of the route and whether you sent it or not. A Send earns you 10 points multiplied by your star rating, while Tries earn 5 points multiplied by your star rating. This system rewards both successful completions and the effort put into attempting challenging routes."
-          />
-          <AccordionItem
-            question="What do the stats metrics mean?"
-            answer={`Your statistics show various aspects of your climbing progress:
+      {/* FAQ Section with Tailwind Accordion - Only show if feature flag is enabled */}
+      {flags?.showFAQ && (
+        <section className="mb-12 max-w-3xl mx-auto">
+          <h2 className="text-3xl font-bold text-solo-purple mb-6 text-center">FAQ</h2>
+          <div className="space-y-4">
+            <AccordionItem
+              question="How do I log a climb?"
+              answer="To log a route, tap the '+' button in the navigation bar. Fill in the details about your route including the color, grade, and whether it was a Send or a Try. Routes are tracked as either Sends (successful completions) or Tries (unsuccessful attempts)."
+            />
+            <AccordionItem
+              question="What's the difference between a Send and a Try?"
+              answer="A 'Send' means you successfully completed the route from start to finish without falling. A 'Try' is when you attempted the route but didn't complete it. Both are valuable to track as they show your progress over time."
+            />
+            <AccordionItem
+              question="How are points calculated?"
+              answer="Points are calculated based on the difficulty of the route and whether you sent it or not. A Send earns you 10 points multiplied by your star rating, while Tries earn 5 points multiplied by your star rating. This system rewards both successful completions and the effort put into attempting challenging routes."
+            />
+            <AccordionItem
+              question="What do the stats metrics mean?"
+              answer={`Your statistics show various aspects of your climbing progress:
 • Send Rate: The percentage of successful sends out of total routes attempted
 • Average Grade: The typical difficulty level you climb
 • Points: Your overall achievement score based on your routes
 • Sessions: Groups of routes climbed within the same timeframe
 • Star Rating: Your performance rating based on successful sends`}
-          />
-          <AccordionItem
-            question="What are the dimensions of a Send?"
-            answer={`When logging a Send, you'll record:
+            />
+            <AccordionItem
+              question="What are the dimensions of a Send?"
+              answer={`When logging a Send, you'll record:
 • Grade: The difficulty rating of the route
 • Color: The hold color used for the route
 • Type: Whether it's a Send (success) or Try (attempt)
 • Stars: Your rating of the route quality
 • Date: When you climbed the route
 • Session: Which climbing session it belongs to`}
-          />
-        </div>
-      </section>
+            />
+          </div>
+        </section>
+      )}
     </div>
   )
 }
