@@ -4,6 +4,7 @@ const router = express.Router();
 // Import routes
 const authRoutes = require('./auth');
 const userRoutes = require('./user');
+const featureFlagsRoutes = require('./feature-flags');
 
 // Health check endpoint
 router.get('/health', (_req, res) => {
@@ -26,5 +27,6 @@ router.get('/test', (_req, res) => {
 // Mount routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/feature-flags', featureFlagsRoutes);
 
 module.exports = router;

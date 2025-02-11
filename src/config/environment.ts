@@ -82,7 +82,10 @@ export const FeatureFlagService = {
       } else if (environment === 'production') {
         currentFlags = {
           ...defaultFlags,
-          showEnvironmentBanner: true,
+          // Production specific flags as requested
+          showBottomNav: false, // Bottom nav off
+          showFAQ: false, // FAQ off
+          showEnvironmentBanner: true, // Banner on
           environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
         }
       }

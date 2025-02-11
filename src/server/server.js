@@ -1,6 +1,9 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const cors = require('cors');
+const apiRoutes = require('./routes');
+
 const app = express();
 
 // Enable error logging for uncaught exceptions immediately
@@ -45,6 +48,21 @@ try {
   console.error('Error accessing static directory:', error);
 }
 
+// CORS configuration
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5000',
+      'http://0.0.0.0:3000',
+      'http://0.0.0.0:5000'
+    ];
+    callback(null, allowedOrigins.includes(origin));
+  },
+  credentials: true
+}));
+
 // Add environment-specific middleware
 app.use((req, res, next) => {
   console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
@@ -52,6 +70,12 @@ app.use((req, res, next) => {
   res.set('X-Environment', NODE_ENV);
   next();
 });
+
+// Parse JSON bodies
+app.use(express.json());
+
+// Mount API routes
+app.use('/api', apiRoutes);
 
 // Serve static files
 app.use(express.static(staticPath));
