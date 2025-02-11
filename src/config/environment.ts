@@ -23,7 +23,7 @@ export const config = {
 }
 
 // Production defaults (used as fallback)
-const productionDefaults: FeatureFlags = {
+export const productionDefaults: FeatureFlags = {
   enableAuth: true,
   enableStats: true,
   enablePro: true,
@@ -74,5 +74,5 @@ class FeatureFlagServiceClass {
 // Create and export singleton instance
 export const FeatureFlagService = new FeatureFlagServiceClass()
 
-// Export schema
+// Export schema and types
 export { FeatureFlagsSchema }
