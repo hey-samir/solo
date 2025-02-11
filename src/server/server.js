@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const apiRoutes = require('./routes');
+const featureFlags = require('./routes/feature-flags');
 
 const app = express();
 
@@ -106,19 +107,30 @@ app.get('/api/environment', (_req, res) => {
 });
 
 // Serve index.html for all other routes (SPA support)
-app.get('*', (req, res) => {
+app.get('*', async (req, res) => {
   const indexPath = path.join(staticPath, 'index.html');
+  const environment = process.env.NODE_ENV || 'development';
 
   // Enhanced logging for debugging
   console.log('Request Details:');
   console.log(`- Path requested: ${req.path}`);
-  console.log(`- Environment: ${NODE_ENV}`);
-  console.log(`- Static path: ${staticPath}`);
-  console.log(`- Index path: ${indexPath}`);
+  console.log(`- Environment: ${environment}`);
+
+  // Check if the route should be blocked based on feature flags
+  const flags = featureFlags.featureFlags[environment];
+  if (
+    (req.path === '/faq' && !flags.showFAQ) ||
+    (req.path.startsWith('/feedback') && !flags.enableFeedback) ||
+    (req.path === '/pricing' && !flags.enablePro) ||
+    ((req.path === '/squads' || req.path === '/standings') && !flags.enableSquads)
+  ) {
+    console.log(`Route ${req.path} is disabled by feature flags`);
+    return res.status(404).send('Page not found');
+  }
 
   if (!fs.existsSync(indexPath)) {
     console.error(`Error: index.html not found at ${indexPath}`);
-    return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment. Please ensure the application is built for this environment.`);
+    return res.status(500).send(`Error: Unable to serve index.html in ${environment} environment`);
   }
 
   res.sendFile(indexPath);

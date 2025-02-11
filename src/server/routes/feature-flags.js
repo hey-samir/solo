@@ -53,4 +53,7 @@ router.get('/', (req, res) => {
   res.json(featureFlags[environment]);
 });
 
-module.exports = router;
+module.exports = {
+  router,
+  featureFlags, // Export the featureFlags object
+};
