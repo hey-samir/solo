@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { FeatureFlags, FeatureFlagService, config } from '../config/environment'
+import { FeatureFlags, FeatureFlagService, productionDefaults } from '../config/environment'
 
 interface FeatureFlagsContextType {
   flags: FeatureFlags | null
@@ -12,7 +12,7 @@ const FeatureFlagsContext = createContext<FeatureFlagsContextType>({
   flags: null,
   isLoading: true,
   error: null,
-  reload: async () => {}
+  reload: async () => {},
 })
 
 export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -24,17 +24,14 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     try {
       setIsLoading(true)
       setError(null)
-      
-      const response = await fetch(`${config.apiUrl}/feature-flags`)
-      if (!response.ok) throw new Error('Failed to fetch feature flags')
-      
-      const data = await response.json()
-      console.log('Fetched feature flags:', data)
-      
-      setFlags(data)
+      console.log('[FeatureFlagsContext] Loading flags...')
+      const newFlags = await FeatureFlagService.initialize()
+      console.log('[FeatureFlagsContext] Flags loaded:', newFlags)
+      setFlags(newFlags)
     } catch (err) {
-      console.error('Error loading feature flags:', err)
-      setError('Failed to load application configuration')
+      console.error('[FeatureFlagsContext] Error loading flags:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load application configuration')
+      setFlags(productionDefaults) // Fallback to defaults on error
     } finally {
       setIsLoading(false)
     }

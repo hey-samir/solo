@@ -17,29 +17,13 @@ const FeatureFlagsSchema = z.object({
 export type FeatureFlags = z.infer<typeof FeatureFlagsSchema>
 
 // Environment configuration
-const envConfigs = {
-  development: {
-    apiUrl: 'http://localhost:3000/api',
-  },
-  staging: {
-    apiUrl: 'http://localhost:5000/api',
-  },
-  production: {
-    apiUrl: '/api',
-  },
-} as const
-
-// Get current environment
-const environment = import.meta.env.MODE || 'development'
-
-// Export environment-specific config
 export const config = {
-  environment,
-  ...envConfigs[environment as keyof typeof envConfigs],
+  environment: import.meta.env.MODE || 'development',
+  apiUrl: '/api',
 }
 
-// Initialize with strict production defaults
-const productionDefaults: FeatureFlags = {
+// Production defaults
+export const productionDefaults: FeatureFlags = {
   enableAuth: true,
   enableStats: true,
   enablePro: true,
@@ -52,51 +36,49 @@ const productionDefaults: FeatureFlags = {
   environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
 }
 
-// State management
-let currentFlags: FeatureFlags = { ...productionDefaults }
-let isInitialized = false
+class FeatureFlagServiceClass {
+  private flags: FeatureFlags | null = null;
 
-// Feature flag service
-export const FeatureFlagService = {
-  isInitialized() {
-    return isInitialized
-  },
-
-  async initialize() {
+  async initialize(): Promise<FeatureFlags> {
     try {
+      console.log(`[FeatureFlags] Initializing for ${config.environment} environment`)
       const response = await fetch(`${config.apiUrl}/feature-flags`)
-      if (!response.ok) throw new Error('Failed to fetch feature flags')
-      const flags = await response.json()
 
-      // Force production settings for specific flags in production
-      if (environment === 'production') {
-        flags.showBottomNav = false
-        flags.showFAQ = false
-        flags.showEnvironmentBanner = true
-        flags.environmentBannerText = 'Solo is sending soon. Follow @gosolonyc for updates'
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      currentFlags = FeatureFlagsSchema.parse(flags)
-      isInitialized = true
+      const data = await response.json()
+      console.log('[FeatureFlags] Received data:', data)
 
-      console.log(`[FeatureFlags] Initialized for ${environment}:`, currentFlags)
+      // Validate the response data
+      this.flags = FeatureFlagsSchema.parse(data)
+
+      // Force production settings in production environment
+      if (config.environment === 'production') {
+        this.flags.showBottomNav = false
+        this.flags.showFAQ = false
+      }
+
+      console.log('[FeatureFlags] Successfully initialized:', this.flags)
+      return this.flags
     } catch (error) {
-      console.error('Error initializing feature flags:', error)
-      // Fallback to production defaults in case of error
-      currentFlags = productionDefaults
-      isInitialized = true
+      console.error('[FeatureFlags] Error fetching flags:', error)
+      this.flags = productionDefaults
+      return this.flags
     }
-  },
+  }
 
   getFlags(): FeatureFlags {
-    if (!isInitialized) {
-      console.warn('Feature flags accessed before initialization')
+    if (!this.flags) {
+      console.warn('[FeatureFlags] Accessed before initialization, returning defaults')
+      return productionDefaults
     }
-    return currentFlags
-  },
+    return this.flags
+  }
 }
 
-// Feature flag hook
-export const useFeatureFlags = () => {
-  return FeatureFlagService.getFlags()
-}
+// Export a singleton instance
+export const FeatureFlagService = new FeatureFlagServiceClass()
+
+export { FeatureFlagsSchema, productionDefaults }
