@@ -63,6 +63,12 @@ app.use(cors({
   credentials: true
 }));
 
+// Parse JSON bodies
+app.use(express.json());
+
+// Mount API routes before static files
+app.use('/api', apiRoutes);
+
 // Add environment-specific middleware
 app.use((req, res, next) => {
   console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
@@ -70,12 +76,6 @@ app.use((req, res, next) => {
   res.set('X-Environment', NODE_ENV);
   next();
 });
-
-// Parse JSON bodies
-app.use(express.json());
-
-// Mount API routes
-app.use('/api', apiRoutes);
 
 // Serve static files
 app.use(express.static(staticPath));
