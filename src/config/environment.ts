@@ -38,59 +38,60 @@ export const config = {
   ...envConfigs[environment as keyof typeof envConfigs],
 }
 
-// Default feature flags
-const defaultFlags: FeatureFlags = {
-  enableAuth: false,
-  enableStats: false,
-  enablePro: false,
-  enableSessions: false,
-  enableFeedback: false,
-  enableSquads: false,
+// Initialize with strict production defaults
+const productionDefaults: FeatureFlags = {
+  enableAuth: true,
+  enableStats: true,
+  enablePro: true,
+  enableSessions: true,
+  enableFeedback: true,
+  enableSquads: true,
   showBottomNav: false,
   showFAQ: false,
   showEnvironmentBanner: true,
-  environmentBannerText: '',
+  environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
 }
 
-let currentFlags = { ...defaultFlags }
+// State management
+let currentFlags: FeatureFlags = { ...productionDefaults }
+let isInitialized = false
 
 // Feature flag service
 export const FeatureFlagService = {
+  isInitialized() {
+    return isInitialized
+  },
+
   async initialize() {
     try {
       const response = await fetch(`${config.apiUrl}/feature-flags`)
       if (!response.ok) throw new Error('Failed to fetch feature flags')
       const flags = await response.json()
-      currentFlags = FeatureFlagsSchema.parse(flags)
-    } catch (error) {
-      console.error('Error fetching feature flags:', error)
-      // Environment-specific defaults
-      if (environment === 'staging') {
-        currentFlags = {
-          ...defaultFlags,
-          enableAuth: true,
-          enableStats: true,
-          enablePro: true,
-          enableSessions: true,
-          enableFeedback: true,
-          enableSquads: true,
-          showBottomNav: true,
-          showFAQ: true,
-          showEnvironmentBanner: true,
-          environmentBannerText: 'Staging environment',
-        }
-      } else if (environment === 'production') {
-        currentFlags = {
-          ...defaultFlags,
-          showBottomNav: false,
-          showFAQ: false,
-          showEnvironmentBanner: true,
-          environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
-        }
+
+      // Force production settings for specific flags in production
+      if (environment === 'production') {
+        flags.showBottomNav = false
+        flags.showFAQ = false
+        flags.showEnvironmentBanner = true
+        flags.environmentBannerText = 'Solo is sending soon. Follow @gosolonyc for updates'
       }
+
+      currentFlags = FeatureFlagsSchema.parse(flags)
+      isInitialized = true
+
+      console.log(`[FeatureFlags] Initialized for ${environment}:`, currentFlags)
+    } catch (error) {
+      console.error('Error initializing feature flags:', error)
+      // Fallback to production defaults in case of error
+      currentFlags = productionDefaults
+      isInitialized = true
     }
   },
-  getFlags() {
+
+  getFlags(): FeatureFlags {
+    if (!isInitialized) {
+      console.warn('Feature flags accessed before initialization')
+    }
     return currentFlags
   },
 }

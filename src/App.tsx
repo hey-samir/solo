@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { GoogleOAuthProvider } from '@react-oauth/google'
@@ -6,6 +6,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import { AuthProvider } from './contexts/AuthContext'
 import { config, FeatureFlagService } from './config/environment'
 import Router from './Router'
+import LoadingSpinner from './components/LoadingSpinner'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './styles/global.css'
 
@@ -21,11 +22,25 @@ const queryClient = new QueryClient({
 
 const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || ''
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Initialize feature flags
-    FeatureFlagService.initialize()
+    const initializeApp = async () => {
+      try {
+        await FeatureFlagService.initialize()
+      } catch (error) {
+        console.error('Failed to initialize feature flags:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    initializeApp()
   }, [])
+
+  if (isLoading) {
+    return <LoadingSpinner />
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
