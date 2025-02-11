@@ -8,48 +8,24 @@ const FeatureFlagsSchema = z.object({
   enableSessions: z.boolean(),
   enableFeedback: z.boolean(),
   enableSquads: z.boolean(),
-  showComingSoon: z.boolean(),
+  showBottomNav: z.boolean(),
+  showFAQ: z.boolean(),
+  showEnvironmentBanner: z.boolean(),
+  environmentBannerText: z.string(),
 })
 
 export type FeatureFlags = z.infer<typeof FeatureFlagsSchema>
 
-// Environment-specific configurations
-const configs = {
+// Environment configuration
+const envConfigs = {
   development: {
     apiUrl: 'http://localhost:3000/api',
-    features: {
-      enableAuth: true,
-      enableStats: true,
-      enablePro: true,
-      enableSessions: true,
-      enableFeedback: true,
-      enableSquads: true,
-      showComingSoon: false,
-    },
   },
   staging: {
     apiUrl: 'http://localhost:5000/api',
-    features: {
-      enableAuth: true,
-      enableStats: true,
-      enablePro: true,
-      enableSessions: true,
-      enableFeedback: true,
-      enableSquads: true,
-      showComingSoon: false,
-    },
   },
   production: {
     apiUrl: '/api',
-    features: {
-      enableAuth: false,
-      enableStats: false,
-      enablePro: false,
-      enableSessions: false,
-      enableFeedback: false,
-      enableSquads: false,
-      showComingSoon: true,
-    },
   },
 } as const
 
@@ -59,10 +35,65 @@ const environment = import.meta.env.MODE || 'development'
 // Export environment-specific config
 export const config = {
   environment,
-  ...configs[environment as keyof typeof configs],
+  ...envConfigs[environment as keyof typeof envConfigs],
+}
+
+// Default feature flags - will be overridden by API
+const defaultFlags: FeatureFlags = {
+  enableAuth: false,
+  enableStats: false,
+  enablePro: false,
+  enableSessions: false,
+  enableFeedback: false,
+  enableSquads: false,
+  showBottomNav: false,
+  showFAQ: false,
+  showEnvironmentBanner: true,
+  environmentBannerText: '',
+}
+
+let currentFlags = { ...defaultFlags }
+
+// Feature flag service
+export const FeatureFlagService = {
+  async initialize() {
+    try {
+      const response = await fetch(`${config.apiUrl}/feature-flags`)
+      if (!response.ok) throw new Error('Failed to fetch feature flags')
+      const flags = await response.json()
+      currentFlags = FeatureFlagsSchema.parse(flags)
+    } catch (error) {
+      console.error('Error fetching feature flags:', error)
+      // Fallback to environment-specific defaults
+      if (environment === 'staging') {
+        currentFlags = {
+          ...defaultFlags,
+          enableAuth: true,
+          enableStats: true,
+          enablePro: true,
+          enableSessions: true,
+          enableFeedback: true,
+          enableSquads: true,
+          showBottomNav: true,
+          showFAQ: true,
+          showEnvironmentBanner: true,
+          environmentBannerText: 'Staging environment',
+        }
+      } else if (environment === 'production') {
+        currentFlags = {
+          ...defaultFlags,
+          showEnvironmentBanner: true,
+          environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
+        }
+      }
+    }
+  },
+  getFlags() {
+    return currentFlags
+  },
 }
 
 // Feature flag hook
 export const useFeatureFlags = () => {
-  return config.features
+  return FeatureFlagService.getFlags()
 }

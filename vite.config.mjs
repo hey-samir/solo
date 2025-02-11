@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Simplified environment configuration
+// Environment configuration
 const envConfigs = {
   development: {
     port: 3000,
@@ -55,16 +55,6 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       copyPublicDir: true,
       assetsDir: 'assets',
-      rollupOptions: {
-        external: env === 'production' ? ['@/pages/FAQ.tsx', '@/pages/FAQ'] : [],
-        output: {
-          manualChunks(id) {
-            if (env === 'production' && (id.includes('FAQ.tsx') || id.includes('FAQ.jsx'))) {
-              return null; // Exclude FAQ from production build
-            }
-          }
-        }
-      }
     },
     define: {
       'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),
@@ -74,9 +64,6 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, './src')
       }
-    },
-    optimizeDeps: {
-      exclude: env === 'production' ? ['@/pages/FAQ.tsx', '@/pages/FAQ'] : []
     }
   };
 });
