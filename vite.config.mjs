@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
       strictPort: true
     },
     build: {
-      outDir: `dist/client/${env}`,
+      outDir: 'dist',
       sourcemap: true,
       emptyOutDir: true,
       copyPublicDir: true,

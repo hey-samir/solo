@@ -16,8 +16,7 @@ process.on('uncaughtException', (error) => {
 // Basic configuration
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const staticPath = path.resolve(__dirname, '../../dist/client', NODE_ENV);
-
+const staticPath = path.resolve(__dirname, '../../dist');
 
 // CORS configuration
 app.use(cors({
@@ -54,10 +53,17 @@ app.use(express.static(staticPath));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
-  res.json({ 
-    status: 'ok', 
+  const indexPath = path.join(staticPath, 'index.html');
+  const healthy = fs.existsSync(indexPath);
+
+  res.status(healthy ? 200 : 503).json({ 
+    status: healthy ? 'ok' : 'error',
     environment: NODE_ENV,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    details: {
+      indexFile: healthy ? 'present' : 'missing',
+      staticPath
+    }
   });
 });
 
@@ -69,7 +75,7 @@ app.get('/api/environment', (_req, res) => {
   });
 });
 
-// Modified SPA support to handle feature flags in React Router
+// SPA support - serve index.html for all routes
 app.get('*', (req, res) => {
   const indexPath = path.join(staticPath, 'index.html');
 
