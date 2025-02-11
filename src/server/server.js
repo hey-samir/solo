@@ -56,7 +56,7 @@ app.get('/health', (_req, res) => {
   const indexPath = path.join(staticPath, 'index.html');
   const healthy = fs.existsSync(indexPath);
 
-  res.status(healthy ? 200 : 503).json({ 
+  const healthStatus = { 
     status: healthy ? 'ok' : 'error',
     environment: NODE_ENV,
     timestamp: new Date().toISOString(),
@@ -64,7 +64,12 @@ app.get('/health', (_req, res) => {
       indexFile: healthy ? 'present' : 'missing',
       staticPath
     }
-  });
+  };
+
+  // Log health check results
+  console.log('[Health Check]', JSON.stringify(healthStatus, null, 2));
+
+  res.status(healthy ? 200 : 503).json(healthStatus);
 });
 
 // Environment endpoint
