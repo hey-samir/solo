@@ -5,7 +5,7 @@ import LoadingSpinner from './components/LoadingSpinner'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFound from './pages/NotFound'
 import ServerError from './pages/ErrorPage'
-import { useFeatureFlags } from './config/environment'
+import { useFeatureFlags } from './contexts/FeatureFlagsContext'
 
 // Import pages
 import About from './pages/About'
@@ -22,38 +22,49 @@ import Feedback from './pages/Feedback'
 import FAQ from './pages/FAQ'
 
 const Router: React.FC = () => {
-  const features = useFeatureFlags()
+  const { flags, isLoading, error } = useFeatureFlags()
 
-  // Log feature flags for debugging
-  React.useEffect(() => {
-    console.log('Current feature flags:', features)
-  }, [features])
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (error || !flags) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <ServerError code={500} message={error || 'Failed to load application configuration'} />
+      </div>
+    )
+  }
 
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        <Route element={<Layout features={features} />}>
+        <Route element={<Layout features={flags} />}>
           {/* Public Routes */}
           <Route index element={<Navigate to="/about" replace />} />
           <Route path="about" element={<About />} />
 
           {/* Conditionally render routes based on feature flags */}
-          {features.enableAuth && (
+          {flags.enableAuth && (
             <>
               <Route path="login" element={<Login />} />
               <Route path="signup" element={<Register />} />
             </>
           )}
 
-          {features.enablePro && (
+          {flags.enablePro && (
             <Route path="pricing" element={<Pricing />} />
           )}
 
-          {features.enableFeedback && (
+          {flags.enableFeedback && (
             <Route path="feedback" element={<Feedback />} />
           )}
 
-          {features.enableSquads && (
+          {flags.enableSquads && (
             <>
               <Route path="squads" element={<Squads />} />
               <Route path="standings" element={<Standings />} />
@@ -70,7 +81,7 @@ const Router: React.FC = () => {
             }
           />
 
-          {features.enableSessions && (
+          {flags.enableSessions && (
             <Route
               path="sessions"
               element={
@@ -81,7 +92,7 @@ const Router: React.FC = () => {
             />
           )}
 
-          {features.enableStats && (
+          {flags.enableStats && (
             <Route
               path="stats"
               element={
@@ -93,7 +104,7 @@ const Router: React.FC = () => {
           )}
 
           {/* FAQ Route - Only show if enabled */}
-          {features.showFAQ && (
+          {flags.showFAQ && (
             <Route path="faq" element={<FAQ />} />
           )}
 

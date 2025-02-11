@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import ErrorBoundary from './components/ErrorBoundary'
 import { AuthProvider } from './contexts/AuthContext'
-import { config, FeatureFlagService } from './config/environment'
+import { FeatureFlagsProvider } from './contexts/FeatureFlagsContext'
 import Router from './Router'
 import LoadingSpinner from './components/LoadingSpinner'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -69,11 +69,13 @@ const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <GoogleOAuthProvider clientId={clientId}>
-          <AuthProvider>
-            <ErrorBoundary>
-              <Router />
-            </ErrorBoundary>
-          </AuthProvider>
+          <FeatureFlagsProvider>
+            <AuthProvider>
+              <ErrorBoundary>
+                <Router />
+              </ErrorBoundary>
+            </AuthProvider>
+          </FeatureFlagsProvider>
         </GoogleOAuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
