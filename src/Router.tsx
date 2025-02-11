@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import ProductionLayout from './components/ProductionLayout'
@@ -27,6 +27,12 @@ const Router: React.FC = () => {
   const { flags, isLoading, error } = useFeatureFlags()
   const isProduction = config.environment === 'production'
 
+  // Add debug logging
+  useEffect(() => {
+    console.log('[Router] Current environment:', config.environment)
+    console.log('[Router] Feature flags:', flags)
+  }, [flags])
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -43,7 +49,6 @@ const Router: React.FC = () => {
     )
   }
 
-  // If showFAQ is false, FAQ route won't be included at all
   const routes = (
     <Routes>
       <Route element={isProduction ? <ProductionLayout /> : <Layout />}>
@@ -59,14 +64,8 @@ const Router: React.FC = () => {
           </>
         )}
 
-        {flags.enablePro && (
-          <Route path="pricing" element={<Pricing />} />
-        )}
-
-        {flags.enableFeedback && (
-          <Route path="feedback" element={<Feedback />} />
-        )}
-
+        {flags.enablePro && <Route path="pricing" element={<Pricing />} />}
+        {flags.enableFeedback && <Route path="feedback" element={<Feedback />} />}
         {flags.enableSquads && (
           <>
             <Route path="squads" element={<Squads />} />
@@ -107,7 +106,7 @@ const Router: React.FC = () => {
         )}
 
         {/* FAQ Route - Only show if enabled */}
-        {flags.showFAQ && (
+        {flags.showFAQ === true && (
           <Route path="faq" element={<FAQ />} />
         )}
 
@@ -124,11 +123,7 @@ const Router: React.FC = () => {
     </Routes>
   )
 
-  return (
-    <React.Suspense fallback={<LoadingSpinner />}>
-      {routes}
-    </React.Suspense>
-  )
+  return <React.Suspense fallback={<LoadingSpinner />}>{routes}</React.Suspense>
 }
 
 export default Router
