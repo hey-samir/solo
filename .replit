@@ -102,8 +102,9 @@ args = """
 
     export NODE_ENV=staging
     export PORT=5000
-    node src/server/server.js
+    npx tsx src/server/server.ts
     """
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Production Server"
