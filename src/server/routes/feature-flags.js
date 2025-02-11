@@ -34,8 +34,8 @@ const featureFlags = {
     enableSessions: true,
     enableFeedback: true,
     enableSquads: true,
-    showBottomNav: false, // Explicitly disabled for production
-    showFAQ: false, // Explicitly disabled for production
+    showBottomNav: false,
+    showFAQ: false,
     showEnvironmentBanner: true,
     environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
   },
@@ -44,8 +44,12 @@ const featureFlags = {
 // Get feature flags based on environment
 router.get('/', (req, res) => {
   const environment = process.env.NODE_ENV || 'development';
-  console.log(`[Feature Flags] Serving flags for ${environment} environment`);
-  console.log(`[Feature Flags] Flags:`, JSON.stringify(featureFlags[environment], null, 2));
+  // Only log on initial server start
+  if (!router.flagsInitialized) {
+    console.log(`[Feature Flags] Initialized for ${environment} environment:`, 
+      JSON.stringify(featureFlags[environment], null, 2));
+    router.flagsInitialized = true;
+  }
   res.json(featureFlags[environment]);
 });
 
