@@ -23,13 +23,16 @@ const queryClient = new QueryClient({
 const App: React.FC = () => {
   const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || ''
   const [isLoading, setIsLoading] = useState(true)
+  const [initError, setInitError] = useState<string | null>(null)
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
         await FeatureFlagService.initialize()
+        console.log('Feature flags initialized:', FeatureFlagService.getFlags())
       } catch (error) {
         console.error('Failed to initialize feature flags:', error)
+        setInitError('Failed to load application configuration')
       } finally {
         setIsLoading(false)
       }
@@ -39,7 +42,27 @@ const App: React.FC = () => {
   }, [])
 
   if (isLoading) {
-    return <LoadingSpinner />
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (initError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h1 className="text-xl font-bold text-red-600">{initError}</h1>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

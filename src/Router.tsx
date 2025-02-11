@@ -24,14 +24,20 @@ import FAQ from './pages/FAQ'
 const Router: React.FC = () => {
   const features = useFeatureFlags()
 
+  // Log feature flags for debugging
+  React.useEffect(() => {
+    console.log('Current feature flags:', features)
+  }, [features])
+
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        <Route element={<Layout />}>
+        <Route element={<Layout features={features} />}>
           {/* Public Routes */}
           <Route index element={<Navigate to="/about" replace />} />
           <Route path="about" element={<About />} />
 
+          {/* Conditionally render routes based on feature flags */}
           {features.enableAuth && (
             <>
               <Route path="login" element={<Login />} />
@@ -84,6 +90,11 @@ const Router: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+          )}
+
+          {/* FAQ Route - Only show if enabled */}
+          {features.showFAQ && (
+            <Route path="faq" element={<FAQ />} />
           )}
 
           {/* Profile Routes */}
