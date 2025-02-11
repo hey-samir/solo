@@ -102,7 +102,7 @@ args = """
 
     export NODE_ENV=staging
     export PORT=5000
-    npx tsx src/server/server.ts
+    node src/server/server.js
     """
 waitForPort = 5000
 
@@ -124,6 +124,7 @@ args = """
     export PORT=3000
     node src/server/server.js
     """
+waitForPort = 3000
 
 [[ports]]
 localPort = 80
