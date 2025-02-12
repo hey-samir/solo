@@ -2,8 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import morgan from 'morgan';
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import fs from 'fs';
+import { router as featureFlagsRouter } from './routes/feature-flags';
 
 const app = express();
 const environment: string = process.env.NODE_ENV || 'development';
@@ -34,6 +35,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Feature flags endpoint
+app.use('/api/features', featureFlagsRouter);
+
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response) => {
   res.json({ 
@@ -44,14 +48,8 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 // Determine static file path based on environment
-const staticPath = path.join(process.cwd(), 'dist', 'client', environment);
+const staticPath = path.join(process.cwd(), 'dist');
 console.log(`[${environment}] Static files path:`, staticPath);
-
-// Verify static directory exists and create if necessary
-if (!fs.existsSync(staticPath)) {
-  console.log(`Creating static directory: ${staticPath}`);
-  fs.mkdirSync(staticPath, { recursive: true });
-}
 
 // Configure static file serving
 app.use(express.static(staticPath, {
@@ -61,7 +59,7 @@ app.use(express.static(staticPath, {
 }));
 
 // SPA fallback route
-app.get('*', (_req: Request, res: Response) => {
+const spaHandler: RequestHandler = (_req: Request, res: Response, next: NextFunction) => {
   const indexPath = path.join(staticPath, 'index.html');
 
   if (!fs.existsSync(indexPath)) {
@@ -69,8 +67,12 @@ app.get('*', (_req: Request, res: Response) => {
     return res.status(500).send(`Error: index.html not found in ${environment} environment`);
   }
 
-  res.sendFile(indexPath);
-});
+  res.sendFile(indexPath, (err) => {
+    if (err) next(err);
+  });
+};
+
+app.get('*', spaHandler);
 
 // Error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

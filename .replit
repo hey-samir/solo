@@ -38,7 +38,7 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = """
 
-    chmod +x build.sh &&     NODE_ENV=staging npx vite build --mode staging &&     NODE_ENV=production npx vite build --mode production
+    NODE_ENV=staging npx vite build --mode staging
     """
 
 [[workflows.workflow]]
