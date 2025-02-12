@@ -19,7 +19,9 @@ const Standings: FC = () => {
     queryKey: ['leaderboard'],
     queryFn: async () => {
       try {
-        const response: AxiosResponse = await client.get('/api/leaderboard')
+        console.log('Fetching leaderboard data...');
+        const response: AxiosResponse = await client.get('/api/auth/leaderboard')
+        console.log('Leaderboard response:', response.data);
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
         setCacheInfo({ isFromCache, timestamp })
@@ -28,7 +30,8 @@ const Standings: FC = () => {
         console.error('Error fetching leaderboard:', error)
         throw error
       }
-    }
+    },
+    retry: 1
   })
 
   if (isLoading) {
@@ -36,6 +39,7 @@ const Standings: FC = () => {
   }
 
   if (error) {
+    console.error('Standings error:', error);
     return <NotFound />
   }
 

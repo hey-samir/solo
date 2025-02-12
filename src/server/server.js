@@ -39,7 +39,7 @@ app.use(express.json());
 
 // Mount API routes
 app.use('/api', apiRoutes);
-app.use('/api', authRoutes); // Explicitly mount auth routes which includes leaderboard
+app.use('/api/auth', authRoutes); // Mount auth routes under /api/auth explicitly
 
 // Add environment-specific middleware - simplified logging
 app.use((req, res, next) => {
@@ -68,9 +68,7 @@ app.get('/health', (_req, res) => {
     }
   };
 
-  // Log health check results
   console.log('[Health Check]', JSON.stringify(healthStatus, null, 2));
-
   res.status(healthy ? 200 : 503).json(healthStatus);
 });
 
