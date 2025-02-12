@@ -91,51 +91,20 @@ const Profile: FC = () => {
   return (
     <div className="container max-w-6xl mx-auto px-4 py-8">
       <div className="bg-opacity-0 p-6 rounded-lg">
-        {/* Profile Header */}
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Avatar Section with Buttons */}
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
-              <img 
-                src={user.profilePhoto || '/assets/avatars/gray-solo-av.png'}
-                alt={`${user.username}'s profile`}
-                className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
-              />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col gap-2 w-full">
-              {isOwnProfile && (
-                <button 
-                  className="btn bg-purple-600 text-white px-4 py-2 rounded-lg w-full"
-                  onClick={() => navigate('/settings')}
-                >
-                  <i className="material-icons mr-2">edit</i>
-                  Edit Profile
-                </button>
-              )}
-              <button 
-                className="btn bg-purple-600 text-white px-4 py-2 rounded-lg w-full"
-                onClick={handleShare}
-              >
-                <i className="material-icons mr-2">share</i>
-                Share Profile
-              </button>
-              {isOwnProfile && (
-                <button 
-                  className="btn bg-gray-600 text-white px-4 py-2 rounded-lg w-full"
-                  onClick={() => navigate('/logout')}
-                >
-                  <i className="material-icons mr-2">logout</i>
-                  Logout
-                </button>
-              )}
-            </div>
+        {/* Profile Info Section */}
+        <div className="flex gap-6 mb-8">
+          {/* Column 1: Avatar */}
+          <div className="w-32">
+            <img 
+              src={user.profilePhoto || '/assets/avatars/gray-solo-av.png'}
+              alt={`${user.username}'s profile`}
+              className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
+            />
           </div>
 
-          {/* Profile Info */}
+          {/* Column 2: User Info */}
           <div className="flex-grow">
-            <h1 className="text-2xl font-bold mb-1">@{user.username}</h1>
+            <h1 className="text-2xl font-bold mb-3">@{user.username}</h1>
             <div className="flex flex-col gap-2">
               <p className="text-gray-300">
                 <i className="material-icons align-middle mr-2 text-purple-500">location_on</i>
@@ -149,22 +118,51 @@ const Profile: FC = () => {
                 })}
               </p>
             </div>
+          </div>
+        </div>
 
-            {/* Stats Section - KPI Cards */}
-            <div className="grid grid-cols-3 gap-6 mt-8">
-              <div className="bg-gray-800 p-6 rounded-lg">
-                <div className="text-3xl font-bold">{stats?.burns || 0}</div>
-                <div className="text-gray-400 text-sm">Burns</div>
-              </div>
-              <div className="bg-gray-800 p-6 rounded-lg">
-                <div className="text-3xl font-bold">{stats?.avgGrade || '--'}</div>
-                <div className="text-gray-400 text-sm">Average Grade</div>
-              </div>
-              <div className="bg-gray-800 p-6 rounded-lg">
-                <div className="text-3xl font-bold">{stats?.totalPoints || 0}</div>
-                <div className="text-gray-400 text-sm">Total Points</div>
-              </div>
-            </div>
+        {/* Button Row */}
+        <div className="flex gap-3 mb-8">
+          {isOwnProfile && (
+            <button 
+              className="flex-1 btn bg-purple-600 text-white px-4 py-3 rounded-lg"
+              onClick={() => navigate('/settings')}
+            >
+              <i className="material-icons mr-2">edit</i>
+              Edit Profile
+            </button>
+          )}
+          <button 
+            className="flex-1 btn bg-purple-600 text-white px-4 py-3 rounded-lg"
+            onClick={handleShare}
+          >
+            <i className="material-icons mr-2">share</i>
+            Share Profile
+          </button>
+          {isOwnProfile && (
+            <button 
+              className="flex-1 btn bg-gray-600 text-white px-4 py-3 rounded-lg"
+              onClick={() => navigate('/logout')}
+            >
+              <i className="material-icons mr-2">logout</i>
+              Logout
+            </button>
+          )}
+        </div>
+
+        {/* KPI Cards Row */}
+        <div className="grid grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg text-center">
+            <div className="text-3xl font-bold">{stats?.burns || 0}</div>
+            <div className="text-gray-400 text-sm">Burns</div>
+          </div>
+          <div className="bg-gray-800 p-6 rounded-lg text-center">
+            <div className="text-3xl font-bold">{stats?.avgGrade || '--'}</div>
+            <div className="text-gray-400 text-sm">Average Grade</div>
+          </div>
+          <div className="bg-gray-800 p-6 rounded-lg text-center">
+            <div className="text-3xl font-bold">{stats?.totalPoints || 0}</div>
+            <div className="text-gray-400 text-sm">Total Points</div>
           </div>
         </div>
       </div>
