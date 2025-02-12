@@ -34,7 +34,11 @@ router.get('/leaderboard', async (req, res) => {
       SELECT 
         u.username,
         COUNT(s.id) as total_burns,
-        COUNT(CASE WHEN s.status = true THEN 1 END) as successful_sends,
+        AVG(CASE 
+          WHEN s.grade ~ '^5\\.\\d+[a-d]?$' 
+          THEN CAST(SUBSTRING(s.grade, 3, 2) AS DECIMAL) 
+          ELSE NULL 
+        END) as avg_grade,
         SUM(s.points) as total_points
       FROM users u
       LEFT JOIN sends s ON u.id = s.user_id
@@ -43,13 +47,12 @@ router.get('/leaderboard', async (req, res) => {
       LIMIT 100
     `);
 
-    const leaderboard = result.rows.map(row => ({
+    const leaderboard = result.rows.map((row, index) => ({
+      rank: index + 1,
       username: row.username || 'Anonymous',
-      totalBurns: parseInt(row.total_burns) || 0,
-      sendRate: row.successful_sends && row.total_burns 
-        ? `${Math.round((row.successful_sends / row.total_burns) * 100)}%` 
-        : '0%',
-      totalPoints: parseInt(row.total_points) || 0
+      burns: parseInt(row.total_burns) || 0,
+      grade: row.avg_grade ? `5.${Math.round(row.avg_grade * 10) / 10}` : 'N/A',
+      points: parseInt(row.total_points) || 0
     }));
 
     // Add cache headers
