@@ -1,22 +1,27 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Error from '../components/Error';
 import { ApiError, QueryError } from '../types';
 
+interface Attempt {
+  route: string;
+  tries: number;
+  status: 'Sent' | 'Tried';
+  stars: number;
+  points: number;
+}
+
 interface Session {
   id: string;
   userId: number;
-  duration: number;
   location: string;
-  totalClimbs: number;
+  totalTries: number;
   totalSends: number;
   totalPoints: number;
-  avgGrade: string;
-  grades: string[];
-  successRate: number;
   createdAt: string;
+  attempts: Attempt[];
 }
 
 const Sessions: FC = () => {
@@ -64,19 +69,12 @@ const Sessions: FC = () => {
 
   const sessions = data || [];
 
-  const formatDuration = (hours: number): string => {
-    if (hours < 1) {
-      return `${Math.round(hours * 60)} min`;
-    }
-    return `${Math.round(hours)} hr`;
-  };
-
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      month: 'numeric',
+      day: 'numeric',
+      year: '2-digit'
     });
   };
 
@@ -93,39 +91,52 @@ const Sessions: FC = () => {
           <div key={session.id} className="mb-8 bg-bg-card rounded-lg shadow-lg p-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">{formatDate(session.createdAt)}</h2>
-              <span className="text-text-muted">
-                Duration: {formatDuration(session.duration)}
-              </span>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div className="bg-bg-primary p-4 rounded-lg">
-                <div className="text-text-muted text-sm mb-1">Total Climbs</div>
-                <div className="text-2xl font-bold">{session.totalClimbs}</div>
+                <div className="text-text-muted text-sm mb-1">Tries</div>
+                <div className="text-2xl font-bold text-white">{session.totalTries}</div>
               </div>
               <div className="bg-bg-primary p-4 rounded-lg">
                 <div className="text-text-muted text-sm mb-1">Sends</div>
-                <div className="text-2xl font-bold text-success">{session.totalSends}</div>
-              </div>
-              <div className="bg-bg-primary p-4 rounded-lg">
-                <div className="text-text-muted text-sm mb-1">Success Rate</div>
-                <div className="text-2xl font-bold">{session.successRate}%</div>
+                <div className="text-2xl font-bold text-white">{session.totalSends}</div>
               </div>
               <div className="bg-bg-primary p-4 rounded-lg">
                 <div className="text-text-muted text-sm mb-1">Points</div>
-                <div className="text-2xl font-bold text-solo-purple">{session.totalPoints}</div>
+                <div className="text-2xl font-bold text-white">{session.totalPoints}</div>
               </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {session.grades.map((grade) => (
-                <span 
-                  key={grade} 
-                  className="bg-bg-primary px-3 py-1 rounded-full text-sm"
-                >
-                  {grade}
-                </span>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-bg-primary">
+                    <th className="py-2 px-4">Route</th>
+                    <th className="py-2 px-4">Tries</th>
+                    <th className="py-2 px-4">Status</th>
+                    <th className="py-2 px-4">Stars</th>
+                    <th className="py-2 px-4">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {session.attempts.map((attempt, index) => (
+                    <tr key={index} className="border-b border-bg-primary">
+                      <td className="py-2 px-4">{attempt.route}</td>
+                      <td className="py-2 px-4">{attempt.tries}</td>
+                      <td className="py-2 px-4">
+                        <span className={`inline-block px-2 py-1 rounded ${
+                          attempt.status === 'Sent' ? 'bg-success/20' : 'bg-warning/20'
+                        }`}>
+                          {attempt.status}
+                        </span>
+                      </td>
+                      <td className="py-2 px-4">{'★'.repeat(attempt.stars)}</td>
+                      <td className="py-2 px-4">{attempt.points}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         ))

@@ -14,33 +14,35 @@ router.get('/', async (req, res) => {
     await client.connect();
     console.log('[Sessions] Connected to database, fetching sessions...');
 
-    // For now, return mock data since we're still implementing the database schema
+    // Updated mock data with detailed attempts
     const mockSessions = [
       {
         id: '1',
         userId: 1,
-        duration: 2.5,
         location: 'Brooklyn Boulders',
-        totalClimbs: 15,
+        totalTries: 15,
         totalSends: 10,
         totalPoints: 1250,
-        avgGrade: 'V4',
-        grades: ['V3', 'V4', 'V5'],
-        successRate: 66,
-        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() // yesterday
+        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // yesterday
+        attempts: [
+          { route: 'Blue 45', tries: 3, status: 'Sent', stars: 4, points: 150 },
+          { route: 'Red 23', tries: 2, status: 'Sent', stars: 5, points: 200 },
+          { route: 'Black 12', tries: 4, status: 'Tried', stars: 3, points: 100 },
+        ]
       },
       {
         id: '2',
         userId: 1,
-        duration: 1.5,
         location: 'Brooklyn Boulders',
-        totalClimbs: 8,
+        totalTries: 8,
         totalSends: 6,
         totalPoints: 750,
-        avgGrade: 'V3',
-        grades: ['V2', 'V3', 'V4'],
-        successRate: 75,
-        createdAt: new Date().toISOString() // today
+        createdAt: new Date().toISOString(), // today
+        attempts: [
+          { route: 'Yellow 33', tries: 2, status: 'Sent', stars: 5, points: 250 },
+          { route: 'Green 17', tries: 3, status: 'Tried', stars: 4, points: 150 },
+          { route: 'Pink 28', tries: 1, status: 'Sent', stars: 3, points: 100 },
+        ]
       }
     ];
 
