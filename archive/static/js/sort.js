@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', function() {
     const tables = document.querySelectorAll('.table');
     
@@ -46,12 +45,13 @@ document.addEventListener('DOMContentLoaded', function() {
 function getGradePoints(grade) {
     if (!grade) return 0;
     const [_, mainGrade, subGrade] = grade.match(/5\.(\d+)([a-d])?/) || [null, '0', ''];
-    
+
     const basePoints = {
-        '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
-        '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
+        '1': 10, '2': 11, '3': 12, '4': 13, '5': 14,  // Australian grades 10-14
+        '6': 15, '7': 16, '8': 17, '9': 18, '10': 19, // Australian grades 15-19
+        '11': 22, '12': 27, '13': 31, '14': 35, '15': 39 // Australian grades 22-39
     };
-    
+
     const subGradeMultiplier = {
         'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
     };
@@ -63,7 +63,7 @@ function getGradePoints(grade) {
 function calculatePoints(grade, stars, isSent, tries) {
     const basePoints = getGradePoints(grade);
     const starMultiplier = Math.max(0.1, stars / 3);
-    const statusMultiplier = isSent ? 1 : 0.5;
+    const statusMultiplier = isSent ? 1 : 0.5;  // Half points for attempts
     const triesMultiplier = Math.max(0.1, 1 / Math.sqrt(tries));
 
     return Math.round(basePoints * starMultiplier * statusMultiplier * triesMultiplier);
