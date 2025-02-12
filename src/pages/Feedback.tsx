@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import Error from '../components/Error';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { feedbackService, type FeedbackSubmission } from '../services/feedbackService';
 
 const categories = [
@@ -56,9 +57,17 @@ const Feedback: React.FC = () => {
     category: '',
   });
 
-  const { data: items = [], isLoading, isError, error, refetch } = useQuery({
+  const { 
+    data: items = [], 
+    isLoading, 
+    isError, 
+    error,
+    refetch 
+  } = useQuery({
     queryKey: ['feedback', sort],
-    queryFn: () => feedbackService.getFeedback(sort)
+    queryFn: () => feedbackService.getFeedback(sort),
+    retry: 1,
+    staleTime: 30000, // Consider data fresh for 30 seconds
   });
 
   const submitFeedback = useMutation({
@@ -71,22 +80,34 @@ const Feedback: React.FC = () => {
       });
       refetch();
       toast.success('Feedback submitted successfully');
+    },
+    onError: (error: Error) => {
+      console.error('Failed to submit feedback:', error);
+      toast.error('Failed to submit feedback. Please try again.');
     }
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.category) {
+      toast.error('Please select a category');
+      return;
+    }
     submitFeedback.mutate(form);
   };
 
   if (isLoading) {
-    return <div className="text-center mt-4">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (isError) {
     return (
       <Error 
-        message={error?.message || "An unexpected error occurred"}
+        message={error?.message || "Failed to load feedback"}
         type="page"
         retry={() => refetch()}
       />
@@ -167,21 +188,21 @@ const Feedback: React.FC = () => {
               <AccordionItem
                 question="What do the stats metrics mean?"
                 answer={`Your statistics show various aspects of your climbing progress:
-• Send Rate: The percentage of successful sends out of total routes attempted
-• Average Grade: The typical difficulty level you climb
-• Points: Your overall achievement score based on your routes
-• Sessions: Groups of routes climbed within the same timeframe
-• Star Rating: Your performance rating based on successful sends`}
+                  • Send Rate: The percentage of successful sends out of total routes attempted
+                  • Average Grade: The typical difficulty level you climb
+                  • Points: Your overall achievement score based on your routes
+                  • Sessions: Groups of routes climbed within the same timeframe
+                  • Star Rating: Your performance rating based on successful sends`}
               />
               <AccordionItem
                 question="What are the dimensions of a Send?"
                 answer={`When logging a Send, you'll record:
-• Grade: The difficulty rating of the route
-• Color: The hold color used for the route
-• Type: Whether it's a Send (success) or Try (attempt)
-• Stars: Your rating of the route quality
-• Date: When you climbed the route
-• Session: Which climbing session it belongs to`}
+                  • Grade: The difficulty rating of the route
+                  • Color: The hold color used for the route
+                  • Type: Whether it's a Send (success) or Try (attempt)
+                  • Stars: Your rating of the route quality
+                  • Date: When you climbed the route
+                  • Session: Which climbing session it belongs to`}
               />
             </div>
           </div>
