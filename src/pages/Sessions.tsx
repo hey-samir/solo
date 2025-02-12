@@ -124,7 +124,7 @@ const Sessions: FC = () => {
                 <thead>
                   <tr className="border-b border-bg-primary">
                     <th className="py-1 px-2 text-purple-400 w-1/4">Route</th>
-                    <th className="py-1 px-2 text-purple-400 w-12">Attempts</th>
+                    <th className="py-1 px-2 text-purple-400 w-12">Burns</th>
                     <th className="py-1 px-2 text-purple-400 w-16">Status</th>
                     <th className="py-1 px-2 text-purple-400 w-12">Stars</th>
                     <th className="py-1 px-2 text-purple-400 w-16">Points</th>
