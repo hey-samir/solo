@@ -18,10 +18,9 @@ import Standings from './pages/Standings'
 import Sends from './pages/Sends'
 import Sessions from './pages/Sessions'
 import Stats from './pages/Stats'
-import Profile from './pages/Profile'
+import Solo from './pages/Solo'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
-import Settings from './pages/Settings'
 
 const Router: React.FC = () => {
   const { flags, isLoading, error } = useFeatureFlags()
@@ -70,12 +69,12 @@ const Router: React.FC = () => {
             <Route path="squads" element={<Squads />} />
           )}
 
-          {/* Settings is always enabled when user is authenticated */}
+          {/* Solo page replaces Settings and Profile */}
           <Route
-            path="settings"
+            path="solo"
             element={
               <ProtectedRoute>
-                <Settings />
+                <Solo />
               </ProtectedRoute>
             }
           />
@@ -111,11 +110,7 @@ const Router: React.FC = () => {
             />
           )}
 
-          {/* Profile Routes */}
-          <Route path="profile">
-            <Route index element={<Profile />} />
-            <Route path=":username" element={<Profile />} />
-          </Route>
+          {/* Profile Routes -  Removed as Profile functionality is presumably in Solo */}
 
           {/* Error Routes */}
           <Route path="server-error" element={<ServerError code={500} message="Internal Server Error" />} />

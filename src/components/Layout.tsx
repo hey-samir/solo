@@ -19,7 +19,13 @@ const Layout: React.FC = () => {
         </div>
       )}
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8" style={{ marginTop: '66px' }}>
+      <main 
+        className="flex-grow container mx-auto px-4 py-8" 
+        style={{ 
+          marginTop: isStaging ? '80px' : '48px',  
+          marginBottom: flags?.showBottomNav ? '60px' : '0' 
+        }}
+      >
         <Outlet />
       </main>
       {flags?.showBottomNav && <Navbar />}

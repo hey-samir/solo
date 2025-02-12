@@ -1,8 +1,9 @@
 import React from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 export default function Navbar(): React.ReactElement {
   const location = useLocation()
+  const navigate = useNavigate()
 
   return (
     <nav className="navbar fixed-bottom">
@@ -55,11 +56,19 @@ export default function Navbar(): React.ReactElement {
           </li>
           <li className="nav-item">
             <Link 
-              to="/settings" 
-              className={`nav-link ${location.pathname === '/settings' ? 'active' : ''}`}
-              aria-label="Settings"
+              to="/solo" 
+              className={`nav-link ${['/solo', '/settings', '/profile'].includes(location.pathname) ? 'active' : ''}`}
+              aria-label="Solo"
             >
-              <i className="material-icons" style={{ fontSize: '28px' }}>settings</i>
+              <img 
+                src="/assets/images/gray-solo-av.png" 
+                alt="Solo" 
+                style={{ 
+                  width: '28px', 
+                  height: '28px',
+                  opacity: ['/solo', '/settings', '/profile'].includes(location.pathname) ? 1 : 0.7 
+                }} 
+              />
             </Link>
           </li>
         </ul>
