@@ -83,17 +83,11 @@ const Sessions: FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Your Climbing Sessions</h1>
+      <h1 className="text-2xl font-bold mb-6">Sessions</h1>
 
       {sessions.length === 0 ? (
         <div className="text-center my-8">
-          <h4 className="text-xl text-text-muted mb-4">Enter your first climb to see Sessions</h4>
-          <a 
-            href="/sends" 
-            className="inline-block bg-solo-purple text-white px-6 py-2 rounded-lg hover:bg-solo-purple-light transition"
-          >
-            Back to Sends
-          </a>
+          <h4 className="text-xl text-text-muted mb-4">Log a send to see your Session</h4>
         </div>
       ) : (
         sessions.map((session) => (
