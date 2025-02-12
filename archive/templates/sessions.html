@@ -66,6 +66,8 @@
                         <td>{{ climb.rating }}/5</td>
                         <td class="climb-points" 
                             data-grade="{{ route.grade }}" 
+                            data-points="{{ climb.points }}"
+                            data-tried-points="{{ climb.points // 2 }}"
                             data-rating="{{ climb.rating }}" 
                             data-status="{{ climb.status|tojson }}" 
                             data-tries="{{ climb.tries }}">
@@ -83,6 +85,7 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/sort.js') }}"></script>
+<script src="{{ url_for('static', filename='js/points.js') }}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Convert all session dates to local timezone
