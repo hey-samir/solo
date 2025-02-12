@@ -5,20 +5,16 @@ import { toast } from 'react-hot-toast'
 import { Input } from '../components/ui/input'
 import '../styles/profile.css'
 
-// Avatar mapping with direct public URLs
-const avatars = {
-  gray: '/avatars/gray-solo-av.png',
-  white: '/avatars/white-solo-av.png',
-  black: '/avatars/black-solo-av.png',
-  purple: '/avatars/purple-solo-av.png'
-}
+// Avatar mapping with public assets path
+const avatarColors = ['gray', 'white', 'black', 'purple'] as const
+type AvatarColor = typeof avatarColors[number]
 
 const Solo: FC = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
   const [username, setUsername] = useState(user?.username || '')
-  const [selectedAvatar, setSelectedAvatar] = useState<string>(user?.profilePhoto || 'gray')
+  const [selectedAvatar, setSelectedAvatar] = useState<AvatarColor>('gray')
 
   const handleLogout = async () => {
     try {
@@ -56,7 +52,7 @@ const Solo: FC = () => {
           <div className="w-32 flex-shrink-0">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2">
-                {Object.entries(avatars).map(([color, path]) => (
+                {avatarColors.map((color) => (
                   <button
                     key={color}
                     onClick={() => setSelectedAvatar(color)}
@@ -65,7 +61,7 @@ const Solo: FC = () => {
                     }`}
                   >
                     <img
-                      src={path}
+                      src={`/assets/images/avatars/${color}-solo-av.png`}
                       alt={`${color} avatar`}
                       className="w-full h-auto"
                     />
@@ -74,7 +70,7 @@ const Solo: FC = () => {
               </div>
             ) : (
               <img 
-                src={avatars[selectedAvatar as keyof typeof avatars]}
+                src={`/assets/images/avatars/${selectedAvatar}-solo-av.png`}
                 alt={`${user?.username}'s profile`}
                 className="profile-avatar"
               />
