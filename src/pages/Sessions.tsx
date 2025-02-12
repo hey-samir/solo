@@ -115,11 +115,11 @@ const Sessions: FC = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-bg-primary">
-                    <th className="py-2 px-4 text-purple-400">Route</th>
-                    <th className="py-2 px-4 text-purple-400">Tries</th>
-                    <th className="py-2 px-4 text-purple-400">Status</th>
-                    <th className="py-2 px-4 text-purple-400">Stars</th>
-                    <th className="py-2 px-4 text-purple-400">Points</th>
+                    <th className="py-2 px-4 text-purple-400 w-1/4">Route</th>
+                    <th className="py-2 px-4 text-purple-400 w-16">Tries</th>
+                    <th className="py-2 px-4 text-purple-400 w-20">Status</th>
+                    <th className="py-2 px-4 text-purple-400 w-16">Stars</th>
+                    <th className="py-2 px-4 text-purple-400 w-24">Points</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -134,8 +134,8 @@ const Sessions: FC = () => {
                           {attempt.status}
                         </span>
                       </td>
-                      <td className="py-2 px-4">{'★'.repeat(attempt.stars)}</td>
-                      <td className="py-2 px-4">{attempt.points}</td>
+                      <td className="py-2 px-4">{attempt.stars}</td>
+                      <td className="py-2 px-4 font-medium">{attempt.points}</td>
                     </tr>
                   ))}
                 </tbody>

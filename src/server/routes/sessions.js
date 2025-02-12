@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
     await client.connect();
     console.log('[Sessions] Connected to database, fetching sessions...');
 
-    // Updated mock data with YDS grades
+    // Updated mock data with correct point values based on grade table
     const mockSessions = [
       {
         id: '1',
@@ -22,12 +22,12 @@ router.get('/', async (req, res) => {
         location: 'Brooklyn Boulders',
         totalTries: 15,
         totalSends: 10,
-        totalPoints: 1250,
+        totalPoints: 180, // Sum of all points including tried routes
         createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // yesterday
         attempts: [
-          { route: 'Blue: 5.10a', tries: 3, status: 'Sent', stars: 4, points: 150 },
-          { route: 'Red: 5.11b', tries: 2, status: 'Sent', stars: 5, points: 200 },
-          { route: 'Black: 5.11c', tries: 4, status: 'Tried', stars: 3, points: 100 },
+          { route: 'Blue: 5.10a', tries: 3, status: 'Sent', stars: '4/5', points: 50 },
+          { route: 'Red: 5.11b', tries: 2, status: 'Sent', stars: '5/5', points: 70 },
+          { route: 'Black: 5.11c', tries: 4, status: 'Tried', stars: '3/5', points: 37.5 }, // 0.5 * 75 for tried
         ]
       },
       {
@@ -36,12 +36,12 @@ router.get('/', async (req, res) => {
         location: 'Brooklyn Boulders',
         totalTries: 8,
         totalSends: 6,
-        totalPoints: 750,
+        totalPoints: 140, // Sum of all points including tried routes
         createdAt: new Date().toISOString(), // today
         attempts: [
-          { route: 'Yellow: 5.9+', tries: 2, status: 'Sent', stars: 5, points: 250 },
-          { route: 'Green: 5.10b', tries: 3, status: 'Tried', stars: 4, points: 150 },
-          { route: 'Pink: 5.10c', tries: 1, status: 'Sent', stars: 3, points: 100 },
+          { route: 'Yellow: 5.9+', tries: 2, status: 'Sent', stars: '5/5', points: 45 },
+          { route: 'Green: 5.10b', tries: 3, status: 'Tried', stars: '4/5', points: 27.5 }, // 0.5 * 55 for tried
+          { route: 'Pink: 5.10c', tries: 1, status: 'Sent', stars: '3/5', points: 60 },
         ]
       }
     ];
