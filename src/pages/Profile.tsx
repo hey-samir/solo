@@ -4,7 +4,6 @@ import { useQuery } from '@tanstack/react-query'
 import { toast } from 'react-hot-toast'
 import client from '../api/client'
 import { useAuth } from '../hooks/useAuth'
-import { calculatePoints } from '../utils/points'
 import type { User } from '../types'
 
 interface Stats {
@@ -96,7 +95,7 @@ const Profile: FC = () => {
           {/* Column 1: Avatar */}
           <div className="w-32">
             <img 
-              src={user.profilePhoto || '/assets/avatars/gray-solo-av.png'}
+              src={`/assets/avatars/${user.profilePhoto || 'gray-solo-av.png'}`}
               alt={`${user.username}'s profile`}
               className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
             />
@@ -108,7 +107,7 @@ const Profile: FC = () => {
             <div className="flex flex-col gap-2">
               <p className="text-gray-300">
                 <i className="material-icons align-middle mr-2 text-purple-500">location_on</i>
-                {user.homeGym || 'Movement Gowanus'}
+                Movement Gowanus
               </p>
               <p className="text-gray-300">
                 <i className="material-icons align-middle mr-2 text-purple-500">calendar_today</i>
@@ -152,17 +151,23 @@ const Profile: FC = () => {
 
         {/* KPI Cards Row */}
         <div className="grid grid-cols-3 gap-6">
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <div className="text-3xl font-bold">{stats?.burns || 0}</div>
-            <div className="text-gray-400 text-sm">Burns</div>
+          <div className="feature-card kpi-card p-6 rounded-lg text-center">
+            <div className="card-body">
+              <div className="text-3xl font-bold">{stats?.burns || 0}</div>
+              <div className="text-gray-400 text-sm">Burns</div>
+            </div>
           </div>
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <div className="text-3xl font-bold">{stats?.avgGrade || '--'}</div>
-            <div className="text-gray-400 text-sm">Average Grade</div>
+          <div className="feature-card kpi-card p-6 rounded-lg text-center">
+            <div className="card-body">
+              <div className="text-3xl font-bold">{stats?.avgGrade || '--'}</div>
+              <div className="text-gray-400 text-sm">Average Grade</div>
+            </div>
           </div>
-          <div className="bg-gray-800 p-6 rounded-lg text-center">
-            <div className="text-3xl font-bold">{stats?.totalPoints || 0}</div>
-            <div className="text-gray-400 text-sm">Total Points</div>
+          <div className="feature-card kpi-card p-6 rounded-lg text-center">
+            <div className="card-body">
+              <div className="text-3xl font-bold">{stats?.totalPoints || 0}</div>
+              <div className="text-gray-400 text-sm">Total Points</div>
+            </div>
           </div>
         </div>
       </div>

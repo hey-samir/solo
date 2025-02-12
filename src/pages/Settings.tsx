@@ -1,65 +1,112 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Card } from '../components/ui/card'
-import { Link } from 'react-router-dom'
+import { Input } from '../components/ui/input'
+import toast from 'react-hot-toast'
+import client from '../api/client'
 
 const Settings: React.FC = () => {
-  const { user, logout } = useAuth()
+  const { user, logout, refreshUser } = useAuth()
+  const navigate = useNavigate()
+  const [username, setUsername] = useState(user?.username || '')
+  const [selectedAvatar, setSelectedAvatar] = useState<string>(user?.profilePhoto || 'gray-solo-av.png')
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const handleProfileUpdate = async () => {
+    try {
+      setIsUpdating(true)
+      await client.put('/api/users/profile', {
+        username,
+        profilePhoto: selectedAvatar
+      })
+      await refreshUser()
+      toast.success('Profile updated successfully')
+    } catch (error) {
+      console.error('Failed to update profile:', error)
+      toast.error('Failed to update profile')
+    } finally {
+      setIsUpdating(false)
+    }
+  }
 
   const handleLogout = async () => {
     try {
       await logout()
+      navigate('/login')
     } catch (error) {
       console.error('Logout failed:', error)
+      toast.error('Failed to logout')
     }
   }
 
-  return (
-    <div className="container py-4">
-      <h1 className="text-white mb-4">Settings</h1>
+  const avatarOptions = [
+    'gray-solo-av.png',
+    'white-solo-av.png',
+    'black-solo-av.png',
+    'purple-solo-av.png'
+  ]
 
-      <Card className="mb-4">
-        <div className="p-3">
-          <h5 className="text-white mb-3">Account</h5>
-          {user ? (
-            <div className="d-flex flex-column gap-2">
-              <Link to="/profile" className="text-white text-decoration-none">
-                <i className="material-icons align-middle me-2">person</i>
-                Profile
-              </Link>
-              <Link to="/about" className="text-white text-decoration-none">
-                <i className="material-icons align-middle me-2">info</i>
-                About
-              </Link>
-              <Link to="/feedback" className="text-white text-decoration-none">
-                <i className="material-icons align-middle me-2">feedback</i>
-                Feedback
-              </Link>
-              <Link to="/pricing" className="text-white text-decoration-none">
-                <i className="material-icons align-middle me-2">stars</i>
-                Solo Pro
-              </Link>
-              <button 
-                onClick={handleLogout}
-                className="btn btn-link text-white text-decoration-none p-0 text-start"
+  return (
+    <div className="container max-w-2xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold text-white mb-6">Settings</h1>
+
+      <Card className="bg-gray-800 mb-6">
+        <div className="p-6">
+          <h2 className="text-xl font-semibold text-white mb-4">Profile Settings</h2>
+
+          <div className="mb-6">
+            <label className="block text-white mb-2">Username</label>
+            <Input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full bg-gray-700 text-white"
+              placeholder="Enter username"
+              disabled={isUpdating}
+            />
+          </div>
+
+          <h3 className="text-lg font-semibold text-white mb-4">Profile Photo</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            {avatarOptions.map((avatar) => (
+              <button
+                key={avatar}
+                onClick={() => setSelectedAvatar(avatar)}
+                className={`relative rounded-full overflow-hidden border-4 ${
+                  selectedAvatar === avatar ? 'border-purple-600' : 'border-transparent'
+                }`}
+                disabled={isUpdating}
               >
-                <i className="material-icons align-middle me-2">logout</i>
-                Logout
+                <img
+                  src={`/assets/avatars/${avatar}`}
+                  alt={`Avatar option ${avatar}`}
+                  className="w-full h-auto"
+                />
               </button>
-            </div>
-          ) : (
-            <Link to="/login" className="text-white text-decoration-none">
-              <i className="material-icons align-middle me-2">login</i>
-              Login
-            </Link>
-          )}
+            ))}
+          </div>
+
+          <button
+            onClick={handleProfileUpdate}
+            disabled={isUpdating}
+            className="w-full btn bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg flex items-center justify-center mb-4"
+          >
+            <i className="material-icons mr-2">save</i>
+            Save Changes
+          </button>
         </div>
       </Card>
 
-      <Card>
-        <div className="p-3">
-          <h5 className="text-white mb-3">Preferences</h5>
-          <p className="text-white-50">More settings coming soon...</p>
+      <Card className="bg-gray-800 mb-6">
+        <div className="p-6">
+          <button
+            onClick={handleLogout}
+            className="w-full btn bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg flex items-center justify-center"
+          >
+            <i className="material-icons mr-2">logout</i>
+            Logout
+          </button>
         </div>
       </Card>
     </div>

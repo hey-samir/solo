@@ -8,27 +8,23 @@
   /* Background Colors */
   --bg-primary: #1e2638;
   --bg-card: #4A5D79;
+  --bg-kpi: #4A5D79;  /* Added KPI background color */
   --bg-flash: var(--bg-card);
   --bg-slider-track: #343a40;
-
-  /* Text Colors */
-  --text-primary: #ffffff;
-  --text-primary-rgb: 255, 255, 255;
-  --text-secondary: rgba(var(--text-primary-rgb), 0.6);
-  --text-muted: rgba(var(--text-primary-rgb), 0.4);
-
-  /* Border Colors */
-  --border-color: rgba(var(--text-primary-rgb), 0.1);
-  --border-color-active: rgba(var(--text-primary-rgb), 0.2);
 
   /* Component Colors */
   --bg-button-hover: rgba(var(--text-primary-rgb), 0.1);
   --bg-button-gradient: linear-gradient(135deg, var(--solo-purple) 0%, var(--solo-purple-light) 100%);
   --button-primary-bg: var(--solo-purple);
   --button-primary-text: var(--text-primary);
+  --button-secondary-bg: var(--bg-slider-track);
+  --button-secondary-text: var(--text-primary);
 
-  /* Sizing Variables */
-  --navbar-height: 60px;
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-primary-rgb: 255, 255, 255;
+  --text-secondary: rgba(var(--text-primary-rgb), 0.6);
+  --text-muted: rgba(var(--text-primary-rgb), 0.4);
 }
 
 /* Base Styles */
@@ -55,7 +51,12 @@ body,
 }
 
 /* Header and Navigation */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-primary);
 }
 
@@ -172,14 +173,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-link {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 0.75rem 1rem;
-    opacity: var(--opacity-inactive);
-    transition: opacity 0.2s ease;
-    text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  opacity: var(--opacity-inactive);
+  transition: opacity 0.2s ease;
+  text-decoration: none;
 }
 
 .nav-link.active {
@@ -193,12 +194,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Sidebar Menu */
-
-
 .offcanvas-backdrop {
   background-color: rgba(0, 0, 0, 0.5);
 }
-
 
 .list-group-item {
   padding: 0.75rem 1rem;
@@ -359,4 +357,59 @@ h1, h2, h3, h4, h5, h6 {
 /* Error Buttons */
 .error-retry {
   @apply text-purple-600 hover:text-purple-700 transition-colors;
+}
+
+/* Update KPI card styles */
+.bg-gray-800 {
+  background-color: var(--bg-kpi) !important;
+}
+
+/* KPI Cards - Specific styles with high specificity */
+.feature-card.kpi-card,
+div.feature-card.kpi-card {
+  background-color: var(--bg-kpi) !important;
+  border-radius: 8px;
+  padding: 0.25rem;
+  margin-bottom: 0.25rem;
+  height: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: none !important;
+}
+
+.feature-card.kpi-card *,
+div.feature-card.kpi-card * {
+  background-color: transparent !important;
+}
+
+.feature-card.kpi-card .card-body,
+div.feature-card.kpi-card .card-body {
+  padding: 0.25rem;
+  background-color: transparent !important;
+}
+
+/* Button Hover States - Enhanced specificity */
+.btn.bg-purple-600 {
+  background-color: var(--solo-purple) !important;
+}
+
+.btn.bg-purple-600:hover {
+  background-color: var(--solo-purple-light) !important;
+  opacity: 1;
+}
+
+.btn.bg-gray-600 {
+  background-color: #374151 !important;
+}
+
+.btn.bg-gray-600:hover {
+  background-color: #4B5563 !important;
+  opacity: 1;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  opacity: 1;
 }
