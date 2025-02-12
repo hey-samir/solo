@@ -4,7 +4,18 @@ const router = express.Router();
 
 // Get leaderboard data
 router.get('/', async (req, res) => {
-  const client = createClient();
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.error('[Leaderboard] Error: No database connection string provided');
+    return res.status(500).json({ 
+      error: 'Database configuration error',
+      details: 'No connection string available'
+    });
+  }
+
+  const client = createClient({
+    connectionString: connectionString
+  });
 
   try {
     await client.connect();
@@ -35,16 +46,17 @@ router.get('/', async (req, res) => {
     // Add cache headers
     res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
     res.set('X-Cache-Timestamp', new Date().toISOString());
+    res.set('X-Data-Source', 'database');
 
     res.json(leaderboard);
   } catch (error) {
-    console.error('[Leaderboard] Error:', error);
+    console.error('[Leaderboard] Database Error:', error);
     res.status(500).json({ 
       error: 'Failed to fetch leaderboard data',
       details: error.message
     });
   } finally {
-    await client.end();
+    await client.end().catch(console.error);
   }
 });
 
