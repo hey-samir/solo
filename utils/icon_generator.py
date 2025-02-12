@@ -1,4 +1,3 @@
-
 import os
 from PIL import Image, ImageDraw
 import logging
@@ -99,6 +98,55 @@ def generate_pwa_icons():
         logger.error(f"Error generating PWA icons: {str(e)}")
         return False
 
+def generate_avatar_set():
+    """Generate the set of avatar images for the application."""
+    try:
+        # Get absolute paths
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        source_path = os.path.join(current_dir, '..', 'attached_assets', 'solo-favicon bright.png')
+        output_dir = os.path.join(current_dir, '..', 'public', 'avatars')
+
+        # Create output directory
+        os.makedirs(output_dir, exist_ok=True)
+
+        # Define colors for different avatars
+        colors = {
+            'gray': (74, 93, 121),    # #4A5D79
+            'white': (255, 255, 255),  # #FFFFFF
+            'black': (0, 0, 0),        # #000000
+            'purple': (116, 66, 214)   # #7442D6
+        }
+
+        # Open source image
+        with Image.open(source_path) as img:
+            # Convert to RGBA
+            img = img.convert('RGBA')
+
+            # Generate each color variant
+            for color_name, color_rgb in colors.items():
+                # Create new image with desired color
+                colored = Image.new('RGBA', img.size, color_rgb + (255,))
+
+                # Create circular mask
+                mask = Image.new('L', img.size, 0)
+                draw = ImageDraw.Draw(mask)
+                draw.ellipse((0, 0) + img.size, fill=255)
+
+                # Apply mask to both images
+                output = Image.new('RGBA', img.size, (0, 0, 0, 0))
+                output.paste(colored, mask=mask)
+
+                # Save the avatar
+                output_path = os.path.join(output_dir, f'{color_name}-solo-av.png')
+                output.save(output_path, 'PNG', quality=95)
+                logger.info(f"Generated avatar: {output_path}")
+
+        return True
+    except Exception as e:
+        logger.error(f"Error generating avatars: {str(e)}")
+        return False
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     generate_pwa_icons()
+    generate_avatar_set()

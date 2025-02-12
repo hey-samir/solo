@@ -8,15 +8,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.btn.bg-purple-600 {
+  background-color: #7442d6;
 }
 
 .btn.bg-purple-600:hover {
-  background-color: #8B5CF6 !important;
+  background-color: #8B5CF6;
+  opacity: 1;
+}
+
+.btn.bg-gray-600 {
+  background-color: #4B5563;
 }
 
 .btn.bg-gray-600:hover {
-  background-color: #4B5563 !important;
+  background-color: #6B7280;
+  opacity: 1;
 }
 
 /* Profile specific styles */
@@ -57,4 +70,25 @@
   font-size: 0.875rem;
   color: #9CA3AF;
   margin-top: 0.25rem;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-field-label {
+  font-size: 0.875rem;
+  color: #9CA3AF;
+}
+
+.profile-field-value {
+  font-size: 1rem;
+  color: white;
 }
