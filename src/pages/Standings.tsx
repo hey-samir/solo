@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError, AxiosResponse } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
-import NotFound from './NotFound'
+import Error from '../components/Error'
 import type { Standing } from '../types'
 
 const Standings: FC = () => {
@@ -19,7 +19,6 @@ const Standings: FC = () => {
     queryKey: ['leaderboard'],
     queryFn: async () => {
       try {
-        // Update the endpoint to match the server route
         const response: AxiosResponse = await client.get('/api/auth/leaderboard')
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
@@ -37,7 +36,7 @@ const Standings: FC = () => {
   }
 
   if (error) {
-    return <NotFound />
+    return <Error message={error.message} type="page" />
   }
 
   return (

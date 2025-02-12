@@ -21,7 +21,7 @@ router.get('/current-user', (req, res) => {
 });
 
 // Get leaderboard data
-router.get('/auth/leaderboard', async (req, res) => {
+router.get('/leaderboard', async (req, res) => {
   const client = createClient({ connectionString: process.env.DATABASE_URL });
 
   try {

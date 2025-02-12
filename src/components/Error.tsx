@@ -21,11 +21,6 @@ const getClimbingErrorMessage = (message: string): string => {
     }
   }
 
-  // For development, append the original error message in debug mode
-  if (process.env.NODE_ENV === 'development') {
-    return `${defaultMessages.default}\n\nDebug details: ${message}`;
-  }
-
   return defaultMessages.default;
 };
 
@@ -41,16 +36,6 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
     }
   };
 
-  // Log detailed error information in development
-  React.useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.group('Error Details');
-      console.error('Original Error:', message);
-      console.error('Error Type:', type);
-      console.error('Stack:', new Error().stack);
-      console.groupEnd();
-    }
-  }, [message, type]);
 
   if (type === 'page') {
     return (
@@ -64,22 +49,20 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
             <div className="text-text-muted text-sm mb-6">
               Don't worry, even the best climbers take falls sometimes!
             </div>
-            <div className="flex gap-4">
+            <div className="flex justify-center gap-4 w-full">
               {retry && (
                 <button
                   onClick={retry}
-                  className="btn-solo-purple px-6 py-2 rounded-full text-sm font-medium"
-                  aria-label="Try again"
+                  className="flex-1 max-w-[200px] btn-solo-purple px-6 py-3 rounded-md text-sm font-medium"
                 >
-                  Try Another Send
+                  Try Again
                 </button>
               )}
               <button
                 onClick={handleBack}
-                className="bg-bg-kpi-card text-text-primary px-6 py-2 rounded-full text-sm font-medium hover:bg-opacity-80 transition-colors duration-200"
-                aria-label="Go back"
+                className="flex-1 max-w-[200px] bg-bg-card text-text-primary px-6 py-3 rounded-md hover:bg-opacity-80 transition-colors"
               >
-                Back to Base Camp
+                Back
               </button>
             </div>
           </div>
@@ -106,9 +89,9 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
             </button>
             <button
               onClick={handleBack}
-              className="bg-bg-kpi-card text-text-primary px-4 py-1.5 rounded-full text-xs font-medium hover:bg-opacity-80 transition-colors duration-200"
+              className="bg-bg-kpi-card text-text-primary px-4 py-1.5 rounded-full text-xs font-medium hover:bg-opacity-80 transition-colors"
             >
-              Go Back
+              Back
             </button>
           </div>
         )}
