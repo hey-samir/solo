@@ -25,7 +25,7 @@ export const points = pgTable('points', {
   id: serial('id').primaryKey(),
   grade: text('grade').notNull().unique(),
   points: integer('points').notNull(),
-  tried_points: integer('tried_points').notNull(), 
+  tried_points: integer('tried_points').notNull(),
   created_at: timestamp('created_at').defaultNow()
 });
 

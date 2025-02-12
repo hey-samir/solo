@@ -41,7 +41,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-// Points calculation system
+/**
+ * Average Grade Calculation Methodology:
+ * 1. Convert each grade to points using the Australian grading system
+ * 2. Sum all points
+ * 3. Divide by number of routes to get average points
+ * 4. Round to nearest point value in table
+ * 5. Convert point value back to grade
+ * 
+ * Example:
+ * Given: 5.4 (13pts), 5.10a (19pts), 5.13a (31pts)
+ * Sum = 63 points
+ * Average = 63 ÷ 3 = 21 points
+ * Closest grade = 5.11c/d (22 points)
+ */
+
 function getGradePoints(grade) {
     if (!grade) return 0;
     const [_, mainGrade, subGrade] = grade.match(/5\.(\d+)([a-d])?/) || [null, '0', ''];
