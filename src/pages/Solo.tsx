@@ -57,6 +57,9 @@ const Solo: FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Header */}
+      <h1 className="text-3xl font-bold mb-6 text-center">Solo</h1>
+
       <div className="max-w-4xl mx-auto">
         {/* Profile Table Layout */}
         <div className="flex items-start gap-8">
