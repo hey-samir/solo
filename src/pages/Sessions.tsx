@@ -4,7 +4,7 @@ import client from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Error from '../components/Error';
 import NotFound from './NotFound';
-import { ApiError, QueryError } from '../types';
+import { ApiError } from '../types';
 
 interface Attempt {
   route: string;
@@ -25,6 +25,10 @@ interface Session {
   attempts: Attempt[];
 }
 
+interface QueryError extends ApiError {
+  shouldShowNotFound?: boolean;
+}
+
 const Sessions: FC = () => {
   const { data, isLoading, error, refetch } = useQuery<Session[], QueryError>({
     queryKey: ['sessions'],
@@ -33,7 +37,7 @@ const Sessions: FC = () => {
         const response = await client.get('/sessions');
         console.log('Sessions response:', response.data);
         if (!response.data) {
-          throw new Error('No data received from server');
+          throw { message: 'No data received from server', status: 500 };
         }
         return Array.isArray(response.data) ? response.data : [];
       } catch (err: any) {
@@ -43,12 +47,12 @@ const Sessions: FC = () => {
             message: 'Page not found',
             status: 404,
             shouldShowNotFound: true
-          };
+          } as QueryError;
         }
         throw {
           message: err.response?.data?.error || 'Failed to load sessions',
           status: err.response?.status || 500
-        };
+        } as QueryError;
       }
     },
   });
@@ -119,27 +123,27 @@ const Sessions: FC = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-bg-primary">
-                    <th className="py-2 px-4 text-purple-400 w-1/4">Route</th>
-                    <th className="py-2 px-4 text-purple-400 w-16">Attempts</th>
-                    <th className="py-2 px-4 text-purple-400 w-20">Status</th>
-                    <th className="py-2 px-4 text-purple-400 w-16">Stars</th>
-                    <th className="py-2 px-4 text-purple-400 w-24">Points</th>
+                    <th className="py-1 px-2 text-purple-400 w-1/4">Route</th>
+                    <th className="py-1 px-2 text-purple-400 w-12">Attempts</th>
+                    <th className="py-1 px-2 text-purple-400 w-16">Status</th>
+                    <th className="py-1 px-2 text-purple-400 w-12">Stars</th>
+                    <th className="py-1 px-2 text-purple-400 w-16">Points</th>
                   </tr>
                 </thead>
                 <tbody>
                   {session.attempts.map((attempt, index) => (
                     <tr key={index} className="border-b border-bg-primary">
-                      <td className="py-2 px-4">{attempt.route}</td>
-                      <td className="py-2 px-4">{attempt.tries}</td>
-                      <td className="py-2 px-4">
-                        <span className={`inline-block px-2 py-1 rounded ${
+                      <td className="py-1 px-2">{attempt.route}</td>
+                      <td className="py-1 px-2">{attempt.tries}</td>
+                      <td className="py-1 px-2">
+                        <span className={`inline-block px-1 py-0.5 rounded ${
                           attempt.status === 'Sent' ? 'bg-success/20' : 'bg-warning/20'
                         }`}>
                           {attempt.status}
                         </span>
                       </td>
-                      <td className="py-2 px-4">{formatStars(attempt.stars)}</td>
-                      <td className="py-2 px-4 font-medium">{attempt.points}</td>
+                      <td className="py-1 px-2">{formatStars(attempt.stars)}</td>
+                      <td className="py-1 px-2 font-medium">{attempt.points}</td>
                     </tr>
                   ))}
                 </tbody>
