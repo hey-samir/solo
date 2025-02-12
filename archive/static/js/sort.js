@@ -50,10 +50,10 @@ document.addEventListener('DOMContentLoaded', function() {
  * 5. Convert point value back to grade
  * 
  * Example:
- * Given: 5.4 (13pts), 5.10a (19pts), 5.13a (31pts)
- * Sum = 63 points
- * Average = 63 ÷ 3 = 21 points
- * Closest grade = 5.11c/d (22 points)
+ * Given: 5.4 (130pts), 5.10a (190pts), 5.13a (310pts)
+ * Sum = 630 points
+ * Average = 630 ÷ 3 = 210 points
+ * Closest grade = 5.11c/d (220 points)
  */
 
 function getGradePoints(grade) {
@@ -61,9 +61,9 @@ function getGradePoints(grade) {
     const [_, mainGrade, subGrade] = grade.match(/5\.(\d+)([a-d])?/) || [null, '0', ''];
 
     const basePoints = {
-        '1': 10, '2': 11, '3': 12, '4': 13, '5': 14,  // Australian grades 10-14
-        '6': 15, '7': 16, '8': 17, '9': 18, '10': 19, // Australian grades 15-19
-        '11': 22, '12': 27, '13': 31, '14': 35, '15': 39 // Australian grades 22-39
+        '1': 100, '2': 110, '3': 120, '4': 130, '5': 140,  // Australian grades 10-14 * 10
+        '6': 150, '7': 160, '8': 170, '9': 180, '10': 190, // Australian grades 15-19 * 10
+        '11': 220, '12': 270, '13': 310, '14': 350, '15': 390 // Australian grades 22-39 * 10
     };
 
     const subGradeMultiplier = {
@@ -84,30 +84,19 @@ function calculatePoints(grade, stars, isSent, tries) {
 }
 
 // Update all point cells
-document.querySelectorAll('.climb-points').forEach(cell => {
-    try {
-        const grade = cell.dataset.grade;
-        const rating = parseInt(cell.dataset.rating) || 3;
-        const status = cell.dataset.status === 'true';
-        const tries = parseInt(cell.dataset.tries) || 1;
-        
-        const points = calculatePoints(grade, rating, status, tries);
-        cell.textContent = points;
-    } catch (error) {
-        console.error('Error calculating points:', error);
-        cell.textContent = '0';
-    }
-});
-
-// Update all point cells
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.climb-points').forEach(cell => {
-        const grade = cell.dataset.grade;
-        const rating = parseInt(cell.dataset.rating);
-        const status = JSON.parse(cell.dataset.status);
-        const tries = parseInt(cell.dataset.tries);
-        
-        const points = calculatePoints(grade, rating, status, tries);
-        cell.textContent = points;
+        try {
+            const grade = cell.dataset.grade;
+            const rating = parseInt(cell.dataset.rating) || 3;
+            const status = cell.dataset.status === 'true';
+            const tries = parseInt(cell.dataset.tries) || 1;
+
+            const points = calculatePoints(grade, rating, status, tries);
+            cell.textContent = points;
+        } catch (error) {
+            console.error('Error calculating points:', error);
+            cell.textContent = '0';
+        }
     });
 });
