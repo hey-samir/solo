@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError, AxiosResponse } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
-import NotFound from './NotFound'
+import { ServerError } from './ErrorPage'
 import type { Standing } from '../types'
 
 const Standings: FC = () => {
@@ -20,7 +20,7 @@ const Standings: FC = () => {
     queryFn: async () => {
       try {
         console.log('Fetching leaderboard data...');
-        const response: AxiosResponse = await client.get('/api/auth/leaderboard')
+        const response: AxiosResponse = await client.get('/api/leaderboard')
         console.log('Leaderboard response:', response.data);
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
@@ -40,7 +40,7 @@ const Standings: FC = () => {
 
   if (error) {
     console.error('Standings error:', error);
-    return <NotFound />
+    return <ServerError />
   }
 
   return (

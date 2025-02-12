@@ -5,6 +5,7 @@ const cors = require('cors');
 const apiRoutes = require('./routes');
 const featureFlags = require('./routes/feature-flags');
 const authRoutes = require('./routes/auth');
+const leaderboardRoutes = require('./routes/leaderboard');
 
 const app = express();
 
@@ -39,9 +40,10 @@ app.use(express.json());
 
 // Mount API routes
 app.use('/api', apiRoutes);
-app.use('/api/auth', authRoutes); // Mount auth routes under /api/auth explicitly
+app.use('/api/auth', authRoutes);
+app.use('/api/leaderboard', leaderboardRoutes); // Mount new leaderboard routes
 
-// Add environment-specific middleware - simplified logging
+// Add environment-specific middleware
 app.use((req, res, next) => {
   if (req.path !== '/health' && !req.path.startsWith('/assets/')) {
     console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
