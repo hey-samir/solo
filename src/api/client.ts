@@ -2,7 +2,8 @@ import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const client = axios.create({
-  baseURL: '/api',
+  // Remove the /api prefix since it's added by the server router
+  baseURL: '/',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,11 +13,11 @@ const client = axios.create({
 // Simple request interceptor
 client.interceptors.request.use(
   (config) => {
-    console.log('Request:', config.method?.toUpperCase(), config.url);
+    console.log('[API Client] Request:', config.method?.toUpperCase(), config.url);
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
+    console.error('[API Client] Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -24,11 +25,11 @@ client.interceptors.request.use(
 // Simple response interceptor
 client.interceptors.response.use(
   (response) => {
-    console.log('Response:', response.status, response.config.url);
+    console.log('[API Client] Response:', response.status, response.config.url);
     return response;
   },
   (error) => {
-    console.error('Response Error:', error.message);
+    console.error('[API Client] Response Error:', error.message);
 
     if (!error.response) {
       toast.error('Network error. Please check your connection.');

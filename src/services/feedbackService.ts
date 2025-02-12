@@ -24,7 +24,10 @@ class FeedbackService {
   async getFeedback(sort: 'new' | 'top' = 'new'): Promise<FeedbackItem[]> {
     try {
       console.log('[FeedbackService] Fetching feedback with sort:', sort);
-      const response = await client.get('/api/feedback', { params: { sort } });
+      const response = await client.get('/api/feedback', { 
+        params: { sort },
+        timeout: 5000 // 5 second timeout
+      });
       console.log('[FeedbackService] Received feedback response:', response.data);
       return response.data;
     } catch (error: any) {
@@ -51,6 +54,7 @@ class FeedbackService {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 5000 // 5 second timeout
       });
 
       console.log('[FeedbackService] Feedback submission response:', response.data);
