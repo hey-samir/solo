@@ -1,12 +1,16 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { toast } from 'react-hot-toast'
+import { Input } from '../components/ui/input'
 import '../styles/profile.css'
 
 const Solo: FC = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const [isEditing, setIsEditing] = useState(false)
+  const [username, setUsername] = useState(user?.username || '')
+  const [selectedAvatar, setSelectedAvatar] = useState(user?.profilePhoto || 'gray-solo-av.png')
 
   const handleLogout = async () => {
     try {
@@ -25,23 +29,65 @@ const Solo: FC = () => {
     totalPoints: 0
   }
 
+  const handleUpdateProfile = async () => {
+    try {
+      // Call API to update profile
+      // For now just toggle editing mode
+      setIsEditing(false)
+      toast.success('Profile updated successfully')
+    } catch (error) {
+      console.error('Failed to update profile:', error)
+      toast.error('Failed to update profile')
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         {/* Profile Info Section */}
-        <div className="flex flex-col md:flex-row gap-6 mb-8">
+        <div className="flex flex-col md:flex-row items-start gap-6 mb-8">
           {/* Column 1: Avatar */}
           <div className="w-32 mx-auto md:mx-0">
-            <img 
-              src={`/avatars/${user?.profilePhoto || 'gray-solo-av.png'}`}
-              alt={`${user?.username}'s profile`}
-              className="profile-avatar"
-            />
+            {isEditing ? (
+              <div className="grid grid-cols-2 gap-2">
+                {['gray', 'white', 'black', 'purple'].map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedAvatar(`${color}-solo-av.png`)}
+                    className={`relative rounded-full overflow-hidden border-2 ${
+                      selectedAvatar === `${color}-solo-av.png` ? 'border-purple-600' : 'border-transparent'
+                    }`}
+                  >
+                    <img
+                      src={`/avatars/${color}-solo-av.png`}
+                      alt={`${color} avatar`}
+                      className="w-full h-auto"
+                    />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <img 
+                src={`/avatars/${user?.profilePhoto || 'gray-solo-av.png'}`}
+                alt={`${user?.username}'s profile`}
+                className="profile-avatar"
+              />
+            )}
           </div>
 
           {/* Column 2: User Info */}
-          <div className="profile-info text-center md:text-left">
-            <h1 className="text-2xl font-bold mb-2">@{user?.username}</h1>
+          <div className="profile-info text-center md:text-left flex-1">
+            {isEditing ? (
+              <Input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="text-2xl font-bold mb-2 bg-gray-700"
+                placeholder="Enter username"
+              />
+            ) : (
+              <h1 className="text-2xl font-bold mb-2">@{user?.username}</h1>
+            )}
             <div className="profile-field">
               <span className="profile-field-label">Home Gym</span>
               <span className="profile-field-value">{user?.homeGym || 'Movement Gowanus'}</span>
@@ -62,9 +108,15 @@ const Solo: FC = () => {
         <div className="profile-buttons">
           <button 
             className="btn bg-purple-600 text-white rounded-lg"
-            onClick={() => navigate('/settings')}
+            onClick={() => {
+              if (isEditing) {
+                handleUpdateProfile()
+              } else {
+                setIsEditing(true)
+              }
+            }}
           >
-            Edit
+            {isEditing ? 'Save' : 'Edit'}
           </button>
           <button 
             className="btn bg-purple-600 text-white rounded-lg"
