@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
     await client.connect();
     console.log('[Sessions] Connected to database, fetching sessions...');
 
-    // Updated mock data with detailed attempts
+    // Updated mock data with new route naming format
     const mockSessions = [
       {
         id: '1',
@@ -25,9 +25,9 @@ router.get('/', async (req, res) => {
         totalPoints: 1250,
         createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // yesterday
         attempts: [
-          { route: 'Blue 45', tries: 3, status: 'Sent', stars: 4, points: 150 },
-          { route: 'Red 23', tries: 2, status: 'Sent', stars: 5, points: 200 },
-          { route: 'Black 12', tries: 4, status: 'Tried', stars: 3, points: 100 },
+          { route: 'Blue: V4', tries: 3, status: 'Sent', stars: 4, points: 150 },
+          { route: 'Red: V5', tries: 2, status: 'Sent', stars: 5, points: 200 },
+          { route: 'Black: V6', tries: 4, status: 'Tried', stars: 3, points: 100 },
         ]
       },
       {
@@ -39,12 +39,15 @@ router.get('/', async (req, res) => {
         totalPoints: 750,
         createdAt: new Date().toISOString(), // today
         attempts: [
-          { route: 'Yellow 33', tries: 2, status: 'Sent', stars: 5, points: 250 },
-          { route: 'Green 17', tries: 3, status: 'Tried', stars: 4, points: 150 },
-          { route: 'Pink 28', tries: 1, status: 'Sent', stars: 3, points: 100 },
+          { route: 'Yellow: V3', tries: 2, status: 'Sent', stars: 5, points: 250 },
+          { route: 'Green: V4', tries: 3, status: 'Tried', stars: 4, points: 150 },
+          { route: 'Pink: V5', tries: 1, status: 'Sent', stars: 3, points: 100 },
         ]
       }
     ];
+
+    // Sort sessions by date (most recent first)
+    mockSessions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     // Add cache headers
     res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes

@@ -74,20 +74,20 @@ const Sessions: FC = () => {
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'numeric',
-      day: 'numeric',
+      weekday: 'short',
+      month: '2-digit',
+      day: '2-digit',
       year: '2-digit'
-    });
+    }).replace(',', ' -');
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Sessions</h1>
+      <h1 className="text-3xl font-bold mb-6">Sessions</h1>
 
       {sessions.length === 0 ? (
         <div className="text-left my-8">
-          <h4 className="text-xl text-text-muted mb-4">Log a send to see your Session</h4>
+          <h4 className="text-xl text-text-muted">Log a send to see your Session</h4>
         </div>
       ) : (
         sessions.map((session) => (
@@ -96,7 +96,7 @@ const Sessions: FC = () => {
               <h2 className="text-xl font-semibold">{formatDate(session.createdAt)}</h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="bg-bg-primary p-4 rounded-lg">
                 <div className="text-text-muted text-sm mb-1">Tries</div>
                 <div className="text-2xl font-bold text-white">{session.totalTries}</div>
@@ -115,11 +115,11 @@ const Sessions: FC = () => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-bg-primary">
-                    <th className="py-2 px-4">Route</th>
-                    <th className="py-2 px-4">Tries</th>
-                    <th className="py-2 px-4">Status</th>
-                    <th className="py-2 px-4">Stars</th>
-                    <th className="py-2 px-4">Points</th>
+                    <th className="py-2 px-4 text-purple-400">Route</th>
+                    <th className="py-2 px-4 text-purple-400">Tries</th>
+                    <th className="py-2 px-4 text-purple-400">Status</th>
+                    <th className="py-2 px-4 text-purple-400">Stars</th>
+                    <th className="py-2 px-4 text-purple-400">Points</th>
                   </tr>
                 </thead>
                 <tbody>
