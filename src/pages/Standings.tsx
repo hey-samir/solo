@@ -64,29 +64,29 @@ const Standings: FC = () => {
           <table className="w-full text-left">
             <thead>
               <tr className="border-b border-bg-primary">
-                <th className="py-2 px-4 text-purple-400 w-16 text-center">#</th>
-                <th className="py-2 px-4 text-purple-400">Username</th>
-                <th className="py-2 px-4 text-purple-400 w-20 text-center">Sends</th>
-                <th className="py-2 px-4 text-purple-400 w-20 text-center">Grade</th>
-                <th className="py-2 px-4 text-purple-400 w-24 text-center">Points</th>
+                <th className="py-4 px-6 text-purple-400 w-16 text-center">#</th>
+                <th className="py-4 px-6 text-purple-400">Username</th>
+                <th className="py-4 px-6 text-purple-400 w-24 text-center">Burns</th>
+                <th className="py-4 px-6 text-purple-400 w-24 text-center">Grade</th>
+                <th className="py-4 px-6 text-purple-400 w-24 text-center">Points</th>
               </tr>
             </thead>
             <tbody>
-              {(leaderboard || []).map((entry, index) => (
+              {(leaderboard || []).map((entry) => (
                 <tr key={entry.username} className="border-b border-bg-primary">
-                  <td className="py-2 px-4 text-center">
-                    {index + 1 <= 3 ? (
+                  <td className="py-4 px-6 text-center">
+                    {entry.rank <= 3 ? (
                       <span className="material-symbols-outlined">
-                        counter_{index + 1}
+                        counter_{entry.rank}
                       </span>
                     ) : (
-                      index + 1
+                      entry.rank
                     )}
                   </td>
-                  <td className="py-2 px-4">{entry.username}</td>
-                  <td className="py-2 px-4 text-center">{entry.totalSends}</td>
-                  <td className="py-2 px-4 text-center">{entry.avgGrade}</td>
-                  <td className="py-2 px-4 text-center font-medium">{entry.totalPoints}</td>
+                  <td className="py-4 px-6">{entry.username}</td>
+                  <td className="py-4 px-6 text-center">{entry.burns}</td>
+                  <td className="py-4 px-6 text-center">{entry.grade}</td>
+                  <td className="py-4 px-6 text-center font-medium">{entry.points}</td>
                 </tr>
               ))}
             </tbody>
