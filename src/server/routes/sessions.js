@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
     await client.connect();
     console.log('[Sessions] Connected to database, fetching sessions...');
 
-    // Updated mock data with new route naming format
+    // Updated mock data with YDS grades
     const mockSessions = [
       {
         id: '1',
@@ -25,9 +25,9 @@ router.get('/', async (req, res) => {
         totalPoints: 1250,
         createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // yesterday
         attempts: [
-          { route: 'Blue: V4', tries: 3, status: 'Sent', stars: 4, points: 150 },
-          { route: 'Red: V5', tries: 2, status: 'Sent', stars: 5, points: 200 },
-          { route: 'Black: V6', tries: 4, status: 'Tried', stars: 3, points: 100 },
+          { route: 'Blue: 5.10a', tries: 3, status: 'Sent', stars: 4, points: 150 },
+          { route: 'Red: 5.11b', tries: 2, status: 'Sent', stars: 5, points: 200 },
+          { route: 'Black: 5.11c', tries: 4, status: 'Tried', stars: 3, points: 100 },
         ]
       },
       {
@@ -39,9 +39,9 @@ router.get('/', async (req, res) => {
         totalPoints: 750,
         createdAt: new Date().toISOString(), // today
         attempts: [
-          { route: 'Yellow: V3', tries: 2, status: 'Sent', stars: 5, points: 250 },
-          { route: 'Green: V4', tries: 3, status: 'Tried', stars: 4, points: 150 },
-          { route: 'Pink: V5', tries: 1, status: 'Sent', stars: 3, points: 100 },
+          { route: 'Yellow: 5.9+', tries: 2, status: 'Sent', stars: 5, points: 250 },
+          { route: 'Green: 5.10b', tries: 3, status: 'Tried', stars: 4, points: 150 },
+          { route: 'Pink: 5.10c', tries: 1, status: 'Sent', stars: 3, points: 100 },
         ]
       }
     ];
