@@ -33,7 +33,7 @@ router.get('/leaderboard', async (req, res) => {
     const result = await client.query(`
       SELECT 
         u.username,
-        COUNT(s.id) as total_sends,
+        COUNT(s.id) as total_burns,
         COUNT(CASE WHEN s.status = true THEN 1 END) as successful_sends,
         SUM(s.points) as total_points
       FROM users u
@@ -45,9 +45,9 @@ router.get('/leaderboard', async (req, res) => {
 
     const leaderboard = result.rows.map(row => ({
       username: row.username || 'Anonymous',
-      totalSends: parseInt(row.total_sends) || 0,
-      avgGrade: row.successful_sends && row.total_sends 
-        ? `${Math.round((row.successful_sends / row.total_sends) * 100)}%` 
+      totalBurns: parseInt(row.total_burns) || 0,
+      sendRate: row.successful_sends && row.total_burns 
+        ? `${Math.round((row.successful_sends / row.total_burns) * 100)}%` 
         : '0%',
       totalPoints: parseInt(row.total_points) || 0
     }));

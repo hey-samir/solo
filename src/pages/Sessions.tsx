@@ -106,16 +106,22 @@ const Sessions: FC = () => {
 
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="bg-bg-primary p-4 rounded-lg">
-                <div className="text-text-muted text-sm mb-1">Attempts</div>
-                <div className="text-2xl font-bold text-white">{session.totalTries}</div>
+                <div className="text-text-muted text-sm mb-1">Burns</div>
+                <div className="text-2xl font-bold text-white">
+                  {session.attempts.reduce((sum, attempt) => sum + attempt.tries, 0)}
+                </div>
               </div>
               <div className="bg-bg-primary p-4 rounded-lg">
                 <div className="text-text-muted text-sm mb-1">Sends</div>
-                <div className="text-2xl font-bold text-white">{session.totalSends}</div>
+                <div className="text-2xl font-bold text-white">
+                  {session.attempts.filter(attempt => attempt.status === 'Sent').length}
+                </div>
               </div>
               <div className="bg-bg-primary p-4 rounded-lg">
                 <div className="text-text-muted text-sm mb-1">Points</div>
-                <div className="text-2xl font-bold text-white">{session.totalPoints}</div>
+                <div className="text-2xl font-bold text-white">
+                  {session.attempts.reduce((sum, attempt) => sum + attempt.points, 0)}
+                </div>
               </div>
             </div>
 
