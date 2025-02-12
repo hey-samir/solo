@@ -48,7 +48,7 @@ const Header: React.FC = () => {
         {/* Left section - Solo Pro */}
         <div className="flex items-center">
           <Link 
-            to="/solo-pro" 
+            to="/pricing" 
             className="flex items-center text-white hover:text-gray-200"
             aria-label="Solo Pro"
           >

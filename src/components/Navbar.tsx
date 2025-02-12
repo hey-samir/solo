@@ -1,5 +1,6 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import graySoloAvatar from '@/assets/images/icons/gray-solo-av.png'
 
 export default function Navbar(): React.ReactElement {
   const location = useLocation()
@@ -61,7 +62,7 @@ export default function Navbar(): React.ReactElement {
               aria-label="Solo"
             >
               <img 
-                src="/assets/images/gray-solo-av.png" 
+                src={graySoloAvatar}
                 alt="Solo" 
                 style={{ 
                   width: '28px', 
