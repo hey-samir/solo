@@ -48,7 +48,7 @@ const Header: React.FC = () => {
         {/* Left section - Solo Pro */}
         <div className="flex items-center">
           <Link 
-            to="/pricing" 
+            to="/solo-pro" 
             className="flex items-center text-white hover:text-gray-200"
             aria-label="Solo Pro"
           >
@@ -59,7 +59,7 @@ const Header: React.FC = () => {
 
         {/* Center section - Logo */}
         <div className="flex justify-center items-center flex-grow">
-          <Link to="/" className="flex items-center justify-center">
+          <Link to="/about" className="flex items-center justify-center">
             <img 
               src={soloLogo}
               alt="Solo Logo" 

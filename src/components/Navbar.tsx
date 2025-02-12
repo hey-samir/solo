@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import graySoloAvatar from '@/assets/images/icons/gray-solo-av.png'
+import graySoloAvatar from '@/assets/images/icons/gray-solo-av.svg'
 
 export default function Navbar(): React.ReactElement {
   const location = useLocation()

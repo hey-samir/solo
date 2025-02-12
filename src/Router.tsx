@@ -19,7 +19,7 @@ import Sends from './pages/Sends'
 import Sessions from './pages/Sessions'
 import Stats from './pages/Stats'
 import Solo from './pages/Solo'
-import Pricing from './pages/Pricing'
+import SoloPro from './pages/Pricing' // Will rename this file later
 import Feedback from './pages/Feedback'
 
 const Router: React.FC = () => {
@@ -59,7 +59,7 @@ const Router: React.FC = () => {
             </>
           )}
 
-          {flags.enablePro && <Route path="pricing" element={<Pricing />} />}
+          {flags.enablePro && <Route path="solo-pro" element={<SoloPro />} />}
           {flags.enableFeedback && <Route path="feedback" element={<Feedback />} />}
 
           {/* Always enable Standings since it's a core feature */}
@@ -109,8 +109,6 @@ const Router: React.FC = () => {
               }
             />
           )}
-
-          {/* Profile Routes -  Removed as Profile functionality is presumably in Solo */}
 
           {/* Error Routes */}
           <Route path="server-error" element={<ServerError code={500} message="Internal Server Error" />} />
