@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import type { AxiosResponse } from 'axios'
+import type { AxiosError, AxiosResponse } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 import NotFound from './NotFound'
@@ -15,12 +15,11 @@ const Standings: FC = () => {
     timestamp: null
   })
 
-  const { data: leaderboard, isLoading, error } = useQuery<Standing[]>({
+  const { data: leaderboard, isLoading, error } = useQuery<Standing[], AxiosError>({
     queryKey: ['leaderboard'],
     queryFn: async () => {
       try {
-        // Remove the /api prefix since it's already configured in the client
-        const response: AxiosResponse = await client.get('/leaderboard') 
+        const response: AxiosResponse = await client.get('/auth/leaderboard')
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
         setCacheInfo({ isFromCache, timestamp })

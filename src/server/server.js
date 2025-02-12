@@ -4,6 +4,7 @@ const fs = require('fs');
 const cors = require('cors');
 const apiRoutes = require('./routes');
 const featureFlags = require('./routes/feature-flags');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use(express.json());
 
 // Mount API routes
 app.use('/api', apiRoutes);
+app.use('/api', authRoutes); // Explicitly mount auth routes which includes leaderboard
 
 // Add environment-specific middleware - simplified logging
 app.use((req, res, next) => {
