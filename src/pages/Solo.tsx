@@ -5,9 +5,21 @@ import { toast } from 'react-hot-toast'
 import { Input } from '../components/ui/input'
 import '../styles/profile.css'
 
-// Avatar mapping with public assets path
-const avatarColors = ['gray', 'white', 'black', 'purple'] as const
-type AvatarColor = typeof avatarColors[number]
+// Import avatars directly like in Navbar
+import graySoloAvatar from '@/assets/images/avatars/gray-solo-av.png'
+import whiteSoloAvatar from '@/assets/images/avatars/white-solo-av.png'
+import blackSoloAvatar from '@/assets/images/avatars/black-solo-av.png'
+import purpleSoloAvatar from '@/assets/images/avatars/purple-solo-av.png'
+
+// Avatar mapping with imported assets
+const avatarMap = {
+  gray: graySoloAvatar,
+  white: whiteSoloAvatar,
+  black: blackSoloAvatar,
+  purple: purpleSoloAvatar
+} as const
+
+type AvatarColor = keyof typeof avatarMap
 
 const Solo: FC = () => {
   const { user, logout } = useAuth()
@@ -52,7 +64,7 @@ const Solo: FC = () => {
           <div className="w-32 flex-shrink-0">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2">
-                {avatarColors.map((color) => (
+                {(Object.entries(avatarMap) as [AvatarColor, string][]).map(([color, src]) => (
                   <button
                     key={color}
                     onClick={() => setSelectedAvatar(color)}
@@ -61,7 +73,7 @@ const Solo: FC = () => {
                     }`}
                   >
                     <img
-                      src={`/assets/images/avatars/${color}-solo-av.png`}
+                      src={src}
                       alt={`${color} avatar`}
                       className="w-full h-auto"
                     />
@@ -70,7 +82,7 @@ const Solo: FC = () => {
               </div>
             ) : (
               <img 
-                src={`/assets/images/avatars/${selectedAvatar}-solo-av.png`}
+                src={avatarMap[selectedAvatar]}
                 alt={`${user?.username}'s profile`}
                 className="profile-avatar"
               />
