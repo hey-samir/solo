@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
 import Error from '../components/Error';
+import NotFound from './NotFound';
 import { ApiError, QueryError } from '../types';
 
 interface Attempt {
@@ -32,22 +33,21 @@ const Sessions: FC = () => {
         const response = await client.get('/sessions');
         console.log('Sessions response:', response.data);
         if (!response.data) {
-          throw { 
-            message: "Oops! We received unexpected data. Let's get you back on track.",
-            status: 500 
-          };
+          throw new Error('No data received from server');
         }
         return Array.isArray(response.data) ? response.data : [];
       } catch (err: any) {
         console.error('Error fetching sessions:', err);
-        const errorMessage = err.response?.data?.message || 
-          err.message || 
-          "Oops! We're having trouble loading your climbing sessions. Let's get you back on track.";
-
+        if (err.response?.status === 404) {
+          throw {
+            message: 'Page not found',
+            status: 404,
+            shouldShowNotFound: true
+          };
+        }
         throw {
-          message: errorMessage,
-          status: err.response?.status || 500,
-          data: err.response?.data
+          message: err.response?.data?.error || 'Failed to load sessions',
+          status: err.response?.status || 500
         };
       }
     },
@@ -58,6 +58,9 @@ const Sessions: FC = () => {
   }
 
   if (error) {
+    if (error.shouldShowNotFound) {
+      return <NotFound />;
+    }
     return (
       <Error
         message={error.message}
