@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError, AxiosResponse } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
-import Error from '../components/Error'
+import NotFound from './NotFound'
 import type { Standing } from '../types'
 
 const Standings: FC = () => {
@@ -36,7 +36,7 @@ const Standings: FC = () => {
   }
 
   if (error) {
-    return <Error message={error.message} type="page" />
+    return <NotFound />
   }
 
   return (
