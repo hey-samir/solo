@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../contexts/AuthContext'
 import { toast } from 'react-hot-toast'
 import { Input } from '../components/ui/input'
 import '../styles/profile.css'
@@ -10,7 +10,7 @@ const Solo: FC = () => {
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
   const [username, setUsername] = useState(user?.username || '')
-  const [selectedAvatar, setSelectedAvatar] = useState(user?.profilePhoto || 'gray-solo-av.png')
+  const [selectedAvatar, setSelectedAvatar] = useState<string>(user?.profilePhoto || 'gray-solo-av.png')
 
   const handleLogout = async () => {
     try {
@@ -31,8 +31,6 @@ const Solo: FC = () => {
 
   const handleUpdateProfile = async () => {
     try {
-      // Call API to update profile
-      // For now just toggle editing mode
       setIsEditing(false)
       toast.success('Profile updated successfully')
     } catch (error) {
@@ -44,10 +42,10 @@ const Solo: FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        {/* Profile Info Section */}
-        <div className="flex flex-col md:flex-row items-start gap-6 mb-8">
+        {/* Profile Table Layout */}
+        <div className="flex items-start gap-8">
           {/* Column 1: Avatar */}
-          <div className="w-32 mx-auto md:mx-0">
+          <div className="w-32 flex-shrink-0">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2">
                 {['gray', 'white', 'black', 'purple'].map((color) => (
@@ -59,7 +57,7 @@ const Solo: FC = () => {
                     }`}
                   >
                     <img
-                      src={`/avatars/${color}-solo-av.png`}
+                      src={`/public/avatars/${color}-solo-av.png`}
                       alt={`${color} avatar`}
                       className="w-full h-auto"
                     />
@@ -68,39 +66,55 @@ const Solo: FC = () => {
               </div>
             ) : (
               <img 
-                src={`/avatars/${user?.profilePhoto || 'gray-solo-av.png'}`}
+                src={`/public/avatars/${user?.profilePhoto || 'gray-solo-av.png'}`}
                 alt={`${user?.username}'s profile`}
                 className="profile-avatar"
               />
             )}
           </div>
 
-          {/* Column 2: User Info */}
-          <div className="profile-info text-center md:text-left flex-1">
-            {isEditing ? (
-              <Input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="text-2xl font-bold mb-2 bg-gray-700"
-                placeholder="Enter username"
-              />
-            ) : (
-              <h1 className="text-2xl font-bold mb-2">@{user?.username}</h1>
-            )}
-            <div className="profile-field">
-              <span className="profile-field-label">Home Gym</span>
-              <span className="profile-field-value">{user?.homeGym || 'Movement Gowanus'}</span>
-            </div>
-            <div className="profile-field">
-              <span className="profile-field-label">Joined</span>
-              <span className="profile-field-value">
-                {new Date(user?.memberSince || Date.now()).toLocaleDateString('en-US', {
-                  month: 'short',
-                  year: '2-digit'
-                })}
-              </span>
-            </div>
+          {/* Column 2: User Info Table */}
+          <div className="flex-grow">
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  <td className="py-2">
+                    {isEditing ? (
+                      <Input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="text-2xl font-bold bg-gray-700"
+                        placeholder="Enter username"
+                      />
+                    ) : (
+                      <h1 className="text-2xl font-bold">@{user?.username}</h1>
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2">
+                    <div className="profile-field">
+                      <span className="profile-field-label">Home Gym</span>
+                      <span className="profile-field-value">{user?.homeGym || 'Movement Gowanus'}</span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2">
+                    <div className="profile-field">
+                      <span className="profile-field-label">Joined</span>
+                      <span className="profile-field-value">
+                        {new Date(user?.memberSince || Date.now()).toLocaleDateString('en-US', {
+                          month: 'short',
+                          year: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
