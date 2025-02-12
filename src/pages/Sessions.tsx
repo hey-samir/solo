@@ -24,8 +24,7 @@ const Sessions: FC = () => {
     queryKey: ['sessions'],
     queryFn: async () => {
       try {
-        console.log('Fetching sessions...');
-        const response = await client.get('/api/sessions');
+        const response = await client.get('/sessions');
         console.log('Sessions response:', response.data);
         if (!response.data) {
           throw { 
@@ -86,7 +85,7 @@ const Sessions: FC = () => {
       <h1 className="text-2xl font-bold mb-6">Sessions</h1>
 
       {sessions.length === 0 ? (
-        <div className="text-center my-8">
+        <div className="text-left my-8">
           <h4 className="text-xl text-text-muted mb-4">Log a send to see your Session</h4>
         </div>
       ) : (
