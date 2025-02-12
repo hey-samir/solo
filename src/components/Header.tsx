@@ -28,6 +28,11 @@ const Header: React.FC = () => {
       });
   }, []);
 
+  const handleFeedbackClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigate('/feedback');
+  };
+
   return (
     <>
       {isStaging && (
@@ -74,13 +79,13 @@ const Header: React.FC = () => {
 
         {/* Right section - Feedback */}
         <div className="flex items-center">
-          <Link 
-            to="/feedback" 
-            className="flex items-center text-white hover:text-gray-200"
+          <button
+            onClick={handleFeedbackClick}
+            className="flex items-center text-white hover:text-gray-200 bg-transparent border-0"
             aria-label="Feedback"
           >
             <i className="material-icons" style={{ fontSize: '24px' }}>rate_review</i>
-          </Link>
+          </button>
         </div>
       </header>
     </>

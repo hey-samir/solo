@@ -29,7 +29,7 @@ const Router: React.FC = () => {
   useEffect(() => {
     console.log('[Router] Current environment:', config.environment)
     console.log('[Router] Feature flags:', flags)
-  }, [])
+  }, [flags])
 
   if (isLoading) {
     return (
@@ -40,20 +40,20 @@ const Router: React.FC = () => {
   }
 
   if (error || !flags) {
-    return <NotFound />
+    return <ServerError code={500} message="Failed to load application configuration" />
   }
 
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
         <Route element={isProduction ? <ProductionLayout /> : <Layout />}>
-          {/* Public Routes */}
+          {/* Public Routes - No feature flag dependencies */}
           <Route index element={<Navigate to="/about" replace />} />
           <Route path="about" element={<About />} />
           <Route path="feedback" element={<Feedback />} />
           <Route path="solo-pro" element={<SoloPro />} />
 
-          {/* Conditionally render routes based on feature flags */}
+          {/* Auth Routes */}
           {flags.enableAuth && (
             <>
               <Route path="login" element={<Login />} />
@@ -61,14 +61,14 @@ const Router: React.FC = () => {
             </>
           )}
 
-          {/* Always enable Standings since it's a core feature */}
+          {/* Core Features */}
           <Route path="standings" element={<Standings />} />
 
           {flags.enableSquads && (
             <Route path="squads" element={<Squads />} />
           )}
 
-          {/* Solo page replaces Settings and Profile */}
+          {/* Protected Routes */}
           <Route
             path="solo"
             element={
