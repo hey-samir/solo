@@ -120,7 +120,7 @@ const Feedback: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="space-y-8">
           <div className="bg-bg-card rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Feedback</h2>
+            <h2 className="text-2xl font-bold mb-4">Submit Feedback</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Title</label>
@@ -209,7 +209,7 @@ const Feedback: React.FC = () => {
         <div className="space-y-4">
           <div className="bg-bg-card rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-bold">Community Feedback</h2>
-            <div className="flex space-x-2 mt-4 mb-4">
+            <div className="flex justify-center space-x-2 mt-4 mb-4">
               <button
                 className={`px-4 py-2 rounded transition-colors ${sort === 'new' ? 'bg-solo-purple' : 'bg-gray-700'}`}
                 onClick={() => setSort('new')}
