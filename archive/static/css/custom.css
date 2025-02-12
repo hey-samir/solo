@@ -8,6 +8,7 @@
   /* Background Colors */
   --bg-primary: #1e2638;
   --bg-card: #4A5D79;
+  --bg-kpi: #434D68;  /* New KPI background color */
   --bg-flash: var(--bg-card);
   --bg-slider-track: #343a40;
 
@@ -644,8 +645,9 @@ html, body {
   background-color: rgba(var(--solo-purple-rgb), 0.05);
 }
 
+/* Update KPI card background color */
 .feature-card.kpi-card {
-  background-color: var(--bg-card);
+  background-color: var(--bg-kpi);
   border-radius: 8px;
   padding: 0.25rem;
   margin-bottom: 0.25rem;
@@ -1522,10 +1524,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (table.scrollWidth > table.clientWidth) {
       table.classList.add('is-scrollable');
     }
-  }
-  );
-}
-);
+  });
+});
 </script>
 .profile-card {
   max-width: 1200px;
