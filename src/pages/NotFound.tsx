@@ -20,13 +20,13 @@ const NotFound = () => {
             onClick={() => navigate(-1)}
             className="flex-1 max-w-[200px] bg-solo-purple text-text-primary px-6 py-3 rounded-md hover:bg-solo-purple-light transition-colors shadow-md hover:shadow-lg"
           >
-            Down Climb
+            Prior Page
           </button>
           <button
             onClick={() => navigate('/')}
             className="flex-1 max-w-[200px] bg-bg-card text-text-primary px-6 py-3 rounded-md hover:bg-opacity-80 transition-colors shadow-md hover:shadow-lg"
           >
-            Take the Bail Anchor
+            Home
           </button>
         </div>
       </div>

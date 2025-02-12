@@ -21,7 +21,7 @@ router.get('/current-user', (req, res) => {
 });
 
 // Get leaderboard data
-router.get('/leaderboard', async (req, res) => {
+router.get('/auth/leaderboard', async (req, res) => {
   const client = createClient({ connectionString: process.env.DATABASE_URL });
 
   try {
@@ -31,7 +31,7 @@ router.get('/leaderboard', async (req, res) => {
       SELECT 
         u.username,
         COUNT(s.id) as total_sends,
-        ROUND(AVG(s.grade) :: numeric, 1) as avg_grade,
+        ROUND(AVG(s.grade_number)::numeric, 1) as avg_grade,
         SUM(s.points) as total_points
       FROM users u
       LEFT JOIN sends s ON u.id = s.user_id
