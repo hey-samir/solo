@@ -67,7 +67,7 @@ const Feedback: React.FC = () => {
     queryKey: ['feedback', sort],
     queryFn: () => feedbackService.getFeedback(sort),
     retry: 1,
-    staleTime: 30000, // Consider data fresh for 30 seconds
+    staleTime: 30000, 
   });
 
   const submitFeedback = useMutation({
@@ -116,12 +116,11 @@ const Feedback: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Feedback</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: Form and FAQ */}
         <div className="space-y-8">
-          {/* Feedback Form */}
           <div className="bg-bg-card rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Submit Feedback</h2>
+            <h2 className="text-2xl font-bold mb-4">Feedback</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">Title</label>
@@ -169,7 +168,6 @@ const Feedback: React.FC = () => {
             </form>
           </div>
 
-          {/* FAQ Section */}
           <div className="bg-bg-card rounded-lg shadow-lg p-6">
             <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
             <div className="space-y-2">
@@ -208,7 +206,6 @@ const Feedback: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Community Feedback */}
         <div className="space-y-4">
           <div className="bg-bg-card rounded-lg shadow-lg p-6">
             <div className="flex justify-between items-center mb-4">
