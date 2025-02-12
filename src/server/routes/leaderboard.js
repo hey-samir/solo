@@ -21,14 +21,17 @@ router.get('/', async (req, res) => {
     await client.connect();
     console.log('[Leaderboard] Connected to database, fetching data...');
 
+    // Updated query to use sends table instead of climbs
     const result = await client.query(`
       SELECT 
         u.username,
         COUNT(s.id) as total_sends,
         COUNT(CASE WHEN s.status = true THEN 1 END) as successful_sends,
-        SUM(s.points) as total_points
+        SUM(s.points) as total_points,
+        MAX(s.created_at) as last_send
       FROM users u
       LEFT JOIN sends s ON u.id = s.user_id
+      WHERE s.created_at >= NOW() - INTERVAL '30 days'
       GROUP BY u.id, u.username
       ORDER BY total_points DESC NULLS LAST
       LIMIT 100
@@ -37,10 +40,11 @@ router.get('/', async (req, res) => {
     const leaderboard = result.rows.map(row => ({
       username: row.username || 'Anonymous',
       totalSends: parseInt(row.total_sends) || 0,
-      avgGrade: row.successful_sends && row.total_sends 
+      successRate: row.successful_sends && row.total_sends 
         ? `${Math.round((row.successful_sends / row.total_sends) * 100)}%` 
         : '0%',
-      totalPoints: parseInt(row.total_points) || 0
+      totalPoints: parseInt(row.total_points) || 0,
+      lastActive: row.last_send ? new Date(row.last_send).toISOString() : null
     }));
 
     // Add cache headers

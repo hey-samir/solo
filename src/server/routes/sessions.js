@@ -14,47 +14,54 @@ router.get('/', async (req, res) => {
     await client.connect();
     console.log('[Sessions] Connected to database, fetching sessions...');
 
-    // Updated mock data with correct point values based on grade table
-    const mockSessions = [
-      {
-        id: '1',
-        userId: 1,
-        location: 'Brooklyn Boulders',
-        totalTries: 15,
-        totalSends: 10,
-        totalPoints: 157.5, // Sum of all points including tried routes
-        createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // yesterday
-        attempts: [
-          { route: 'Blue: 5.10a', tries: 3, status: 'Sent', stars: 4, points: 50 },
-          { route: 'Red: 5.11b', tries: 2, status: 'Sent', stars: 5, points: 70 },
-          { route: 'Black: 5.11c', tries: 4, status: 'Tried', stars: 3, points: 37.5 }, // 0.5 * 75 for tried
-        ]
-      },
-      {
-        id: '2',
-        userId: 1,
-        location: 'Brooklyn Boulders',
-        totalTries: 8,
-        totalSends: 6,
-        totalPoints: 132.5, // Sum of all points including tried routes
-        createdAt: new Date().toISOString(), // today
-        attempts: [
-          { route: 'Yellow: 5.9+', tries: 2, status: 'Sent', stars: 5, points: 45 },
-          { route: 'Green: 5.10b', tries: 3, status: 'Tried', stars: 4, points: 27.5 }, // 0.5 * 55 for tried
-          { route: 'Pink: 5.10c', tries: 1, status: 'Sent', stars: 3, points: 60 },
-        ]
-      }
-    ];
+    // Query to get real session data from the sends table
+    const result = await client.query(`
+      WITH daily_sessions AS (
+        SELECT 
+          DATE(created_at) as session_date,
+          COUNT(*) as total_tries,
+          COUNT(CASE WHEN status = true THEN 1 END) as total_sends,
+          SUM(points) as total_points,
+          json_agg(json_build_object(
+            'route_id', route_id,
+            'tries', tries,
+            'status', status,
+            'points', points,
+            'created_at', created_at
+          ) ORDER BY created_at DESC) as attempts
+        FROM sends
+        WHERE user_id = $1
+        GROUP BY DATE(created_at)
+        ORDER BY session_date DESC
+        LIMIT 10
+      )
+      SELECT 
+        ds.*,
+        json_agg(DISTINCT r.grade) as grades
+      FROM daily_sessions ds
+      LEFT JOIN sends s ON DATE(s.created_at) = ds.session_date
+      LEFT JOIN routes r ON s.route_id = r.id
+      GROUP BY ds.session_date, ds.total_tries, ds.total_sends, ds.total_points, ds.attempts
+      ORDER BY ds.session_date DESC
+    `, [req.user?.id || 1]); // Using demo user ID 1 if no user in session
 
-    // Sort sessions by date (most recent first)
-    mockSessions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    const sessions = result.rows.map(row => ({
+      id: row.session_date.getTime().toString(),
+      userId: req.user?.id || 1,
+      location: 'Brooklyn Boulders', // TODO: Add gym location from routes table
+      totalTries: parseInt(row.total_tries),
+      totalSends: parseInt(row.total_sends),
+      totalPoints: parseInt(row.total_points),
+      createdAt: row.session_date.toISOString(),
+      attempts: row.attempts
+    }));
 
     // Add cache headers
     res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
     res.set('X-Cache-Timestamp', new Date().toISOString());
-    res.set('X-Data-Source', 'mock');
+    res.set('X-Data-Source', 'database');
 
-    res.json(mockSessions);
+    res.json(sessions);
   } catch (error) {
     console.error('[Sessions] Error:', error);
     res.status(500).json({ 

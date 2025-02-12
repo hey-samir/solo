@@ -16,13 +16,15 @@ if (!connectionString) {
   process.exit(1);
 }
 
-// Set POSTGRES_URL for Vercel client compatibility
-process.env.POSTGRES_URL = connectionString;
-process.env.POSTGRES_URL_NON_POOLING = connectionString;
-
-// Configure database client
+// Configure database client with explicit config for migrations
 const client = createClient({
   connectionString,
+  ssl: { rejectUnauthorized: false },
+  // For migrations, we want a direct connection
+  poolConfig: {
+    maxPoolSize: 1,
+    connectionTimeoutMillis: 30000
+  }
 });
 
 const db = drizzle(client, { schema });
@@ -60,9 +62,9 @@ async function main() {
     await migrate(db, { migrationsFolder: './drizzle/migrations' });
     console.log("Migrations completed successfully");
 
-    // Verify database connection
-    const result = await sql`SELECT current_database()`;
-    console.log("Connected to database:", result.rows[0].current_database);
+    // Verify database connection and schema
+    const result = await client.query('SELECT current_database(), current_schema();');
+    console.log("Connected to database:", result.rows[0]);
 
     await client.end();
     process.exit(0);
