@@ -15,16 +15,16 @@ const NotFound = () => {
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="flex justify-center gap-4">
           <button
             onClick={() => navigate(-1)}
-            className="bg-solo-purple text-text-primary px-6 py-2 rounded-md hover:bg-solo-purple-light transition-colors mr-4 shadow-md hover:shadow-lg"
+            className="flex-1 max-w-[200px] bg-solo-purple text-text-primary px-6 py-3 rounded-md hover:bg-solo-purple-light transition-colors shadow-md hover:shadow-lg"
           >
             Down Climb
           </button>
           <button
             onClick={() => navigate('/')}
-            className="bg-bg-card text-text-primary px-6 py-2 rounded-md hover:bg-opacity-80 transition-colors shadow-md hover:shadow-lg"
+            className="flex-1 max-w-[200px] bg-bg-card text-text-primary px-6 py-3 rounded-md hover:bg-opacity-80 transition-colors shadow-md hover:shadow-lg"
           >
             Take the Bail Anchor
           </button>

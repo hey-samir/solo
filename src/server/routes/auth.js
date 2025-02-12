@@ -2,7 +2,6 @@ const express = require('express');
 const { createClient } = require('@vercel/postgres');
 
 const router = express.Router();
-const db = createClient({ connectionString: process.env.DATABASE_URL });
 
 // Basic authentication status check
 router.get('/status', (req, res) => {
@@ -23,25 +22,27 @@ router.get('/current-user', (req, res) => {
 
 // Get leaderboard data
 router.get('/leaderboard', async (req, res) => {
-  try {
-    await db.connect();
+  const client = createClient({ connectionString: process.env.DATABASE_URL });
 
-    const result = await db.query(`
+  try {
+    await client.connect();
+
+    const result = await client.query(`
       SELECT 
         u.username,
         COUNT(s.id) as total_sends,
-        ROUND(AVG(CAST(s.grade_number as float)), 1) as avg_grade,
+        ROUND(AVG(s.grade) :: numeric, 1) as avg_grade,
         SUM(s.points) as total_points
       FROM users u
       LEFT JOIN sends s ON u.id = s.user_id
       GROUP BY u.id, u.username
-      ORDER BY total_points DESC
+      ORDER BY total_points DESC NULLS LAST
       LIMIT 100
     `);
 
     const leaderboard = result.rows.map(row => ({
       username: row.username,
-      totalSends: parseInt(row.total_sends),
+      totalSends: parseInt(row.total_sends) || 0,
       avgGrade: row.avg_grade?.toString() || 'N/A',
       totalPoints: parseInt(row.total_points) || 0
     }));
@@ -50,6 +51,8 @@ router.get('/leaderboard', async (req, res) => {
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     res.status(500).json({ error: 'Failed to fetch leaderboard data' });
+  } finally {
+    await client.end();
   }
 });
 
