@@ -50,11 +50,20 @@ export default defineConfig(({ mode }) => {
       strictPort: true
     },
     build: {
-      outDir: 'dist',
-      sourcemap: true,
+      outDir: path.resolve(__dirname, 'dist'),
       emptyOutDir: true,
+      sourcemap: true,
+      manifest: true,
       copyPublicDir: true,
       assetsDir: 'assets',
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html')
+        },
+        output: {
+          manualChunks: undefined
+        }
+      }
     },
     define: {
       'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),

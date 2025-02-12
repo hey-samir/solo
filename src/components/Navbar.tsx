@@ -1,10 +1,26 @@
 import React from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+
+// Import all avatars
 import graySoloAvatar from '@/assets/images/avatars/gray-solo-av.png'
+import whiteSoloAvatar from '@/assets/images/avatars/white-solo-av.png'
+import blackSoloAvatar from '@/assets/images/avatars/black-solo-av.png'
+import purpleSoloAvatar from '@/assets/images/avatars/purple-solo-av.png'
+
+const avatarMap = {
+  gray: graySoloAvatar,
+  white: whiteSoloAvatar,
+  black: blackSoloAvatar,
+  purple: purpleSoloAvatar
+} as const
 
 export default function Navbar(): React.ReactElement {
   const location = useLocation()
-  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  // Default to gray avatar if no profilePhoto is set
+  const currentAvatar = user?.profilePhoto ? avatarMap[user.profilePhoto as keyof typeof avatarMap] : graySoloAvatar
 
   return (
     <nav className="navbar fixed-bottom">
@@ -62,7 +78,7 @@ export default function Navbar(): React.ReactElement {
               aria-label="Solo"
             >
               <img 
-                src={graySoloAvatar}
+                src={currentAvatar}
                 alt="Solo" 
                 style={{ 
                   width: '36px', 

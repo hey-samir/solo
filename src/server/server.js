@@ -15,7 +15,7 @@ process.on('uncaughtException', (error) => {
 // Basic configuration
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const staticPath = path.resolve(__dirname, '../../dist');
+const staticPath = path.join(process.cwd(), '/dist');
 
 // CORS configuration
 app.use(cors({
@@ -38,17 +38,19 @@ app.use(express.json());
 // Mount all API routes under /api
 app.use('/api', apiRoutes);
 
-// Add environment-specific middleware
+// Logging middleware
 app.use((req, res, next) => {
-  if (req.path !== '/health' && !req.path.startsWith('/assets/')) {
+  if (!req.path.includes('.') && !req.path.startsWith('/api/')) {
     console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
   }
-  res.set('X-Environment', NODE_ENV);
   next();
 });
 
-// Serve static files
-app.use(express.static(staticPath));
+// Serve static files with proper MIME types and caching
+app.use(express.static(staticPath, {
+  maxAge: NODE_ENV === 'production' ? '1h' : '0',
+  etag: true
+}));
 
 // Health check endpoint
 app.get('/health', (_req, res) => {
@@ -61,7 +63,8 @@ app.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
     details: {
       indexFile: healthy ? 'present' : 'missing',
-      staticPath
+      staticPath,
+      buildExists: fs.existsSync(staticPath)
     }
   };
 
@@ -77,22 +80,39 @@ app.get('/api/environment', (_req, res) => {
   });
 });
 
-// SPA support - serve index.html for all routes
-app.get('*', (req, res) => {
+// SPA support - serve index.html for all non-asset routes
+app.get('*', (req, res, next) => {
+  // Skip for API and asset requests
+  if (req.path.startsWith('/api/') || req.path.includes('.')) {
+    return next();
+  }
+
   const indexPath = path.join(staticPath, 'index.html');
 
   if (!fs.existsSync(indexPath)) {
-    console.error(`Error: index.html not found at ${indexPath}`);
+    console.error(`[${NODE_ENV}] Error: index.html not found at ${indexPath}`);
     return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment`);
   }
 
   res.sendFile(indexPath);
 });
 
+// Error handler
+app.use((err, _req, res, _next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ 
+    error: NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Start server if not being required as a module
 if (require.main === module) {
   const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log('='.repeat(50));
     console.log(`Server running in ${NODE_ENV} mode on http://0.0.0.0:${PORT}`);
+    console.log(`Static files serving from: ${staticPath}`);
+    console.log('='.repeat(50));
   }).on('error', (error) => {
     console.error('Failed to start server:', error);
     process.exit(1);

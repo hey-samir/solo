@@ -22,7 +22,7 @@ const avatarMap = {
 type AvatarColor = keyof typeof avatarMap
 
 const Solo: FC = () => {
-  const { user, logout } = useAuth()
+  const { user, logout, updateUserProfile } = useAuth()
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
   const [username, setUsername] = useState(user?.username || '')
@@ -47,6 +47,10 @@ const Solo: FC = () => {
 
   const handleUpdateProfile = async () => {
     try {
+      await updateUserProfile({
+        username,
+        profilePhoto: selectedAvatar
+      })
       setIsEditing(false)
       toast.success('Profile updated successfully')
     } catch (error) {
@@ -58,7 +62,7 @@ const Solo: FC = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
-      <h1 className="text-3xl font-bold mb-6 text-center">Solo</h1>
+      <h1 className="text-3xl font-bold mb-6">Solo</h1>
 
       <div className="max-w-4xl mx-auto">
         {/* Profile Table Layout */}

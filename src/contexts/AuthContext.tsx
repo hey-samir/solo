@@ -9,11 +9,17 @@ interface User {
   memberSince: Date;
 }
 
+interface UpdateProfileData {
+  username?: string;
+  profilePhoto?: string;
+}
+
 interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   logout: () => Promise<void>;
   loading: boolean;
+  updateUserProfile: (data: UpdateProfileData) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -32,7 +38,7 @@ const demoUser = {
   username: 'gosolonyc',
   email: 'demo@soloapp.dev',
   memberSince: new Date(),
-  profilePhoto: '/static/images/avatar-purple.svg'
+  profilePhoto: 'gray'
 };
 
 // Toggle this flag to enable/disable authentication
@@ -69,6 +75,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
+  const updateUserProfile = async (data: UpdateProfileData) => {
+    if (BYPASS_AUTH) {
+      setUser(prev => prev ? { ...prev, ...data } : null);
+      return;
+    }
+
+    try {
+      const response = await client.put('/api/users/profile', data);
+      if (response.data) {
+        setUser(prev => prev ? { ...prev, ...data } : null);
+      }
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
+  };
+
   const logout = async () => {
     if (BYPASS_AUTH) {
       console.log('Logout bypassed in development mode');
@@ -86,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, logout, loading }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, logout, loading, updateUserProfile }}>
       {children}
     </AuthContext.Provider>
   );
