@@ -65,9 +65,9 @@ export default function Navbar(): React.ReactElement {
                 src={graySoloAvatar}
                 alt="Solo" 
                 style={{ 
-                  width: '28px', 
-                  height: '28px',
-                  opacity: ['/solo', '/settings', '/profile'].includes(location.pathname) ? 1 : 0.7 
+                  width: '32px', 
+                  height: '32px',
+                  opacity: ['/solo', '/settings', '/profile'].includes(location.pathname) ? 1 : 0.85 
                 }} 
               />
             </Link>

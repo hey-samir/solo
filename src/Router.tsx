@@ -19,7 +19,7 @@ import Sends from './pages/Sends'
 import Sessions from './pages/Sessions'
 import Stats from './pages/Stats'
 import Solo from './pages/Solo'
-import SoloPro from './pages/Pricing' // Will rename this file later
+import SoloPro from './pages/Pricing'
 import Feedback from './pages/Feedback'
 
 const Router: React.FC = () => {
@@ -50,6 +50,8 @@ const Router: React.FC = () => {
           {/* Public Routes */}
           <Route index element={<Navigate to="/about" replace />} />
           <Route path="about" element={<About />} />
+          <Route path="feedback" element={<Feedback />} />
+          <Route path="solo-pro" element={<SoloPro />} />
 
           {/* Conditionally render routes based on feature flags */}
           {flags.enableAuth && (
@@ -58,9 +60,6 @@ const Router: React.FC = () => {
               <Route path="signup" element={<Register />} />
             </>
           )}
-
-          {flags.enablePro && <Route path="solo-pro" element={<SoloPro />} />}
-          {flags.enableFeedback && <Route path="feedback" element={<Feedback />} />}
 
           {/* Always enable Standings since it's a core feature */}
           <Route path="standings" element={<Standings />} />
