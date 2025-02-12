@@ -29,6 +29,7 @@ const Router: React.FC = () => {
 
   useEffect(() => {
     console.log('[Router] Current environment:', config.environment)
+    console.log('[Router] Feature flags:', flags)
   }, [])
 
   if (isLoading) {
@@ -40,11 +41,7 @@ const Router: React.FC = () => {
   }
 
   if (error || !flags) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <ServerError code={500} message={error || 'Failed to load application configuration'} />
-      </div>
-    )
+    return <NotFound />
   }
 
   return (
@@ -65,24 +62,23 @@ const Router: React.FC = () => {
 
           {flags.enablePro && <Route path="pricing" element={<Pricing />} />}
           {flags.enableFeedback && <Route path="feedback" element={<Feedback />} />}
+
+          {/* Always enable Standings since it's a core feature */}
+          <Route path="standings" element={<Standings />} />
+
           {flags.enableSquads && (
-            <>
-              <Route path="squads" element={<Squads />} />
-              <Route path="standings" element={<Standings />} />
-            </>
+            <Route path="squads" element={<Squads />} />
           )}
 
-          {/* Protected Routes */}
-          {flags.enableSettings && (
-            <Route
-              path="settings"
-              element={
-                <ProtectedRoute>
-                  <Settings />
-                </ProtectedRoute>
-              }
-            />
-          )}
+          {/* Settings is always enabled when user is authenticated */}
+          <Route
+            path="settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="sends"

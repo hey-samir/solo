@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosResponse } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
+import NotFound from './NotFound'
 import type { Standing } from '../types'
 
 const Standings: FC = () => {
@@ -25,7 +26,7 @@ const Standings: FC = () => {
         return response.data || []
       } catch (error) {
         console.error('Error fetching leaderboard:', error)
-        return []
+        throw error
       }
     }
   })
@@ -35,7 +36,7 @@ const Standings: FC = () => {
   }
 
   if (error) {
-    return <div className="alert alert-danger">Error loading standings</div>
+    return <NotFound />
   }
 
   return (
