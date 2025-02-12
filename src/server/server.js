@@ -3,9 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const apiRoutes = require('./routes');
-const featureFlags = require('./routes/feature-flags');
-const authRoutes = require('./routes/auth');
-const leaderboardRoutes = require('./routes/leaderboard');
 
 const app = express();
 
@@ -38,10 +35,8 @@ app.use(cors({
 // Parse JSON bodies
 app.use(express.json());
 
-// Mount API routes
+// Mount all API routes under /api
 app.use('/api', apiRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/leaderboard', leaderboardRoutes); // Mount new leaderboard routes
 
 // Add environment-specific middleware
 app.use((req, res, next) => {

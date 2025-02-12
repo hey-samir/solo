@@ -5,6 +5,7 @@ const router = express.Router();
 const authRoutes = require('./auth');
 const userRoutes = require('./user');
 const { router: featureFlagsRouter } = require('./feature-flags');
+const leaderboardRoutes = require('./leaderboard');
 
 // Health check endpoint
 router.get('/health', (_req, res) => {
@@ -28,5 +29,6 @@ router.get('/test', (_req, res) => {
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/feature-flags', featureFlagsRouter);
+router.use('/leaderboard', leaderboardRoutes);
 
 module.exports = router;

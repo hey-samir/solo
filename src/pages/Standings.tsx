@@ -20,7 +20,7 @@ const Standings: FC = () => {
     queryFn: async () => {
       try {
         console.log('Fetching leaderboard data...');
-        const response: AxiosResponse = await client.get('/api/leaderboard')
+        const response: AxiosResponse = await client.get('/leaderboard')
         console.log('Leaderboard response:', response.data);
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
