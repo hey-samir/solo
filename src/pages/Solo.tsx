@@ -5,18 +5,12 @@ import { toast } from 'react-hot-toast'
 import { Input } from '../components/ui/input'
 import '../styles/profile.css'
 
-// Import avatars
-import graySoloAvatar from '../assets/images/avatars/gray-solo-av.png'
-import whiteSoloAvatar from '../assets/images/avatars/white-solo-av.png'
-import blackSoloAvatar from '../assets/images/avatars/black-solo-av.png'
-import purpleSoloAvatar from '../assets/images/avatars/purple-solo-av.png'
-
-// Avatar mapping
+// Avatar mapping with direct public URLs
 const avatars = {
-  gray: graySoloAvatar,
-  white: whiteSoloAvatar,
-  black: blackSoloAvatar,
-  purple: purpleSoloAvatar
+  gray: '/avatars/gray-solo-av.png',
+  white: '/avatars/white-solo-av.png',
+  black: '/avatars/black-solo-av.png',
+  purple: '/avatars/purple-solo-av.png'
 }
 
 const Solo: FC = () => {
@@ -62,7 +56,7 @@ const Solo: FC = () => {
           <div className="w-32 flex-shrink-0">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2">
-                {['gray', 'white', 'black', 'purple'].map((color) => (
+                {Object.entries(avatars).map(([color, path]) => (
                   <button
                     key={color}
                     onClick={() => setSelectedAvatar(color)}
@@ -71,7 +65,7 @@ const Solo: FC = () => {
                     }`}
                   >
                     <img
-                      src={avatars[color as keyof typeof avatars]}
+                      src={path}
                       alt={`${color} avatar`}
                       className="w-full h-auto"
                     />
