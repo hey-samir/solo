@@ -7,6 +7,7 @@ const userRoutes = require('./user');
 const { router: featureFlagsRouter } = require('./feature-flags');
 const leaderboardRoutes = require('./leaderboard');
 const sessionsRoutes = require('./sessions');
+const feedbackRoutes = require('./feedback');
 
 // Health check endpoint
 router.get('/health', (_req, res) => {
@@ -32,5 +33,6 @@ router.use('/users', userRoutes);
 router.use('/feature-flags', featureFlagsRouter);
 router.use('/leaderboard', leaderboardRoutes);
 router.use('/sessions', sessionsRoutes);
+router.use('/feedback', feedbackRoutes);
 
 module.exports = router;
