@@ -11,7 +11,7 @@
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   transition: all 0.2s ease;
-  min-width: 120px;
+  width: 100%;
 }
 
 .btn.bg-purple-600 {
@@ -42,15 +42,18 @@
 }
 
 .profile-buttons {
-  display: flex;
-  gap: 0.75rem;
-  margin: 1.5rem 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0;
+  width: 100%;
 }
 
 .profile-metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 1rem;
+  width: 100%;
 }
 
 .metric-card {
