@@ -44,53 +44,53 @@ const Standings: FC = () => {
   }
 
   return (
-    <div className="container-fluid px-3">
-      <div className="card">
-        <div className="card-body p-0">
-          {cacheInfo.isFromCache && (
-            <div className="alert alert-info m-2">
-              <i className="material-icons align-middle">access_time</i>
-              <span>Viewing cached standings</span>
-              {cacheInfo.timestamp && (
-                <span className="ms-2 text-muted">
-                  Last updated: {new Date(cacheInfo.timestamp).toLocaleString()}
-                </span>
-              )}
-            </div>
-          )}
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Standings</h1>
 
-          <div className="table-responsive">
-            <table className="table table-hover mb-0">
-              <thead>
-                <tr>
-                  <th className="text-center">#</th>
-                  <th>Username</th>
-                  <th className="text-center">Sends</th>
-                  <th className="text-center">Grade</th>
-                  <th className="text-center">Pts</th>
+      {cacheInfo.isFromCache && (
+        <div className="alert alert-info m-2">
+          <i className="material-icons align-middle">access_time</i>
+          <span>Viewing cached standings</span>
+          {cacheInfo.timestamp && (
+            <span className="ms-2 text-muted">
+              Last updated: {new Date(cacheInfo.timestamp).toLocaleString()}
+            </span>
+          )}
+        </div>
+      )}
+
+      <div className="bg-bg-card rounded-lg shadow-lg p-6">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-bg-primary">
+                <th className="py-2 px-4 text-purple-400 w-16 text-center">#</th>
+                <th className="py-2 px-4 text-purple-400">Username</th>
+                <th className="py-2 px-4 text-purple-400 w-20 text-center">Sends</th>
+                <th className="py-2 px-4 text-purple-400 w-20 text-center">Grade</th>
+                <th className="py-2 px-4 text-purple-400 w-24 text-center">Points</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(leaderboard || []).map((entry, index) => (
+                <tr key={entry.username} className="border-b border-bg-primary">
+                  <td className="py-2 px-4 text-center">
+                    {index + 1 <= 3 ? (
+                      <span className="material-symbols-outlined">
+                        counter_{index + 1}
+                      </span>
+                    ) : (
+                      index + 1
+                    )}
+                  </td>
+                  <td className="py-2 px-4">{entry.username}</td>
+                  <td className="py-2 px-4 text-center">{entry.totalSends}</td>
+                  <td className="py-2 px-4 text-center">{entry.avgGrade}</td>
+                  <td className="py-2 px-4 text-center font-medium">{entry.totalPoints}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {(leaderboard || []).map((entry, index) => (
-                  <tr key={entry.username}>
-                    <td className="text-center">
-                      {index + 1 <= 3 ? (
-                        <span className="material-symbols-outlined">
-                          counter_{index + 1}
-                        </span>
-                      ) : (
-                        index + 1
-                      )}
-                    </td>
-                    <td>{entry.username}</td>
-                    <td className="text-center">{entry.totalSends}</td>
-                    <td className="text-center">{entry.avgGrade}</td>
-                    <td className="text-center">{entry.totalPoints}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

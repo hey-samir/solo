@@ -81,6 +81,10 @@ const Sessions: FC = () => {
     }).replace(',', ' -');
   };
 
+  const formatStars = (stars: number): string => {
+    return `${stars}/5`;
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Sessions</h1>
@@ -98,7 +102,7 @@ const Sessions: FC = () => {
 
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="bg-bg-primary p-4 rounded-lg">
-                <div className="text-text-muted text-sm mb-1">Tries</div>
+                <div className="text-text-muted text-sm mb-1">Attempts</div>
                 <div className="text-2xl font-bold text-white">{session.totalTries}</div>
               </div>
               <div className="bg-bg-primary p-4 rounded-lg">
@@ -116,7 +120,7 @@ const Sessions: FC = () => {
                 <thead>
                   <tr className="border-b border-bg-primary">
                     <th className="py-2 px-4 text-purple-400 w-1/4">Route</th>
-                    <th className="py-2 px-4 text-purple-400 w-16">Tries</th>
+                    <th className="py-2 px-4 text-purple-400 w-16">Attempts</th>
                     <th className="py-2 px-4 text-purple-400 w-20">Status</th>
                     <th className="py-2 px-4 text-purple-400 w-16">Stars</th>
                     <th className="py-2 px-4 text-purple-400 w-24">Points</th>
@@ -134,7 +138,7 @@ const Sessions: FC = () => {
                           {attempt.status}
                         </span>
                       </td>
-                      <td className="py-2 px-4">{attempt.stars}</td>
+                      <td className="py-2 px-4">{formatStars(attempt.stars)}</td>
                       <td className="py-2 px-4 font-medium">{attempt.points}</td>
                     </tr>
                   ))}

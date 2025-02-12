@@ -210,7 +210,7 @@ const Stats: FC = () => {
             />
             <MetricCard
               value={stats.avgAttemptsPerClimb ?? 'N/A'}
-              label="Tries / Ascent"
+              label="Attempts / Ascent"
             />
           </div>
         )}
@@ -260,7 +260,7 @@ const Stats: FC = () => {
                           backgroundColor: '#7442d6'
                         },
                         {
-                          label: 'Attempts',
+                          label: 'Tries',
                           data: [2, 3, 1, 4, 2, 3, 2],
                           backgroundColor: '#6c757d'
                         }
@@ -331,7 +331,7 @@ const Stats: FC = () => {
       </div>
     </div>
   )
-}
+};
 
 interface MetricCardProps {
   value: number | string;
