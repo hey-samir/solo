@@ -57,12 +57,12 @@ const Feedback: React.FC = () => {
     category: '',
   });
 
-  const { 
-    data: items = [], 
-    isLoading, 
-    isError, 
+  const {
+    data: items = [],
+    isLoading,
+    isError,
     error,
-    refetch 
+    refetch
   } = useQuery({
     queryKey: ['feedback', sort],
     queryFn: () => feedbackService.getFeedback(sort),
@@ -106,7 +106,7 @@ const Feedback: React.FC = () => {
 
   if (isError) {
     return (
-      <Error 
+      <Error
         message={error?.message || "Failed to load feedback"}
         type="page"
         retry={() => refetch()}
@@ -136,7 +136,7 @@ const Feedback: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium mb-1">Category</label>
                 <select
-                  className="w-full px-3 py-2 bg-gray-700 rounded-md"
+                  className="w-full px-3 py-2 bg-gray-700 rounded-md font-lexend"
                   value={form.category}
                   onChange={e => setForm(prev => ({ ...prev, category: e.target.value }))}
                   required
@@ -164,7 +164,7 @@ const Feedback: React.FC = () => {
                 className="w-full bg-solo-purple hover:bg-solo-purple-light text-white font-bold py-2 px-4 rounded transition-colors"
                 disabled={submitFeedback.isPending}
               >
-                {submitFeedback.isPending ? 'Submitting...' : 'Submit Feedback'}
+                {submitFeedback.isPending ? 'Submitting...' : 'Submit'}
               </button>
             </form>
           </div>
