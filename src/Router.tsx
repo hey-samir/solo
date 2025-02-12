@@ -21,6 +21,7 @@ import Stats from './pages/Stats'
 import Profile from './pages/Profile'
 import Pricing from './pages/Pricing'
 import Feedback from './pages/Feedback'
+import Settings from './pages/Settings'
 
 const Router: React.FC = () => {
   const { flags, isLoading, error } = useFeatureFlags()
@@ -72,6 +73,17 @@ const Router: React.FC = () => {
           )}
 
           {/* Protected Routes */}
+          {flags.enableSettings && (
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              }
+            />
+          )}
+
           <Route
             path="sends"
             element={

@@ -18,15 +18,14 @@ const Standings: FC = () => {
     queryKey: ['leaderboard'],
     queryFn: async () => {
       try {
-        const response: AxiosResponse = await client.get('/api/leaderboard')
-        // Check response headers for cache information
+        const response: AxiosResponse = await client.get('/api/leaderboard') 
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
         setCacheInfo({ isFromCache, timestamp })
-        return response.data || [] // Ensure we always return an array
+        return response.data || []
       } catch (error) {
         console.error('Error fetching leaderboard:', error)
-        return [] // Return empty array on error
+        return []
       }
     }
   })
@@ -43,7 +42,6 @@ const Standings: FC = () => {
     <div className="container-fluid px-3">
       <div className="card">
         <div className="card-body p-0">
-          {/* Cache indicator */}
           {cacheInfo.isFromCache && (
             <div className="alert alert-info m-2">
               <i className="material-icons align-middle">access_time</i>
