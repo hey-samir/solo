@@ -31,7 +31,7 @@ router.get('/auth/leaderboard', async (req, res) => {
       SELECT 
         u.username,
         COUNT(s.id) as total_sends,
-        ROUND(AVG(s.grade_number)::numeric, 1) as avg_grade,
+        COUNT(CASE WHEN s.status = true THEN 1 END) as successful_sends,
         SUM(s.points) as total_points
       FROM users u
       LEFT JOIN sends s ON u.id = s.user_id
@@ -43,7 +43,7 @@ router.get('/auth/leaderboard', async (req, res) => {
     const leaderboard = result.rows.map(row => ({
       username: row.username,
       totalSends: parseInt(row.total_sends) || 0,
-      avgGrade: row.avg_grade?.toString() || 'N/A',
+      avgGrade: `${Math.round((row.successful_sends / row.total_sends) * 100)}%`,
       totalPoints: parseInt(row.total_points) || 0
     }));
 

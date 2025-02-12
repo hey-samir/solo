@@ -20,7 +20,7 @@ const NotFound = () => {
             onClick={() => navigate(-1)}
             className="flex-1 max-w-[200px] bg-solo-purple text-text-primary px-6 py-3 rounded-md hover:bg-solo-purple-light transition-colors shadow-md hover:shadow-lg"
           >
-            Prior Page
+            Back
           </button>
           <button
             onClick={() => navigate('/')}

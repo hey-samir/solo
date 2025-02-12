@@ -19,7 +19,8 @@ const Standings: FC = () => {
     queryKey: ['leaderboard'],
     queryFn: async () => {
       try {
-        const response: AxiosResponse = await client.get('/auth/leaderboard')
+        // Update the endpoint to match the server route
+        const response: AxiosResponse = await client.get('/api/auth/leaderboard')
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
         setCacheInfo({ isFromCache, timestamp })
