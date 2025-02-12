@@ -9,32 +9,22 @@ import * as path from 'path';
 console.log("Starting database migration process...");
 
 // Get connection string from environment variables
-let connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL;
 
-// If DATABASE_URL is not set, construct it from individual variables
 if (!connectionString) {
-  const {
-    PGUSER,
-    PGPASSWORD,
-    PGHOST,
-    PGPORT,
-    PGDATABASE
-  } = process.env;
-
-  if (PGUSER && PGPASSWORD && PGHOST && PGPORT && PGDATABASE) {
-    connectionString = `postgresql://${PGUSER}:${PGPASSWORD}@${PGHOST}:${PGPORT}/${PGDATABASE}?sslmode=require`;
-    console.log("Created connection string from individual variables");
-  } else {
-    console.error("Neither DATABASE_URL nor individual Postgres variables are set");
-    process.exit(1);
-  }
+  console.error("DATABASE_URL environment variable is not set");
+  process.exit(1);
 }
 
 // Set POSTGRES_URL for Vercel client compatibility
 process.env.POSTGRES_URL = connectionString;
+process.env.POSTGRES_URL_NON_POOLING = connectionString;
 
-// Configure database with connection string using createClient for direct connection
-const client = createClient();
+// Configure database client
+const client = createClient({
+  connectionString,
+});
+
 const db = drizzle(client, { schema });
 
 async function main() {
@@ -79,7 +69,7 @@ async function main() {
   } catch (error) {
     console.error("Error during migration:", error);
     console.error("Migration stack trace:", error.stack);
-    await client.end();
+    await client.end().catch(console.error);
     process.exit(1);
   }
 }
@@ -87,13 +77,13 @@ async function main() {
 // Add process error handlers
 process.on('unhandledRejection', async (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  await client.end();
+  await client.end().catch(console.error);
   process.exit(1);
 });
 
 process.on('uncaughtException', async error => {
   console.error('Uncaught Exception:', error);
-  await client.end();
+  await client.end().catch(console.error);
   process.exit(1);
 });
 
