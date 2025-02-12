@@ -79,7 +79,7 @@ const Settings: React.FC = () => {
                 disabled={isUpdating}
               >
                 <img
-                  src={`/assets/avatars/${avatar}`}
+                  src={`/avatars/${avatar}`}
                   alt={`Avatar option ${avatar}`}
                   className="w-full h-auto"
                 />

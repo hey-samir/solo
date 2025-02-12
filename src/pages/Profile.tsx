@@ -95,7 +95,7 @@ const Profile: FC = () => {
           {/* Column 1: Avatar */}
           <div className="w-32">
             <img 
-              src={`/assets/avatars/${user.profilePhoto || 'gray-solo-av.png'}`}
+              src={`/avatars/${user.profilePhoto || 'gray-solo-av.png'}`}
               alt={`${user.username}'s profile`}
               className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
             />
@@ -124,23 +124,23 @@ const Profile: FC = () => {
         <div className="flex gap-3 mb-8">
           {isOwnProfile && (
             <button 
-              className="flex-1 btn bg-purple-600 text-white px-4 py-3 rounded-lg"
+              className="btn bg-purple-600 text-white px-6 py-3 rounded-lg"
               onClick={() => navigate('/settings')}
             >
               <i className="material-icons mr-2">edit</i>
-              Edit Profile
+              Edit
             </button>
           )}
           <button 
-            className="flex-1 btn bg-purple-600 text-white px-4 py-3 rounded-lg"
+            className="btn bg-purple-600 text-white px-6 py-3 rounded-lg"
             onClick={handleShare}
           >
             <i className="material-icons mr-2">share</i>
-            Share Profile
+            Share
           </button>
           {isOwnProfile && (
             <button 
-              className="flex-1 btn bg-gray-600 text-white px-4 py-3 rounded-lg"
+              className="btn bg-gray-600 text-white px-6 py-3 rounded-lg"
               onClick={() => navigate('/logout')}
             >
               <i className="material-icons mr-2">logout</i>
