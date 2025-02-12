@@ -67,7 +67,7 @@ const Feedback: React.FC = () => {
     queryKey: ['feedback', sort],
     queryFn: () => feedbackService.getFeedback(sort),
     retry: 1,
-    staleTime: 30000, 
+    staleTime: 30000,
   });
 
   const submitFeedback = useMutation({
@@ -208,22 +208,20 @@ const Feedback: React.FC = () => {
 
         <div className="space-y-4">
           <div className="bg-bg-card rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">Community Feedback</h2>
-              <div className="flex space-x-2">
-                <button
-                  className={`px-4 py-2 rounded transition-colors ${sort === 'new' ? 'bg-solo-purple' : 'bg-gray-700'}`}
-                  onClick={() => setSort('new')}
-                >
-                  Latest
-                </button>
-                <button
-                  className={`px-4 py-2 rounded transition-colors ${sort === 'top' ? 'bg-solo-purple' : 'bg-gray-700'}`}
-                  onClick={() => setSort('top')}
-                >
-                  Top
-                </button>
-              </div>
+            <h2 className="text-2xl font-bold">Community Feedback</h2>
+            <div className="flex space-x-2 mt-4 mb-4">
+              <button
+                className={`px-4 py-2 rounded transition-colors ${sort === 'new' ? 'bg-solo-purple' : 'bg-gray-700'}`}
+                onClick={() => setSort('new')}
+              >
+                Latest
+              </button>
+              <button
+                className={`px-4 py-2 rounded transition-colors ${sort === 'top' ? 'bg-solo-purple' : 'bg-gray-700'}`}
+                onClick={() => setSort('top')}
+              >
+                Top
+              </button>
             </div>
             <div className="space-y-4">
               {items.length > 0 ? (
