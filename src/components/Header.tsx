@@ -78,6 +78,10 @@ const Header: React.FC = () => {
             to="/feedback" 
             className="flex items-center text-white hover:text-gray-200"
             aria-label="Feedback"
+            onClick={(e) => {
+              e.preventDefault();
+              navigate('/feedback');
+            }}
           >
             <i className="material-icons" style={{ fontSize: '24px' }}>rate_review</i>
           </Link>
