@@ -1,6 +1,6 @@
 import { FC, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import type { AxiosError, AxiosResponse } from 'axios'
+import type { AxiosError } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { ServerError } from './ErrorPage'
@@ -19,17 +19,28 @@ const Standings: FC = () => {
     queryKey: ['leaderboard'],
     queryFn: async () => {
       try {
-        const response: AxiosResponse = await client.get('/leaderboard')
+        console.log('[Standings] Fetching leaderboard data...')
+        const response = await client.get('/leaderboard')
+        console.log('[Standings] Received response:', response)
+
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
         setCacheInfo({ isFromCache, timestamp })
-        return response.data || []
+
+        // Ensure we have an array of standings
+        if (!Array.isArray(response.data)) {
+          console.error('[Standings] Invalid data format:', response.data)
+          throw new Error('Invalid leaderboard data format')
+        }
+
+        return response.data
       } catch (error) {
-        console.error('Error fetching leaderboard:', error)
+        console.error('[Standings] Error fetching leaderboard:', error)
         throw error
       }
     },
-    retry: 1
+    retry: 1,
+    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
   })
 
   if (isLoading) {
@@ -37,7 +48,13 @@ const Standings: FC = () => {
   }
 
   if (error) {
-    return <ServerError />
+    console.error('[Standings] Rendering error state:', error)
+    return <ServerError code={500} message="Failed to load standings" />
+  }
+
+  if (!leaderboard || !Array.isArray(leaderboard)) {
+    console.error('[Standings] Invalid leaderboard data:', leaderboard)
+    return <ServerError code={500} message="Invalid standings data" />
   }
 
   return (
@@ -69,7 +86,7 @@ const Standings: FC = () => {
               </tr>
             </thead>
             <tbody>
-              {(leaderboard || []).map((entry) => (
+              {leaderboard.map((entry) => (
                 <tr key={entry.username} className="border-b border-bg-primary">
                   <td className="py-2 px-3 text-center">
                     {entry.rank <= 3 ? (
