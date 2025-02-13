@@ -20,7 +20,7 @@ const Standings: FC = () => {
     queryFn: async () => {
       try {
         console.log('[Standings] Fetching leaderboard data...')
-        const response = await client.get('/api/leaderboard') 
+        const response = await client.get('/api/leaderboard')
         console.log('[Standings] Raw response:', response)
 
         if (!response.data) {
@@ -60,7 +60,7 @@ const Standings: FC = () => {
       }
     },
     retry: 1,
-    staleTime: 5 * 60 * 1000 
+    staleTime: 5 * 60 * 1000
   })
 
   if (isLoading) {
@@ -100,10 +100,10 @@ const Standings: FC = () => {
             <thead>
               <tr className="border-b border-bg-primary">
                 <th className="py-2 px-2 text-purple-400 w-10 text-center">#</th>
-                <th className="py-2 px-2 text-purple-400">Username</th>
-                <th className="py-2 px-2 text-purple-400 w-14 text-center">Burns</th>
-                <th className="py-2 px-2 text-purple-400 w-14 text-center">Grade</th>
-                <th className="py-2 px-2 text-purple-400 w-14 text-center">Points</th>
+                <th className="py-2 px-2 text-purple-400 w-28">Username</th>
+                <th className="py-2 px-2 text-purple-400 w-20 text-center">Burns</th>
+                <th className="py-2 px-2 text-purple-400 w-20 text-center">Grade</th>
+                <th className="py-2 px-2 text-purple-400 w-20 text-center">Points</th>
               </tr>
             </thead>
             <tbody>
@@ -118,7 +118,7 @@ const Standings: FC = () => {
                       entry.rank
                     )}
                   </td>
-                  <td className="py-2 px-2">{entry.username}</td>
+                  <td className="py-2 px-2 truncate">{entry.username}</td>
                   <td className="py-2 px-2 text-center">{entry.burns}</td>
                   <td className="py-2 px-2 text-center">{entry.grade}</td>
                   <td className="py-2 px-2 text-center font-medium">{entry.points}</td>
