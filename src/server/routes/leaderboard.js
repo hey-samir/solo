@@ -27,18 +27,29 @@ router.get('/', async (req, res) => {
           u.id,
           u.username,
           COUNT(s.id) as burns,
+          AVG(s.tries) as avg_tries,
           SUM(s.points) as points,
+          AVG(CASE 
+            WHEN r.grade ~ '^5\\.\\d+[a-d]?$' 
+            THEN CAST(SUBSTRING(r.grade, 3, 2) AS DECIMAL) 
+            ELSE NULL 
+          END) as avg_grade,
           ROW_NUMBER() OVER (ORDER BY SUM(s.points) DESC NULLS LAST) as rank
         FROM users u
         LEFT JOIN sends s ON u.id = s.user_id
+        LEFT JOIN routes r ON s.route_id = r.id
         WHERE s.created_at >= NOW() - INTERVAL '30 days'
+          AND r.grade IS NOT NULL
         GROUP BY u.id, u.username
       )
       SELECT 
         rank,
+        id,
         username,
         burns,
-        points
+        avg_tries,
+        points,
+        avg_grade
       FROM RankedUsers
       ORDER BY rank ASC
       LIMIT 100;
@@ -50,9 +61,9 @@ router.get('/', async (req, res) => {
       username: row.username || 'Anonymous',
       burns: parseInt(row.burns) || 0,
       points: parseInt(row.points) || 0,
-      grade: 'N/A', // We'll implement grade calculation in a future update
+      grade: row.avg_grade ? `5.${Math.round(row.avg_grade * 10) / 10}` : 'N/A',
       totalSends: parseInt(row.burns) || 0,
-      avgGrade: 'N/A' // We'll implement grade calculation in a future update
+      avgGrade: row.avg_grade ? `5.${Math.round(row.avg_grade * 10) / 10}` : 'N/A'
     }));
 
     // Add cache headers
