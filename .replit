@@ -69,10 +69,6 @@ args = "Staging Server"
 task = "workflow.run"
 args = "Production Server"
 
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Run Migrations"
-
 [[workflows.workflow]]
 name = "Seed Test Data"
 author = "agent"
@@ -127,20 +123,6 @@ args = """
     node src/server/server.js
     """
 waitForPort = 3000
-
-[[workflows.workflow]]
-name = "Run Migrations"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=staging tsx src/server/db/migrate.ts"
 
 [[ports]]
 localPort = 80
