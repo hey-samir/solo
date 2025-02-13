@@ -10,6 +10,7 @@ const feedbackRoutes = require('./feedback');
 const routesRoutes = require('./routes');
 const statsRoutes = require('./stats');
 const sendsRoutes = require('./sends');
+const leaderboardRoutes = require('./leaderboard');
 
 // Debug logging
 console.log('[API Routes] Initializing routes...');
@@ -28,7 +29,8 @@ router.get('/health', (_req, res) => {
       feedback: '/api/feedback',
       routes: '/api/routes',
       stats: '/api/stats',
-      sends: '/api/sends'
+      sends: '/api/sends',
+      leaderboard: '/api/leaderboard'
     }
   });
 });
@@ -57,5 +59,8 @@ router.use('/stats', statsRoutes);
 
 console.log('[API Routes] Mounting sends routes...');
 router.use('/sends', sendsRoutes);
+
+console.log('[API Routes] Mounting leaderboard routes...');
+router.use('/leaderboard', leaderboardRoutes);
 
 module.exports = router;
