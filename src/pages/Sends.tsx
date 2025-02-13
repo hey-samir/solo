@@ -13,6 +13,9 @@ interface Route {
   wall_sector: string
   anchor_number: number
   gym: string
+  points: number
+  tried_points: number
+  average_rating?: number
 }
 
 interface SendFormData {
@@ -21,30 +24,6 @@ interface SendFormData {
   status: boolean
   rating: number
   notes: string
-}
-
-const calculatePoints = (grade: string, rating: number, status: boolean, tries: number): number => {
-  if (!grade) return 0;
-  const gradeMatch = grade.match(/5\.(\d+)([a-d])?/);
-  if (!gradeMatch) return 0;
-
-  const [_, mainGrade, subGrade] = gradeMatch;
-
-  const basePoints: Record<string, number> = {
-    '5': 50, '6': 60, '7': 70, '8': 80, '9': 100, '10': 150,
-    '11': 200, '12': 300, '13': 400, '14': 500, '15': 600
-  }
-
-  const subGradeMultiplier: Record<string, number> = {
-    'a': 1, 'b': 1.1, 'c': 1.2, 'd': 1.3
-  }
-
-  const base = (basePoints[mainGrade] || 0) * (subGradeMultiplier[subGrade?.toLowerCase()] || 1);
-  const starMultiplier = Math.max(0.1, rating / 3);
-  const statusMultiplier = status ? 1 : 0.5;
-  const triesMultiplier = Math.max(0.1, 1 / Math.sqrt(tries));
-
-  return Math.round(base * starMultiplier * statusMultiplier * triesMultiplier);
 }
 
 const Sends: FC = () => {
@@ -129,7 +108,7 @@ const Sends: FC = () => {
 
   const selectedRoute = routes.find(route => route.id === formData.route_id)
   const points = selectedRoute
-    ? calculatePoints(selectedRoute.grade, formData.rating, formData.status, formData.tries)
+    ? (formData.status ? selectedRoute.points : selectedRoute.tried_points)
     : 0
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,111 +129,122 @@ const Sends: FC = () => {
       <div className="bg-bg-card rounded-lg shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-6">
-            {/* Two Column Layout */}
-            <div className="grid grid-cols-[1fr_1fr] gap-4 items-center">
+            {/* Single Column Layout with More Room */}
+            <div className="grid grid-cols-1 gap-4 max-w-2xl mx-auto">
               {/* Route Selection */}
-              <label className="text-text-primary font-medium">Route</label>
-              <select
-                className="form-select bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
-                value={formData.route_id || ''}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  route_id: Number(e.target.value)
-                }))}
-                required
-              >
-                <option value="">Select a route</option>
-                {routes.map(route => (
-                  <option
-                    key={route.id}
-                    value={route.id}
-                  >
-                    {route.wall_sector} - {route.anchor_number} - {route.color} {route.grade}
-                  </option>
-                ))}
-              </select>
-
-              {/* Tries with Slider */}
-              <label className="text-text-primary font-medium">Tries</label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={formData.tries}
+              <div className="space-y-2">
+                <label className="text-text-primary font-medium">Route</label>
+                <select
+                  className="form-select w-full bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
+                  value={formData.route_id || ''}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
-                    tries: Number(e.target.value)
+                    route_id: Number(e.target.value)
                   }))}
-                  className="w-full h-2 bg-bg-kpi-card rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-solo-purple [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
-                />
-                <span className="text-text-primary min-w-[2rem] text-center">{formData.tries}</span>
+                  required
+                >
+                  <option value="">Select a route</option>
+                  {routes.map(route => (
+                    <option
+                      key={route.id}
+                      value={route.id}
+                    >
+                      {route.wall_sector} {route.anchor_number} - {route.color} {route.grade}
+                      {route.average_rating ? ` (${route.average_rating.toFixed(1)}★)` : ''}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Status Toggle */}
-              <label className="text-text-primary font-medium">Status</label>
-              <div className="flex items-center space-x-3">
-                <div
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    formData.status ? 'bg-solo-purple' : 'bg-gray-600'
-                  }`}
-                  onClick={() => setFormData(prev => ({ ...prev, status: !prev.status }))}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      formData.status ? 'translate-x-6' : 'translate-x-1'
-                    }`}
+              {/* Tries */}
+              <div className="space-y-2">
+                <label className="text-text-primary font-medium">Tries</label>
+                <div className="flex items-center space-x-4">
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={formData.tries}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      tries: Number(e.target.value)
+                    }))}
+                    className="w-full h-2 bg-bg-kpi-card rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-solo-purple [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
                   />
+                  <span className="text-text-primary min-w-[2rem] text-center">{formData.tries}</span>
                 </div>
-                <span className="text-text-primary">
-                  {formData.status ? 'Sent' : 'Attempted'}
-                </span>
+              </div>
+
+              {/* Status Toggle with Consistent Height */}
+              <div className="space-y-2">
+                <label className="text-text-primary font-medium">Status</label>
+                <div className="flex items-center h-10 space-x-3">
+                  <div
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      formData.status ? 'bg-solo-purple' : 'bg-gray-600'
+                    }`}
+                    onClick={() => setFormData(prev => ({ ...prev, status: !prev.status }))}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        formData.status ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </div>
+                  <span className="text-text-primary">
+                    {formData.status ? 'Sent' : 'Tried'}
+                  </span>
+                </div>
               </div>
 
               {/* Star Rating */}
-              <label className="text-text-primary font-medium">Stars</label>
-              <div className="flex space-x-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
-                    className="text-2xl focus:outline-none"
-                  >
-                    <i className={`material-icons ${
-                      star <= formData.rating ? 'text-solo-purple' : 'text-gray-400'
-                    }`}>
-                      star
-                    </i>
-                  </button>
-                ))}
+              <div className="space-y-2">
+                <label className="text-text-primary font-medium">Your Rating</label>
+                <div className="flex space-x-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+                      className="text-2xl focus:outline-none"
+                    >
+                      <i className={`material-icons ${
+                        star <= formData.rating ? 'text-solo-purple' : 'text-gray-400'
+                      }`}>
+                        star
+                      </i>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Notes */}
-              <label className="text-text-primary font-medium">Notes</label>
-              <textarea
-                className="form-textarea bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
-                rows={3}
-                value={formData.notes}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  notes: e.target.value
-                }))}
-              />
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-end space-x-4 items-center">
-              <div className="text-text-primary">
-                Points: {points}
+              <div className="space-y-2">
+                <label className="text-text-primary font-medium">Notes</label>
+                <textarea
+                  className="w-full form-textarea bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
+                  rows={3}
+                  value={formData.notes}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    notes: e.target.value
+                  }))}
+                />
               </div>
-              <button
-                type="submit"
-                className="px-6 py-2 bg-solo-purple hover:bg-solo-purple-light text-white rounded-lg transition-colors disabled:opacity-50"
-                disabled={sendMutation.isPending || formData.route_id === 0}
-              >
-                {sendMutation.isPending ? 'Sending...' : formData.status ? 'Send' : 'Log'}
-              </button>
+
+              {/* Points and Submit Button */}
+              <div className="flex flex-col items-center space-y-2 pt-4">
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-solo-purple hover:bg-solo-purple-light text-white rounded-lg transition-colors disabled:opacity-50"
+                  disabled={sendMutation.isPending || formData.route_id === 0}
+                >
+                  {sendMutation.isPending ? 'Sending...' : formData.status ? 'Send' : 'Log'}
+                </button>
+                <div className="text-text-primary font-medium">
+                  Points: {points}
+                </div>
+              </div>
             </div>
           </div>
         </form>
