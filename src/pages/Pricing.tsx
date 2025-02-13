@@ -7,7 +7,7 @@ const Pricing: FC = () => {
   const { isAuthenticated } = useAuth()
 
   return (
-    <div className="container px-6 py-8">
+    <div className="container px-6 py-8 font-lexend">
       <h1 className="text-2xl font-bold text-text-primary mb-6">Solo Pro</h1>
 
       <div className="bg-bg-card rounded-lg shadow-lg overflow-hidden">
@@ -27,65 +27,59 @@ const Pricing: FC = () => {
           </thead>
           <tbody className="text-sm">
             <tr className="border-b border-border-default">
-              <td className="py-2.5 px-4">Send Logging</td>
-              <td className="text-center py-2.5 px-4">
+              <td className="py-3 px-4">Send Logging</td>
+              <td className="text-center py-3 px-4">
                 <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-2.5 px-4">
-                <i className="material-icons text-white text-base">circle</i>
-              </td>
-            </tr>
-            <tr className="border-b border-border-default">
-              <td className="py-2.5 px-4">Global Leaderboard</td>
-              <td className="text-center py-2.5 px-4">
-                <i className="material-icons text-white text-base">circle</i>
-              </td>
-              <td className="text-center py-2.5 px-4">
+              <td className="text-center py-3 px-4">
                 <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
             <tr className="border-b border-border-default">
-              <td className="py-2.5 px-4">Session View</td>
-              <td className="text-center py-2.5 px-4">
+              <td className="py-3 px-4">Global Leaderboard</td>
+              <td className="text-center py-3 px-4">
                 <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-2.5 px-4">
-                <i className="material-icons text-white text-base">circle</i>
-              </td>
-            </tr>
-            <tr className="border-b border-border-default">
-              <td className="py-2.5 px-4">Stats Tracking</td>
-              <td className="text-center py-2.5 px-4">
-                <i className="material-icons text-white text-base">circle</i>
-              </td>
-              <td className="text-center py-2.5 px-4">
+              <td className="text-center py-3 px-4">
                 <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
             <tr className="border-b border-border-default">
-              <td className="py-2.5 px-4">Ad-free Experience</td>
-              <td className="text-center py-2.5 px-4">
-                <i className="material-icons text-white text-base">circle_outlined</i>
+              <td className="py-3 px-4">Session View</td>
+              <td className="text-center py-3 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-2.5 px-4">
+              <td className="text-center py-3 px-4">
                 <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
             <tr className="border-b border-border-default">
-              <td className="py-2.5 px-4">Custom Avatars</td>
-              <td className="text-center py-2.5 px-4">
-                <i className="material-icons text-white text-base">circle_outlined</i>
+              <td className="py-3 px-4">Stats Tracking</td>
+              <td className="text-center py-3 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-2.5 px-4">
+              <td className="text-center py-3 px-4">
                 <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
             <tr className="border-b border-border-default">
-              <td className="py-2.5 px-4">Solo AI</td>
-              <td className="text-center py-2.5 px-4">
-                <i className="material-icons text-white text-base">circle_outlined</i>
+              <td className="py-3 px-4">Ad-free Experience</td>
+              <td className="text-center py-3 px-4"></td>
+              <td className="text-center py-3 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-2.5 px-4">
+            </tr>
+            <tr className="border-b border-border-default">
+              <td className="py-3 px-4">Custom Avatars</td>
+              <td className="text-center py-3 px-4"></td>
+              <td className="text-center py-3 px-4">
+                <i className="material-icons text-white text-base">circle</i>
+              </td>
+            </tr>
+            <tr className="border-b border-border-default">
+              <td className="py-3 px-4">Solo AI</td>
+              <td className="text-center py-3 px-4"></td>
+              <td className="text-center py-3 px-4">
                 <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
