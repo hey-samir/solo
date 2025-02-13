@@ -10,6 +10,7 @@ const sessionsRoutes = require('./sessions');
 const feedbackRoutes = require('./feedback');
 const routesRoutes = require('./routes');
 const statsRoutes = require('./stats');
+const sendsRoutes = require('./sends'); // Add sends routes import
 
 // Health check endpoint
 router.get('/health', (_req, res) => {
@@ -38,5 +39,6 @@ router.use('/sessions', sessionsRoutes);
 router.use('/feedback', feedbackRoutes);
 router.use('/routes', routesRoutes);
 router.use('/stats', statsRoutes);
+router.use('/sends', sendsRoutes); // Mount sends routes
 
 module.exports = router;
