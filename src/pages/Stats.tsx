@@ -148,7 +148,7 @@ const Stats: FC = () => {
     <div className="container mx-auto px-4 py-8 font-lexend">
       <ul className="nav nav-pills mb-8 flex space-x-4 border-b border-border-default">
         <li className="nav-item" role="presentation">
-          <button 
+          <button
             className={`nav-link text-text-primary px-4 py-2 ${activeTab === 'metrics' ? 'text-solo-purple border-b-2 border-solo-purple' : ''}`}
             onClick={() => setActiveTab('metrics')}
             type="button"
@@ -158,7 +158,7 @@ const Stats: FC = () => {
           </button>
         </li>
         <li className="nav-item" role="presentation">
-          <button 
+          <button
             className={`nav-link text-text-primary px-4 py-2 ${activeTab === 'trends' ? 'text-solo-purple border-b-2 border-solo-purple' : ''}`}
             onClick={() => setActiveTab('trends')}
             type="button"
@@ -218,23 +218,47 @@ const Stats: FC = () => {
         {activeTab === 'trends' && chartData && (
           <div className="space-y-8">
             <ChartCard
-              title="Route Mix"
+              title="Climbing Progress"
               chart={
                 <div className="h-[300px]">
-                  <Doughnut
+                  <Line
                     data={{
-                      labels: chartData.ascentsByDifficulty.labels,
-                      datasets: [{
-                        data: chartData.ascentsByDifficulty.data,
-                        backgroundColor: chartData.ascentsByDifficulty.labels.map(grade => getGradeColor(grade))
-                      }]
+                      labels: chartData.map(data => formatDate(data.date)),
+                      datasets: [
+                        {
+                          label: 'Points per Session',
+                          data: chartData.map(data => data.points),
+                          borderColor: '#7442d6',
+                          backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                          fill: true,
+                          tension: 0.4
+                        }
+                      ]
                     }}
                     options={{
                       responsive: true,
                       maintainAspectRatio: false,
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                          },
+                          ticks: {
+                            color: '#CBD5E1'
+                          }
+                        },
+                        x: {
+                          grid: {
+                            display: false
+                          },
+                          ticks: {
+                            color: '#CBD5E1'
+                          }
+                        }
+                      },
                       plugins: {
                         legend: {
-                          position: 'right',
                           labels: {
                             color: '#CBD5E1'
                           }
@@ -247,21 +271,21 @@ const Stats: FC = () => {
             />
 
             <ChartCard
-              title="Sends Over Time"
+              title="Sends vs Attempts"
               chart={
                 <div className="h-[300px]">
                   <Bar
                     data={{
-                      labels: chartData.sendsByDate.labels.map(formatDate),
+                      labels: chartData.map(data => formatDate(data.date)),
                       datasets: [
                         {
                           label: 'Sends',
-                          data: chartData.sendsByDate.sends,
+                          data: chartData.map(data => data.sends),
                           backgroundColor: '#7442d6'
                         },
                         {
-                          label: 'Tries',
-                          data: chartData.sendsByDate.attempts,
+                          label: 'Attempts',
+                          data: chartData.map(data => data.attempts),
                           backgroundColor: '#6c757d'
                         }
                       ]
@@ -274,11 +298,24 @@ const Stats: FC = () => {
                           beginAtZero: true,
                           grid: {
                             color: 'rgba(255, 255, 255, 0.1)'
+                          },
+                          ticks: {
+                            color: '#CBD5E1'
                           }
                         },
                         x: {
                           grid: {
                             display: false
+                          },
+                          ticks: {
+                            color: '#CBD5E1'
+                          }
+                        }
+                      },
+                      plugins: {
+                        legend: {
+                          labels: {
+                            color: '#CBD5E1'
                           }
                         }
                       }
@@ -289,35 +326,58 @@ const Stats: FC = () => {
             />
 
             <ChartCard
-              title="Send Rate"
+              title="Grade Progression"
               chart={
                 <div className="h-[300px]">
                   <Line
                     data={{
-                      labels: chartData.metricsOverTime.labels.map(formatDate),
-                      datasets: chartData.metricsOverTime.metrics.map(metric => ({
-                        label: metric.name,
-                        data: metric.data,
-                        borderColor: '#7442d6',
-                        backgroundColor: 'rgba(116, 66, 214, 0.2)',
-                        fill: true,
-                        tension: 0.4
-                      }))
+                      labels: chartData.map(data => formatDate(data.date)),
+                      datasets: [
+                        {
+                          label: 'Average Grade',
+                          data: chartData.map(data => {
+                            if (data.avgGrade) {
+                              const gradeNum = parseFloat(data.avgGrade.replace('5.', ''));
+                              return gradeNum || null;
+                            }
+                            return null;
+                          }),
+                          borderColor: '#7442d6',
+                          backgroundColor: 'rgba(116, 66, 214, 0.2)',
+                          fill: true,
+                          tension: 0.4
+                        }
+                      ]
                     }}
                     options={{
                       responsive: true,
                       maintainAspectRatio: false,
                       scales: {
                         y: {
-                          beginAtZero: true,
-                          max: 100,
+                          beginAtZero: false,
                           grid: {
                             color: 'rgba(255, 255, 255, 0.1)'
+                          },
+                          ticks: {
+                            color: '#CBD5E1',
+                            callback: function(value) {
+                              return '5.' + value;
+                            }
                           }
                         },
                         x: {
                           grid: {
                             display: false
+                          },
+                          ticks: {
+                            color: '#CBD5E1'
+                          }
+                        }
+                      },
+                      plugins: {
+                        legend: {
+                          labels: {
+                            color: '#CBD5E1'
                           }
                         }
                       }
