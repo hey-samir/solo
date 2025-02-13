@@ -1,9 +1,10 @@
 import React, { FC, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
+import type { AxiosError } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
-import Error from '../components/Error'
+import { ServerError } from '../components/Error'
 
 interface Route {
   id: number
@@ -56,14 +57,22 @@ const Sends: FC = () => {
     notes: ''
   })
 
-  const { data: routesData, isLoading, error, refetch } = useQuery<Route[]>({
+  const { data: routesData, isLoading, error: routesError, refetch } = useQuery<Route[], AxiosError>({
     queryKey: ['routes'],
     queryFn: async () => {
       try {
+        console.log('[Sends] Fetching routes...')
         const response = await client.get('/api/routes?gym=Movement+Gowanus')
+        console.log('[Sends] Routes response:', response.data)
+
+        if (!response.data || !Array.isArray(response.data)) {
+          console.error('[Sends] Invalid routes data format:', response.data)
+          throw new Error('Invalid routes data format')
+        }
+
         return response.data
       } catch (err) {
-        console.error('Error fetching routes:', err)
+        console.error('[Sends] Error fetching routes:', err)
         throw err
       }
     },
@@ -74,9 +83,18 @@ const Sends: FC = () => {
 
   const sendMutation = useMutation({
     mutationFn: async (data: SendFormData) => {
-      return await client.post('/api/climbs', data)
+      try {
+        console.log('[Sends] Submitting send data:', data)
+        const response = await client.post('/api/climbs', data)
+        console.log('[Sends] Send response:', response.data)
+        return response.data
+      } catch (err) {
+        console.error('[Sends] Error submitting send:', err)
+        throw err
+      }
     },
     onSuccess: () => {
+      console.log('[Sends] Successfully submitted send')
       setFormData({
         route_id: 0,
         tries: 1,
@@ -84,6 +102,10 @@ const Sends: FC = () => {
         rating: 3,
         notes: ''
       })
+      navigate('/sessions')
+    },
+    onError: (error: unknown) => {
+      console.error('[Sends] Mutation error:', error)
     }
   })
 
@@ -91,16 +113,18 @@ const Sends: FC = () => {
     return <LoadingSpinner />
   }
 
-  if (error) {
-    return (
-      <Error 
-        message="Failed to load routes. Please try again." 
-        type="page"
-        retry={() => {
-          refetch()
-        }}
-      />
-    )
+  if (routesError) {
+    console.error('[Sends] Rendering error state:', routesError)
+    if (routesError?.response?.status === 401) {
+      navigate('/login')
+      return null
+    }
+    const errorMessage = routesError?.response?.data?.message || 'Failed to load routes'
+    return <ServerError code={routesError?.response?.status || 500} message={errorMessage} />
+  }
+
+  if (!routes.length) {
+    return <ServerError code={404} message="No routes available" />
   }
 
   const selectedRoute = routes.find(route => route.id === formData.route_id)
@@ -115,14 +139,14 @@ const Sends: FC = () => {
     }
     try {
       await sendMutation.mutateAsync(formData)
-      navigate('/sessions')
     } catch (err) {
-      console.error('Error submitting send:', err)
+      console.error('[Sends] Error in handleSubmit:', err)
     }
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Log Send</h1>
       <div className="bg-bg-card rounded-lg shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-6">

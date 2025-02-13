@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
-import { ServerError } from './ErrorPage'
+import { ServerError } from '../pages/ErrorPage'
 import type { Standing } from '../types'
 
 const Standings: FC = () => {
@@ -79,8 +79,8 @@ const Standings: FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center w-full max-w-2xl mx-auto px-2 py-6">
-      <h1 className="text-2xl font-bold mb-4">Standings</h1>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Standings</h1>
 
       {cacheInfo.isFromCache && (
         <div className="alert alert-info mb-4 w-full">

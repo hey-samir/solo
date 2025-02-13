@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ErrorProps } from '../types';
+import { ErrorProps, ErrorPageProps } from '../types';
 
 // Climbing-themed error messages
 const getClimbingErrorMessage = (message: string): string => {
@@ -98,5 +98,20 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
     </div>
   );
 };
+
+export const ServerError: React.FC<ErrorPageProps> = ({ code, message }) => (
+  <div className="container mx-auto px-4 py-8">
+    <div className="text-center">
+      <h1 className="text-4xl font-bold text-solo-purple mb-4">{code}</h1>
+      <p className="text-text-primary mb-6">{message}</p>
+      <button 
+        onClick={() => window.location.reload()} 
+        className="btn bg-solo-purple hover:bg-solo-purple-light text-white px-6 py-2 rounded"
+      >
+        Try Again
+      </button>
+    </div>
+  </div>
+);
 
 export default Error;
