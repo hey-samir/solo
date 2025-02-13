@@ -79,13 +79,12 @@ const Standings: FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center w-full max-w-2xl mx-auto px-4 py-6">
+    <div className="flex flex-col items-center w-full max-w-2xl mx-auto px-2 py-6">
       <h1 className="text-2xl font-bold mb-4">Standings</h1>
 
       {cacheInfo.isFromCache && (
         <div className="alert alert-info mb-4 w-full">
-          {/* Material Icons fix: Using a proper import and className */}
-          <span className="material-icons align-middle">access_time</span> {/* Corrected this line */}
+          <span className="material-icons align-middle">access_time</span>
           <span>Viewing cached standings</span>
           {cacheInfo.timestamp && (
             <span className="ms-2 text-muted">
@@ -97,21 +96,20 @@ const Standings: FC = () => {
 
       <div className="bg-bg-card rounded-lg shadow-lg w-full overflow-hidden">
         <div className="overflow-x-auto">
-          {/* Table width fix: Added a style to prevent table expansion */}
-          <table className="w-full table-auto" style={{ tableLayout: 'fixed' }}> {/* Added table-auto and style */}
+          <table className="w-full table-auto text-sm" style={{ tableLayout: 'fixed' }}>
             <thead>
               <tr className="border-b border-bg-primary">
-                <th className="py-2 px-3 text-purple-400 w-12 text-center">#</th>
-                <th className="py-2 px-3 text-purple-400">Username</th>
-                <th className="py-2 px-3 text-purple-400 w-16 text-center">Burns</th>
-                <th className="py-2 px-3 text-purple-400 w-16 text-center">Grade</th>
-                <th className="py-2 px-3 text-purple-400 w-16 text-center">Points</th>
+                <th className="py-2 px-2 text-purple-400 w-10 text-center">#</th>
+                <th className="py-2 px-2 text-purple-400">Username</th>
+                <th className="py-2 px-2 text-purple-400 w-14 text-center">Burns</th>
+                <th className="py-2 px-2 text-purple-400 w-14 text-center">Grade</th>
+                <th className="py-2 px-2 text-purple-400 w-14 text-center">Points</th>
               </tr>
             </thead>
             <tbody>
               {leaderboard.map((entry) => (
                 <tr key={entry.username} className="border-b border-bg-primary">
-                  <td className="py-2 px-3 text-center">
+                  <td className="py-2 px-2 text-center">
                     {entry.rank <= 3 ? (
                       <span className="material-icons">
                         looks_{entry.rank === 1 ? 'one' : entry.rank === 2 ? 'two' : 'three'}
@@ -120,10 +118,10 @@ const Standings: FC = () => {
                       entry.rank
                     )}
                   </td>
-                  <td className="py-2 px-3">{entry.username}</td>
-                  <td className="py-2 px-3 text-center">{entry.burns}</td>
-                  <td className="py-2 px-3 text-center">{entry.grade}</td>
-                  <td className="py-2 px-3 text-center font-medium">{entry.points}</td>
+                  <td className="py-2 px-2">{entry.username}</td>
+                  <td className="py-2 px-2 text-center">{entry.burns}</td>
+                  <td className="py-2 px-2 text-center">{entry.grade}</td>
+                  <td className="py-2 px-2 text-center font-medium">{entry.points}</td>
                 </tr>
               ))}
             </tbody>
