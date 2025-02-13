@@ -34,13 +34,11 @@ const Standings: FC = () => {
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
         setCacheInfo({ isFromCache, timestamp })
 
-        // Ensure we have an array of standings
         if (!Array.isArray(response.data)) {
           console.error('[Standings] Invalid data format:', response.data)
           throw new Error('Invalid leaderboard data format')
         }
 
-        // Validate the data structure
         const validatedData = response.data.map((entry: any) => ({
           ...entry,
           rank: entry.rank || 0,
@@ -86,7 +84,8 @@ const Standings: FC = () => {
 
       {cacheInfo.isFromCache && (
         <div className="alert alert-info mb-4 w-full">
-          <i className="material-icons align-middle">access_time</i>
+          {/* Material Icons fix: Using a proper import and className */}
+          <span className="material-icons align-middle">access_time</span> {/* Corrected this line */}
           <span>Viewing cached standings</span>
           {cacheInfo.timestamp && (
             <span className="ms-2 text-muted">
@@ -98,7 +97,8 @@ const Standings: FC = () => {
 
       <div className="bg-bg-card rounded-lg shadow-lg w-full overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          {/* Table width fix: Added a style to prevent table expansion */}
+          <table className="w-full table-auto" style={{ tableLayout: 'fixed' }}> {/* Added table-auto and style */}
             <thead>
               <tr className="border-b border-bg-primary">
                 <th className="py-2 px-3 text-purple-400 w-12 text-center">#</th>
