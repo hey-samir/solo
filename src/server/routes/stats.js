@@ -83,8 +83,9 @@ router.get('/', async (req, res) => {
       details: error.message
     });
   } finally {
-    await client.end();
+    await client.end().catch(console.error);
   }
 });
 
+// Export the router
 module.exports = router;
