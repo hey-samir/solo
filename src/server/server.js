@@ -21,7 +21,7 @@ const staticPath = path.join(process.cwd(), '/dist');
 // Extended logging middleware
 app.use(morgan('dev'));
 app.use((req, res, next) => {
-  console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
+  console.log(`[${NODE_ENV}] ${req.method} ${req.url} with query:`, req.query);
   next();
 });
 

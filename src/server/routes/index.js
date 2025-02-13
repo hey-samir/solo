@@ -35,6 +35,12 @@ router.get('/health', (_req, res) => {
   });
 });
 
+// Add request logging middleware
+router.use((req, res, next) => {
+  console.log(`[API] ${req.method} ${req.path} with query:`, req.query);
+  next();
+});
+
 // Mount routes with debug logging
 console.log('[API Routes] Mounting auth routes...');
 router.use('/auth', authRoutes);
@@ -51,7 +57,7 @@ router.use('/sessions', sessionsRoutes);
 console.log('[API Routes] Mounting feedback routes...');
 router.use('/feedback', feedbackRoutes);
 
-console.log('[API Routes] Mounting climbing routes...');
+console.log('[API Routes] Mounting routes...');
 router.use('/routes', routesRoutes);
 
 console.log('[API Routes] Mounting stats routes...');

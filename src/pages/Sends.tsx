@@ -42,7 +42,7 @@ const Sends: FC = () => {
     queryFn: async () => {
       try {
         console.log('[Sends] Fetching routes...')
-        const response = await client.get('/api/routes?gym=Movement+Gowanus')
+        const response = await client.get('/api/routes')
         console.log('[Sends] Routes response:', response.data)
 
         if (!response.data || !Array.isArray(response.data)) {
@@ -65,7 +65,7 @@ const Sends: FC = () => {
     mutationFn: async (data: SendFormData) => {
       try {
         console.log('[Sends] Submitting send data:', data)
-        const response = await client.post('/api/climbs', data)
+        const response = await client.post('/api/sends', data)
         console.log('[Sends] Send response:', response.data)
         return response.data
       } catch (err) {
@@ -95,16 +95,11 @@ const Sends: FC = () => {
 
   if (routesError) {
     console.error('[Sends] Rendering error state:', routesError)
-    if (routesError?.response?.status === 401) {
-      navigate('/login')
-      return null
-    }
-    const errorMessage = routesError?.response?.data?.message || 'Failed to load routes'
-    return <ServerError code={routesError?.response?.status || 500} message={errorMessage} />
+    return <ServerError code={404} message="Failed to load routes. Please try again later." />
   }
 
   if (!routes.length) {
-    return <ServerError code={404} message="No routes available" />
+    return <ServerError code={404} message="No active routes available" />
   }
 
   const selectedRoute = routes.find(route => route.id === formData.route_id)
@@ -126,7 +121,7 @@ const Sends: FC = () => {
 
   return (
     <div className="container px-6 py-8">
-      <h1 className="text-3xl font-bold text-text-primary mb-6">Sends</h1>
+      <h1 className="text-3xl font-bold text-text-primary mb-6">Log a Climb</h1>
       <div className="bg-bg-card rounded-lg shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-6">
@@ -149,8 +144,7 @@ const Sends: FC = () => {
                     key={route.id}
                     value={route.id}
                   >
-                    {route.wall_sector} {route.anchor_number} {route.color} {route.grade}
-                    {route.average_rating ? ` (${route.average_rating.toFixed(1)}★)` : ''}
+                    {`${route.wall_sector} ${route.color} ${route.grade}${route.average_rating ? ` (${route.average_rating.toFixed(1)}★)` : ''}`}
                   </option>
                 ))}
               </select>
@@ -214,16 +208,17 @@ const Sends: FC = () => {
               {/* Notes */}
               <label className="text-text-primary font-medium pt-2">Notes</label>
               <textarea
-                className="w-full form-textarea bg-[#2b3245] text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
+                className="w-full bg-[#2b3245] text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple form-textarea"
                 rows={3}
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({
                   ...prev,
                   notes: e.target.value
                 }))}
+                placeholder="Optional: Add any notes about your climb..."
               />
 
-              {/* Points and Submit Button */}
+              {/* Points Display */}
               <div className="col-span-2 flex flex-col items-center space-y-2 pt-4">
                 <button
                   type="submit"
