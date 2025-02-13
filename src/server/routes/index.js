@@ -5,7 +5,6 @@ const router = express.Router();
 const authRoutes = require('./auth');
 const userRoutes = require('./user');
 const { router: featureFlagsRouter } = require('./feature-flags');
-const leaderboardRoutes = require('./auth'); // We use auth for leaderboard
 const sessionsRoutes = require('./sessions');
 const feedbackRoutes = require('./feedback');
 const routesRoutes = require('./routes');
@@ -23,9 +22,8 @@ router.get('/health', (_req, res) => {
     environment: process.env.NODE_ENV,
     routes: {
       auth: '/api/auth',
-      users: '/api/users',
+      user: '/api/user',
       features: '/api/feature-flags',
-      leaderboard: '/api/leaderboard',
       sessions: '/api/sessions',
       feedback: '/api/feedback',
       routes: '/api/routes',
@@ -40,13 +38,10 @@ console.log('[API Routes] Mounting auth routes...');
 router.use('/auth', authRoutes);
 
 console.log('[API Routes] Mounting user routes...');
-router.use('/users', userRoutes);
+router.use('/user', userRoutes); 
 
 console.log('[API Routes] Mounting feature flag routes...');
 router.use('/feature-flags', featureFlagsRouter);
-
-console.log('[API Routes] Mounting leaderboard routes...');
-router.use('/leaderboard', leaderboardRoutes);
 
 console.log('[API Routes] Mounting session routes...');
 router.use('/sessions', sessionsRoutes);

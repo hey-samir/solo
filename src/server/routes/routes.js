@@ -22,8 +22,7 @@ router.get('/', async (req, res) => {
         r.color,
         r.wall_sector,
         r.created_at,
-        COUNT(DISTINCT s.id) as send_count,
-        AVG(s.rating) as avg_rating
+        COUNT(DISTINCT s.id) as send_count
       FROM routes r
       LEFT JOIN sends s ON r.id = s.route_id
       WHERE r.gym_id = $1 AND r.active = true
@@ -37,7 +36,6 @@ router.get('/', async (req, res) => {
       color: route.color,
       location: route.wall_sector,
       sendCount: parseInt(route.send_count) || 0,
-      avgRating: parseFloat(route.avg_rating) || 0,
       createdAt: route.created_at
     }));
 
