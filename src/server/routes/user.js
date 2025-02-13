@@ -96,55 +96,48 @@ router.get('/me/stats/charts', async (req, res) => {
 
     const userId = req.user?.id || 1;
 
+    // Simplified query with better error handling
     const result = await client.query(`
       WITH daily_stats AS (
         SELECT 
           DATE(created_at) as date,
           COUNT(*) as attempts,
           COUNT(CASE WHEN status = true THEN 1 END) as sends,
-          SUM(points) as points,
+          COALESCE(SUM(points), 0) as points,
           COUNT(DISTINCT route_id) as unique_routes
         FROM sends
         WHERE user_id = $1
         GROUP BY DATE(created_at)
         ORDER BY date DESC
         LIMIT 30
-      ),
-      grade_progression AS (
-        SELECT 
-          DATE(s.created_at) as date,
-          AVG(CASE 
-            WHEN r.grade ~ '^5\\.\\d+[a-d]?$' 
-            THEN CAST(SUBSTRING(r.grade, 3, 2) AS DECIMAL) 
-            ELSE NULL 
-          END) as avg_grade
-        FROM sends s
-        JOIN routes r ON s.route_id = r.id
-        WHERE s.user_id = $1 AND s.status = true
-        GROUP BY DATE(s.created_at)
-        ORDER BY date DESC
-        LIMIT 30
       )
       SELECT 
-        ds.*,
-        gp.avg_grade
-      FROM daily_stats ds
-      LEFT JOIN grade_progression gp ON ds.date = gp.date
-      ORDER BY ds.date ASC
+        date,
+        attempts,
+        sends,
+        points,
+        unique_routes
+      FROM daily_stats
+      ORDER BY date ASC
     `, [userId]);
 
     const chartData = result.rows.map(row => ({
       date: row.date.toISOString().split('T')[0],
-      attempts: parseInt(row.attempts),
-      sends: parseInt(row.sends),
-      points: parseInt(row.points),
-      uniqueRoutes: parseInt(row.unique_routes),
-      avgGrade: row.avg_grade ? `5.${Math.round(row.avg_grade * 10) / 10}` : null
-    }));
+      attempts: parseInt(row.attempts) || 0,
+      sends: parseInt(row.sends) || 0,
+      points: parseInt(row.points) || 0,
+      uniqueRoutes: parseInt(row.unique_routes) || 0
+    })).filter(data => data.date != null);
 
     // Add cache headers
     res.set('Cache-Control', 'public, max-age=300');
     res.set('X-Cache-Timestamp', new Date().toISOString());
+
+    console.log('[User Stats Charts API] Successfully prepared chart data:', {
+      dataPoints: chartData.length,
+      firstDate: chartData[0]?.date,
+      lastDate: chartData[chartData.length - 1]?.date
+    });
 
     res.json(chartData);
   } catch (error) {
