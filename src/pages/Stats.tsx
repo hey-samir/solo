@@ -87,7 +87,7 @@ const Stats: FC = () => {
 
   return (
     <div className="container px-6 py-8 font-lexend">
-      <h1 className="text-2xl font-bold text-text-primary mb-6">Stats</h1>
+      <h1 className="text-3xl font-bold text-text-primary mb-6">Stats</h1>
 
       <div className="relative mb-8">
         <div className="flex border-b border-border-default">
