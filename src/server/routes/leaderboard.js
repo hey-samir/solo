@@ -28,11 +28,40 @@ router.get('/', async (req, res) => {
           u.username,
           COUNT(s.id) as burns,
           AVG(s.tries) as avg_tries,
-          SUM(s.points) as points,
-          AVG(s.points) as avg_points,
-          ROW_NUMBER() OVER (ORDER BY SUM(s.points) DESC NULLS LAST) as rank
+          -- Join with routes and points tables to get correct points
+          SUM(
+            COALESCE(
+              CASE 
+                WHEN s.tries = 1 THEN p.points  -- Flash
+                ELSE p.tried_points             -- Send with attempts
+              END,
+              0
+            )
+          ) as total_points,
+          AVG(
+            COALESCE(
+              CASE 
+                WHEN s.tries = 1 THEN p.points  -- Flash
+                ELSE p.tried_points             -- Send with attempts
+              END,
+              0
+            )
+          ) as avg_points,
+          ROW_NUMBER() OVER (
+            ORDER BY SUM(
+              COALESCE(
+                CASE 
+                  WHEN s.tries = 1 THEN p.points
+                  ELSE p.tried_points
+                END,
+                0
+              )
+            ) DESC NULLS LAST
+          ) as rank
         FROM users u
         LEFT JOIN sends s ON u.id = s.user_id
+        LEFT JOIN routes r ON s.route_id = r.id
+        LEFT JOIN points p ON r.grade = p.grade
         WHERE s.created_at >= NOW() - INTERVAL '30 days'
         GROUP BY u.id, u.username
       )
@@ -42,7 +71,7 @@ router.get('/', async (req, res) => {
         username,
         burns,
         avg_tries,
-        points,
+        total_points as points,
         avg_points
       FROM RankedUsers
       ORDER BY rank ASC
