@@ -34,14 +34,16 @@ const Sessions: FC = () => {
     queryKey: ['sessions'],
     queryFn: async () => {
       try {
-        const response = await client.get('/sessions');
-        console.log('Sessions response:', response.data);
+        console.log('[Sessions] Making API request to /api/sessions...');
+        const response = await client.get('/api/sessions');
+        console.log('[Sessions] Response:', response.data);
+
         if (!response.data) {
           throw { message: 'No data received from server', status: 500 };
         }
         return Array.isArray(response.data) ? response.data : [];
       } catch (err: any) {
-        console.error('Error fetching sessions:', err);
+        console.error('[Sessions] Error fetching sessions:', err);
         if (err.response?.status === 404) {
           throw {
             message: 'Page not found',

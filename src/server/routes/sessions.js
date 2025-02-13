@@ -12,7 +12,8 @@ router.get('/', async (req, res) => {
 
   try {
     await client.connect();
-    console.log('[Sessions] Connected to database, fetching sessions...');
+    console.log('[Sessions API] Connected to database');
+    console.log('[Sessions API] User ID:', req.user?.id || 1);
 
     // Query to get real session data from the sends table
     const result = await client.query(`
@@ -47,10 +48,12 @@ router.get('/', async (req, res) => {
       ORDER BY ds.session_date DESC
     `, [req.user?.id || 1]); // Using demo user ID 1 if no user in session
 
+    console.log('[Sessions API] Query result rows:', result.rows.length);
+
     const sessions = result.rows.map(row => ({
       id: row.session_date.getTime().toString(),
       userId: req.user?.id || 1,
-      location: 'Movement Gowanus', // TODO: Add gym location from routes table
+      location: 'Movement Gowanus',
       totalTries: parseInt(row.total_tries),
       totalSends: parseInt(row.total_sends),
       totalPoints: parseInt(row.total_points),
@@ -64,14 +67,11 @@ router.get('/', async (req, res) => {
       }))
     }));
 
-    // Add cache headers
-    res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
-    res.set('X-Cache-Timestamp', new Date().toISOString());
-    res.set('X-Data-Source', 'database');
+    console.log('[Sessions API] Transformed sessions:', sessions.length);
 
     res.json(sessions);
   } catch (error) {
-    console.error('[Sessions] Error:', error);
+    console.error('[Sessions API] Error:', error);
     res.status(500).json({ 
       error: 'Failed to fetch sessions data',
       details: error.message
