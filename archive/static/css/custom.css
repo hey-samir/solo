@@ -1,18 +1,17 @@
 /* Core Variables */
 :root {
   /* Typography */
-  --font-size-xxl: 1.875rem;  /* 30px - Page headers */
-  --font-size-xl: 1.5rem;     /* 24px - Section headers */
-  --font-size-lg: 1.25rem;    /* 20px - Sub headers */
-  --font-size-base: 1rem;     /* 16px - Body text */
-  --font-size-sm: 0.875rem;   /* 14px - Small text */
-  --font-size-xs: 0.75rem;    /* 12px - Extra small text */
+  --font-size-xxl: 2rem;        /* 32px - Page headers */
+  --font-size-xl: 1.75rem;      /* 28px - Section headers */
+  --font-size-lg: 1.25rem;      /* 20px - Sub headers */
+  --font-size-base: 1rem;       /* 16px - Body text */
+  --font-size-sm: 0.875rem;     /* 14px - Small text */
+  --font-size-xs: 0.75rem;      /* 12px - Extra small text */
 
   /* Spacing */
   --section-padding: 1.5rem;
-  --container-padding: 1rem;
+  --container-padding: 1.5rem;
   --card-padding: 1.25rem;
-
   /* Brand Colors */
   --solo-purple: #7442d6;
   --solo-purple-rgb: 116, 66, 214;
@@ -41,11 +40,14 @@
 }
 
 /* Header styles */
-h1, .h1 {
+h1, .h1,
+.page-title,
+.section-title {
   font-size: var(--font-size-xxl);
   font-weight: 700;
   margin-bottom: 1.5rem;
   color: var(--text-primary);
+  padding: 0;
 }
 
 h2, .h2 {
@@ -127,7 +129,8 @@ html, body {
 .stats-container,
 .profile-container,
 .trends-container,
-.metrics-container {
+.metrics-container,
+.solo-container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto calc(var(--navbar-height) + 1rem);
@@ -281,8 +284,12 @@ html, body {
   .sessions-container,
   .standings-container,
   .sends-container,
-  .stats-container {
-    padding: 1rem;
+  .stats-container,
+  .profile-container,
+  .trends-container,
+  .metrics-container,
+  .solo-container {
+    padding: calc(var(--container-padding) * 1.5);
   }
 
   .table {
@@ -292,6 +299,14 @@ html, body {
   .table th,
   .table td {
     padding: 0.5rem 0.75rem;
+  }
+  h1, .h1,
+  .page-title,
+  .section-title {
+    font-size: calc(var(--font-size-xxl) * 1.1);
+  }
+  .navbar-nav .nav-link {
+    font-size: var(--font-size-base);
   }
 }
 
@@ -484,7 +499,11 @@ html, body {
   .sessions-container,
   .standings-container,
   .sends-container,
-  .stats-container {
+  .stats-container,
+  .profile-container,
+  .trends-container,
+  .metrics-container,
+  .solo-container {
     max-width: 768px;
     padding: 1.5rem;
   }
