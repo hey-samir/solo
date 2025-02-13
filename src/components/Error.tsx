@@ -36,7 +36,6 @@ const Error: React.FC<ErrorProps> = ({ message, type = 'inline', retry }) => {
     }
   };
 
-
   if (type === 'page') {
     return (
       <div className="min-h-[50vh] flex items-center justify-center px-4">

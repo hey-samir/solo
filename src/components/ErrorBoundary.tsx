@@ -40,26 +40,13 @@ class ErrorBoundary extends Component<Props, State> {
       error,
       errorInfo
     });
-
-    // Here you could also send to an error tracking service
-    // if implemented in the future
   }
 
   public render() {
     if (this.state.hasError) {
-      // Get the component name from the error stack if possible
-      const componentMatch = this.state.errorInfo?.componentStack
-        .split('\n')[1]
-        ?.match(/in ([A-Za-z0-9]+)/);
-      const componentName = componentMatch ? componentMatch[1] : 'component';
-
-      const errorMessage = process.env.NODE_ENV === 'development'
-        ? `${this.state.error?.message || 'Something went wrong'}\n\nComponent: ${componentName}`
-        : "Looks like this route's beta isn't working! Our route setters are on it! 🧗‍♂️";
-
       return (
         <Error
-          message={errorMessage}
+          message="Looks like this route's beta isn't working! Our route setters are on it! 🧗‍♂️"
           type="page"
           retry={() => {
             this.setState({ 

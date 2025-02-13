@@ -29,10 +29,10 @@ export const NotFound: React.FC = () => (
   />
 );
 
-export const ServerError: React.FC = () => (
+export const ServerError: React.FC<ErrorPageProps> = ({ code, message }) => (
   <ErrorPage 
-    code={500} 
-    message="Our route setters are working on fixing this problem! Please try again later. 🪢" 
+    code={code || 500} 
+    message={message || "Our route setters are working on fixing this problem! Please try again later. 🪢"} 
   />
 );
 
