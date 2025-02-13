@@ -51,10 +51,6 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Seed Test Data"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Database Migrations"
 
 [[workflows.workflow.tasks]]
@@ -68,20 +64,6 @@ args = "Staging Server"
 [[workflows.workflow.tasks]]
 task = "workflow.run"
 args = "Production Server"
-
-[[workflows.workflow]]
-name = "Seed Test Data"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development tsx src/server/db/seed.ts"
 
 [[workflows.workflow]]
 name = "Staging Server"
