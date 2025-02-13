@@ -23,15 +23,16 @@ router.get('/', async (req, res) => {
           COUNT(*) as total_tries,
           COUNT(CASE WHEN s.status = true THEN 1 END) as total_sends,
           SUM(s.points) as total_points,
-          array_agg(
-            ROW(
-              s.route_id,
-              s.tries,
-              s.status,
-              s.points,
-              CONCAT(r.grade, ' ', r.color, ' (', r.wall_sector, ')')
-            )::record
-            ORDER BY s.created_at DESC
+          string_agg(
+            CONCAT(
+              r.grade, '|',
+              r.color, '|',
+              r.wall_sector, '|',
+              s.tries, '|',
+              s.status, '|',
+              s.points
+            ),
+            ';' ORDER BY s.created_at DESC
           ) as attempts_data
         FROM sends s
         JOIN routes r ON s.route_id = r.id
@@ -52,16 +53,16 @@ router.get('/', async (req, res) => {
     console.log('[Sessions API] Query result rows:', result.rows.length);
 
     const sessions = result.rows.map(row => {
-      const attempts = row.attempts_data.map(attempt => {
-        const [route_id, tries, status, points, route] = attempt.match(/\((.*?)\)/).pop().split(',');
+      const attempts = row.attempts_data ? row.attempts_data.split(';').map(attempt => {
+        const [grade, color, wall_sector, tries, status, points] = attempt.split('|');
         return {
-          route: route.replace(/[()]/g, '').trim(),
+          route: `${grade} ${color} (${wall_sector})`,
           tries: parseInt(tries),
           status: status === 'true' ? 'Sent' : 'Tried',
           stars: 3,  // Default to 3 stars
           points: parseInt(points)
         };
-      });
+      }) : [];
 
       return {
         id: row.session_date.getTime().toString(),
