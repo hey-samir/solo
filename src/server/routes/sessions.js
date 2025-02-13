@@ -23,14 +23,16 @@ router.get('/', async (req, res) => {
           COUNT(CASE WHEN status = true THEN 1 END) as total_sends,
           SUM(points) as total_points,
           json_agg(json_build_object(
-            'route_id', route_id,
-            'tries', tries,
-            'status', status,
-            'points', points,
-            'created_at', created_at
-          ) ORDER BY created_at DESC) as attempts
-        FROM sends
-        WHERE user_id = $1
+            'route_id', s.route_id,
+            'tries', s.tries,
+            'status', s.status,
+            'points', s.points,
+            'route', r.grade || ' ' || r.color || ' (' || r.wall_sector || ')',
+            'stars', COALESCE(s.rating, 3)
+          ) ORDER BY s.created_at DESC) as attempts
+        FROM sends s
+        JOIN routes r ON s.route_id = r.id
+        WHERE s.user_id = $1
         GROUP BY DATE(created_at)
         ORDER BY session_date DESC
         LIMIT 10
@@ -48,12 +50,18 @@ router.get('/', async (req, res) => {
     const sessions = result.rows.map(row => ({
       id: row.session_date.getTime().toString(),
       userId: req.user?.id || 1,
-      location: 'Brooklyn Boulders', // TODO: Add gym location from routes table
+      location: 'Movement Gowanus', // TODO: Add gym location from routes table
       totalTries: parseInt(row.total_tries),
       totalSends: parseInt(row.total_sends),
       totalPoints: parseInt(row.total_points),
       createdAt: row.session_date.toISOString(),
-      attempts: row.attempts
+      attempts: row.attempts.map(attempt => ({
+        route: attempt.route,
+        tries: attempt.tries,
+        status: attempt.status ? 'Sent' : 'Tried',
+        stars: attempt.stars,
+        points: attempt.points
+      }))
     }));
 
     // Add cache headers
