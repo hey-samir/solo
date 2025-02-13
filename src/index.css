@@ -99,7 +99,7 @@ body {
 
 .session-content {
   @apply overflow-hidden transition-all duration-200 ease-in-out;
-  max-height: 200px; 
+  max-height: 1000px; /* Restore larger height for expanded state */
 }
 
 .session-content.collapsed {
@@ -107,4 +107,12 @@ body {
   max-height: 0;
   margin: 0;
   padding: 0;
+}
+
+/* Session content */
+.session-content {
+  overflow: hidden;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
 }
