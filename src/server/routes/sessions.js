@@ -19,10 +19,10 @@ router.get('/', async (req, res) => {
     const result = await client.query(`
       WITH daily_sessions AS (
         SELECT 
-          DATE(created_at) as session_date,
+          DATE(s.created_at) as session_date,
           COUNT(*) as total_tries,
-          COUNT(CASE WHEN status = true THEN 1 END) as total_sends,
-          SUM(points) as total_points,
+          COUNT(CASE WHEN s.status = true THEN 1 END) as total_sends,
+          SUM(s.points) as total_points,
           json_agg(json_build_object(
             'route_id', s.route_id,
             'tries', s.tries,
@@ -34,8 +34,8 @@ router.get('/', async (req, res) => {
         FROM sends s
         JOIN routes r ON s.route_id = r.id
         WHERE s.user_id = $1
-        GROUP BY DATE(created_at)
-        ORDER BY session_date DESC
+        GROUP BY DATE(s.created_at)
+        ORDER BY DATE(s.created_at) DESC
         LIMIT 10
       )
       SELECT 
@@ -77,7 +77,7 @@ router.get('/', async (req, res) => {
       details: error.message
     });
   } finally {
-    await client.end().catch(console.error);
+    await client.end();
   }
 });
 
