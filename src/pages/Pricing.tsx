@@ -8,7 +8,7 @@ const Pricing: FC = () => {
 
   return (
     <div className="container px-6 py-8 font-lexend">
-      <h1 className="text-2xl font-bold text-text-primary mb-6">Solo Pro</h1>
+      <h1 className="text-3xl font-bold text-text-primary mb-6">Solo Pro</h1>
 
       <div className="bg-bg-card rounded-lg shadow-lg overflow-hidden">
         <table className="w-full table-auto">
