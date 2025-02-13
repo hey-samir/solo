@@ -111,7 +111,7 @@ const Standings: FC = () => {
                 <tr key={entry.username} className="border-b border-bg-primary">
                   <td className="py-2 px-2 text-center">
                     {entry.rank <= 3 ? (
-                      <span className="material-icons">
+                      <span className="material-symbols-outlined">
                         {entry.rank === 1 ? 'counter_1' : entry.rank === 2 ? 'counter_2' : 'counter_3'}
                       </span>
                     ) : (
