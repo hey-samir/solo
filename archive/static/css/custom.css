@@ -50,6 +50,22 @@ h1, .h1,
   padding: 0;
 }
 
+/* Header styles - More specific selectors */
+.stats-container .page-title,
+.sends-container .page-title,
+.squads-container .page-title,
+.solo-container .page-title,
+h1.page-title,
+.page-header h1,
+.page-header .page-title {
+  font-size: 2rem !important;  /* Force consistent size */
+  font-weight: 700 !important;
+  margin-bottom: 1.5rem !important;
+  color: var(--text-primary) !important;
+  padding: 0 !important;
+  line-height: 1.2 !important;
+}
+
 h2, .h2 {
   font-size: var(--font-size-xl);
   font-weight: 600;
@@ -143,7 +159,9 @@ html, body {
 
 /* Section padding standardization */
 .section-container,
-.tab-pane {
+.tab-pane,
+.metrics-container,
+.trends-container {
   padding: var(--section-padding) !important;
 }
 
@@ -308,6 +326,15 @@ html, body {
   }
   .navbar-nav .nav-link {
     font-size: var(--font-size-base);
+  }
+  .stats-container .page-title,
+  .sends-container .page-title,
+  .squads-container .page-title,
+  .solo-container .page-title,
+  h1.page-title,
+  .page-header h1,
+  .page-header .page-title {
+    font-size: 2.25rem !important; /* Slightly larger on desktop */
   }
 }
 
@@ -936,7 +963,8 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 .feature-list {
-  list-style: none;padding: 0;
+  list-style: none;
+  padding: 0;
   margin: 0 0 2rem 0;
   flex: 1;
 }
