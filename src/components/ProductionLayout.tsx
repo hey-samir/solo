@@ -50,8 +50,9 @@ const ProductionLayout: React.FC = () => {
         <main 
           className="flex-grow w-full px-4 py-8 bg-bg-primary" 
           style={{ 
-            marginTop: '96px',
-            minHeight: 'calc(100vh - 96px)'
+            marginTop: '80px',
+            minHeight: 'calc(100vh - 80px)',
+            maxWidth: '270px'
           }}
         > 
           <Outlet />
