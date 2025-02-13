@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import soloNavAvatar from '@/assets/images/nav-solo-avatar.svg'
+import whiteSoloAvatar from '@/assets/images/avatars/white-solo-av.png'
 
 export default function Navbar(): React.ReactElement {
   const location = useLocation()
@@ -63,7 +63,7 @@ export default function Navbar(): React.ReactElement {
               aria-label="Solo"
             >
               <img 
-                src={soloNavAvatar}
+                src={whiteSoloAvatar}
                 alt="Solo" 
                 style={{ 
                   width: '36px', 
