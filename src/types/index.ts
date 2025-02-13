@@ -36,6 +36,9 @@ export interface Standing {
   avgGrade: string;
   totalPoints: number;
   rank?: number;
+  burns: number;
+  grade: string;
+  points: number;
 }
 
 export interface Stats {
