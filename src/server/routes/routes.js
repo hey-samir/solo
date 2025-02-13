@@ -20,27 +20,23 @@ router.get('/', async (req, res) => {
         r.id,
         r.grade,
         r.color,
-        r.setter,
-        r.type,
-        r.location,
+        r.wall_sector,
         r.created_at,
         r.updated_at,
         COUNT(DISTINCT s.id) as send_count,
         AVG(s.rating) as avg_rating
       FROM routes r
       LEFT JOIN sends s ON r.id = s.route_id
-      WHERE r.gym = $1
+      WHERE r.gym_id = $1 AND r.active = true
       GROUP BY r.id
       ORDER BY r.created_at DESC
-    `, [gym || 'Movement Gowanus']);
+    `, [1]); // Using default gym_id = 1 for now
 
     const routes = result.rows.map(route => ({
       id: route.id,
       grade: route.grade,
       color: route.color,
-      setter: route.setter,
-      type: route.type,
-      location: route.location,
+      location: route.wall_sector,
       sendCount: parseInt(route.send_count) || 0,
       avgRating: parseFloat(route.avg_rating) || 0,
       createdAt: route.created_at,
