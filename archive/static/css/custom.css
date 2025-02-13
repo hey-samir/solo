@@ -43,10 +43,10 @@
 h1, .h1,
 .page-title,
 .section-title {
-  font-size: var(--font-size-xxl);
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: var(--text-primary);
+  font-size: var(--font-size-xxl) !important;
+  font-weight: 700 !important;
+  margin-bottom: 1.5rem !important;
+  color: var(--text-primary) !important;
   padding: 0;
 }
 
@@ -131,10 +131,10 @@ html, body {
 .trends-container,
 .metrics-container,
 .solo-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto calc(var(--navbar-height) + 1rem);
-  padding: var(--container-padding);
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 0 auto calc(var(--navbar-height) + 1rem) !important;
+  padding: var(--container-padding) !important;
   background-color: var(--bg-primary);
   overflow-x: hidden;
   box-sizing: border-box !important;
@@ -142,12 +142,13 @@ html, body {
 }
 
 /* Section padding standardization */
-.section-container {
-  padding: var(--section-padding);
+.section-container,
+.tab-pane {
+  padding: var(--section-padding) !important;
 }
 
 .card-body {
-  padding: var(--card-padding);
+  padding: var(--card-padding) !important;
 }
 
 /* Tables - Mobile Optimized */
@@ -289,7 +290,7 @@ html, body {
   .trends-container,
   .metrics-container,
   .solo-container {
-    padding: calc(var(--container-padding) * 1.5);
+    padding: calc(var(--container-padding) * 1.5) !important;
   }
 
   .table {
