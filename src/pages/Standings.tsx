@@ -20,8 +20,15 @@ const Standings: FC = () => {
     queryFn: async () => {
       try {
         console.log('[Standings] Fetching leaderboard data...')
-        const response = await client.get('/leaderboard')
-        console.log('[Standings] Received response:', response)
+        const response = await client.get('/api/leaderboard') // Updated to include /api prefix
+        console.log('[Standings] Raw response:', response)
+
+        if (!response.data) {
+          console.error('[Standings] No data received from API')
+          throw new Error('No data received from API')
+        }
+
+        console.log('[Standings] Response data:', response.data)
 
         const timestamp = response.headers?.['x-cache-timestamp'] as string || null
         const isFromCache = response.headers?.['x-data-source'] === 'cache'
@@ -33,9 +40,24 @@ const Standings: FC = () => {
           throw new Error('Invalid leaderboard data format')
         }
 
-        return response.data
+        // Validate the data structure
+        const validatedData = response.data.map((entry: any) => ({
+          ...entry,
+          rank: entry.rank || 0,
+          burns: entry.burns || 0,
+          grade: entry.grade || 'N/A',
+          points: entry.points || 0
+        }))
+
+        return validatedData
       } catch (error) {
         console.error('[Standings] Error fetching leaderboard:', error)
+        if (error instanceof Error) {
+          console.error('[Standings] Error details:', error.message)
+          if ('response' in error) {
+            console.error('[Standings] Response error:', (error as any).response?.data)
+          }
+        }
         throw error
       }
     },
@@ -49,7 +71,8 @@ const Standings: FC = () => {
 
   if (error) {
     console.error('[Standings] Rendering error state:', error)
-    return <ServerError code={500} message="Failed to load standings" />
+    const errorMessage = (error as any)?.response?.data?.message || 'Failed to load standings'
+    return <ServerError code={500} message={errorMessage} />
   }
 
   if (!leaderboard || !Array.isArray(leaderboard)) {
