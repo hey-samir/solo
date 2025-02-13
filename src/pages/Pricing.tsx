@@ -14,79 +14,79 @@ const Pricing: FC = () => {
         <table className="w-full table-auto">
           <thead>
             <tr className="border-b border-border-default">
-              <th className="py-4 px-6 text-left" style={{ width: '50%' }}>Features</th>
-              <th className="py-4 px-6 text-center" style={{ width: '25%' }}>
-                <h3 className="text-lg font-semibold mb-2">Base</h3>
+              <th className="py-3 px-4 text-left" style={{ width: '50%' }}>Features</th>
+              <th className="py-3 px-4 text-center" style={{ width: '25%' }}>
+                <h3 className="text-base font-semibold">Base</h3>
               </th>
-              <th className="py-4 px-6 text-center" style={{ width: '25%' }}>
-                <h3 className="text-lg font-semibold mb-2">
-                  <span className="bg-solo-purple text-white px-2 py-1 rounded text-sm">PRO</span>
+              <th className="py-3 px-4 text-center" style={{ width: '25%' }}>
+                <h3 className="text-base font-semibold">
+                  <span className="bg-solo-purple text-white px-2 py-0.5 rounded text-sm">PRO</span>
                 </h3>
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-sm">
             <tr className="border-b border-border-default">
-              <td className="py-4 px-6">Send Logging</td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
+              <td className="py-2.5 px-4">Send Logging</td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
             <tr className="border-b border-border-default">
-              <td className="py-4 px-6">Global Leaderboard</td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
+              <td className="py-2.5 px-4">Global Leaderboard</td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
-              </td>
-            </tr>
-            <tr className="border-b border-border-default">
-              <td className="py-4 px-6">Session View</td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
-              </td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
             <tr className="border-b border-border-default">
-              <td className="py-4 px-6">Stats Tracking</td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
+              <td className="py-2.5 px-4">Session View</td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
-              </td>
-            </tr>
-            <tr className="border-b border-border-default">
-              <td className="py-4 px-6">Ad-free Experience</td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle_outlined</i>
-              </td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
             <tr className="border-b border-border-default">
-              <td className="py-4 px-6">Custom Avatars</td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle_outlined</i>
+              <td className="py-2.5 px-4">Stats Tracking</td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
             <tr className="border-b border-border-default">
-              <td className="py-4 px-6">Solo AI</td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle_outlined</i>
+              <td className="py-2.5 px-4">Ad-free Experience</td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle_outlined</i>
               </td>
-              <td className="text-center py-4 px-6">
-                <i className="material-icons text-white">circle</i>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
+              </td>
+            </tr>
+            <tr className="border-b border-border-default">
+              <td className="py-2.5 px-4">Custom Avatars</td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle_outlined</i>
+              </td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
+              </td>
+            </tr>
+            <tr className="border-b border-border-default">
+              <td className="py-2.5 px-4">Solo AI</td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle_outlined</i>
+              </td>
+              <td className="text-center py-2.5 px-4">
+                <i className="material-icons text-white text-base">circle</i>
               </td>
             </tr>
           </tbody>

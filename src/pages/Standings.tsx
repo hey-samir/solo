@@ -77,33 +77,33 @@ const Standings: FC = () => {
       <h1 className="text-2xl font-bold text-text-primary mb-6">Standings</h1>
 
       {cacheInfo.isFromCache && (
-        <div className="alert alert-info mb-4 w-full">
-          <span className="material-icons align-middle">access_time</span>
-          <span>Viewing cached standings</span>
+        <div className="mb-4 text-sm text-text-muted">
+          <span className="material-icons align-middle text-base">access_time</span>
+          <span className="ml-1">Viewing cached standings</span>
           {cacheInfo.timestamp && (
-            <span className="ms-2 text-muted">
+            <span className="ml-2">
               Last updated: {new Date(cacheInfo.timestamp).toLocaleString()}
             </span>
           )}
         </div>
       )}
 
-      <div className="bg-bg-card rounded-lg shadow-lg w-full overflow-hidden">
+      <div className="bg-bg-card rounded-lg shadow-lg overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full table-auto text-sm" style={{ tableLayout: 'fixed' }}>
+          <table className="w-full table-auto text-sm">
             <thead>
               <tr className="border-b border-bg-primary">
-                <th className="py-2 px-2 text-purple-400 w-10 text-center">#</th>
-                <th className="py-2 px-2 text-purple-400 w-28">Username</th>
-                <th className="py-2 px-2 text-purple-400 w-20 text-center">Burns</th>
-                <th className="py-2 px-2 text-purple-400 w-20 text-center">Grade</th>
-                <th className="py-2 px-2 text-purple-400 w-20 text-center">Points</th>
+                <th className="py-3 px-4 text-purple-400 text-center w-12">#</th>
+                <th className="py-3 px-4 text-purple-400 text-left">Username</th>
+                <th className="py-3 px-4 text-purple-400 text-center w-20">Burns</th>
+                <th className="py-3 px-4 text-purple-400 text-center w-20">Grade</th>
+                <th className="py-3 px-4 text-purple-400 text-center w-20">Points</th>
               </tr>
             </thead>
             <tbody>
               {leaderboard.map((entry) => (
                 <tr key={entry.username} className="border-b border-bg-primary">
-                  <td className="py-2 px-2 text-center">
+                  <td className="py-2.5 px-4 text-center">
                     {entry.rank <= 3 ? (
                       <span className="material-symbols-outlined">
                         {entry.rank === 1 ? 'counter_1' : entry.rank === 2 ? 'counter_2' : 'counter_3'}
@@ -112,10 +112,10 @@ const Standings: FC = () => {
                       entry.rank
                     )}
                   </td>
-                  <td className="py-2 px-2 truncate">{entry.username}</td>
-                  <td className="py-2 px-2 text-center">{entry.burns}</td>
-                  <td className="py-2 px-2 text-center">{entry.grade}</td>
-                  <td className="py-2 px-2 text-center font-medium">{entry.points}</td>
+                  <td className="py-2.5 px-4 truncate">{entry.username}</td>
+                  <td className="py-2.5 px-4 text-center">{entry.burns}</td>
+                  <td className="py-2.5 px-4 text-center">{entry.grade}</td>
+                  <td className="py-2.5 px-4 text-center font-medium">{entry.points}</td>
                 </tr>
               ))}
             </tbody>
