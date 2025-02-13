@@ -73,8 +73,8 @@ const Standings: FC = () => {
   }
 
   return (
-    <div className="container px-6 py-8">
-      <h1 className="text-2xl font-bold text-text-primary mb-6">Standings</h1>
+    <div className="container px-4 py-8">
+      <h1 className="text-3xl font-bold text-text-primary mb-6">Standings</h1>
 
       {cacheInfo.isFromCache && (
         <div className="mb-4 text-sm text-text-muted">
@@ -93,17 +93,17 @@ const Standings: FC = () => {
           <table className="w-full table-auto text-sm">
             <thead>
               <tr className="border-b border-bg-primary">
-                <th className="py-3 px-4 text-purple-400 text-center w-12">#</th>
-                <th className="py-3 px-4 text-purple-400 text-left">Username</th>
-                <th className="py-3 px-4 text-purple-400 text-center w-20">Burns</th>
-                <th className="py-3 px-4 text-purple-400 text-center w-20">Grade</th>
-                <th className="py-3 px-4 text-purple-400 text-center w-20">Points</th>
+                <th className="py-3 px-3 text-purple-400 text-center w-8">#</th>
+                <th className="py-3 px-3 text-purple-400 text-left min-w-[100px]">Username</th>
+                <th className="py-3 px-2 text-purple-400 text-center w-16">Burns</th>
+                <th className="py-3 px-2 text-purple-400 text-center w-16">Grade</th>
+                <th className="py-3 px-2 text-purple-400 text-center w-16">Points</th>
               </tr>
             </thead>
             <tbody>
               {leaderboard.map((entry) => (
                 <tr key={entry.username} className="border-b border-bg-primary">
-                  <td className="py-2.5 px-4 text-center">
+                  <td className="py-2.5 px-3 text-center">
                     {entry.rank <= 3 ? (
                       <span className="material-symbols-outlined">
                         {entry.rank === 1 ? 'counter_1' : entry.rank === 2 ? 'counter_2' : 'counter_3'}
@@ -112,10 +112,10 @@ const Standings: FC = () => {
                       entry.rank
                     )}
                   </td>
-                  <td className="py-2.5 px-4 truncate">{entry.username}</td>
-                  <td className="py-2.5 px-4 text-center">{entry.burns}</td>
-                  <td className="py-2.5 px-4 text-center">{entry.grade}</td>
-                  <td className="py-2.5 px-4 text-center font-medium">{entry.points}</td>
+                  <td className="py-2.5 px-3 truncate">{entry.username}</td>
+                  <td className="py-2.5 px-2 text-center">{entry.burns}</td>
+                  <td className="py-2.5 px-2 text-center">{entry.grade}</td>
+                  <td className="py-2.5 px-2 text-center font-medium">{entry.points}</td>
                 </tr>
               ))}
             </tbody>
