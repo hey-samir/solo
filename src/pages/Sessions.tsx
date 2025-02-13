@@ -113,9 +113,9 @@ const Sessions: FC = () => {
         </div>
       ) : (
         sessions.map((session) => (
-          <div key={session.id} className="mb-8 bg-bg-card rounded-lg shadow-lg p-6">
+          <div key={session.id} className="mb-4 bg-bg-card rounded-lg shadow-lg">
             <div 
-              className="session-header"
+              className="p-4 session-header"
               onClick={() => toggleSession(session.id)}
             >
               <div className="flex justify-between items-center w-full">
@@ -128,8 +128,8 @@ const Sessions: FC = () => {
               </div>
             </div>
 
-            <div className={`session-content ${expandedSessionId !== session.id ? 'collapsed' : ''}`}>
-              <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className={`session-content px-4 pb-4 ${expandedSessionId !== session.id ? 'collapsed' : ''}`}>
+              <div className="grid grid-cols-3 gap-4 mb-4">
                 <div className="kpi-card p-4 rounded-lg">
                   <div className="text-text-muted text-sm mb-1">Burns</div>
                   <div className="text-2xl font-bold text-white">

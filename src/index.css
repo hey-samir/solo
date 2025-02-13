@@ -94,13 +94,14 @@ body {
 
 /* Session styles */
 .session-header {
-  @apply flex items-center cursor-pointer;
+  @apply cursor-pointer;
 }
 
 .session-content {
-  @apply mt-4 transition-all duration-200 ease-in-out;
+  @apply overflow-hidden transition-all duration-200 ease-in-out;
+  max-height: 1000px; /* Arbitrary large height */
 }
 
 .session-content.collapsed {
-  @apply hidden;
+  @apply h-0 max-h-0 p-0;
 }
