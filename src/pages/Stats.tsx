@@ -86,50 +86,56 @@ const Stats: FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 font-lexend">
-      <ul className="nav nav-pills mb-8 flex space-x-4 border-b border-border-default">
-        <li className="nav-item" role="presentation">
+    <div className="container px-6 py-8 font-lexend">
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Stats</h1>
+
+      <div className="relative mb-8">
+        <div className="flex border-b border-border-default">
           <button
-            className={`nav-link text-text-primary px-4 py-2 ${activeTab === 'metrics' ? 'text-solo-purple border-b-2 border-solo-purple' : ''}`}
+            className={`px-6 py-3 text-text-primary relative ${activeTab === 'metrics' ? 'text-solo-purple' : ''}`}
             onClick={() => setActiveTab('metrics')}
             type="button"
             role="tab"
           >
             Metrics
+            {activeTab === 'metrics' && (
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-solo-purple transition-all duration-300" />
+            )}
           </button>
-        </li>
-        <li className="nav-item" role="presentation">
           <button
-            className={`nav-link text-text-primary px-4 py-2 ${activeTab === 'trends' ? 'text-solo-purple border-b-2 border-solo-purple' : ''}`}
+            className={`px-6 py-3 text-text-primary relative ${activeTab === 'trends' ? 'text-solo-purple' : ''}`}
             onClick={() => setActiveTab('trends')}
             type="button"
             role="tab"
           >
             Trends
+            {activeTab === 'trends' && (
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-solo-purple transition-all duration-300" />
+            )}
           </button>
-        </li>
-      </ul>
+        </div>
+      </div>
 
       <div className="tab-content">
         {activeTab === 'metrics' && (
           <div className="grid grid-cols-2 gap-4">
-            <MetricCard value={stats.totalAscents} label="Total Ascents" />
-            <MetricCard value={stats.totalSends} label="Total Sends" />
+            <MetricCard value={stats.totalAscents} label="Burns" />
+            <MetricCard value={stats.totalSends} label="Sends" />
             <MetricCard value={stats.avgGrade} label="Avg Grade" />
             <MetricCard value={stats.avgSentGrade} label="Avg. Sent Grade" />
             <MetricCard value={stats.totalPoints} label="Total Points" />
-            <MetricCard value={stats.avgPointsPerClimb} label="Avg Pts / Ascent" />
+            <MetricCard value={stats.avgPointsPerClimb} label="Pts / Burn" />
             <MetricCard value={`${stats.successRate}%`} label="Send Rate" />
             <MetricCard value={`${stats.successRatePerSession}%`} label="Session Send Rate" />
-            <MetricCard value={stats.climbsPerSession} label="Ascents / Session" />
-            <MetricCard value={stats.avgAttemptsPerClimb} label="Attempts / Ascent" />
+            <MetricCard value={stats.climbsPerSession} label="Burns / Session" />
+            <MetricCard value={stats.avgAttemptsPerClimb} label="Burns / Route" />
           </div>
         )}
 
         {activeTab === 'trends' && chartData && (
           <div className="space-y-8">
             <ChartCard
-              title="Climbing Progress"
+              title="Progress"
               chart={
                 <div className="h-[300px]">
                   <Line
@@ -137,7 +143,7 @@ const Stats: FC = () => {
                       labels: chartData.map(data => formatDate(data.date)),
                       datasets: [
                         {
-                          label: 'Points per Session',
+                          label: 'Points / Session',
                           data: chartData.map(data => data.points),
                           borderColor: '#7442d6',
                           backgroundColor: 'rgba(116, 66, 214, 0.2)',
@@ -182,7 +188,7 @@ const Stats: FC = () => {
             />
 
             <ChartCard
-              title="Sends vs Attempts"
+              title="Sends Mix"
               chart={
                 <div className="h-[300px]">
                   <Bar
@@ -192,12 +198,14 @@ const Stats: FC = () => {
                         {
                           label: 'Sends',
                           data: chartData.map(data => data.sends),
-                          backgroundColor: '#7442d6'
+                          backgroundColor: '#7442d6',
+                          flex: 1
                         },
                         {
-                          label: 'Attempts',
+                          label: 'Tries',
                           data: chartData.map(data => data.attempts),
-                          backgroundColor: '#6c757d'
+                          backgroundColor: '#6c757d',
+                          flex: 1
                         }
                       ]
                     }}

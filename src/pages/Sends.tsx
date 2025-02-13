@@ -145,13 +145,13 @@ const Sends: FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Log Send</h1>
+    <div className="container px-6 py-8">
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Sends</h1>
       <div className="bg-bg-card rounded-lg shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-6">
             {/* Two Column Layout */}
-            <div className="grid grid-cols-[200px_1fr] gap-4 items-center">
+            <div className="grid grid-cols-[1fr_1fr] gap-4 items-center">
               {/* Route Selection */}
               <label className="text-text-primary font-medium">Route</label>
               <select 
