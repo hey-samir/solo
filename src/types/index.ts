@@ -42,13 +42,16 @@ export interface Standing {
 }
 
 export interface Stats {
+  totalAscents: number;
   totalSends: number;
-  averageGrade: string;
-  bestGrade: string;
-  totalSessions: number;
-  averageSessionDuration: number;
-  labels?: string[];
-  data?: number[];
+  totalPoints: number;
+  avgGrade: string;
+  avgSentGrade: string;
+  avgPointsPerClimb: number;
+  successRate: number;
+  successRatePerSession: number;
+  climbsPerSession: number;
+  avgAttemptsPerClimb: number;
 }
 
 export interface ApiError {

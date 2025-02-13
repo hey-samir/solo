@@ -1,5 +1,6 @@
 import { FC, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import type { AxiosError } from 'axios'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -16,8 +17,9 @@ import {
 import { Bar, Doughnut, Line } from 'react-chartjs-2'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
-import Error from '../components/Error'
+import { ServerError } from '../components/Error'
 import { useNavigate } from 'react-router-dom'
+import type { Stats as StatsType } from '../types'
 
 // Register Chart.js components
 ChartJS.register(
@@ -32,19 +34,6 @@ ChartJS.register(
   PointElement,
   Filler
 )
-
-interface Stats {
-  totalAscents: number;
-  totalSends: number;
-  totalPoints: number;
-  avgGrade: string;
-  avgSentGrade: string;
-  avgPointsPerClimb: number;
-  successRate: number;
-  successRatePerSession: number;
-  climbsPerSession: number;
-  avgAttemptsPerClimb: number;
-}
 
 interface ChartDataPoint {
   name: string;
@@ -79,29 +68,58 @@ const Stats: FC = () => {
   const [activeTab, setActiveTab] = useState<'metrics' | 'trends'>('metrics')
   const navigate = useNavigate()
 
-  const handleError = (error: any) => {
-    console.error('Stats error:', error);
-    if (error?.status === 401) {
-      navigate('/login');
-      return 'Please log in to view your statistics';
-    }
-    return error?.message || 'Failed to load statistics';
-  };
-
-  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery<Stats>({
+  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery<StatsType, AxiosError>({
     queryKey: ['user-stats'],
     queryFn: async () => {
-      const response = await client.get('/api/user/me/stats')
-      return response.data
+      try {
+        console.log('[Stats] Fetching user stats...')
+        const response = await client.get('/api/user/me/stats')
+        console.log('[Stats] Raw response:', response)
+
+        if (!response.data) {
+          console.error('[Stats] No data received from API')
+          throw new Error('No data received from API')
+        }
+
+        return response.data
+      } catch (error) {
+        console.error('[Stats] Error fetching stats:', error)
+        if (error instanceof Error) {
+          console.error('[Stats] Error details:', error.message)
+          if ('response' in error) {
+            console.error('[Stats] Response error:', (error as any).response?.data)
+          }
+        }
+        throw error
+      }
     },
     retry: 1
   })
 
-  const { data: chartData, isLoading: chartsLoading, error: chartsError } = useQuery<ChartData>({
+  const { data: chartData, isLoading: chartsLoading, error: chartsError } = useQuery<ChartData, AxiosError>({
     queryKey: ['user-stats-charts'],
     queryFn: async () => {
-      const response = await client.get('/api/user/me/stats/charts')
-      return response.data
+      try {
+        console.log('[Stats] Fetching chart data...')
+        const response = await client.get('/api/user/me/stats/charts')
+        console.log('[Stats] Charts raw response:', response)
+
+        if (!response.data) {
+          console.error('[Stats] No chart data received from API')
+          throw new Error('No chart data received from API')
+        }
+
+        return response.data
+      } catch (error) {
+        console.error('[Stats] Error fetching chart data:', error)
+        if (error instanceof Error) {
+          console.error('[Stats] Chart error details:', error.message)
+          if ('response' in error) {
+            console.error('[Stats] Chart response error:', (error as any).response?.data)
+          }
+        }
+        throw error
+      }
     },
     retry: 1,
     enabled: activeTab === 'trends'
@@ -111,38 +129,20 @@ const Stats: FC = () => {
     return <LoadingSpinner />
   }
 
-  if (statsError) {
-    return (
-      <Error 
-        message={handleError(statsError)} 
-        type="page"
-        retry={() => window.location.reload()}
-      />
-    )
+  if (statsError || (activeTab === 'trends' && chartsError)) {
+    const error = statsError || chartsError
+    console.error('[Stats] Rendering error state:', error)
+    if (error?.response?.status === 401) {
+      navigate('/login')
+      return null
+    }
+    const errorMessage = error?.response?.data?.message || 'Failed to load statistics'
+    return <ServerError code={error?.response?.status || 500} message={errorMessage} />
   }
 
-  if (!stats) {
-    return <Error message="No statistics data available" type="page" />
+  if (!stats || (activeTab === 'trends' && !chartData)) {
+    return <ServerError code={500} message="No statistics data available" />
   }
-
-  if (activeTab === 'trends' && chartsError) {
-    return (
-      <Error 
-        message={handleError(chartsError)} 
-        type="page"
-        retry={() => window.location.reload()}
-      />
-    )
-  }
-
-  // Add strict null checks for chart data
-  const canShowTrends = activeTab === 'trends' && 
-    chartData && 
-    chartData.ascentsByDifficulty?.labels &&
-    chartData.sendsByDate?.labels &&
-    chartData.metricsOverTime?.labels &&
-    chartData.climbsPerSession?.labels &&
-    chartData.sendRateByColor?.labels;
 
   return (
     <div className="container mx-auto px-4 py-8 font-lexend">
@@ -173,49 +173,49 @@ const Stats: FC = () => {
         {activeTab === 'metrics' && stats && (
           <div className="grid grid-cols-2 gap-4">
             <MetricCard
-              value={stats.totalAscents ?? 'N/A'}
+              value={stats.totalAscents}
               label="Total Ascents"
             />
             <MetricCard
-              value={stats.totalSends ?? 'N/A'}
+              value={stats.totalSends}
               label="Total Sends"
             />
             <MetricCard
-              value={stats.avgGrade ?? 'N/A'}
+              value={stats.avgGrade}
               label="Avg Grade"
             />
             <MetricCard
-              value={stats.avgSentGrade ?? 'N/A'}
+              value={stats.avgSentGrade}
               label="Avg. Sent Grade"
             />
             <MetricCard
-              value={stats.totalPoints ?? 'N/A'}
+              value={stats.totalPoints}
               label="Total Points"
             />
             <MetricCard
-              value={stats.avgPointsPerClimb ?? 'N/A'}
+              value={stats.avgPointsPerClimb}
               label="Avg Pts / Ascent"
             />
             <MetricCard
-              value={stats.successRate ? `${stats.successRate}%` : 'N/A'}
+              value={`${stats.successRate}%`}
               label="Send Rate"
             />
             <MetricCard
-              value={stats.successRatePerSession ? `${stats.successRatePerSession}%` : 'N/A'}
+              value={`${stats.successRatePerSession}%`}
               label="Session Send Rate"
             />
             <MetricCard
-              value={stats.climbsPerSession ?? 'N/A'}
+              value={stats.climbsPerSession}
               label="Ascents / Session"
             />
             <MetricCard
-              value={stats.avgAttemptsPerClimb ?? 'N/A'}
+              value={stats.avgAttemptsPerClimb}
               label="Attempts / Ascent"
             />
           </div>
         )}
 
-        {activeTab === 'trends' && (
+        {activeTab === 'trends' && chartData && (
           <div className="space-y-8">
             <ChartCard
               title="Route Mix"
@@ -223,10 +223,10 @@ const Stats: FC = () => {
                 <div className="h-[300px]">
                   <Doughnut
                     data={{
-                      labels: ['5.8', '5.9', '5.10a', '5.10b', '5.10c'],
+                      labels: chartData.ascentsByDifficulty.labels,
                       datasets: [{
-                        data: [10, 15, 8, 12, 5],
-                        backgroundColor: ['#4C1D95', '#3B0764', '#350567', '#2F035E', '#290356']
+                        data: chartData.ascentsByDifficulty.data,
+                        backgroundColor: chartData.ascentsByDifficulty.labels.map(grade => getGradeColor(grade))
                       }]
                     }}
                     options={{
@@ -252,16 +252,16 @@ const Stats: FC = () => {
                 <div className="h-[300px]">
                   <Bar
                     data={{
-                      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                      labels: chartData.sendsByDate.labels.map(formatDate),
                       datasets: [
                         {
                           label: 'Sends',
-                          data: [5, 7, 4, 8, 6, 9, 7],
+                          data: chartData.sendsByDate.sends,
                           backgroundColor: '#7442d6'
                         },
                         {
                           label: 'Tries',
-                          data: [2, 3, 1, 4, 2, 3, 2],
+                          data: chartData.sendsByDate.attempts,
                           backgroundColor: '#6c757d'
                         }
                       ]
@@ -294,15 +294,15 @@ const Stats: FC = () => {
                 <div className="h-[300px]">
                   <Line
                     data={{
-                      labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                      datasets: [{
-                        label: 'Success Rate',
-                        data: [75, 80, 85, 82, 88, 85, 90],
+                      labels: chartData.metricsOverTime.labels.map(formatDate),
+                      datasets: chartData.metricsOverTime.metrics.map(metric => ({
+                        label: metric.name,
+                        data: metric.data,
                         borderColor: '#7442d6',
                         backgroundColor: 'rgba(116, 66, 214, 0.2)',
                         fill: true,
                         tension: 0.4
-                      }]
+                      }))
                     }}
                     options={{
                       responsive: true,
@@ -331,7 +331,7 @@ const Stats: FC = () => {
       </div>
     </div>
   )
-};
+}
 
 interface MetricCardProps {
   value: number | string;
