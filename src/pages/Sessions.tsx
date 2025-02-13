@@ -128,57 +128,59 @@ const Sessions: FC = () => {
               </div>
             </div>
 
-            <div className={`session-content px-4 pb-4 ${expandedSessionId !== session.id ? 'collapsed' : ''}`}>
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                <div className="kpi-card p-4 rounded-lg">
-                  <div className="text-text-muted text-sm mb-1">Burns</div>
-                  <div className="text-2xl font-bold text-white">
-                    {session.attempts.reduce((sum, attempt) => sum + attempt.tries, 0)}
+            <div className={`session-content ${expandedSessionId !== session.id ? 'collapsed' : ''}`}>
+              <div className="px-4 pb-4">
+                <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="kpi-card p-4 rounded-lg">
+                    <div className="text-text-muted text-sm mb-1">Burns</div>
+                    <div className="text-2xl font-bold text-white">
+                      {session.attempts.reduce((sum, attempt) => sum + attempt.tries, 0)}
+                    </div>
+                  </div>
+                  <div className="kpi-card p-4 rounded-lg">
+                    <div className="text-text-muted text-sm mb-1">Sends</div>
+                    <div className="text-2xl font-bold text-white">
+                      {session.attempts.filter(attempt => attempt.status === 'Sent').length}
+                    </div>
+                  </div>
+                  <div className="kpi-card p-4 rounded-lg">
+                    <div className="text-text-muted text-sm mb-1">Points</div>
+                    <div className="text-2xl font-bold text-white">
+                      {session.attempts.reduce((sum, attempt) => sum + attempt.points, 0)}
+                    </div>
                   </div>
                 </div>
-                <div className="kpi-card p-4 rounded-lg">
-                  <div className="text-text-muted text-sm mb-1">Sends</div>
-                  <div className="text-2xl font-bold text-white">
-                    {session.attempts.filter(attempt => attempt.status === 'Sent').length}
-                  </div>
-                </div>
-                <div className="kpi-card p-4 rounded-lg">
-                  <div className="text-text-muted text-sm mb-1">Points</div>
-                  <div className="text-2xl font-bold text-white">
-                    {session.attempts.reduce((sum, attempt) => sum + attempt.points, 0)}
-                  </div>
-                </div>
-              </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-bg-primary">
-                      <th className="py-1 px-2 text-purple-400 w-1/4">Route</th>
-                      <th className="py-1 px-2 text-purple-400 w-12">Burns</th>
-                      <th className="py-1 px-2 text-purple-400 w-16">Status</th>
-                      <th className="py-1 px-2 text-purple-400 w-12">Stars</th>
-                      <th className="py-1 px-2 text-purple-400 w-16">Points</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {session.attempts.map((attempt, index) => (
-                      <tr key={index} className="border-b border-bg-primary">
-                        <td className="py-1 px-2">{attempt.route}</td>
-                        <td className="py-1 px-2">{attempt.tries}</td>
-                        <td className="py-1 px-2">
-                          <span className={`inline-block px-1 py-0.5 rounded ${
-                            attempt.status === 'Sent' ? 'bg-success/20' : 'bg-warning/20'
-                          }`}>
-                            {attempt.status}
-                          </span>
-                        </td>
-                        <td className="py-1 px-2">{formatStars(attempt.stars)}</td>
-                        <td className="py-1 px-2 font-medium">{attempt.points}</td>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left">
+                    <thead>
+                      <tr className="border-b border-bg-primary">
+                        <th className="py-1 px-2 text-purple-400 w-1/4">Route</th>
+                        <th className="py-1 px-2 text-purple-400 w-12">Burns</th>
+                        <th className="py-1 px-2 text-purple-400 w-16">Status</th>
+                        <th className="py-1 px-2 text-purple-400 w-12">Stars</th>
+                        <th className="py-1 px-2 text-purple-400 w-16">Points</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {session.attempts.map((attempt, index) => (
+                        <tr key={index} className="border-b border-bg-primary">
+                          <td className="py-1 px-2">{attempt.route}</td>
+                          <td className="py-1 px-2">{attempt.tries}</td>
+                          <td className="py-1 px-2">
+                            <span className={`inline-block px-1 py-0.5 rounded ${
+                              attempt.status === 'Sent' ? 'bg-success/20' : 'bg-warning/20'
+                            }`}>
+                              {attempt.status}
+                            </span>
+                          </td>
+                          <td className="py-1 px-2">{formatStars(attempt.stars)}</td>
+                          <td className="py-1 px-2 font-medium">{attempt.points}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

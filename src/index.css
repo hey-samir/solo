@@ -99,9 +99,12 @@ body {
 
 .session-content {
   @apply overflow-hidden transition-all duration-200 ease-in-out;
-  max-height: 1000px; /* Arbitrary large height */
+  max-height: 500px; /* Reduced from 1000px */
 }
 
 .session-content.collapsed {
-  @apply h-0 max-h-0 p-0;
+  @apply opacity-0;
+  max-height: 0;
+  margin: 0;
+  padding: 0;
 }

@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { toast } from 'react-hot-toast'
 import { Input } from '../components/ui/input'
+import { useQuery } from '@tanstack/react-query'
+import client from '../api/client'
 import '../styles/profile.css'
 
 // Import avatars directly like in Navbar
@@ -21,12 +23,28 @@ const avatarMap = {
 
 type AvatarColor = keyof typeof avatarMap
 
+interface UserStats {
+  burns: number
+  avgGrade: string
+  totalPoints: number
+}
+
 const Solo: FC = () => {
   const { user, logout, updateUserProfile } = useAuth()
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
   const [username, setUsername] = useState(user?.username || '')
   const [selectedAvatar, setSelectedAvatar] = useState<AvatarColor>('gray')
+
+  // Fetch user stats
+  const { data: stats = { burns: 0, avgGrade: '--', totalPoints: 0 } } = useQuery<UserStats>({
+    queryKey: ['user-stats'],
+    queryFn: async () => {
+      const response = await client.get('/api/user/me/stats')
+      return response.data
+    },
+    retry: false
+  })
 
   const handleLogout = async () => {
     try {
@@ -36,13 +54,6 @@ const Solo: FC = () => {
       console.error('Logout failed:', error)
       toast.error('Failed to logout')
     }
-  }
-
-  // Stats from Profile
-  const stats = {
-    burns: 0,
-    avgGrade: '--',
-    totalPoints: 0
   }
 
   const handleUpdateProfile = async () => {
