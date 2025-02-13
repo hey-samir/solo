@@ -25,19 +25,22 @@
         body {
             margin: 0;
             font-family: 'Lexend', system-ui, -apple-system, sans-serif;
-            background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
             padding-bottom: 60px;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
         }
 
-        /* Remove any duplicate styles that might cause UI elements to appear twice */
+        #root {
+            width: 100%;
+            min-height: 100vh;
+        }
     </style>
 </head>
 <body>
-    <!-- React Root - This is the only element needed, React will handle the rest -->
     <div id="root"></div>
-
     <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
