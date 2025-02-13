@@ -2,6 +2,7 @@ import React, { FC, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import type { AxiosError } from 'axios'
+import toast from 'react-hot-toast'
 import client from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { ServerError } from '../components/Error'
@@ -10,9 +11,6 @@ interface Route {
   id: number
   color: string
   grade: string
-  wall_sector: string
-  anchor_number: number
-  gym: string
   points: number
   tried_points: number
   average_rating?: number
@@ -75,6 +73,7 @@ const Sends: FC = () => {
     },
     onSuccess: () => {
       console.log('[Sends] Successfully submitted send')
+      toast.success('Send logged successfully!')
       setFormData({
         route_id: 0,
         tries: 1,
@@ -86,6 +85,7 @@ const Sends: FC = () => {
     },
     onError: (error: unknown) => {
       console.error('[Sends] Mutation error:', error)
+      toast.error('Failed to log send. Please try again.')
     }
   })
 
@@ -120,13 +120,12 @@ const Sends: FC = () => {
   }
 
   return (
-    <div className="container px-6 py-8">
-      <h1 className="text-3xl font-bold text-text-primary mb-6">Log a Climb</h1>
-      <div className="bg-bg-card rounded-lg shadow-lg">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="text-3xl font-bold text-text-primary mb-6">Sends</h1>
+      <div className="max-w-3xl mx-auto bg-bg-card rounded-lg shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-6">
-            {/* Two Column Layout */}
-            <div className="grid grid-cols-[200px_1fr] gap-4 items-start max-w-2xl mx-auto">
+            <div className="grid grid-cols-[120px_1fr] gap-4 items-start">
               {/* Route Selection */}
               <label className="text-text-primary font-medium pt-2">Route</label>
               <select
@@ -144,7 +143,7 @@ const Sends: FC = () => {
                     key={route.id}
                     value={route.id}
                   >
-                    {`${route.wall_sector} ${route.color} ${route.grade}${route.average_rating ? ` (${route.average_rating.toFixed(1)}★)` : ''}`}
+                    {`${route.color} ${route.grade}`}
                   </option>
                 ))}
               </select>
@@ -187,7 +186,7 @@ const Sends: FC = () => {
               </div>
 
               {/* Star Rating */}
-              <label className="text-text-primary font-medium pt-2">Your Rating</label>
+              <label className="text-text-primary font-medium pt-2">Rating</label>
               <div className="flex space-x-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -208,7 +207,7 @@ const Sends: FC = () => {
               {/* Notes */}
               <label className="text-text-primary font-medium pt-2">Notes</label>
               <textarea
-                className="w-full bg-[#2b3245] text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple form-textarea"
+                className="w-full bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple form-textarea"
                 rows={3}
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({

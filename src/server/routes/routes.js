@@ -14,31 +14,21 @@ router.get('/', async (req, res) => {
     await client.connect();
     console.log('[Routes API] Connected to database, fetching routes...');
 
-    // Update routes to be inactive except for specific IDs
-    await client.query(`
-      UPDATE routes 
-      SET active = CASE 
-        WHEN id IN (2956, 2957, 2958, 2959, 2960, 2962, 2963, 2964) THEN true 
-        ELSE false 
-      END
-    `);
-
     const result = await client.query(`
       SELECT 
         r.id,
         r.grade,
         r.color,
-        r.wall_sector,
+        r.points as base_points,
+        FLOOR(r.points * 0.5) as tried_points,
         r.active,
         r.created_at,
-        s.points,
-        FLOOR(s.points * 0.5) as tried_points,
         ROUND(AVG(NULLIF(s.rating, 0)), 1) as average_rating,
         COUNT(DISTINCT s.id) as send_count
       FROM routes r
       LEFT JOIN sends s ON r.id = s.route_id
       WHERE r.gym_id = $1 AND r.active = true
-      GROUP BY r.id, r.grade, r.color, r.wall_sector, r.active, r.created_at, s.points
+      GROUP BY r.id, r.grade, r.color, r.points, r.active, r.created_at
       ORDER BY r.created_at DESC
     `, [1]); // Using default gym_id = 1 for now
 
@@ -46,13 +36,11 @@ router.get('/', async (req, res) => {
       id: route.id,
       grade: route.grade,
       color: route.color,
-      wall_sector: route.wall_sector,
-      anchor_number: 1, // Default value since it's not in the current schema
+      points: parseInt(route.base_points) || 0,
+      tried_points: parseInt(route.tried_points) || 0,
       sendCount: parseInt(route.send_count) || 0,
       createdAt: route.created_at,
       active: route.active,
-      points: parseInt(route.points) || 0,
-      tried_points: parseInt(route.tried_points) || 0,
       average_rating: parseFloat(route.average_rating) || 0
     }));
 
