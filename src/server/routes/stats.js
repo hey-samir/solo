@@ -6,6 +6,7 @@ const router = express.Router();
 
 // Get climbing statistics for a user
 router.get('/', async (req, res) => {
+  console.log('[Stats API] Received request for stats');
   const client = createClient({
     connectionString: process.env.DATABASE_URL
   });
@@ -56,7 +57,8 @@ router.get('/', async (req, res) => {
     `, [userId]);
 
     const stats = result.rows[0];
-    
+    console.log('[Stats API] Retrieved stats:', stats);
+
     const response = {
       totalAscents: parseInt(stats.total_ascents) || 0,
       totalSends: parseInt(stats.total_sends) || 0,

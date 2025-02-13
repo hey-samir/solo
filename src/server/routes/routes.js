@@ -18,7 +18,6 @@ router.get('/', async (req, res) => {
     const result = await client.query(`
       SELECT 
         r.id,
-        r.name,
         r.grade,
         r.color,
         r.setter,
@@ -37,7 +36,6 @@ router.get('/', async (req, res) => {
 
     const routes = result.rows.map(route => ({
       id: route.id,
-      name: route.name || `${route.color} ${route.grade}`,
       grade: route.grade,
       color: route.color,
       setter: route.setter,
