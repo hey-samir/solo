@@ -20,7 +20,7 @@ const Standings: FC = () => {
     queryFn: async () => {
       try {
         console.log('[Standings] Fetching leaderboard data...')
-        const response = await client.get('/api/leaderboard') // Updated to include /api prefix
+        const response = await client.get('/api/leaderboard') 
         console.log('[Standings] Raw response:', response)
 
         if (!response.data) {
@@ -62,7 +62,7 @@ const Standings: FC = () => {
       }
     },
     retry: 1,
-    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000 
   })
 
   if (isLoading) {
@@ -81,7 +81,7 @@ const Standings: FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-2 py-4">
+    <div className="container mx-auto px-2 py-4 max-w-3xl">
       <h1 className="text-2xl font-bold mb-4">Standings</h1>
 
       {cacheInfo.isFromCache && (
@@ -113,7 +113,7 @@ const Standings: FC = () => {
                 <tr key={entry.username} className="border-b border-bg-primary">
                   <td className="py-2 px-3 text-center">
                     {entry.rank <= 3 ? (
-                      <span className="material-symbols-outlined">
+                      <span className="material-icons">
                         counter_{entry.rank}
                       </span>
                     ) : (
