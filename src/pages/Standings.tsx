@@ -81,11 +81,11 @@ const Standings: FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-2 py-4 max-w-3xl">
+    <div className="flex flex-col items-center w-full max-w-2xl mx-auto px-4 py-6">
       <h1 className="text-2xl font-bold mb-4">Standings</h1>
 
       {cacheInfo.isFromCache && (
-        <div className="alert alert-info mb-4">
+        <div className="alert alert-info mb-4 w-full">
           <i className="material-icons align-middle">access_time</i>
           <span>Viewing cached standings</span>
           {cacheInfo.timestamp && (
@@ -96,9 +96,9 @@ const Standings: FC = () => {
         </div>
       )}
 
-      <div className="bg-bg-card rounded-lg shadow-lg">
+      <div className="bg-bg-card rounded-lg shadow-lg w-full overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left">
+          <table className="w-full">
             <thead>
               <tr className="border-b border-bg-primary">
                 <th className="py-2 px-3 text-purple-400 w-12 text-center">#</th>
@@ -114,7 +114,7 @@ const Standings: FC = () => {
                   <td className="py-2 px-3 text-center">
                     {entry.rank <= 3 ? (
                       <span className="material-icons">
-                        counter_{entry.rank}
+                        looks_{entry.rank === 1 ? 'one' : entry.rank === 2 ? 'two' : 'three'}
                       </span>
                     ) : (
                       entry.rank
