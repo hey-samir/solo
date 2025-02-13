@@ -29,7 +29,7 @@ router.get('/', async (req, res) => {
             'status', s.status,
             'points', s.points,
             'route', r.grade || ' ' || r.color || ' (' || r.wall_sector || ')',
-            'stars', COALESCE(s.rating, 3)
+            'stars', 3  -- Default to 3 stars since rating column doesn't exist yet
           ) ORDER BY s.created_at DESC) as attempts
         FROM sends s
         JOIN routes r ON s.route_id = r.id
@@ -62,7 +62,7 @@ router.get('/', async (req, res) => {
         route: attempt.route,
         tries: attempt.tries,
         status: attempt.status ? 'Sent' : 'Tried',
-        stars: attempt.stars,
+        stars: 3,  // Default to 3 stars
         points: attempt.points
       }))
     }));
