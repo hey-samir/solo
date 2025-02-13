@@ -128,7 +128,7 @@ const Sends: FC = () => {
   }
 
   const selectedRoute = routes.find(route => route.id === formData.route_id)
-  const points = selectedRoute 
+  const points = selectedRoute
     ? calculatePoints(selectedRoute.grade, formData.rating, formData.status, formData.tries)
     : 0
 
@@ -146,7 +146,7 @@ const Sends: FC = () => {
 
   return (
     <div className="container px-6 py-8">
-      <h1 className="text-2xl font-bold text-text-primary mb-6">Sends</h1>
+      <h1 className="text-3xl font-bold text-text-primary mb-6">Sends</h1>
       <div className="bg-bg-card rounded-lg shadow-lg">
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-6">
@@ -154,19 +154,19 @@ const Sends: FC = () => {
             <div className="grid grid-cols-[1fr_1fr] gap-4 items-center">
               {/* Route Selection */}
               <label className="text-text-primary font-medium">Route</label>
-              <select 
+              <select
                 className="form-select bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
                 value={formData.route_id || ''}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  route_id: Number(e.target.value) 
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  route_id: Number(e.target.value)
                 }))}
                 required
               >
                 <option value="">Select a route</option>
                 {routes.map(route => (
-                  <option 
-                    key={route.id} 
+                  <option
+                    key={route.id}
                     value={route.id}
                   >
                     {route.wall_sector} - {route.anchor_number} - {route.color} {route.grade}
@@ -177,14 +177,14 @@ const Sends: FC = () => {
               {/* Tries with Slider */}
               <label className="text-text-primary font-medium">Tries</label>
               <div className="flex items-center space-x-4">
-                <input 
+                <input
                   type="range"
                   min="1"
                   max="10"
                   value={formData.tries}
-                  onChange={(e) => setFormData(prev => ({ 
-                    ...prev, 
-                    tries: Number(e.target.value) 
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    tries: Number(e.target.value)
                   }))}
                   className="w-full h-2 bg-bg-kpi-card rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-solo-purple [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer"
                 />
@@ -194,7 +194,7 @@ const Sends: FC = () => {
               {/* Status Toggle */}
               <label className="text-text-primary font-medium">Status</label>
               <div className="flex items-center space-x-3">
-                <div 
+                <div
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     formData.status ? 'bg-solo-purple' : 'bg-gray-600'
                   }`}
@@ -232,13 +232,13 @@ const Sends: FC = () => {
 
               {/* Notes */}
               <label className="text-text-primary font-medium">Notes</label>
-              <textarea 
+              <textarea
                 className="form-textarea bg-bg-input text-text-primary border-border-default rounded-lg focus:border-solo-purple focus:ring-solo-purple"
                 rows={3}
                 value={formData.notes}
-                onChange={(e) => setFormData(prev => ({ 
-                  ...prev, 
-                  notes: e.target.value 
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  notes: e.target.value
                 }))}
               />
             </div>
@@ -248,8 +248,8 @@ const Sends: FC = () => {
               <div className="text-text-primary">
                 Points: {points}
               </div>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="px-6 py-2 bg-solo-purple hover:bg-solo-purple-light text-white rounded-lg transition-colors disabled:opacity-50"
                 disabled={sendMutation.isPending || formData.route_id === 0}
               >
