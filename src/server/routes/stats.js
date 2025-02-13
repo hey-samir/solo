@@ -1,6 +1,5 @@
 const express = require('express');
 const { createClient } = require('@vercel/postgres');
-const { isAuthenticated } = require('../middleware/auth');
 
 const router = express.Router();
 

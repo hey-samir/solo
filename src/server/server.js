@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const cors = require('cors');
 const apiRoutes = require('./routes');
+const morgan = require('morgan');
 
 const app = express();
 
@@ -16,6 +17,13 @@ process.on('uncaughtException', (error) => {
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const staticPath = path.join(process.cwd(), '/dist');
+
+// Extended logging middleware
+app.use(morgan('dev'));
+app.use((req, res, next) => {
+  console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
+  next();
+});
 
 // CORS configuration
 app.use(cors({
@@ -34,17 +42,11 @@ app.use(cors({
 
 // Parse JSON bodies
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Mount all API routes under /api
+console.log('[Server] Mounting API routes...');
 app.use('/api', apiRoutes);
-
-// Logging middleware
-app.use((req, res, next) => {
-  if (!req.path.includes('.') && !req.path.startsWith('/api/')) {
-    console.log(`[${NODE_ENV}] ${req.method} ${req.path}`);
-  }
-  next();
-});
 
 // Serve static files with proper MIME types and caching
 app.use(express.static(staticPath, {
@@ -97,11 +99,19 @@ app.get('*', (req, res, next) => {
   res.sendFile(indexPath);
 });
 
-// Error handler
-app.use((err, _req, res, _next) => {
-  console.error('Server Error:', err);
+// Global error handler with detailed logging
+app.use((err, req, res, next) => {
+  console.error('Server Error:', {
+    path: req.path,
+    method: req.method,
+    error: err.message,
+    stack: err.stack,
+    timestamp: new Date().toISOString()
+  });
+
   res.status(500).json({ 
     error: NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
+    path: req.path,
     timestamp: new Date().toISOString()
   });
 });
