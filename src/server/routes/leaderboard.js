@@ -2,6 +2,18 @@ const express = require('express');
 const { createClient } = require('@vercel/postgres');
 const router = express.Router();
 
+// Helper function to format grade (shared with user.js)
+const formatGrade = (grade) => {
+  if (!grade) return 'N/A';
+  const baseGrade = Math.floor(grade);
+  const fraction = grade - baseGrade;
+  let letter = 'a';
+  if (fraction >= 0.25 && fraction < 0.5) letter = 'b';
+  else if (fraction >= 0.5 && fraction < 0.75) letter = 'c';
+  else if (fraction >= 0.75) letter = 'd';
+  return `5.${baseGrade}${letter}`;
+};
+
 // Get leaderboard data
 router.get('/', async (req, res) => {
   const connectionString = process.env.DATABASE_URL;
@@ -26,94 +38,48 @@ router.get('/', async (req, res) => {
         SELECT 
           u.id,
           u.username,
-          COUNT(s.id) as burns,
-          AVG(s.tries) as avg_tries,
-          -- Join with routes and points tables to get correct points
-          SUM(
-            COALESCE(
+          COUNT(*) as total_ascents,
+          COUNT(CASE WHEN s.status = true THEN 1 END) as total_sends,
+          SUM(CASE WHEN s.status = false THEN 1 END) as burns,
+          SUM(s.points) as total_points,
+          ROUND(AVG(CASE 
+            WHEN r.grade ~ '^5\\.\\d+[a-d]?$' 
+            THEN (
+              CAST(SUBSTRING(r.grade, 3, 2) AS DECIMAL) + 
               CASE 
-                WHEN s.tries = 1 THEN p.points  -- Flash
-                ELSE p.tried_points             -- Send with attempts
-              END,
-              0
+                WHEN r.grade ~ 'a$' THEN 0.0
+                WHEN r.grade ~ 'b$' THEN 0.25
+                WHEN r.grade ~ 'c$' THEN 0.5
+                WHEN r.grade ~ 'd$' THEN 0.75
+                ELSE 0
+              END
             )
-          ) as total_points,
-          AVG(
-            COALESCE(
-              CASE 
-                WHEN s.tries = 1 THEN p.points  -- Flash
-                ELSE p.tried_points             -- Send with attempts
-              END,
-              0
-            )
-          ) as avg_points,
-          ROW_NUMBER() OVER (
-            ORDER BY SUM(
-              COALESCE(
-                CASE 
-                  WHEN s.tries = 1 THEN p.points
-                  ELSE p.tried_points
-                END,
-                0
-              )
-            ) DESC NULLS LAST
-          ) as rank
+            ELSE NULL 
+          END), 2) as avg_grade,
+          ROW_NUMBER() OVER (ORDER BY SUM(s.points) DESC NULLS LAST) as rank
         FROM users u
         LEFT JOIN sends s ON u.id = s.user_id
         LEFT JOIN routes r ON s.route_id = r.id
-        LEFT JOIN points p ON r.grade = p.grade
         WHERE s.created_at >= NOW() - INTERVAL '30 days'
         GROUP BY u.id, u.username
       )
-      SELECT 
-        rank,
-        id,
-        username,
-        burns,
-        avg_tries,
-        total_points as points,
-        avg_points
-      FROM RankedUsers
+      SELECT * FROM RankedUsers
       ORDER BY rank ASC
       LIMIT 100;
     `);
 
     console.log('[Leaderboard] Sample row data:', result.rows[0]);
 
-    const leaderboard = result.rows.map(row => {
-      const avgPoints = row.avg_points;
-      let formattedGrade = 'N/A';
-
-      if (avgPoints !== null) {
-        // Convert points to grade (points/10 = grade number)
-        const gradeNum = avgPoints / 10;
-        const baseGrade = Math.floor(gradeNum);
-        const decimal = gradeNum - baseGrade;
-        let letter = '';
-
-        // Convert decimal to letter grade
-        if (decimal <= 0.12) letter = '';
-        else if (decimal <= 0.37) letter = 'a';
-        else if (decimal <= 0.62) letter = 'b';
-        else if (decimal <= 0.87) letter = 'c';
-        else letter = 'd';
-
-        formattedGrade = `5.${baseGrade}${letter}`;
-      }
-
-      console.log(`[Leaderboard] Processing user ${row.username}: avg_points=${row.avg_points}, formatted=${formattedGrade}`);
-
-      return {
-        rank: row.rank,
-        userId: row.id,
-        username: row.username || 'Anonymous',
-        burns: parseInt(row.burns) || 0,
-        points: parseInt(row.points) || 0,
-        grade: formattedGrade,
-        totalSends: parseInt(row.burns) || 0,
-        avgGrade: formattedGrade
-      };
-    });
+    const leaderboard = result.rows.map(row => ({
+      rank: parseInt(row.rank),
+      userId: row.id,
+      username: row.username || 'Anonymous',
+      burns: parseInt(row.burns) || 0,
+      points: parseInt(row.total_points) || 0,
+      grade: formatGrade(row.avg_grade),
+      totalSends: parseInt(row.total_sends) || 0,
+      avgGrade: formatGrade(row.avg_grade)
+    }));
 
     // Add cache headers
     res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
