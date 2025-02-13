@@ -27,7 +27,6 @@ router.get('/', async (req, res) => {
             CONCAT(
               r.grade, '|',
               r.color, '|',
-              r.wall_sector, '|',
               s.tries, '|',
               s.status, '|',
               s.points
@@ -54,9 +53,9 @@ router.get('/', async (req, res) => {
 
     const sessions = result.rows.map(row => {
       const attempts = row.attempts_data ? row.attempts_data.split(';').map(attempt => {
-        const [grade, color, wall_sector, tries, status, points] = attempt.split('|');
+        const [grade, color, tries, status, points] = attempt.split('|');
         return {
-          route: `${grade} ${color} (${wall_sector})`,
+          route: `${grade} ${color}`,
           tries: parseInt(tries),
           status: status === 'true' ? 'Sent' : 'Tried',
           stars: 3,  // Default to 3 stars
