@@ -112,7 +112,7 @@ const Standings: FC = () => {
                   <td className="py-2 px-2 text-center">
                     {entry.rank <= 3 ? (
                       <span className="material-icons">
-                        {entry.rank === 1 ? 'filter_1' : entry.rank === 2 ? 'filter_2' : 'filter_3'}
+                        {entry.rank === 1 ? 'counter_1' : entry.rank === 2 ? 'counter_2' : 'counter_3'}
                       </span>
                     ) : (
                       entry.rank
