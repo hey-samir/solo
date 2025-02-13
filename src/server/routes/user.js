@@ -96,7 +96,7 @@ router.get('/me/stats/charts', async (req, res) => {
 
     const userId = req.user?.id || 1;
 
-    // Simplified query with better error handling
+    // Query with grade progression data and better error handling
     const result = await client.query(`
       WITH daily_stats AS (
         SELECT 
@@ -108,35 +108,57 @@ router.get('/me/stats/charts', async (req, res) => {
         FROM sends
         WHERE user_id = $1
         GROUP BY DATE(created_at)
-        ORDER BY date DESC
-        LIMIT 30
+      ),
+      grade_stats AS (
+        SELECT 
+          DATE(s.created_at) as date,
+          AVG(
+            CASE 
+              WHEN r.grade ~ '^5\\.\\d+[a-d]?$' 
+              THEN CAST(SUBSTRING(r.grade, 3, 2) AS DECIMAL)
+              ELSE NULL 
+            END
+          ) as avg_grade
+        FROM sends s
+        JOIN routes r ON s.route_id = r.id
+        WHERE s.user_id = $1 AND s.status = true
+        GROUP BY DATE(s.created_at)
       )
       SELECT 
-        date,
-        attempts,
-        sends,
-        points,
-        unique_routes
-      FROM daily_stats
-      ORDER BY date ASC
+        ds.date,
+        ds.attempts,
+        ds.sends,
+        ds.points,
+        ds.unique_routes,
+        gs.avg_grade
+      FROM daily_stats ds
+      LEFT JOIN grade_stats gs ON ds.date = gs.date
+      ORDER BY ds.date DESC
+      LIMIT 30
     `, [userId]);
+
+    console.log('[User Stats Charts API] Raw data sample:', result.rows[0]);
 
     const chartData = result.rows.map(row => ({
       date: row.date.toISOString().split('T')[0],
       attempts: parseInt(row.attempts) || 0,
       sends: parseInt(row.sends) || 0,
       points: parseInt(row.points) || 0,
-      uniqueRoutes: parseInt(row.unique_routes) || 0
-    })).filter(data => data.date != null);
+      uniqueRoutes: parseInt(row.unique_routes) || 0,
+      avgGrade: row.avg_grade ? `5.${Math.round(row.avg_grade * 10) / 10}` : null
+    }))
+    .filter(data => data.date != null)
+    .sort((a, b) => new Date(a.date) - new Date(b.date)); // Ensure chronological order
 
     // Add cache headers
-    res.set('Cache-Control', 'public, max-age=300');
+    res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
     res.set('X-Cache-Timestamp', new Date().toISOString());
 
     console.log('[User Stats Charts API] Successfully prepared chart data:', {
       dataPoints: chartData.length,
       firstDate: chartData[0]?.date,
-      lastDate: chartData[chartData.length - 1]?.date
+      lastDate: chartData[chartData.length - 1]?.date,
+      samplePoint: chartData[0]
     });
 
     res.json(chartData);
