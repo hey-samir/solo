@@ -34,13 +34,13 @@ router.get('/', async (req, res) => {
     console.log('[Leaderboard] Connected to database, fetching data...');
 
     const result = await client.query(`
-      WITH RankedUsers AS (
+      WITH user_stats AS (
         SELECT 
           u.id,
           u.username,
           COUNT(*) as total_ascents,
           COUNT(CASE WHEN s.status = true THEN 1 END) as total_sends,
-          SUM(CASE WHEN s.status = false THEN 1 END) as burns,
+          COUNT(CASE WHEN s.status = false THEN 1 END) as burns,
           SUM(s.points) as total_points,
           ROUND(AVG(CASE 
             WHEN r.grade ~ '^5\\.\\d+[a-d]?$' 
@@ -63,7 +63,8 @@ router.get('/', async (req, res) => {
         WHERE s.created_at >= NOW() - INTERVAL '30 days'
         GROUP BY u.id, u.username
       )
-      SELECT * FROM RankedUsers
+      SELECT * FROM user_stats
+      WHERE total_ascents > 0
       ORDER BY rank ASC
       LIMIT 100;
     `);

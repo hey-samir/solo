@@ -1,5 +1,18 @@
 /* Core Variables */
 :root {
+  /* Typography */
+  --font-size-xxl: 1.875rem;  /* 30px - Page headers */
+  --font-size-xl: 1.5rem;     /* 24px - Section headers */
+  --font-size-lg: 1.25rem;    /* 20px - Sub headers */
+  --font-size-base: 1rem;     /* 16px - Body text */
+  --font-size-sm: 0.875rem;   /* 14px - Small text */
+  --font-size-xs: 0.75rem;    /* 12px - Extra small text */
+
+  /* Spacing */
+  --section-padding: 1.5rem;
+  --container-padding: 1rem;
+  --card-padding: 1.25rem;
+
   /* Brand Colors */
   --solo-purple: #7442d6;
   --solo-purple-rgb: 116, 66, 214;
@@ -25,6 +38,28 @@
   --text-primary-rgb: 255, 255, 255;
   --text-secondary: rgba(var(--text-primary-rgb), 0.6);
   --text-muted: rgba(var(--text-primary-rgb), 0.4);
+}
+
+/* Header styles */
+h1, .h1 {
+  font-size: var(--font-size-xxl);
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+h2, .h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+h3, .h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
 }
 
 /* Update KPI card styles */
@@ -84,21 +119,32 @@ html, body {
   min-height: 100vh;
 }
 
-/* Container Layout - Remove top spacing */
+/* Container Layout - Standardized padding */
 .container,
 .sessions-container,
 .standings-container,
 .sends-container,
 .stats-container,
-.profile-container {
+.profile-container,
+.trends-container,
+.metrics-container {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto calc(var(--navbar-height) + 1rem);
-  padding: 0.5rem;
+  padding: var(--container-padding);
   background-color: var(--bg-primary);
   overflow-x: hidden;
   box-sizing: border-box !important;
   border: none !important;
+}
+
+/* Section padding standardization */
+.section-container {
+  padding: var(--section-padding);
+}
+
+.card-body {
+  padding: var(--card-padding);
 }
 
 /* Tables - Mobile Optimized */
