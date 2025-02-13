@@ -99,7 +99,7 @@ body {
 
 .session-content {
   @apply overflow-hidden transition-all duration-200 ease-in-out;
-  max-height: 500px; /* Reduced from 1000px */
+  max-height: 200px; 
 }
 
 .session-content.collapsed {

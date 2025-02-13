@@ -126,7 +126,7 @@ const Stats: FC = () => {
             <MetricCard value={stats.totalPoints} label="Total Points" />
             <MetricCard value={stats.avgPointsPerClimb} label="Pts / Burn" />
             <MetricCard value={`${stats.successRate}%`} label="Send Rate" />
-            <MetricCard value={`${stats.successRatePerSession}%`} label="Session Send Rate" />
+            <MetricCard value={stats.totalSessions} label="Sessions" />
             <MetricCard value={stats.climbsPerSession} label="Burns / Session" />
             <MetricCard value={stats.avgAttemptsPerClimb} label="Burns / Route" />
           </div>
