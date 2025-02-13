@@ -1,26 +1,11 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-
-// Import all avatars
-import graySoloAvatar from '@/assets/images/avatars/gray-solo-av.png'
-import whiteSoloAvatar from '@/assets/images/avatars/white-solo-av.png'
-import blackSoloAvatar from '@/assets/images/avatars/black-solo-av.png'
-import purpleSoloAvatar from '@/assets/images/avatars/purple-solo-av.png'
-
-const avatarMap = {
-  gray: graySoloAvatar,
-  white: whiteSoloAvatar,
-  black: blackSoloAvatar,
-  purple: purpleSoloAvatar
-} as const
+import soloNavAvatar from '@/assets/images/nav-solo-avatar.svg'
 
 export default function Navbar(): React.ReactElement {
   const location = useLocation()
   const { user } = useAuth()
-
-  // Default to gray avatar if no profilePhoto is set
-  const currentAvatar = user?.profilePhoto ? avatarMap[user.profilePhoto as keyof typeof avatarMap] : graySoloAvatar
 
   return (
     <nav className="navbar fixed-bottom">
@@ -78,12 +63,13 @@ export default function Navbar(): React.ReactElement {
               aria-label="Solo"
             >
               <img 
-                src={currentAvatar}
+                src={soloNavAvatar}
                 alt="Solo" 
                 style={{ 
                   width: '36px', 
                   height: '36px',
-                  opacity: ['/solo', '/settings', '/profile'].includes(location.pathname) ? 1 : 0.85 
+                  opacity: ['/solo', '/settings', '/profile'].includes(location.pathname) ? 1 : 0.85,
+                  filter: ['/solo', '/settings', '/profile'].includes(location.pathname) ? 'none' : 'grayscale(15%)'
                 }} 
               />
             </Link>
