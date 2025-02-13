@@ -50,12 +50,6 @@ const Standings: FC = () => {
         return validatedData
       } catch (error) {
         console.error('[Standings] Error fetching leaderboard:', error)
-        if (error instanceof Error) {
-          console.error('[Standings] Error details:', error.message)
-          if ('response' in error) {
-            console.error('[Standings] Response error:', (error as any).response?.data)
-          }
-        }
         throw error
       }
     },
@@ -79,8 +73,8 @@ const Standings: FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Standings</h1>
+    <div className="container px-6 py-8">
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Standings</h1>
 
       {cacheInfo.isFromCache && (
         <div className="alert alert-info mb-4 w-full">

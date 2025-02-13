@@ -6,83 +6,88 @@ const Pricing: FC = () => {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
 
-  const handleUpgrade = () => {
-    if (!isAuthenticated) {
-      navigate('/login?redirect=/pricing')
-    } else {
-      // TODO: Implement upgrade flow
-      console.log('Upgrade to Pro')
-    }
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-center mb-8">Choose Your Plan</h1>
+    <div className="container px-6 py-8">
+      <h1 className="text-2xl font-bold text-text-primary mb-6">Solo Pro</h1>
 
-      <div className="table-responsive">
-        <table className="table table-dark table-borderless mb-0">
+      <div className="bg-bg-card rounded-lg shadow-lg overflow-hidden">
+        <table className="w-full table-auto">
           <thead>
-            <tr>
-              <th style={{ width: '50%' }}>Features</th>
-              <th className="text-center" style={{ width: '25%' }}>
-                <h3 className="mb-2">Base</h3>
-                <div className="d-grid">
-                  <button 
-                    onClick={() => navigate('/register')}
-                    className="btn btn-outline-light"
-                  >
-                    Start Free
-                  </button>
-                </div>
+            <tr className="border-b border-border-default">
+              <th className="py-4 px-6 text-left" style={{ width: '50%' }}>Features</th>
+              <th className="py-4 px-6 text-center" style={{ width: '25%' }}>
+                <h3 className="text-lg font-semibold mb-2">Base</h3>
               </th>
-              <th className="text-center" style={{ width: '25%' }}>
-                <h3 className="mb-2"><span className="pro-badge">PRO</span></h3>
-                <div className="d-grid">
-                  <button 
-                    onClick={handleUpgrade}
-                    className="btn btn-solo-purple"
-                  >
-                    Start Free Trial
-                  </button>
-                </div>
+              <th className="py-4 px-6 text-center" style={{ width: '25%' }}>
+                <h3 className="text-lg font-semibold mb-2">
+                  <span className="bg-solo-purple text-white px-2 py-1 rounded text-sm">PRO</span>
+                </h3>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Send Logging</td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            <tr className="border-b border-border-default">
+              <td className="py-4 px-6">Send Logging</td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
             </tr>
-            <tr>
-              <td>Global Leaderboard</td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            <tr className="border-b border-border-default">
+              <td className="py-4 px-6">Global Leaderboard</td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
             </tr>
-            <tr>
-              <td>Session View</td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            <tr className="border-b border-border-default">
+              <td className="py-4 px-6">Session View</td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
             </tr>
-            <tr>
-              <td>Stats Tracking</td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            <tr className="border-b border-border-default">
+              <td className="py-4 px-6">Stats Tracking</td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
             </tr>
-            <tr>
-              <td>Ad-free Experience</td>
-              <td className="text-center"><i className="material-icons text-error">close</i></td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            <tr className="border-b border-border-default">
+              <td className="py-4 px-6">Ad-free Experience</td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle_outlined</i>
+              </td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
             </tr>
-            <tr>
-              <td>Custom Avatars</td>
-              <td className="text-center"><i className="material-icons text-error">close</i></td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            <tr className="border-b border-border-default">
+              <td className="py-4 px-6">Custom Avatars</td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle_outlined</i>
+              </td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
             </tr>
-            <tr>
-              <td>Solo AI</td>
-              <td className="text-center"><i className="material-icons text-error">close</i></td>
-              <td className="text-center"><i className="material-icons text-success">check</i></td>
+            <tr className="border-b border-border-default">
+              <td className="py-4 px-6">Solo AI</td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle_outlined</i>
+              </td>
+              <td className="text-center py-4 px-6">
+                <i className="material-icons text-white">circle</i>
+              </td>
             </tr>
           </tbody>
         </table>
