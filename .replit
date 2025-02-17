@@ -59,32 +59,11 @@ args = "Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Staging Server"
+args = "Production Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Server"
-
-[[workflows.workflow]]
-name = "Staging Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-
-    export NODE_ENV=staging
-    export PORT=5000
-    export DATABASE_URL=\"${DATABASE_URL}\"
-    node src/server/server.js
-    """
-waitForPort = 5000
+args = "Staging Server"
 
 [[workflows.workflow]]
 name = "Production Server"
@@ -102,6 +81,27 @@ args = """
 
     export NODE_ENV=production
     export PORT=3000
+    node src/server/server.js
+    """
+waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Staging Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+
+    export NODE_ENV=staging
+    export PORT=3000
+    export DATABASE_URL=\"${DATABASE_URL}\"
     node src/server/server.js
     """
 waitForPort = 3000
