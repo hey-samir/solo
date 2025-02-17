@@ -7,11 +7,10 @@ const morgan = require('morgan');
 
 const app = express();
 
-// Basic configuration
-const PORT = process.env.PORT || 3000;
+// Environment-specific configuration
 const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = process.env.PORT || (NODE_ENV === 'production' ? 3002 : 3001);
 const staticPath = path.resolve(process.cwd(), 'dist');
-
 
 // Basic middleware setup
 app.use(morgan('dev'));
@@ -52,7 +51,7 @@ app.use((err, req, res, next) => {
 // Start server
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log(`Server running in ${NODE_ENV} mode on http://0.0.0.0:${PORT}`);
   });
 }
 
