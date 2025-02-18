@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { FeatureFlags, FeatureFlagService, productionDefaults } from '../config/environment'
+import config from '../config'; // Assuming config.apiUrl exists here
+import * as yup from 'yup';
+const FeatureFlagsSchema = yup.object({
+    enablePro: yup.boolean().required(),
+    enableFeedback: yup.boolean().required(),
+    bannerText: yup.string().required()
+}).required();
+
 
 interface FeatureFlagsContextType {
   flags: FeatureFlags | null
@@ -25,18 +33,36 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setIsLoading(true)
       setError(null)
       console.log('[FeatureFlagsContext] Loading flags...')
-      const newFlags = await FeatureFlagService.initialize()
-      console.log('[FeatureFlagsContext] Flags loaded:', newFlags)
+
+      // Force cache bypass
+      const response = await fetch(`${config.apiUrl}/feature-flags`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('[FeatureFlagsContext] Received flags:', data)
+
+      // Validate and set the flags
+      const newFlags = FeatureFlagsSchema.parse(data)
+      console.log('[FeatureFlagsContext] Parsed flags:', newFlags)
       setFlags(newFlags)
     } catch (err) {
       console.error('[FeatureFlagsContext] Error loading flags:', err)
       setError(err instanceof Error ? err.message : 'Failed to load application configuration')
-      setFlags(productionDefaults) // Fallback to defaults on error
+      setFlags(productionDefaults)
     } finally {
       setIsLoading(false)
     }
   }
 
+  // Load flags on mount and environment change
   useEffect(() => {
     loadFlags()
   }, [])
