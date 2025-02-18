@@ -80,11 +80,12 @@ task = "shell.exec"
 args = """
 
     export NODE_ENV=production
-    export PORT=3001
+    export PORT=3000
+    export FORCE_PRODUCTION=true
     export DATABASE_URL=\"${DATABASE_URL}\"
     node src/server/server.js
     """
-waitForPort = 3001
+waitForPort = 3000
 
 [[ports]]
 localPort = 80
