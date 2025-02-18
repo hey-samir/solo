@@ -6,21 +6,21 @@ const featureFlags = {
   production: {
     enableAuth: true,
     enableStats: true,
-    enablePro: false,         // Ensure Pro is disabled in production
+    enablePro: false,
     enableSessions: true,
-    enableFeedback: false,    // Ensure Feedback is disabled in production
+    enableFeedback: false,
     enableSquads: true,
     enableSettings: true,
     enableStandings: true,
     showBottomNav: false,
     showFAQ: false,
-    showEnvironmentBanner: true,  // Show banner in production
+    showEnvironmentBanner: true,
     environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates'
   },
   staging: {
     enableAuth: true,
     enableStats: true,
-    enablePro: true,          // Enable all features in staging
+    enablePro: true,
     enableSessions: true,
     enableFeedback: true,
     enableSquads: true,
@@ -42,7 +42,6 @@ router.get('/', (req, res) => {
 
     console.log('[Feature Flags] Request received:', {
       NODE_ENV: process.env.NODE_ENV,
-      PORT: process.env.PORT,
       forceProduction,
       isProduction,
       requestPath: req.path,
@@ -67,15 +66,13 @@ router.get('/', (req, res) => {
       _runtime: {
         environment: isProduction ? 'production' : 'staging',
         timestamp: new Date().toISOString(),
-        port: process.env.PORT,
         isProduction
       }
     };
 
     console.log('[Feature Flags] Serving flags:', {
       isProduction,
-      environment: flagsWithRuntime._runtime.environment,
-      port: flagsWithRuntime._runtime.port
+      environment: flagsWithRuntime._runtime.environment
     });
 
     res.json(flagsWithRuntime);
