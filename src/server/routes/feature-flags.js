@@ -3,20 +3,6 @@ const router = express.Router();
 
 // Feature flag configurations per environment
 const featureFlags = {
-  development: {
-    enableAuth: true,
-    enableStats: true,
-    enablePro: true,
-    enableSessions: true,
-    enableFeedback: true,
-    enableSquads: true,
-    enableSettings: true,
-    enableStandings: true,
-    showBottomNav: true,
-    showFAQ: true,
-    showEnvironmentBanner: true,
-    environmentBannerText: 'Development Environment',
-  },
   staging: {
     enableAuth: true,
     enableStats: true,
@@ -34,9 +20,9 @@ const featureFlags = {
   production: {
     enableAuth: true,
     enableStats: true,
-    enablePro: true,
+    enablePro: false,
     enableSessions: true,
-    enableFeedback: true,
+    enableFeedback: false,
     enableSquads: true,
     enableSettings: true,
     enableStandings: true,
@@ -49,7 +35,7 @@ const featureFlags = {
 
 // Get feature flags based on environment
 router.get('/', (req, res) => {
-  const environment = process.env.NODE_ENV || 'development';
+  const environment = process.env.NODE_ENV || 'production';
   // Only log on initial server start
   if (!router.flagsInitialized) {
     console.log(`[Feature Flags] Initialized for ${environment} environment:`, 

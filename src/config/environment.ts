@@ -18,7 +18,7 @@ export type FeatureFlags = z.infer<typeof FeatureFlagsSchema>
 
 // Environment configuration
 export const config = {
-  environment: import.meta.env.MODE || 'development',
+  environment: import.meta.env.MODE || 'production',
   apiUrl: '/api',
 }
 
@@ -26,9 +26,9 @@ export const config = {
 export const productionDefaults: FeatureFlags = {
   enableAuth: true,
   enableStats: true,
-  enablePro: true,
+  enablePro: false,
   enableSessions: true,
-  enableFeedback: true,
+  enableFeedback: false,
   enableSquads: true,
   showBottomNav: false,
   showFAQ: false,
