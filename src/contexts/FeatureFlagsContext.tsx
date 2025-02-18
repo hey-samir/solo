@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
 import { FeatureFlags, FeatureFlagService, productionDefaults } from '../config/environment'
 
 interface FeatureFlagsContextType {
@@ -39,10 +39,20 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   useEffect(() => {
     loadFlags()
+    // Set up a periodic refresh every 5 minutes
+    const interval = setInterval(loadFlags, 5 * 60 * 1000)
+    return () => clearInterval(interval)
   }, [])
 
+  const value = useMemo(() => ({
+    flags,
+    isLoading,
+    error,
+    reload: loadFlags
+  }), [flags, isLoading, error])
+
   return (
-    <FeatureFlagsContext.Provider value={{ flags, isLoading, error, reload: loadFlags }}>
+    <FeatureFlagsContext.Provider value={value}>
       {children}
     </FeatureFlagsContext.Provider>
   )

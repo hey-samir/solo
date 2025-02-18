@@ -30,7 +30,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Environment check middleware
 app.use((req, res, next) => {
-  console.log(`[Server] Request ${req.path} handled in ${NODE_ENV} environment`);
+  const requestInfo = {
+    path: req.path,
+    method: req.method,
+    environment: NODE_ENV,
+    timestamp: new Date().toISOString()
+  };
+  console.log('[Server] Request details:', requestInfo);
   next();
 });
 
@@ -38,7 +44,11 @@ app.use((req, res, next) => {
 app.use('/api', apiRoutes);
 
 // Serve static files
-app.use(express.static(staticPath));
+app.use(express.static(staticPath, {
+  maxAge: NODE_ENV === 'production' ? '1h' : 0,
+  etag: NODE_ENV === 'production',
+  lastModified: NODE_ENV === 'production'
+}));
 
 // Check if dist directory exists
 if (!fs.existsSync(staticPath)) {
