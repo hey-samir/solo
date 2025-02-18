@@ -4,8 +4,6 @@ const Footer: React.FC = () => {
   return (
     <footer className="py-4 px-4 text-center text-sm text-gray-600">
       <p>
-        © Interspace Labs {new Date().getFullYear()}. Built at the speed of thought with{' '}
-        <span role="img" aria-label="heart">❤️</span> by{' '}
         <a 
           href="https://samir.xyz" 
           target="_blank" 
@@ -14,7 +12,8 @@ const Footer: React.FC = () => {
         >
           Interspace Labs
         </a>
-        {' '}and{' '}
+        {' '}2025. Built at the speed of thought with{' '}
+        <span role="img" aria-label="heart" className="text-white">❤️</span> by{' '}
         <a 
           href="https://replit.com" 
           target="_blank" 
