@@ -48,6 +48,8 @@ router.get('/', (req, res) => {
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');
+  res.set('Surrogate-Control', 'no-store');
+  res.set('Vary', '*');
 
   res.json(config);
 });

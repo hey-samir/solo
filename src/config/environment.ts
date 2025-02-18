@@ -25,11 +25,11 @@ export const config = {
 // Production defaults (used as fallback)
 export const productionDefaults: FeatureFlags = {
   enableAuth: true,
-  enableStats: true,
-  enablePro: true,
-  enableSessions: true,
-  enableFeedback: true,
-  enableSquads: true,
+  enableStats: false,
+  enablePro: false,
+  enableSessions: false,
+  enableFeedback: false,
+  enableSquads: false,
   showBottomNav: false,
   showFAQ: false,
   showEnvironmentBanner: true,
@@ -42,7 +42,14 @@ class FeatureFlagServiceClass {
   async initialize(): Promise<FeatureFlags> {
     try {
       console.log(`[FeatureFlags] Initializing for ${config.environment} environment`)
-      const response = await fetch(`${config.apiUrl}/feature-flags`)
+      // Add timestamp to URL to prevent caching
+      const timestamp = new Date().getTime()
+      const response = await fetch(`${config.apiUrl}/feature-flags?_t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)
