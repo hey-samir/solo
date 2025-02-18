@@ -8,6 +8,8 @@ const FeatureFlagsSchema = z.object({
   enableSessions: z.boolean(),
   enableFeedback: z.boolean(),
   enableSquads: z.boolean(),
+  enableSettings: z.boolean(),
+  enableStandings: z.boolean(),
   showBottomNav: z.boolean(),
   showFAQ: z.boolean(),
   showEnvironmentBanner: z.boolean(),
@@ -30,6 +32,8 @@ export const productionDefaults: FeatureFlags = {
   enableSessions: true,
   enableFeedback: false,
   enableSquads: true,
+  enableSettings: true,
+  enableStandings: true,
   showBottomNav: false,
   showFAQ: false,
   showEnvironmentBanner: true,
@@ -42,7 +46,12 @@ class FeatureFlagServiceClass {
   async initialize(): Promise<FeatureFlags> {
     try {
       console.log(`[FeatureFlags] Initializing for ${config.environment} environment`)
-      const response = await fetch(`${config.apiUrl}/feature-flags`)
+      const response = await fetch(`${config.apiUrl}/feature-flags`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`)

@@ -36,16 +36,23 @@ const featureFlags = {
 // Get feature flags based on environment
 router.get('/', (req, res) => {
   const environment = process.env.NODE_ENV || 'production';
+
+  // Set cache control headers to prevent caching
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+
   // Only log on initial server start
   if (!router.flagsInitialized) {
     console.log(`[Feature Flags] Initialized for ${environment} environment:`, 
       JSON.stringify(featureFlags[environment], null, 2));
     router.flagsInitialized = true;
   }
+
   res.json(featureFlags[environment]);
 });
 
 module.exports = {
   router,
-  featureFlags, // Export the featureFlags object
+  featureFlags,
 };
