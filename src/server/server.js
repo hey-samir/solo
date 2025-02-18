@@ -16,7 +16,7 @@ process.on('uncaughtException', (error) => {
 // Basic configuration with enhanced environment detection
 const PORT = process.env.PORT || (process.env.NODE_ENV === 'production' ? 3000 : 5000);
 const NODE_ENV = process.env.NODE_ENV || 'development';
-const staticPath = path.join(process.cwd(), '/dist');
+const staticPath = path.resolve(__dirname, '../../dist');
 
 console.log('[Server] Starting with configuration:', {
   NODE_ENV,
@@ -25,6 +25,12 @@ console.log('[Server] Starting with configuration:', {
   timestamp: new Date().toISOString()
 });
 
+// Verify static directory exists
+if (!fs.existsSync(staticPath)) {
+  console.error(`[Server] Error: Static directory not found at ${staticPath}`);
+  process.exit(1);
+}
+
 // Extended logging middleware
 app.use(morgan('dev'));
 app.use((req, res, next) => {
@@ -32,38 +38,41 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS configuration
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5000',
-  'http://0.0.0.0:3000',
-  'http://0.0.0.0:5000'
-];
-
-app.use(cors({
+// CORS configuration for API routes only
+const apiCorsMiddleware = cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5000',
+      'http://0.0.0.0:3000',
+      'http://0.0.0.0:5000',
+      ...(process.env.REPL_SLUG ? [
+        `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
+      ] : [])
+    ];
+
+    if (!origin || allowedOrigins.includes(origin) || origin?.includes('repl.co') || origin?.includes('replit.dev')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
-}));
+});
 
 // Parse JSON bodies
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Mount all API routes under /api
-console.log('[Server] Mounting API routes...');
-app.use('/api', apiRoutes);
-
-// Serve static files with proper MIME types and caching
+// Serve static files with proper configuration
 app.use(express.static(staticPath, {
   maxAge: NODE_ENV === 'production' ? '1h' : '0',
-  etag: true
+  etag: true,
+  index: false // Don't auto-serve index.html
 }));
+
+// Apply CORS only to API routes
+app.use('/api', apiCorsMiddleware, apiRoutes);
 
 // Health check endpoint with enhanced environment info
 app.get('/health', (_req, res) => {
@@ -86,7 +95,7 @@ app.get('/health', (_req, res) => {
   res.status(healthy ? 200 : 503).json(healthStatus);
 });
 
-// Environment endpoint with strict production check
+// Environment endpoint
 app.get('/api/environment', (_req, res) => {
   res.json({ 
     environment: NODE_ENV,
@@ -97,18 +106,28 @@ app.get('/api/environment', (_req, res) => {
 
 // SPA support - serve index.html for all non-asset routes
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/') || req.path.includes('.')) {
+  // Skip API routes and files with extensions
+  if (req.path.startsWith('/api/') || path.extname(req.path)) {
     return next();
   }
 
   const indexPath = path.join(staticPath, 'index.html');
+  console.log(`[${NODE_ENV}] Serving index.html from:`, indexPath);
 
+  // Verify index.html exists
   if (!fs.existsSync(indexPath)) {
     console.error(`[${NODE_ENV}] Error: index.html not found at ${indexPath}`);
     return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment`);
   }
 
-  res.sendFile(indexPath);
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error(`[${NODE_ENV}] Error sending index.html:`, err);
+      next(err);
+    } else {
+      console.log(`[${NODE_ENV}] Successfully served index.html`);
+    }
+  });
 });
 
 // Global error handler with detailed logging
@@ -132,13 +151,8 @@ app.use((err, req, res, next) => {
 if (require.main === module) {
   const server = app.listen(PORT, '0.0.0.0')
     .on('error', (error) => {
-      if (error.code === 'EADDRINUSE') {
-        console.error(`[Server] Port ${PORT} is already in use. Please choose a different port.`);
-        process.exit(1);
-      } else {
-        console.error('[Server] Failed to start:', error);
-        process.exit(1);
-      }
+      console.error('[Server] Failed to start:', error);
+      process.exit(1);
     })
     .on('listening', () => {
       console.log('='.repeat(50));
