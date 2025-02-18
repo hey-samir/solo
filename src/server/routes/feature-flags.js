@@ -33,23 +33,23 @@ const featureFlags = {
   },
 };
 
-// Get feature flags based on environment
 router.get('/', (req, res) => {
-  const environment = req.app.locals.environment === 'production' ? 'production' : 'staging';
-  console.log(`[Feature Flags] Request received for ${environment} environment`);
+  const environment = process.env.NODE_ENV || 'development';
+  console.log(`[Feature Flags] Current NODE_ENV: ${environment}`);
 
-  // Add cache control headers to prevent stale configurations
+  // Force staging flags for any non-production environment
+  const configEnvironment = environment === 'production' ? 'production' : 'staging';
+  console.log(`[Feature Flags] Using config for environment: ${configEnvironment}`);
+
+  const config = featureFlags[configEnvironment];
+  console.log(`[Feature Flags] Serving configuration for ${configEnvironment}:`, JSON.stringify(config, null, 2));
+
+  // Add cache control headers
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.set('Pragma', 'no-cache');
   res.set('Expires', '0');
 
-  const config = featureFlags[environment];
-  console.log(`[Feature Flags] Serving configuration for ${environment}:`, JSON.stringify(config, null, 2));
-
   res.json(config);
 });
 
-module.exports = {
-  router,
-  featureFlags,
-};
+module.exports = router;
