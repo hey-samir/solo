@@ -24,7 +24,7 @@ router.get('/', (req, res) => {
   console.log('[Feature Flags] Environment:', process.env.NODE_ENV);
 
   // Force strict production settings
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' || process.env.PORT === '3000') {
     // Set strict no-cache headers
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     res.set('Pragma', 'no-cache');
