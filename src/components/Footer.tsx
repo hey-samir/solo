@@ -1,4 +1,5 @@
 import React from 'react'
+import { version } from '../../version.json'
 
 const Footer: React.FC = () => {
   return (
@@ -22,6 +23,9 @@ const Footer: React.FC = () => {
         >
           Replit AI
         </a>
+      </p>
+      <p className="mt-1 text-xs text-gray-500">
+        Version {version}
       </p>
     </footer>
   )
