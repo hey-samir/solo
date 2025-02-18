@@ -16,6 +16,7 @@ const featureFlags = {
     showFAQ: true,
     showEnvironmentBanner: true,
     environmentBannerText: 'Staging Environment - Testing',
+    _environment: 'staging'
   },
   production: {
     enableAuth: true,
@@ -30,18 +31,24 @@ const featureFlags = {
     showFAQ: false,
     showEnvironmentBanner: true,
     environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
+    _environment: 'production'
   },
 };
 
 router.get('/', (req, res) => {
-  const environment = process.env.NODE_ENV || 'development';
+  // Get environment from app.locals which is set in server.js
+  const environment = req.app.locals.environment || process.env.NODE_ENV || 'development';
   console.log(`[Feature Flags] Current NODE_ENV: ${environment}`);
 
   // Force staging flags for any non-production environment
   const configEnvironment = environment === 'production' ? 'production' : 'staging';
   console.log(`[Feature Flags] Using config for environment: ${configEnvironment}`);
 
-  const config = featureFlags[configEnvironment];
+  const config = {
+    ...featureFlags[configEnvironment],
+    _environment: configEnvironment
+  };
+
   console.log(`[Feature Flags] Serving configuration for ${configEnvironment}:`, JSON.stringify(config, null, 2));
 
   // Add cache control headers

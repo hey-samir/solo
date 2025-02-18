@@ -14,6 +14,7 @@ const FeatureFlagsSchema = z.object({
   showFAQ: z.boolean(),
   showEnvironmentBanner: z.boolean(),
   environmentBannerText: z.string(),
+  _environment: z.string(), // Add environment tracking
 })
 
 export type FeatureFlags = z.infer<typeof FeatureFlagsSchema>
@@ -38,6 +39,7 @@ export const productionDefaults: FeatureFlags = {
   showFAQ: false,
   showEnvironmentBanner: true,
   environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates',
+  _environment: 'production',
 }
 
 class FeatureFlagServiceClass {
@@ -45,9 +47,11 @@ class FeatureFlagServiceClass {
 
   async initialize(): Promise<FeatureFlags> {
     try {
-      console.log(`[FeatureFlags] Initializing for ${config.environment} environment`)
+      const environment = import.meta.env.MODE || 'development'
+      console.log(`[FeatureFlags] Initializing for ${environment} environment`)
+
       const timestamp = new Date().getTime()
-      const response = await fetch(`${config.apiUrl}/feature-flags?_t=${timestamp}`, {
+      const response = await fetch(`${config.apiUrl}/feature-flags?_t=${timestamp}&env=${environment}`, {
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
@@ -59,15 +63,23 @@ class FeatureFlagServiceClass {
       }
 
       const data = await response.json()
-      console.log('[FeatureFlags] Received data:', data)
+      console.log('[FeatureFlags] Received raw data:', JSON.stringify(data, null, 2))
 
       // Validate the response data
-      this.flags = FeatureFlagsSchema.parse(data)
+      this.flags = FeatureFlagsSchema.parse({
+        ...data,
+        _environment: data._environment || environment
+      })
+
+      console.log('[FeatureFlags] Parsed and validated flags:', JSON.stringify(this.flags, null, 2))
       return this.flags
     } catch (error) {
       console.error('[FeatureFlags] Error fetching flags:', error)
       console.log('[FeatureFlags] Using production defaults')
-      this.flags = productionDefaults
+      this.flags = {
+        ...productionDefaults,
+        _environment: 'production (fallback)'
+      }
       return this.flags
     }
   }
@@ -78,8 +90,8 @@ class FeatureFlagServiceClass {
       return productionDefaults
     }
 
-    // Log the current flags when they're accessed
-    console.log('[FeatureFlags] Current flags:', this.flags)
+    console.log('[FeatureFlags] Serving flags for environment:', this.flags._environment)
+    console.log('[FeatureFlags] Current flags state:', JSON.stringify(this.flags, null, 2))
     return this.flags
   }
 }
