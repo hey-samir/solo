@@ -6,10 +6,12 @@ const featureFlags = {
   staging: {
     enableAuth: true,
     enableStats: true,
-    enablePro: false,
+    enablePro: true,
     enableSessions: true,
     enableFeedback: true,
-    enableSquads: false,
+    enableSquads: true,
+    enableSettings: true,
+    enableStandings: true,
     showBottomNav: true,
     showFAQ: true,
     showEnvironmentBanner: true,
@@ -22,6 +24,8 @@ const featureFlags = {
     enableSessions: false,
     enableFeedback: false,
     enableSquads: false,
+    enableSettings: false,
+    enableStandings: false,
     showBottomNav: false,
     showFAQ: false,
     showEnvironmentBanner: true,
@@ -32,14 +36,17 @@ const featureFlags = {
 // Get feature flags based on environment
 router.get('/', (req, res) => {
   const environment = process.env.NODE_ENV === 'production' ? 'production' : 'staging';
+  console.log(`[Feature Flags] Request received for ${environment} environment`);
 
-  if (!router.flagsInitialized) {
-    console.log(`[Feature Flags] Initialized for ${environment} environment:`, 
-      JSON.stringify(featureFlags[environment], null, 2));
-    router.flagsInitialized = true;
-  }
+  // Add cache control headers to prevent stale configurations
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
 
-  res.json(featureFlags[environment]);
+  const config = featureFlags[environment];
+  console.log(`[Feature Flags] Serving configuration:`, JSON.stringify(config, null, 2));
+
+  res.json(config);
 });
 
 module.exports = {
