@@ -63,10 +63,10 @@ args = "Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Staging Server"
+args = "Production Server"
 
 [[workflows.workflow]]
-name = "Staging Server"
+name = "Production Server"
 author = "agent"
 
 [workflows.workflow.metadata]
@@ -77,8 +77,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=staging node src/server/server.js"
-waitForPort = 5001
+args = "PORT=3000 NODE_ENV=production node src/server/server.js"
+waitForPort = 3000
 
 [[ports]]
 localPort = 80

@@ -36,24 +36,27 @@ const featureFlags = {
 // Initialize feature flags with proper error handling
 router.get('/', (req, res) => {
   try {
-    // Enhanced environment detection with port-based logic
+    // Strict environment detection based on port
     const port = parseInt(process.env.PORT || req.app.get('port'), 10);
-    const forceProduction = process.env.FORCE_PRODUCTION === 'true';
 
-    // Consider both 5000 and 5001 as staging ports, 3000 as production
-    const isProduction = forceProduction || (!isNaN(port) && port === 3000);
-    const isStaging = !isNaN(port) && (port === 5000 || port === 5001);
+    // Explicit environment checking
+    const isProduction = port === 3000;
+    const isStaging = port === 5000 || port === 5001;
 
-    console.log('[Feature Flags] Request received:', {
+    // Log request details for debugging
+    console.log('[Feature Flags] Environment detection:', {
       port,
-      NODE_ENV: process.env.NODE_ENV,
-      forceProduction,
       isProduction,
       isStaging,
       requestPath: req.path,
       requestHost: req.get('host'),
       timestamp: new Date().toISOString()
     });
+
+    // Strict environment validation
+    if (!isProduction && !isStaging) {
+      throw new Error(`Invalid environment: Port ${port} is not configured for feature flags`);
+    }
 
     // Set strict no-cache headers
     res.set({
@@ -63,14 +66,15 @@ router.get('/', (req, res) => {
       'Surrogate-Control': 'no-store'
     });
 
-    // Use production flags for port 3000, staging flags for 5000/5001
-    const flags = isProduction ? featureFlags.production : featureFlags.staging;
+    // Determine environment and select appropriate flags
+    const environment = isProduction ? 'production' : 'staging';
+    const flags = featureFlags[environment];
 
     // Add runtime information to response
     const flagsWithRuntime = {
       ...flags,
       _runtime: {
-        environment: isProduction ? 'production' : 'staging',
+        environment,
         timestamp: new Date().toISOString(),
         port,
         isProduction,
@@ -79,10 +83,10 @@ router.get('/', (req, res) => {
     };
 
     console.log('[Feature Flags] Serving flags:', {
-      isProduction,
-      isStaging,
+      environment,
       port,
-      environment: flagsWithRuntime._runtime.environment
+      isProduction,
+      isStaging
     });
 
     res.json(flagsWithRuntime);
@@ -90,7 +94,7 @@ router.get('/', (req, res) => {
     console.error('[Feature Flags] Error serving flags:', error);
     res.status(500).json({
       error: 'Internal Server Error',
-      message: 'Failed to retrieve feature flags',
+      message: error.message,
       timestamp: new Date().toISOString()
     });
   }
