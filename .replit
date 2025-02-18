@@ -102,6 +102,7 @@ args = """
 
     export NODE_ENV=production
     export PORT=3000
+    export DATABASE_URL=\"${DATABASE_URL}\"
     node src/server/server.js
     """
 waitForPort = 3000
