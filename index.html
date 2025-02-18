@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Solo - %MODE%</title>
     <meta name="description" content="Solo - Climbing Performance Tracking">
     <link rel="icon" type="image/png" href="/favicon.png">
@@ -32,37 +32,13 @@
             justify-content: center;
             align-items: flex-start;
             overflow-x: hidden;
-            width: 100%;
-            min-width: 360px; /* Galaxy S24 minimum width */
         }
 
         #root {
             width: 100%;
             min-height: 100vh;
-            max-width: 100%;
-            margin: 0 auto;
             display: flex;
-            flex-direction: column;
-            min-width: 360px; /* Galaxy S24 minimum width */
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-            min-width: 360px; /* Galaxy S24 minimum width */
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 0.75rem;
-                width: 100%;
-                min-width: 360px; /* Galaxy S24 minimum width */
-            }
-            body, #root {
-                min-width: 360px;
-            }
+            justify-content: center;
         }
     </style>
 </head>

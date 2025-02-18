@@ -29,15 +29,15 @@ export default defineConfig(({ mode }) => {
   console.log(`Building for ${env} environment:`, config);
 
   return {
+    root: __dirname,
     plugins: [
-      react({
-        babel: {
-          presets: ['@babel/preset-react'],
-          plugins: [
-            ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
-          ]
+      react(),
+      {
+        name: 'html-transform',
+        transformIndexHtml(html) {
+          return html.replace('%MODE%', env.charAt(0).toUpperCase() + env.slice(1));
         }
-      })
+      }
     ],
     server: {
       port: config.port,
@@ -58,15 +58,16 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, env === 'staging' ? 'staging.html' : 'index.html')
+          main: path.resolve(__dirname, 'index.html')
+        },
+        output: {
+          manualChunks: undefined
         }
       }
     },
     define: {
-      'process.env.NODE_ENV': JSON.stringify(env),
-      'import.meta.env.MODE': JSON.stringify(env),
-      'import.meta.env.VITE_API_URL': JSON.stringify(config.apiUrl),
-      'import.meta.env.VITE_ENVIRONMENT': JSON.stringify(env)
+      'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),
+      'process.env.VITE_USER_NODE_ENV': JSON.stringify(env)
     },
     resolve: {
       alias: {

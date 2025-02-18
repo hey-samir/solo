@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react'
+import React, { createContext, useContext, useState, useEffect } from 'react'
 import { FeatureFlags, FeatureFlagService, productionDefaults } from '../config/environment'
 
 interface FeatureFlagsContextType {
@@ -25,25 +25,13 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setIsLoading(true)
       setError(null)
       console.log('[FeatureFlagsContext] Loading flags...')
-      console.log('[FeatureFlagsContext] Current environment:', import.meta.env.MODE)
-
       const newFlags = await FeatureFlagService.initialize()
       console.log('[FeatureFlagsContext] Flags loaded:', newFlags)
-
-      if (newFlags._environment !== import.meta.env.MODE) {
-        console.warn(
-          `[FeatureFlagsContext] Environment mismatch! Client: ${import.meta.env.MODE}, Server: ${newFlags._environment}`
-        )
-      }
-
       setFlags(newFlags)
     } catch (err) {
       console.error('[FeatureFlagsContext] Error loading flags:', err)
       setError(err instanceof Error ? err.message : 'Failed to load application configuration')
-      setFlags({
-        ...productionDefaults,
-        _environment: import.meta.env.MODE
-      })
+      setFlags(productionDefaults) // Fallback to defaults on error
     } finally {
       setIsLoading(false)
     }
@@ -51,20 +39,10 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   useEffect(() => {
     loadFlags()
-    // Set up a periodic refresh every 5 minutes
-    const interval = setInterval(loadFlags, 5 * 60 * 1000)
-    return () => clearInterval(interval)
   }, [])
 
-  const value = useMemo(() => ({
-    flags,
-    isLoading,
-    error,
-    reload: loadFlags
-  }), [flags, isLoading, error])
-
   return (
-    <FeatureFlagsContext.Provider value={value}>
+    <FeatureFlagsContext.Provider value={{ flags, isLoading, error, reload: loadFlags }}>
       {children}
     </FeatureFlagsContext.Provider>
   )

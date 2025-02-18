@@ -7,102 +7,135 @@ const morgan = require('morgan');
 
 const app = express();
 
-// Environment-specific configuration
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const PORT = process.env.PORT || (NODE_ENV === 'production' ? 3000 : 5000);
-const staticPath = path.resolve(process.cwd(), 'dist');
-
-console.log('[Server] Starting server with configuration:', {
-  NODE_ENV,
-  PORT,
-  staticPath,
-  DATABASE_URL: process.env.DATABASE_URL ? 'Set' : 'Not Set'
+// Enable error logging for uncaught exceptions immediately
+process.on('uncaughtException', (error) => {
+  console.error('Early uncaught exception:', error);
+  process.exit(1);
 });
 
-// Add environment to app locals so routes can access it
-app.locals.environment = NODE_ENV;
+// Basic configuration
+const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const staticPath = path.join(process.cwd(), '/dist');
 
-// Basic middleware setup
+// Extended logging middleware
 app.use(morgan('dev'));
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Environment check middleware
 app.use((req, res, next) => {
-  const requestInfo = {
-    path: req.path,
-    method: req.method,
-    environment: NODE_ENV,
-    timestamp: new Date().toISOString()
-  };
-  console.log('[Server] Request details:', requestInfo);
+  console.log(`[${NODE_ENV}] ${req.method} ${req.url} with query:`, req.query);
   next();
 });
 
-// API routes
-app.use('/api', apiRoutes);
-
-// Serve static files
-app.use(express.static(staticPath, {
-  maxAge: NODE_ENV === 'production' ? '1h' : 0,
-  etag: NODE_ENV === 'production',
-  lastModified: NODE_ENV === 'production'
+// CORS configuration
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5000',
+      'http://0.0.0.0:3000',
+      'http://0.0.0.0:5000'
+    ];
+    callback(null, allowedOrigins.includes(origin));
+  },
+  credentials: true
 }));
 
-// Check if dist directory exists
-if (!fs.existsSync(staticPath)) {
-  console.error(`[Server] Static path does not exist: ${staticPath}`);
-  console.error('[Server] Current directory contents:', fs.readdirSync(process.cwd()));
-} else {
-  console.log('[Server] Static path exists:', staticPath);
-}
+// Parse JSON bodies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// SPA support - serve index.html for all non-API routes
+// Mount all API routes under /api
+console.log('[Server] Mounting API routes...');
+app.use('/api', apiRoutes);
+
+// Serve static files with proper MIME types and caching
+app.use(express.static(staticPath, {
+  maxAge: NODE_ENV === 'production' ? '1h' : '0',
+  etag: true
+}));
+
+// Health check endpoint
+app.get('/health', (_req, res) => {
+  const indexPath = path.join(staticPath, 'index.html');
+  const healthy = fs.existsSync(indexPath);
+
+  const healthStatus = { 
+    status: healthy ? 'ok' : 'error',
+    environment: NODE_ENV,
+    timestamp: new Date().toISOString(),
+    details: {
+      indexFile: healthy ? 'present' : 'missing',
+      staticPath,
+      buildExists: fs.existsSync(staticPath)
+    }
+  };
+
+  console.log('[Health Check]', JSON.stringify(healthStatus, null, 2));
+  res.status(healthy ? 200 : 503).json(healthStatus);
+});
+
+// Environment endpoint
+app.get('/api/environment', (_req, res) => {
+  res.json({ 
+    environment: NODE_ENV,
+    server_time: new Date().toISOString()
+  });
+});
+
+// SPA support - serve index.html for all non-asset routes
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api/')) {
+  // Skip for API and asset requests
+  if (req.path.startsWith('/api/') || req.path.includes('.')) {
     return next();
   }
 
   const indexPath = path.join(staticPath, 'index.html');
-  console.log('[Server] Attempting to serve:', indexPath);
 
   if (!fs.existsSync(indexPath)) {
-    console.error('[Server] index.html not found at:', indexPath);
-    return res.status(500).send('Application files not found. Please ensure the application is built properly.');
+    console.error(`[${NODE_ENV}] Error: index.html not found at ${indexPath}`);
+    return res.status(500).send(`Error: Unable to serve index.html in ${NODE_ENV} environment`);
   }
 
-  res.sendFile(indexPath, (err) => {
-    if (err) {
-      console.error('[Server] Error serving index.html:', err);
-      res.status(500).send('Error loading application');
-    }
-  });
+  res.sendFile(indexPath);
 });
 
-// Global error handler
+// Global error handler with detailed logging
 app.use((err, req, res, next) => {
-  console.error('[Server] Error:', err);
-  res.status(500).json({
-    error: 'Internal Server Error',
+  console.error('Server Error:', {
     path: req.path,
-    message: err.message
+    method: req.method,
+    error: err.message,
+    stack: err.stack,
+    timestamp: new Date().toISOString()
+  });
+
+  res.status(500).json({ 
+    error: NODE_ENV === 'production' ? 'Internal Server Error' : err.message,
+    path: req.path,
+    timestamp: new Date().toISOString()
   });
 });
 
-// Start server
+// Start server if not being required as a module
 if (require.main === module) {
-  try {
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`[Server] Server running in ${NODE_ENV} mode on http://0.0.0.0:${PORT}`);
-    }).on('error', (err) => {
-      console.error('[Server] Failed to start server:', err);
-      process.exit(1);
-    });
-  } catch (err) {
-    console.error('[Server] Critical error starting server:', err);
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log('='.repeat(50));
+    console.log(`Server running in ${NODE_ENV} mode on http://0.0.0.0:${PORT}`);
+    console.log(`Static files serving from: ${staticPath}`);
+    console.log('='.repeat(50));
+  }).on('error', (error) => {
+    console.error('Failed to start server:', error);
     process.exit(1);
-  }
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+      console.log('Server closed');
+      process.exit(0);
+    });
+  });
 }
 
 module.exports = app;

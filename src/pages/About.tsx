@@ -4,10 +4,6 @@ import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 const About: React.FC = () => {
   const { flags } = useFeatureFlags()
 
-  if (!flags) {
-    return <div>Loading...</div>
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Hero Section */}
@@ -17,14 +13,6 @@ const About: React.FC = () => {
           Solo is the first and only beautifully functional app dedicated to solo indoor climbing. 
           Track your progress, analyze your performance, and join a community of passionate climbers.
         </p>
-
-        {/* Pro Features - Only show in staging */}
-        {flags.enablePro && (
-          <div className="mt-8 p-4 bg-bg-card rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Solo Pro Features</h2>
-            <p>Access advanced analytics and premium features</p>
-          </div>
-        )}
       </section>
 
       {/* Features Grid - 2x2 layout */}
@@ -50,28 +38,6 @@ const About: React.FC = () => {
           description="Analyze your climbing stats"
         />
       </div>
-
-      {/* Feedback Section - Only show in staging */}
-      {flags.enableFeedback && (
-        <section className="mt-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">We Value Your Feedback</h2>
-          <p>Help us improve Solo by sharing your thoughts</p>
-          <button className="mt-4 bg-solo-purple px-6 py-2 rounded-lg">
-            Give Feedback
-          </button>
-        </section>
-      )}
-
-      {/* Bottom Navigation - Only show if enabled */}
-      {flags.showBottomNav && (
-        <nav className="fixed bottom-0 left-0 right-0 bg-bg-card py-4">
-          <div className="container mx-auto flex justify-around">
-            <a href="/sends">🎯 Sends</a>
-            <a href="/stats">📊 Stats</a>
-            <a href="/profile">👤 Profile</a>
-          </div>
-        </nav>
-      )}
     </div>
   )
 }
