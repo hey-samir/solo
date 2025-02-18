@@ -50,8 +50,15 @@ const Router: React.FC = () => {
           {/* Public Routes - No feature flag dependencies */}
           <Route index element={<Navigate to="/about" replace />} />
           <Route path="about" element={<About />} />
-          <Route path="feedback" element={<Feedback />} />
-          <Route path="solo-pro" element={<SoloPro />} />
+
+          {/* Feature-flagged routes */}
+          {flags.enablePro && (
+            <Route path="solo-pro" element={<SoloPro />} />
+          )}
+
+          {flags.enableFeedback && (
+            <Route path="feedback" element={<Feedback />} />
+          )}
 
           {/* Auth Routes */}
           {flags.enableAuth && (

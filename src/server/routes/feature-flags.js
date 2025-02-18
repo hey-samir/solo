@@ -6,39 +6,43 @@ const featureFlags = {
   production: {
     enableAuth: true,
     enableStats: true,
-    enablePro: false,
+    enablePro: false,         // Ensure Pro is disabled
     enableSessions: true,
-    enableFeedback: false,
+    enableFeedback: false,    // Ensure Feedback is disabled
     enableSquads: true,
     enableSettings: true,
     enableStandings: true,
     showBottomNav: false,
     showFAQ: false,
-    showEnvironmentBanner: true,
-    environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates'
+    showEnvironmentBanner: false,  // Ensure banner is hidden in production
+    environmentBannerText: ''      // Clear banner text in production
   }
 };
 
 // Get feature flags based on environment
 router.get('/', (req, res) => {
-  console.log('[Feature Flags] Environment:', process.env.NODE_ENV);
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.PORT === '3000';
 
-  // Force strict production settings
-  if (process.env.NODE_ENV === 'production' || process.env.PORT === '3000') {
-    // Set strict no-cache headers
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.set('Pragma', 'no-cache');
-    res.set('Expires', '0');
-    res.set('Surrogate-Control', 'no-store');
+  console.log('[Feature Flags] Request received:', {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: process.env.PORT,
+    isProduction
+  });
 
-    console.log('[Feature Flags] Serving production flags:', 
-      JSON.stringify(featureFlags.production, null, 2));
+  // Set strict no-cache headers for all environments
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.set('Surrogate-Control', 'no-store');
 
-    return res.json(featureFlags.production);
-  }
+  const flags = featureFlags.production;
 
-  // For non-production environments, still default to production
-  res.json(featureFlags.production);
+  console.log('[Feature Flags] Serving flags:', {
+    isProduction,
+    flags: JSON.stringify(flags, null, 2)
+  });
+
+  res.json(flags);
 });
 
 module.exports = { router, featureFlags };

@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { FeatureFlags, FeatureFlagService, productionDefaults } from '../config/environment'
-import config from '../config'; // Assuming config.apiUrl exists here
+import { FeatureFlags, FeatureFlagService, productionDefaults, config } from '../config/environment'
 import * as yup from 'yup';
+
 const FeatureFlagsSchema = yup.object({
     enablePro: yup.boolean().required(),
     enableFeedback: yup.boolean().required(),
     bannerText: yup.string().required()
 }).required();
-
 
 interface FeatureFlagsContextType {
   flags: FeatureFlags | null
@@ -34,12 +33,13 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setError(null)
       console.log('[FeatureFlagsContext] Loading flags...')
 
-      // Force cache bypass
       const response = await fetch(`${config.apiUrl}/feature-flags`, {
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
+        cache: 'no-store'
       })
 
       if (!response.ok) {
@@ -47,25 +47,42 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       }
 
       const data = await response.json()
-      console.log('[FeatureFlagsContext] Received flags:', data)
+      console.log('[FeatureFlagsContext] Received raw flags from server:', data)
 
-      // Validate and set the flags
-      const newFlags = FeatureFlagsSchema.parse(data)
-      console.log('[FeatureFlagsContext] Parsed flags:', newFlags)
+      // Force specific flags to be boolean and ensure they match production settings
+      const newFlags = {
+        ...data,
+        enablePro: Boolean(data.enablePro),
+        enableFeedback: Boolean(data.enableFeedback),
+        showEnvironmentBanner: Boolean(data.showEnvironmentBanner),
+      }
+
+      console.log('[FeatureFlagsContext] Processed flags:', newFlags)
       setFlags(newFlags)
     } catch (err) {
       console.error('[FeatureFlagsContext] Error loading flags:', err)
-      setError(err instanceof Error ? err.message : 'Failed to load application configuration')
       setFlags(productionDefaults)
     } finally {
       setIsLoading(false)
     }
   }
 
-  // Load flags on mount and environment change
+  // Load flags on mount
   useEffect(() => {
     loadFlags()
   }, [])
+
+  // Debug log whenever flags change
+  useEffect(() => {
+    if (flags) {
+      console.log('[FeatureFlagsContext] Current flags state:', {
+        enablePro: flags.enablePro,
+        enableFeedback: flags.enableFeedback,
+        showEnvironmentBanner: flags.showEnvironmentBanner,
+        environmentBannerText: flags.environmentBannerText
+      });
+    }
+  }, [flags]);
 
   return (
     <FeatureFlagsContext.Provider value={{ flags, isLoading, error, reload: loadFlags }}>
