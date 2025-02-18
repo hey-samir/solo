@@ -45,43 +45,37 @@ class FeatureFlagServiceClass {
 
   async initialize(): Promise<FeatureFlags> {
     try {
-      console.log(`[FeatureFlags] Initializing for ${config.environment} environment`)
       const response = await fetch(`${config.apiUrl}/feature-flags`, {
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
-      })
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
+        cache: 'no-store'
+      });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json()
-      console.log('[FeatureFlags] Received data:', data)
-
-      // Validate the response data
-      this.flags = FeatureFlagsSchema.parse(data)
-      return this.flags
+      const data = await response.json();
+      this.flags = FeatureFlagsSchema.parse(data);
+      console.log('[FeatureFlags] Initialized with:', this.flags);
+      return this.flags;
     } catch (error) {
-      console.error('[FeatureFlags] Error fetching flags:', error)
-      console.log('[FeatureFlags] Using production defaults')
-      this.flags = productionDefaults
-      return this.flags
+      console.error('[FeatureFlags] Error:', error);
+      this.flags = productionDefaults;
+      return this.flags;
     }
   }
 
   getFlags(): FeatureFlags {
     if (!this.flags) {
-      console.warn('[FeatureFlags] Accessed before initialization, returning defaults')
-      return productionDefaults
+      return productionDefaults;
     }
-    return this.flags
+    return this.flags;
   }
 }
 
-// Create and export singleton instance
-export const FeatureFlagService = new FeatureFlagServiceClass()
-
-// Export schema and types
-export { FeatureFlagsSchema }
+export const FeatureFlagService = new FeatureFlagServiceClass();
+export { FeatureFlagsSchema };
