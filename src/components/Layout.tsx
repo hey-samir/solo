@@ -2,6 +2,7 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Navbar from './Navbar'
+import Footer from './Footer'
 import { config } from '../config/environment'
 import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
@@ -29,6 +30,7 @@ const Layout: React.FC = () => {
         <Outlet />
       </main>
       {flags?.showBottomNav && <Navbar />}
+      <Footer />
     </div>
   )
 }
