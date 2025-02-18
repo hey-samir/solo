@@ -26,6 +26,10 @@ console.log('[Server] Express imported successfully');
 // Create minimal app
 const app = express();
 
+// Import and use feature flags router
+const { router: featureFlagsRouter } = require('./routes/feature-flags');
+app.use('/api/feature-flags', featureFlagsRouter);
+
 // Single test endpoint
 app.get('/', (_req, res) => {
   res.json({ status: 'ok' });
@@ -58,7 +62,8 @@ if (require.main === module) {
   try {
     // Environment and port configuration
     const NODE_ENV = process.env.NODE_ENV || 'development';
-    const PORT = process.env.PORT || (NODE_ENV === 'staging' ? 5001 : 3000);
+    // Use port 3000 for production, 5001 for staging
+    const PORT = process.env.PORT || (NODE_ENV === 'production' ? 3000 : 5001);
 
     console.log('[Server] Attempting to start with configuration:', {
       NODE_ENV,

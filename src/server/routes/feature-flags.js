@@ -36,14 +36,20 @@ const featureFlags = {
 // Initialize feature flags with proper error handling
 router.get('/', (req, res) => {
   try {
-    // Enhanced environment detection with detailed logging
+    // Enhanced environment detection with port-based logic
+    const port = parseInt(process.env.PORT || req.app.get('port'), 10);
     const forceProduction = process.env.FORCE_PRODUCTION === 'true';
-    const isProduction = forceProduction || process.env.NODE_ENV === 'production';
+
+    // Consider both 5000 and 5001 as staging ports, 3000 as production
+    const isProduction = forceProduction || (!isNaN(port) && port === 3000);
+    const isStaging = !isNaN(port) && (port === 5000 || port === 5001);
 
     console.log('[Feature Flags] Request received:', {
+      port,
       NODE_ENV: process.env.NODE_ENV,
       forceProduction,
       isProduction,
+      isStaging,
       requestPath: req.path,
       requestHost: req.get('host'),
       timestamp: new Date().toISOString()
@@ -57,7 +63,7 @@ router.get('/', (req, res) => {
       'Surrogate-Control': 'no-store'
     });
 
-    // Use production flags for production environment, staging flags otherwise
+    // Use production flags for port 3000, staging flags for 5000/5001
     const flags = isProduction ? featureFlags.production : featureFlags.staging;
 
     // Add runtime information to response
@@ -66,12 +72,16 @@ router.get('/', (req, res) => {
       _runtime: {
         environment: isProduction ? 'production' : 'staging',
         timestamp: new Date().toISOString(),
-        isProduction
+        port,
+        isProduction,
+        isStaging
       }
     };
 
     console.log('[Feature Flags] Serving flags:', {
       isProduction,
+      isStaging,
+      port,
       environment: flagsWithRuntime._runtime.environment
     });
 
