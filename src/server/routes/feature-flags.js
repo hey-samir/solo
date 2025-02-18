@@ -35,7 +35,7 @@ const featureFlags = {
 
 // Get feature flags based on environment
 router.get('/', (req, res) => {
-  const environment = process.env.NODE_ENV === 'production' ? 'production' : 'staging';
+  const environment = req.app.locals.environment === 'production' ? 'production' : 'staging';
   console.log(`[Feature Flags] Request received for ${environment} environment`);
 
   // Add cache control headers to prevent stale configurations
@@ -44,7 +44,7 @@ router.get('/', (req, res) => {
   res.set('Expires', '0');
 
   const config = featureFlags[environment];
-  console.log(`[Feature Flags] Serving configuration:`, JSON.stringify(config, null, 2));
+  console.log(`[Feature Flags] Serving configuration for ${environment}:`, JSON.stringify(config, null, 2));
 
   res.json(config);
 });

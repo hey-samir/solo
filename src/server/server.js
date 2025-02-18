@@ -19,11 +19,20 @@ console.log('[Server] Starting server with configuration:', {
   DATABASE_URL: process.env.DATABASE_URL ? 'Set' : 'Not Set'
 });
 
+// Add environment to app locals so routes can access it
+app.locals.environment = NODE_ENV;
+
 // Basic middleware setup
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Environment check middleware
+app.use((req, res, next) => {
+  console.log(`[Server] Request ${req.path} handled in ${NODE_ENV} environment`);
+  next();
+});
 
 // API routes
 app.use('/api', apiRoutes);
