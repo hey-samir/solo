@@ -24,13 +24,14 @@ const Layout: React.FC = () => {
         className="flex-grow container mx-auto px-4 py-8" 
         style={{ 
           marginTop: flags?.showEnvironmentBanner ? '80px' : '48px',  
-          marginBottom: flags?.showBottomNav ? '60px' : '0' 
         }}
       >
         <Outlet />
       </main>
+      <div style={{ marginBottom: flags?.showBottomNav ? '60px' : '0' }}>
+        <Footer />
+      </div>
       {flags?.showBottomNav && <Navbar />}
-      <Footer />
     </div>
   )
 }
