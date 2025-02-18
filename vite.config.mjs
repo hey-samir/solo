@@ -31,9 +31,8 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       react({
-        jsxRuntime: 'automatic',
-        jsxImportSource: '@vitejs/plugin-react',
         babel: {
+          presets: ['@babel/preset-react'],
           plugins: [
             ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
           ]
@@ -73,10 +72,6 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, './src')
       }
-    },
-    esbuild: {
-      jsxFactory: 'React.createElement',
-      jsxFragment: 'React.Fragment',
     }
   };
 });
