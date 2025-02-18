@@ -8,6 +8,8 @@ const FeatureFlagsSchema = z.object({
   enableSessions: z.boolean(),
   enableFeedback: z.boolean(),
   enableSquads: z.boolean(),
+  enableSettings: z.boolean(),
+  enableStandings: z.boolean(),
   showBottomNav: z.boolean(),
   showFAQ: z.boolean(),
   showEnvironmentBanner: z.boolean(),
@@ -30,6 +32,8 @@ export const productionDefaults: FeatureFlags = {
   enableSessions: false,
   enableFeedback: false,
   enableSquads: false,
+  enableSettings: false,
+  enableStandings: false,
   showBottomNav: false,
   showFAQ: false,
   showEnvironmentBanner: true,
@@ -42,7 +46,6 @@ class FeatureFlagServiceClass {
   async initialize(): Promise<FeatureFlags> {
     try {
       console.log(`[FeatureFlags] Initializing for ${config.environment} environment`)
-      // Add timestamp to URL to prevent caching
       const timestamp = new Date().getTime()
       const response = await fetch(`${config.apiUrl}/feature-flags?_t=${timestamp}`, {
         headers: {
@@ -74,6 +77,9 @@ class FeatureFlagServiceClass {
       console.warn('[FeatureFlags] Accessed before initialization, returning defaults')
       return productionDefaults
     }
+
+    // Log the current flags when they're accessed
+    console.log('[FeatureFlags] Current flags:', this.flags)
     return this.flags
   }
 }
