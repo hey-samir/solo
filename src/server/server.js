@@ -21,18 +21,22 @@ console.log('[Server] Process environment:', {
 });
 
 const express = require('express');
+const path = require('path');
 console.log('[Server] Express imported successfully');
 
 // Create minimal app
 const app = express();
 
+// Serve static files based on environment
+app.use(express.static(path.join(__dirname, '../../dist')));
+
 // Import and use feature flags router
 const { router: featureFlagsRouter } = require('./routes/feature-flags');
 app.use('/api/feature-flags', featureFlagsRouter);
 
-// Single test endpoint
-app.get('/', (_req, res) => {
-  res.json({ status: 'ok' });
+// Serve index.html for all routes to support client-side routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../dist/index.html'));
 });
 
 // Function to start server with proper error handling
@@ -62,8 +66,8 @@ if (require.main === module) {
   try {
     // Environment and port configuration
     const NODE_ENV = process.env.NODE_ENV || 'development';
-    // Use port 3000 for production, 5001 for staging
-    const PORT = process.env.PORT || (NODE_ENV === 'production' ? 3000 : 5001);
+    // Use port 3000 for production, 5000 for staging
+    const PORT = process.env.PORT || (NODE_ENV === 'production' ? 3000 : 5000);
 
     console.log('[Server] Attempting to start with configuration:', {
       NODE_ENV,
@@ -71,15 +75,11 @@ if (require.main === module) {
       timestamp: new Date().toISOString()
     });
 
-    // Add a small delay to ensure environment is ready
-    setTimeout(async () => {
-      try {
-        await startServer(PORT, NODE_ENV);
-      } catch (error) {
-        console.error('[Server] Failed to start server:', error);
-        process.exit(1);
-      }
-    }, 1000);
+    // Start server immediately
+    startServer(PORT, NODE_ENV).catch((error) => {
+      console.error('[Server] Failed to start server:', error);
+      process.exit(1);
+    });
 
     // Basic error handling
     process.on('uncaughtException', (error) => {
