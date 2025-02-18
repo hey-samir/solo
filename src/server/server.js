@@ -1,12 +1,18 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
-const { router: featureFlagsRouter } = require('./routes/feature-flags');
+const routes = require('./routes');
+
 const app = express();
 
 // Basic middleware setup
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Debug logging for requests
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
+});
 
 // CORS configuration
 app.use(cors({
@@ -14,22 +20,19 @@ app.use(cors({
     if (!origin) return callback(null, true);
     const allowedOrigins = [
       'http://localhost:3000',
-      'http://localhost:5000',
+      'http://localhost:5001', 
       'http://0.0.0.0:3000',
-      'http://0.0.0.0:5000',
+      'http://0.0.0.0:5001', 
       ...(process.env.REPL_SLUG ? [
         `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
       ] : [])
     ];
-    callback(null, allowedOrigins.includes(origin) || origin?.includes('repl.co') || origin?.includes('replit.dev'));
+    callback(null, allowedOrigins.includes(origin) || origin?.includes('repl.co'));
   },
   credentials: true
 }));
 
-// Mount feature flags router at the correct path
-app.use('/api/feature-flags', featureFlagsRouter);
-
-// Health check endpoint
+// Basic health check endpoint
 app.get('/health', (_req, res) => {
   res.json({ 
     status: 'healthy',
@@ -37,6 +40,16 @@ app.get('/health', (_req, res) => {
     environment: process.env.NODE_ENV || 'development'
   });
 });
+
+// Mount routes with error handling
+try {
+  console.log('[Server] Mounting API routes...');
+  app.use('/api', routes);
+  console.log('[Server] API routes mounted successfully');
+} catch (error) {
+  console.error('[Server] Failed to mount routes:', error);
+  process.exit(1);
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -53,34 +66,35 @@ app.use((err, req, res, next) => {
 });
 
 if (require.main === module) {
-  const environment = process.env.NODE_ENV || 'development';
-  const PORT = environment === 'production' ? 3000 : 5000;
+  // Temporarily use port 5001 for staging to verify server functionality
+  const PORT = process.env.NODE_ENV === 'production' ? 3000 : 5001;
 
-  // Enhanced logging for startup
   console.log('[Server] Starting with configuration:', {
-    environment,
+    environment: process.env.NODE_ENV || 'development',
     port: PORT,
-    timestamp: new Date().toISOString(),
-    pid: process.pid
+    timestamp: new Date().toISOString()
   });
 
   const server = app.listen(PORT, '0.0.0.0', () => {
     console.log('='.repeat(50));
-    console.log(`[Server] Started in ${environment} mode`);
+    console.log(`[Server] Started in ${process.env.NODE_ENV || 'development'} mode`);
     console.log(`[Server] Listening on port ${PORT}`);
     console.log(`[Server] Process ID: ${process.pid}`);
     console.log('='.repeat(50));
   });
 
-  // Handle server errors
   server.on('error', (error) => {
-    console.error('[Server] Failed to start:', error);
-    console.error('[Server] Error details:', {
-      code: error.code,
-      message: error.message,
-      syscall: error.syscall,
-      port: PORT
-    });
+    if (error.code === 'EADDRINUSE') {
+      console.error(`[Server] Port ${PORT} is already in use. Please ensure no other server is running.`);
+    } else {
+      console.error('[Server] Failed to start:', {
+        error: error.message,
+        code: error.code,
+        syscall: error.syscall,
+        address: error.address,
+        port: error.port
+      });
+    }
     process.exit(1);
   });
 
