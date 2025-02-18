@@ -33,6 +33,7 @@
             align-items: flex-start;
             overflow-x: hidden;
             width: 100%;
+            min-width: 360px; /* Galaxy S24 minimum width */
         }
 
         #root {
@@ -42,6 +43,7 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
+            min-width: 360px; /* Galaxy S24 minimum width */
         }
 
         .container {
@@ -49,16 +51,22 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 1rem;
+            min-width: 360px; /* Galaxy S24 minimum width */
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 0 0.5rem;
+                padding: 0 0.75rem;
+                width: 100%;
+                min-width: 360px; /* Galaxy S24 minimum width */
+            }
+            body, #root {
+                min-width: 360px;
             }
         }
     </style>
-  <script type="module" crossorigin src="/assets/main-A9XsS2mp.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/main-DPp2n8a3.css">
+  <script type="module" crossorigin src="/assets/main-Vo4RBnN-.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/main-B5wqBrk1.css">
 </head>
 <body>
     <div id="root"></div>

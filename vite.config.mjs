@@ -58,16 +58,15 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, 'index.html')
-        },
-        output: {
-          manualChunks: undefined
+          main: path.resolve(__dirname, env === 'staging' ? 'staging.html' : 'index.html')
         }
       }
     },
     define: {
-      'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),
-      'process.env.VITE_USER_NODE_ENV': JSON.stringify(env)
+      'process.env.NODE_ENV': JSON.stringify(env),
+      'import.meta.env.MODE': JSON.stringify(env),
+      'import.meta.env.VITE_API_URL': JSON.stringify(config.apiUrl),
+      'import.meta.env.VITE_ENVIRONMENT': JSON.stringify(env)
     },
     resolve: {
       alias: {
