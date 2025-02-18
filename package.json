@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.25.9",
     "@coreui/coreui": "^5.2.0",
     "@popperjs/core": "^2.11.8",
     "@react-oauth/google": "^0.12.1",

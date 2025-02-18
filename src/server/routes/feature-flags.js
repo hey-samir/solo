@@ -15,7 +15,7 @@ const featureFlags = {
     showBottomNav: true,
     showFAQ: true,
     showEnvironmentBanner: true,
-    environmentBannerText: 'Staging Environment - Testing',
+    environmentBannerText: '[STAGING] Testing Environment',
     _environment: 'staging'
   },
   production: {
@@ -37,7 +37,7 @@ const featureFlags = {
 
 router.get('/', (req, res) => {
   // Get environment from app.locals which is set in server.js
-  const environment = req.app.locals.environment || process.env.NODE_ENV || 'development';
+  const environment = req.app.get('env') || process.env.NODE_ENV || 'development';
   console.log(`[Feature Flags] Current NODE_ENV: ${environment}`);
 
   // Force staging flags for any non-production environment
@@ -49,7 +49,7 @@ router.get('/', (req, res) => {
     _environment: configEnvironment
   };
 
-  console.log(`[Feature Flags] Serving configuration for ${configEnvironment}:`, JSON.stringify(config, null, 2));
+  console.log(`[Feature Flags] Serving configuration:`, JSON.stringify(config, null, 2));
 
   // Add cache control headers
   res.set('Cache-Control', 'no-cache, no-store, must-revalidate');

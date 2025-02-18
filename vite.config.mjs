@@ -29,15 +29,16 @@ export default defineConfig(({ mode }) => {
   console.log(`Building for ${env} environment:`, config);
 
   return {
-    root: __dirname,
     plugins: [
-      react(),
-      {
-        name: 'html-transform',
-        transformIndexHtml(html) {
-          return html.replace('%MODE%', env.charAt(0).toUpperCase() + env.slice(1));
+      react({
+        jsxRuntime: 'automatic',
+        jsxImportSource: '@vitejs/plugin-react',
+        babel: {
+          plugins: [
+            ['@babel/plugin-transform-react-jsx', { runtime: 'automatic' }]
+          ]
         }
-      }
+      })
     ],
     server: {
       port: config.port,
@@ -72,6 +73,10 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, './src')
       }
+    },
+    esbuild: {
+      jsxFactory: 'React.createElement',
+      jsxFragment: 'React.Fragment',
     }
   };
 });
