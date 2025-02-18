@@ -11,18 +11,18 @@ const Layout: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-primary text-text-primary">
-      {isStaging && (
+      {flags?.showEnvironmentBanner && (
         <div 
           className="fixed top-0 left-0 right-0 text-white text-center text-xs py-0.5 font-semibold bg-black z-50"
         >
-          Staging Environment
+          {flags.environmentBannerText || 'Solo is sending soon. Follow @gosolonyc for updates'}
         </div>
       )}
       <Header />
       <main 
         className="flex-grow container mx-auto px-4 py-8" 
         style={{ 
-          marginTop: isStaging ? '80px' : '48px',  
+          marginTop: flags?.showEnvironmentBanner ? '80px' : '48px',  
           marginBottom: flags?.showBottomNav ? '60px' : '0' 
         }}
       >

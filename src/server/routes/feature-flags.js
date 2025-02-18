@@ -41,7 +41,7 @@ router.get('/', (req, res) => {
 
     // Explicit environment checking
     const isProduction = port === 3000;
-    const isStaging = port === 5000 || port === 5001;
+    const isStaging = port === 5000;
 
     // Log request details for debugging
     console.log('[Feature Flags] Environment detection:', {
@@ -70,26 +70,18 @@ router.get('/', (req, res) => {
     const environment = isProduction ? 'production' : 'staging';
     const flags = featureFlags[environment];
 
-    // Add runtime information to response
-    const flagsWithRuntime = {
-      ...flags,
-      _runtime: {
-        environment,
-        timestamp: new Date().toISOString(),
-        port,
-        isProduction,
-        isStaging
-      }
-    };
-
     console.log('[Feature Flags] Serving flags:', {
       environment,
       port,
-      isProduction,
-      isStaging
+      flags: {
+        enablePro: flags.enablePro,
+        enableFeedback: flags.enableFeedback,
+        showEnvironmentBanner: flags.showEnvironmentBanner,
+        environmentBannerText: flags.environmentBannerText
+      }
     });
 
-    res.json(flagsWithRuntime);
+    res.json(flags);
   } catch (error) {
     console.error('[Feature Flags] Error serving flags:', error);
     res.status(500).json({
