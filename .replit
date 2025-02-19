@@ -67,10 +67,6 @@ args = "Production Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Development Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Staging Server"
 
 [[workflows.workflow]]
@@ -99,22 +95,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production node src/server/deployment/deploy.js"
-waitForPort = 3000
-
-[[workflows.workflow]]
-name = "Development Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development PORT=3000 node src/server/server.js"
+args = "NODE_ENV=production node src/server/server.js"
 waitForPort = 3000
 
 [[workflows.workflow]]
@@ -129,7 +110,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=staging node src/server/deployment/deploy.js"
+args = "NODE_ENV=staging node src/server/server.js"
 waitForPort = 5000
 
 [[ports]]

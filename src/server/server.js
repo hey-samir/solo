@@ -19,7 +19,7 @@ console.log('[Server] Process environment:', {
 
 const express = require('express');
 const path = require('path');
-const { validatePort, forceReleasePort } = require('./utils/port-check');
+const { validatePort } = require('./utils/port-check');
 
 console.log('[Server] Express and utilities imported successfully');
 
@@ -53,33 +53,15 @@ app.get('*', (req, res) => {
 });
 
 // Function to start server with strict port validation
-async function startServer(env) {
+async function startServer() {
   try {
     // Strictly enforce environment-specific ports
-    let port;
-    if (env === 'production') {
-      port = 3000;
-    } else if (env === 'staging') {
-      port = 5000;
-    } else {
-      throw new Error(`Invalid environment: ${env}`);
-    }
+    const env = process.env.NODE_ENV || 'production';
+    const port = env === 'production' ? 3000 : 5000;
 
-    console.log(`[Server] Attempting to start ${env} server on port ${port}...`);
+    console.log(`[Server] Starting ${env} server on port ${port}...`);
 
-    // First attempt to release only production and staging ports
-    const portsToRelease = [3000, 5000];
-    for (const p of portsToRelease) {
-      try {
-        console.log(`[Server] Attempting to release port ${p} before binding...`);
-        await forceReleasePort(p);
-        console.log(`[Server] Successfully released port ${p}`);
-      } catch (releaseError) {
-        console.log(`[Server] Port ${p} release attempt completed:`, releaseError.message);
-      }
-    }
-
-    // Validate port availability and environment compatibility
+    // Validate port availability
     await validatePort(port, env);
 
     return new Promise((resolve, reject) => {
@@ -108,15 +90,7 @@ async function startServer(env) {
 }
 
 if (require.main === module) {
-  // Environment configuration with strict validation
-  const NODE_ENV = process.env.NODE_ENV || 'production';
-  if (!['production', 'staging'].includes(NODE_ENV)) {
-    console.error(`[Server] Invalid NODE_ENV: ${NODE_ENV}`);
-    process.exit(1);
-  }
-
-  // Start server with error handling
-  startServer(NODE_ENV).catch((error) => {
+  startServer().catch((error) => {
     console.error('[Server] Critical startup error:', error);
     process.exit(1);
   });
