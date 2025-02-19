@@ -69,6 +69,10 @@ args = "Version Bump"
 task = "workflow.run"
 args = "Production Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Development Server"
+
 [[workflows.workflow]]
 name = "Version Bump"
 author = "agent"
@@ -95,8 +99,23 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=8673 NODE_ENV=production node src/server/server.js"
-waitForPort = 8673
+args = "NODE_ENV=production node src/server/server.js"
+waitForPort = 3000
+
+[[workflows.workflow]]
+name = "Development Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development PORT=3000 node src/server/server.js"
+waitForPort = 3000
 
 [[ports]]
 localPort = 80

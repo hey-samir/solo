@@ -38,6 +38,7 @@
   box-sizing: border-box;
   -webkit-tap-highlight-color: rgba(var(--solo-purple-rgb), 0.2);
   touch-action: manipulation;
+  -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
 }
 
 /* Mobile-optimized body styles */
@@ -49,6 +50,7 @@ body {
   color: var(--text-primary);
   font-size: var(--font-size-base);
   padding-bottom: var(--safe-area-inset-bottom);
+  overscroll-behavior-y: contain; /* Prevent overscroll bounce */
 }
 
 /* Enhanced container max-width constraint */
@@ -58,30 +60,31 @@ body {
   margin: 0 auto;
   padding: 0 1rem;
   overflow-x: hidden;
+  overscroll-behavior-x: none; /* Prevent horizontal overscroll */
 }
 
 @layer components {
   /* Touch-optimized button styles */
   .btn-google {
-    @apply inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-white bg-solo-purple hover:bg-solo-purple-light active:bg-solo-purple-light rounded-full transition-colors duration-200 ease-in-out shadow-md min-h-[var(--touch-target-size)];
+    @apply inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-white bg-solo-purple hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] rounded-full transition-all duration-200 ease-in-out shadow-md min-h-[var(--touch-target-size)];
   }
 
   .btn-solo-purple {
-    @apply bg-solo-purple text-white hover:bg-solo-purple-light active:bg-solo-purple-light transition-colors duration-200 min-h-[var(--touch-target-size)];
+    @apply bg-solo-purple text-white hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] transition-all duration-200 min-h-[var(--touch-target-size)];
   }
 
   /* Touch-friendly navigation */
   .nav-link {
-    @apply text-text-primary hover:text-solo-purple active:text-solo-purple-light transition-colors duration-200 py-2 px-3 min-h-[var(--touch-target-size)] flex items-center;
+    @apply text-text-primary hover:text-solo-purple active:text-solo-purple-light active:scale-[0.98] transition-all duration-200 py-2 px-3 min-h-[var(--touch-target-size)] flex items-center;
   }
 
   /* Enhanced card styles */
   .card {
-    @apply bg-bg-card rounded-card shadow-card overflow-hidden max-w-[var(--app-max-width)] transition-transform duration-200 active:scale-[0.99];
+    @apply bg-bg-card rounded-card shadow-card overflow-hidden max-w-[var(--app-max-width)] transition-transform duration-200 active:scale-[0.99] active:shadow-lg;
   }
 
   .kpi-card {
-    @apply bg-bg-kpi-card rounded-card shadow-card overflow-hidden transition-transform duration-200 active:scale-[0.99];
+    @apply bg-bg-kpi-card rounded-card shadow-card overflow-hidden transition-transform duration-200 active:scale-[0.99] active:shadow-lg;
   }
 
   .card-body {
@@ -92,6 +95,7 @@ body {
 /* Enhanced chart styles with mobile-first dimensions */
 .chart-container {
   @apply h-[250px] w-full max-w-[var(--app-max-width)] touch-pan-x touch-pan-y;
+  touch-action: pan-x pan-y;
 }
 
 /* Touch-optimized form styles */
@@ -105,7 +109,9 @@ body {
 }
 
 .form-control {
-  @apply w-full bg-bg-primary text-text-primary border border-border-default rounded-card px-4 py-3 text-base focus:border-solo-purple focus:ring-1 focus:ring-solo-purple min-h-[var(--touch-target-size)] transition-shadow duration-200;
+  @apply w-full bg-bg-primary text-text-primary border border-border-default rounded-card px-4 py-3 text-base focus:border-solo-purple focus:ring-2 focus:ring-solo-purple focus:ring-opacity-50 min-h-[var(--touch-target-size)] transition-shadow duration-200;
+  -webkit-appearance: none; /* Remove iOS default styles */
+  appearance: none;
 }
 
 .form-select {
@@ -135,6 +141,8 @@ body {
 /* Mobile-optimized table styles */
 .table-container {
   @apply w-full overflow-x-auto -mx-3 px-3 touch-pan-x;
+  scrollbar-width: thin;
+  scrollbar-color: var(--solo-purple) transparent;
 }
 
 .table {
@@ -144,6 +152,17 @@ body {
 /* Enhanced table cell touch targets */
 .table td, .table th {
   @apply min-h-[var(--touch-target-size)] py-3 px-4;
+}
+
+/* Pull-to-refresh styles */
+@supports (-webkit-overflow-scrolling: touch) {
+  .refresh-indicator {
+    @apply opacity-0 transition-opacity duration-200;
+  }
+
+  .refreshing .refresh-indicator {
+    @apply opacity-100;
+  }
 }
 
 /* Enhanced scrolling experience */
@@ -177,5 +196,16 @@ body {
     padding-left: max(1rem, env(safe-area-inset-left));
     padding-right: max(1rem, env(safe-area-inset-right));
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}
+
+/* Enhanced touch feedback for touch-only devices */
+@media (hover: none) and (pointer: coarse) {
+  .btn-google, .btn-solo-purple, .nav-link {
+    @apply active:scale-[0.96] hover:bg-solo-purple; /* Stronger touch feedback, disable hover states */
+  }
+
+  .form-control:focus {
+    @apply ring-4; /* Larger focus ring for touch devices */
   }
 }

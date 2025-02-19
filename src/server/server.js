@@ -22,7 +22,7 @@ console.log('[Server] Process environment:', {
 
 const express = require('express');
 const path = require('path');
-const { findAvailablePort } = require('./utils/port-check');
+const { validatePort, forceReleasePort } = require('./utils/port-check');
 
 console.log('[Server] Express and utilities imported successfully');
 
@@ -41,32 +41,42 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../../dist/index.html'));
 });
 
-// Function to start server with dynamic port selection
-async function startServer(preferredPort, env) {
+// Function to start server with strict port validation
+async function startServer(env) {
   try {
-    console.log(`[Server] Attempting to start ${env} server...`);
+    // Determine port based on environment
+    const port = env === 'production' ? 3000 : 5000;
 
-    // Use PORT environment variable if available, otherwise use preferredPort
-    const portToUse = process.env.PORT ? parseInt(process.env.PORT, 10) : preferredPort;
+    console.log(`[Server] Attempting to start ${env} server on port ${port}...`);
 
-    console.log(`[Server] Attempting to use port ${portToUse} for ${env} environment`);
+    // First attempt to release the port
+    try {
+      console.log(`[Server] Attempting to release port ${port} before binding...`);
+      await forceReleasePort(port);
+      console.log(`[Server] Successfully released port ${port}`);
+    } catch (releaseError) {
+      console.log(`[Server] Port ${port} release attempt completed:`, releaseError.message);
+    }
+
+    // Validate port availability and environment compatibility
+    await validatePort(port, env);
 
     return new Promise((resolve, reject) => {
-      console.log(`[Server] Binding to port ${portToUse}...`);
+      console.log(`[Server] Binding to port ${port}...`);
 
-      const server = app.listen(portToUse, '0.0.0.0', () => {
-        // Store the actual port used in the app
-        app.set('port', portToUse);
+      const server = app.listen(port, '0.0.0.0', () => {
+        // Store the port used in the app
+        app.set('port', port);
 
         // Log in a structured format for workflow configuration
         const portAssignment = {
           type: 'SERVER_PORT_ASSIGNMENT',
-          port: portToUse,
+          port: port,
           env: env,
           timestamp: new Date().toISOString()
         };
         console.log('[Server Status]', JSON.stringify(portAssignment));
-        console.log(`[Server] Successfully started ${env} server on port ${portToUse}`);
+        console.log(`[Server] Successfully started ${env} server on port ${port}`);
         resolve(server);
       });
 
@@ -90,18 +100,15 @@ async function startServer(preferredPort, env) {
 if (require.main === module) {
   // Environment configuration
   const NODE_ENV = process.env.NODE_ENV || 'development';
-  // Default preferred ports if PORT env var is not set
-  const preferredPort = 3000;
 
   console.log('[Server] Starting with configuration:', {
     NODE_ENV,
-    preferredPort,
     PORT: process.env.PORT,
     timestamp: new Date().toISOString()
   });
 
   // Start server with error handling
-  startServer(preferredPort, NODE_ENV).catch((error) => {
+  startServer(NODE_ENV).catch((error) => {
     console.error('[Server] Critical startup error:', error);
     process.exit(1);
   });

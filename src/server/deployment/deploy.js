@@ -7,6 +7,14 @@ async function deploy() {
     const PORT = parseInt(process.env.PORT || '3000', 10);
     const environment = process.env.NODE_ENV || 'production';
 
+    // Validate environment-specific port
+    if (environment === 'production' && PORT !== 3000) {
+      throw new Error('Production must run on port 3000');
+    }
+    if (environment === 'staging' && PORT !== 5000) {
+      throw new Error('Staging must run on port 5000');
+    }
+
     console.log(`Starting deployment server in ${environment} mode`);
     console.log(`Port: ${PORT}`);
     console.log('Static files path:', path.join(process.cwd(), 'dist/client'));

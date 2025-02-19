@@ -2,7 +2,8 @@ const { forceReleasePort } = require('./port-check');
 
 async function releaseServerPorts() {
   console.log('[Port Release] Starting port release process...');
-  
+
+  // Only release production and staging ports
   const ports = [5000, 3000];
   for (const port of ports) {
     console.log(`[Port Release] Attempting to release port ${port}...`);

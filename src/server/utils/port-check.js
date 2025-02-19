@@ -44,28 +44,20 @@ async function checkPort(port) {
   });
 }
 
-async function findAvailablePort(preferredPorts = [3002, 5000, 3000, 3001, 3003]) {
-  console.log('[Port Check] Searching for available port from:', preferredPorts);
-
-  for (const port of preferredPorts) {
-    const isAvailable = await checkPort(port);
-    if (isAvailable) {
-      console.log(`[Port Check] Found available port: ${port}`);
-      return port;
-    }
-    console.log(`[Port Check] Port ${port} is not available, trying next...`);
+async function validatePort(port, env) {
+  // Validate port assignment based on environment
+  if (env === 'production' && port !== 3000) {
+    throw new Error('Production environment must use port 3000');
+  }
+  if (env === 'staging' && port !== 5000) {
+    throw new Error('Staging environment must use port 5000');
   }
 
-  // If no preferred ports are available, try a random port in range 8000-9000
-  const randomPort = Math.floor(Math.random() * 1000) + 8000;
-  console.log(`[Port Check] No preferred ports available, trying random port: ${randomPort}`);
-
-  const isRandomPortAvailable = await checkPort(randomPort);
-  if (isRandomPortAvailable) {
-    return randomPort;
+  const isAvailable = await checkPort(port);
+  if (!isAvailable) {
+    throw new Error(`Port ${port} is not available for ${env} environment`);
   }
-
-  throw new Error('No available ports found');
+  return true;
 }
 
 async function forceReleasePort(port) {
@@ -104,4 +96,4 @@ async function forceReleasePort(port) {
   });
 }
 
-module.exports = { checkPort, forceReleasePort, findAvailablePort };
+module.exports = { checkPort, validatePort, forceReleasePort };
