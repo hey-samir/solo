@@ -85,8 +85,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=3000 NODE_ENV=production node src/server/server.js"
-waitForPort = 3000
+args = "NODE_ENV=production node src/server/server.js"
+waitForPort = 8043
 
 [[workflows.workflow]]
 name = "Staging Server"
@@ -100,8 +100,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=5000 NODE_ENV=staging node src/server/server.js"
-waitForPort = 5000
+args = "NODE_ENV=staging node src/server/server.js"
 
 [[workflows.workflow]]
 name = "Version Bump"
@@ -147,6 +146,34 @@ localPort = 5001
 [[ports]]
 localPort = 5002
 externalPort = 4200
+
+[[ports]]
+localPort = 8043
+externalPort = 8008
+
+[[ports]]
+localPort = 8224
+externalPort = 6000
+
+[[ports]]
+localPort = 8295
+externalPort = 8081
+
+[[ports]]
+localPort = 8348
+externalPort = 8000
+
+[[ports]]
+localPort = 8368
+externalPort = 8080
+
+[[ports]]
+localPort = 8385
+externalPort = 6800
+
+[[ports]]
+localPort = 8577
+externalPort = 5173
 
 [auth]
 pageEnabled = false
