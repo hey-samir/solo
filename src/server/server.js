@@ -56,17 +56,27 @@ app.get('*', (req, res) => {
 async function startServer(env) {
   try {
     // Strictly enforce environment-specific ports
-    const port = env === 'production' ? 3000 : 5000;
+    let port;
+    if (env === 'production') {
+      port = 3000;
+    } else if (env === 'staging') {
+      port = 5000;
+    } else {
+      throw new Error(`Invalid environment: ${env}`);
+    }
 
     console.log(`[Server] Attempting to start ${env} server on port ${port}...`);
 
-    // First attempt to release the port
-    try {
-      console.log(`[Server] Attempting to release port ${port} before binding...`);
-      await forceReleasePort(port);
-      console.log(`[Server] Successfully released port ${port}`);
-    } catch (releaseError) {
-      console.log(`[Server] Port ${port} release attempt completed:`, releaseError.message);
+    // First attempt to release all ports to ensure clean state
+    const portsToRelease = [3000, 3001, 3002, 5000];
+    for (const p of portsToRelease) {
+      try {
+        console.log(`[Server] Attempting to release port ${p} before binding...`);
+        await forceReleasePort(p);
+        console.log(`[Server] Successfully released port ${p}`);
+      } catch (releaseError) {
+        console.log(`[Server] Port ${p} release attempt completed:`, releaseError.message);
+      }
     }
 
     // Validate port availability and environment compatibility
