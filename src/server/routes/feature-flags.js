@@ -36,26 +36,21 @@ const featureFlags = {
 // Initialize feature flags with proper error handling
 router.get('/', (req, res) => {
   try {
-    // Strict environment detection based on port
-    const port = parseInt(process.env.PORT || req.app.get('port'), 10);
-
-    // Explicit environment checking
-    const isProduction = port === 3000;
-    const isStaging = port === 5000;
+    // Get environment from NODE_ENV instead of port
+    const environment = process.env.NODE_ENV || 'production';
 
     // Log request details for debugging
     console.log('[Feature Flags] Environment detection:', {
-      port,
-      isProduction,
-      isStaging,
+      environment,
+      nodeEnv: process.env.NODE_ENV,
       requestPath: req.path,
       requestHost: req.get('host'),
       timestamp: new Date().toISOString()
     });
 
     // Strict environment validation
-    if (!isProduction && !isStaging) {
-      throw new Error(`Invalid environment: Port ${port} is not configured for feature flags`);
+    if (!['production', 'staging'].includes(environment)) {
+      throw new Error(`Invalid environment: ${environment} is not configured for feature flags`);
     }
 
     // Set strict no-cache headers
@@ -66,13 +61,11 @@ router.get('/', (req, res) => {
       'Surrogate-Control': 'no-store'
     });
 
-    // Determine environment and select appropriate flags
-    const environment = isProduction ? 'production' : 'staging';
+    // Select appropriate flags based on environment
     const flags = featureFlags[environment];
 
     console.log('[Feature Flags] Serving flags:', {
       environment,
-      port,
       flags: {
         enablePro: flags.enablePro,
         enableFeedback: flags.enableFeedback,

@@ -44,6 +44,8 @@ function bumpEpoch() {
   const [epoch] = versionData.version.split('.');
   versionData.version = `${Number(epoch) + 1}.0.0`;
   versionData.lastEpochUpdate = new Date().toISOString().split('T')[0];
+  versionData.lastMinorUpdate = versionData.lastEpochUpdate;
+  versionData.lastPatchUpdate = versionData.lastEpochUpdate;
   saveVersion(versionData);
   return versionData.version;
 }
@@ -51,9 +53,10 @@ function bumpEpoch() {
 function bumpMinor() {
   console.log('Bumping minor version...');
   const versionData = getVersion();
-  const [epoch, minor, patch] = versionData.version.split('.');
-  versionData.version = `${epoch}.${Number(minor) + 1}.${patch}`;
+  const [epoch, minor] = versionData.version.split('.');
+  versionData.version = `${epoch}.${Number(minor) + 1}.0`;
   versionData.lastMinorUpdate = new Date().toISOString().split('T')[0];
+  versionData.lastPatchUpdate = versionData.lastMinorUpdate;
   saveVersion(versionData);
   return versionData.version;
 }

@@ -46,8 +46,20 @@ async function startServer(preferredPort, env) {
   try {
     console.log(`[Server] Attempting to start ${env} server...`);
 
-    // Find an available port, starting with the preferred port
-    const port = await findAvailablePort([preferredPort]);
+    // Explicitly set port based on environment
+    let portToUse;
+    if (env === 'production') {
+      portToUse = 3000;
+    } else if (env === 'staging') {
+      portToUse = 5000;
+    } else {
+      portToUse = preferredPort;
+    }
+
+    console.log(`[Server] Attempting to use port ${portToUse} for ${env} environment`);
+
+    // Find an available port, starting with the portToUse
+    const port = await findAvailablePort([portToUse]);
 
     if (!port) {
       throw new Error('No available ports found');
@@ -57,6 +69,9 @@ async function startServer(preferredPort, env) {
       console.log(`[Server] Binding to port ${port}...`);
 
       const server = app.listen(port, '0.0.0.0', () => {
+        // Store the actual port used in the app
+        app.set('port', port);
+
         // Log in a structured format for workflow configuration
         const portAssignment = {
           type: 'SERVER_PORT_ASSIGNMENT',

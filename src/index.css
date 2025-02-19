@@ -16,24 +16,44 @@
   --text-primary-rgb: 255, 255, 255;
   --text-muted: #CBD5E1;
   --border-color: rgba(255, 255, 255, 0.1);
+  --app-max-width: 420px;
+
+  /* Mobile-first font sizes */
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
 }
 
 /* Apply Lexend font globally */
 * {
   font-family: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
+  box-sizing: border-box;
 }
 
+/* Mobile-first body styles */
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  font-size: var(--font-size-base);
+}
+
+/* Container max-width constraint */
+.app-container {
+  width: 100%;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+  padding: 0 1rem;
 }
 
 @layer components {
   .btn-google {
-    @apply inline-flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-solo-purple hover:bg-solo-purple-light rounded-full transition-colors duration-200 ease-in-out shadow-md;
+    @apply inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-solo-purple hover:bg-solo-purple-light rounded-full transition-colors duration-200 ease-in-out shadow-md;
   }
 
   .btn-solo-purple {
@@ -45,7 +65,7 @@ body {
   }
 
   .card {
-    @apply bg-bg-card rounded-card shadow-card overflow-hidden;
+    @apply bg-bg-card rounded-card shadow-card overflow-hidden max-w-[var(--app-max-width)];
   }
 
   .kpi-card {
@@ -53,13 +73,13 @@ body {
   }
 
   .card-body {
-    @apply p-4;
+    @apply p-3;
   }
 }
 
-/* Chart styles */
+/* Chart styles with mobile-first dimensions */
 .chart-container {
-  @apply h-[300px] w-full;
+  @apply h-[250px] w-full max-w-[var(--app-max-width)];
 }
 
 /* Form styles */
@@ -73,7 +93,7 @@ body {
 }
 
 .form-control {
-  @apply w-full bg-bg-primary text-text-primary border border-border-default rounded-card px-4 py-3 focus:border-solo-purple focus:ring-1 focus:ring-solo-purple;
+  @apply w-full bg-bg-primary text-text-primary border border-border-default rounded-card px-3 py-2 text-base focus:border-solo-purple focus:ring-1 focus:ring-solo-purple;
 }
 
 .form-select {
@@ -83,23 +103,14 @@ body {
   background-size: 16px 12px;
 }
 
-/* Utility classes */
-.text-success {
-  @apply text-green-500;
-}
-
-.text-error {
-  @apply text-red-500;
-}
-
-/* Session styles */
+/* Mobile-first session styles */
 .session-header {
-  @apply cursor-pointer;
+  @apply cursor-pointer text-base;
 }
 
 .session-content {
   @apply overflow-hidden transition-all duration-200 ease-in-out;
-  max-height: 1000px; /* Restore larger height for expanded state */
+  max-height: 1000px;
 }
 
 .session-content.collapsed {
@@ -109,10 +120,27 @@ body {
   padding: 0;
 }
 
-/* Session content */
-.session-content {
-  overflow: hidden;
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 200ms;
+/* Mobile-optimized table styles */
+.table-container {
+  @apply w-full overflow-x-auto -mx-3 px-3;
+}
+
+.table {
+  @apply w-full text-sm;
+}
+
+/* Small screen adjustments */
+@media (max-width: 360px) {
+  :root {
+    --font-size-xs: 0.6875rem;   /* 11px */
+    --font-size-sm: 0.8125rem;   /* 13px */
+    --font-size-base: 0.9375rem; /* 15px */
+    --font-size-lg: 1rem;        /* 16px */
+    --font-size-xl: 1.125rem;    /* 18px */
+    --font-size-2xl: 1.25rem;    /* 20px */
+  }
+
+  .card-body {
+    @apply p-2;
+  }
 }

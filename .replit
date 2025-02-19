@@ -63,44 +63,11 @@ args = "Build"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Staging Server"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
 args = "Version Bump"
 
-[[workflows.workflow]]
-name = "Production Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
 [[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=production node src/server/server.js"
-waitForPort = 8043
-
-[[workflows.workflow]]
-name = "Staging Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=staging node src/server/server.js"
+task = "workflow.run"
+args = "Production Server"
 
 [[workflows.workflow]]
 name = "Version Bump"
@@ -115,6 +82,21 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node scripts/version.js bumpPatch"
+
+[[workflows.workflow]]
+name = "Production Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production node src/server/server.js"
+waitForPort = 3000
 
 [[ports]]
 localPort = 80
