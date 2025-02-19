@@ -14,9 +14,6 @@ process.on('exit', (code) => {
 // Immediate startup logging
 console.log('[Server] Process environment:', {
   NODE_ENV: process.env.NODE_ENV,
-  PORT: process.env.PORT,
-  PWD: process.env.PWD,
-  PATH: process.env.PATH,
   timestamp: new Date().toISOString()
 });
 
@@ -29,8 +26,22 @@ console.log('[Server] Express and utilities imported successfully');
 // Create minimal app
 const app = express();
 
-// Serve static files based on environment
-app.use(express.static(path.join(__dirname, '../../dist')));
+// Configure static file serving with appropriate caching
+const staticOptions = {
+  maxAge: process.env.NODE_ENV === 'production' ? '0' : 0, // Disable caching temporarily
+  etag: false, // Disable ETags to prevent caching
+  lastModified: false // Disable Last-Modified to prevent caching
+};
+
+// Serve static files with cache busting
+app.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  next();
+});
+
+app.use(express.static(path.join(__dirname, '../../dist'), staticOptions));
 
 // Import and use feature flags router
 const { router: featureFlagsRouter } = require('./routes/feature-flags');
@@ -44,7 +55,7 @@ app.get('*', (req, res) => {
 // Function to start server with strict port validation
 async function startServer(env) {
   try {
-    // Determine port based on environment
+    // Strictly enforce environment-specific ports
     const port = env === 'production' ? 3000 : 5000;
 
     console.log(`[Server] Attempting to start ${env} server on port ${port}...`);
@@ -65,17 +76,6 @@ async function startServer(env) {
       console.log(`[Server] Binding to port ${port}...`);
 
       const server = app.listen(port, '0.0.0.0', () => {
-        // Store the port used in the app
-        app.set('port', port);
-
-        // Log in a structured format for workflow configuration
-        const portAssignment = {
-          type: 'SERVER_PORT_ASSIGNMENT',
-          port: port,
-          env: env,
-          timestamp: new Date().toISOString()
-        };
-        console.log('[Server Status]', JSON.stringify(portAssignment));
         console.log(`[Server] Successfully started ${env} server on port ${port}`);
         resolve(server);
       });
@@ -98,24 +98,16 @@ async function startServer(env) {
 }
 
 if (require.main === module) {
-  // Environment configuration
-  const NODE_ENV = process.env.NODE_ENV || 'development';
-
-  console.log('[Server] Starting with configuration:', {
-    NODE_ENV,
-    PORT: process.env.PORT,
-    timestamp: new Date().toISOString()
-  });
+  // Environment configuration with strict validation
+  const NODE_ENV = process.env.NODE_ENV || 'production';
+  if (!['production', 'staging'].includes(NODE_ENV)) {
+    console.error(`[Server] Invalid NODE_ENV: ${NODE_ENV}`);
+    process.exit(1);
+  }
 
   // Start server with error handling
   startServer(NODE_ENV).catch((error) => {
     console.error('[Server] Critical startup error:', error);
-    process.exit(1);
-  });
-
-  // Process error handling
-  process.on('uncaughtException', (error) => {
-    console.error('[Server] Uncaught exception:', error);
     process.exit(1);
   });
 }

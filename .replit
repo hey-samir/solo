@@ -36,11 +36,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = """
-
-    NODE_ENV=production npx vite build --mode production &&
-    NODE_ENV=staging npx vite build --mode staging
-    """
+args = "NODE_ENV=production npx vite build --mode production"
 
 [[workflows.workflow]]
 name = "Project"

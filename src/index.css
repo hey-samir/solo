@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Basic reset and styles */
+/* Base styles and variables */
 :root {
   --solo-purple: #7442d6;
   --solo-purple-rgb: 116, 66, 214;
@@ -19,29 +19,28 @@
   --app-max-width: 430px;
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* Enhanced Mobile-first font sizes with narrow screen adjustments */
-  --font-size-xs: clamp(0.65rem, 2vw, 0.75rem);    /* 10.4px - 12px */
-  --font-size-sm: clamp(0.75rem, 2vw, 0.875rem);   /* 12px - 14px */
-  --font-size-base: clamp(0.875rem, 2vw, 1rem);    /* 14px - 16px */
-  --font-size-lg: clamp(1rem, 2vw, 1.125rem);      /* 16px - 18px */
-  --font-size-xl: clamp(1.125rem, 2vw, 1.25rem);   /* 18px - 20px */
-  --font-size-2xl: clamp(1.25rem, 2vw, 1.5rem);    /* 20px - 24px */
+  /* Fluid typography scale */
+  --font-size-xs: clamp(0.65rem, 1.5vw, 0.75rem);
+  --font-size-sm: clamp(0.75rem, 1.75vw, 0.875rem);
+  --font-size-base: clamp(0.875rem, 2vw, 1rem);
+  --font-size-lg: clamp(1rem, 2.25vw, 1.125rem);
+  --font-size-xl: clamp(1.125rem, 2.5vw, 1.25rem);
+  --font-size-2xl: clamp(1.25rem, 2.75vw, 1.5rem);
 
-  /* Touch-friendly spacing */
+  /* Touch targets */
   --touch-target-size: 44px;
   --touch-target-spacing: 8px;
 }
 
-/* Apply Lexend font globally with enhanced mobile settings */
+/* Global styles */
 * {
   font-family: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
   box-sizing: border-box;
   -webkit-tap-highlight-color: rgba(var(--solo-purple-rgb), 0.2);
   touch-action: manipulation;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch; /* Retained from original */
 }
 
-/* Mobile-optimized body styles */
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
@@ -50,80 +49,84 @@ body {
   color: var(--text-primary);
   font-size: var(--font-size-base);
   padding-bottom: var(--safe-area-inset-bottom);
-  overscroll-behavior-y: contain;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
-/* Enhanced container max-width constraint with strict enforcement */
-.app-container, 
+/* Layout containers */
+.app-container,
 .container {
   width: 100%;
-  max-width: var(--app-max-width);
-  margin: 0 auto;
-  padding: 0 1rem;
+  max-width: min(var(--app-max-width), 100vw - 2rem);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
   overflow-x: hidden;
-  overscroll-behavior-x: none;
+  overscroll-behavior-x: none; /* Retained from original */
 }
 
-/* Enhanced table container with horizontal scroll */
-.table-container {
+/* Card components */
+.card {
+  @apply bg-bg-card rounded-lg shadow-lg overflow-hidden;
+  width: 100%;
   max-width: var(--app-max-width);
-  margin: 0 auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  transition-transform duration-200 active:scale-[0.99] active:shadow-lg; /* Retained from original */
+}
+
+.card-body {
+  padding: clamp(0.75rem, 2vw, 1rem);
+}
+
+.kpi-card {
+    @apply bg-bg-kpi-card rounded-card shadow-card overflow-hidden transition-transform duration-200 active:scale-[0.99] active:shadow-lg;
+}
+
+
+/* Table styles */
+.table-container {
+  width: 100%;
+  max-width: var(--app-max-width);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  margin: 0 auto;
 }
 
-@layer components {
-  /* Touch-optimized button styles */
-  .btn-google {
-    @apply inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-white bg-solo-purple hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] rounded-full transition-all duration-200 ease-in-out shadow-md min-h-[var(--touch-target-size)];
-  }
-
-  .btn-solo-purple {
-    @apply bg-solo-purple text-white hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] transition-all duration-200 min-h-[var(--touch-target-size)];
-  }
-
-  /* Touch-friendly navigation */
-  .nav-link {
-    @apply text-text-primary hover:text-solo-purple active:text-solo-purple-light active:scale-[0.98] transition-all duration-200 py-2 px-3 min-h-[var(--touch-target-size)] flex items-center;
-  }
-
-  /* Enhanced card styles with text overflow handling */
-  .card {
-    @apply bg-bg-card rounded-card shadow-card overflow-hidden w-full max-w-[var(--app-max-width)] transition-transform duration-200 active:scale-[0.99] active:shadow-lg;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-
-  .kpi-card {
-    @apply bg-bg-kpi-card rounded-card shadow-card overflow-hidden transition-transform duration-200 active:scale-[0.99] active:shadow-lg;
-  }
-
-  .card-body {
-    @apply p-4;
-  }
-}
-
-/* Enhanced table styles with better mobile handling */
 .table {
-  @apply w-full text-sm;
-  table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+  table-layout: fixed; /* Retained from original */
 }
 
-.table td, 
-.table th {
-  @apply min-h-[var(--touch-target-size)] py-2 px-2;
+.table th,
+.table td {
+  padding: 0.75rem;
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 150px; /* Adjust based on your needs */
+  min-h-[var(--touch-target-size)] py-2 px-2; /* Retained from original */
 }
 
-/* Enhanced session styles with proper text handling */
+/* Session styles */
 .session-header {
-  @apply cursor-pointer text-base min-h-[var(--touch-target-size)] flex items-center w-full;
+  width: 100%;
+  min-height: var(--touch-target-size);
+  cursor: pointer;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  @apply cursor-pointer text-base min-h-[var(--touch-target-size)] flex items-center w-full; /* Retained from original */
 }
 
 .session-content {
-  @apply overflow-hidden transition-all duration-200 ease-in-out;
+  overflow: hidden;
+  transition: max-height 0.2s ease-in-out;
+  @apply overflow-hidden transition-all duration-200 ease-in-out; /* Retained from original */
 }
 
 .session-content.collapsed {
@@ -133,24 +136,31 @@ body {
   padding: 0;
 }
 
-/* Responsive text handling for different screen sizes */
-@media (max-width: 360px) {
-  .table td, 
-  .table th {
-    font-size: var(--font-size-xs);
-    padding: 0.5rem 0.25rem;
+/* Mobile optimizations */
+@media (max-width: 430px) {
+  .card-body {
+    padding: 0.75rem;
   }
 
+  .table th,
+  .table td {
+    padding: 0.5rem;
+    font-size: var(--font-size-xs);
+  }
+
+  .session-header {
+    padding: 0.75rem;
+  }
   .card-title {
     font-size: var(--font-size-lg);
   }
-
   .card-text {
     font-size: var(--font-size-sm);
   }
 }
 
-/* Safe area insets for modern mobile devices */
+
+/* Safe area insets */
 @supports (padding: max(0px)) {
   .app-container,
   .container {
@@ -160,15 +170,31 @@ body {
   }
 }
 
-/* Enhanced touch feedback for touch-only devices */
+/* Touch device optimizations */
 @media (hover: none) and (pointer: coarse) {
-  .btn-google, 
-  .btn-solo-purple, 
+  .btn,
   .nav-link {
-    @apply active:scale-[0.96] hover:bg-solo-purple;
+    min-height: var(--touch-target-size);
+    padding: 0.75rem 1rem;
   }
 
-  .form-control:focus {
-    @apply ring-4;
+  input,
+  select,
+  textarea {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+}
+
+@layer components {
+  .btn-google {
+    @apply inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-white bg-solo-purple hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] rounded-full transition-all duration-200 ease-in-out shadow-md min-h-[var(--touch-target-size)];
+  }
+
+  .btn-solo-purple {
+    @apply bg-solo-purple text-white hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] transition-all duration-200 min-h-[var(--touch-target-size)];
+  }
+
+  .nav-link {
+    @apply text-text-primary hover:text-solo-purple active:text-solo-purple-light active:scale-[0.98] transition-all duration-200 py-2 px-3 min-h-[var(--touch-target-size)] flex items-center;
   }
 }
