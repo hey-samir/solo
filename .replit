@@ -99,7 +99,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production node src/server/server.js"
+args = "NODE_ENV=production node src/server/deployment/deploy.js"
 waitForPort = 3000
 
 [[workflows.workflow]]
@@ -129,7 +129,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=staging node src/server/server.js"
+args = "NODE_ENV=staging node src/server/deployment/deploy.js"
 waitForPort = 5000
 
 [[ports]]

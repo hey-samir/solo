@@ -1,63 +1,65 @@
 const path = require('path');
 const app = require('../server');
+const { forceReleasePort } = require('../utils/port-check');
 
 async function deploy() {
   try {
-    // Kill any existing processes on the deployment port
-    const PORT = parseInt(process.env.PORT || '3000', 10);
     const environment = process.env.NODE_ENV || 'production';
+    let PORT;
 
-    // Validate environment-specific port
-    if (environment === 'production' && PORT !== 3000) {
-      throw new Error('Production must run on port 3000');
-    }
-    if (environment === 'staging' && PORT !== 5000) {
-      throw new Error('Staging must run on port 5000');
+    // Strict environment-port mapping
+    if (environment === 'production') {
+      PORT = 3000;
+    } else if (environment === 'staging') {
+      PORT = 5000;
+    } else {
+      throw new Error(`Invalid environment: ${environment}`);
     }
 
-    console.log(`Starting deployment server in ${environment} mode`);
-    console.log(`Port: ${PORT}`);
-    console.log('Static files path:', path.join(process.cwd(), 'dist/client'));
+    console.log(`[Deploy] Starting deployment for ${environment} environment`);
+    console.log(`[Deploy] Target port: ${PORT}`);
+
+    // Release all ports before starting
+    await forceReleasePort(3000);
+    await forceReleasePort(5000);
 
     const server = app.listen(PORT, '0.0.0.0', () => {
       console.log('='.repeat(50));
-      console.log(`Deployment server started in ${environment} mode`);
-      console.log(`Listening on http://0.0.0.0:${PORT}`);
-      console.log(`Process ID: ${process.pid}`);
-      console.log(`Node version: ${process.version}`);
-      console.log(`Current directory: ${process.cwd()}`);
+      console.log(`[Deploy] Server started in ${environment} mode`);
+      console.log(`[Deploy] URL: http://0.0.0.0:${PORT}`);
+      console.log(`[Deploy] Process ID: ${process.pid}`);
       console.log('='.repeat(50));
     });
 
-    // Handle shutdown gracefully
+    // Graceful shutdown
     process.on('SIGTERM', () => {
-      console.log('Received SIGTERM signal, shutting down gracefully');
+      console.log('[Deploy] Received SIGTERM signal');
       server.close(() => {
-        console.log('Server closed');
+        console.log('[Deploy] Server closed');
         process.exit(0);
       });
     });
 
     // Handle uncaught exceptions
     process.on('uncaughtException', (err) => {
-      console.error('Uncaught Exception:', err);
+      console.error('[Deploy] Uncaught Exception:', err);
       server.close(() => {
-        console.log('Server closed due to uncaught exception');
+        console.log('[Deploy] Server closed due to uncaught exception');
         process.exit(1);
       });
     });
 
     // Handle unhandled promise rejections
     process.on('unhandledRejection', (reason, promise) => {
-      console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+      console.error('[Deploy] Unhandled Rejection at:', promise, 'reason:', reason);
       server.close(() => {
-        console.log('Server closed due to unhandled rejection');
+        console.log('[Deploy] Server closed due to unhandled rejection');
         process.exit(1);
       });
     });
 
   } catch (error) {
-    console.error('Deployment failed:', error);
+    console.error('[Deploy] Critical error:', error);
     process.exit(1);
   }
 }

@@ -20,12 +20,12 @@
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 
   /* Improved fluid typography scale for better narrow screen handling */
-  --font-size-xs: clamp(0.65rem, 2.5vw, 0.75rem);
-  --font-size-sm: clamp(0.75rem, 2.75vw, 0.875rem);
-  --font-size-base: clamp(0.875rem, 3vw, 1rem);
-  --font-size-lg: clamp(1rem, 3.25vw, 1.125rem);
-  --font-size-xl: clamp(1.125rem, 3.5vw, 1.25rem);
-  --font-size-2xl: clamp(1.25rem, 3.75vw, 1.5rem);
+  --font-size-xs: clamp(0.65rem, 3vw, 0.75rem);
+  --font-size-sm: clamp(0.75rem, 3.5vw, 0.875rem);
+  --font-size-base: clamp(0.875rem, 4vw, 1rem);
+  --font-size-lg: clamp(1rem, 4.5vw, 1.125rem);
+  --font-size-xl: clamp(1.125rem, 5vw, 1.25rem);
+  --font-size-2xl: clamp(1.25rem, 5.5vw, 1.5rem);
 
   /* Touch targets */
   --touch-target-size: 44px;
@@ -99,13 +99,21 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 1rem;
+  gap: 0.5rem;
+  min-height: 120px;
 }
 
 .kpi-card i {
   margin-bottom: 0.5rem;
   font-size: 1.5rem;
+  display: block;
+}
+
+.kpi-card > * {
+  width: 100%;
 }
 
 /* Table styles */
