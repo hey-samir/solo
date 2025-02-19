@@ -5,7 +5,11 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = ["sh", "-c", "NODE_ENV=production npx vite build && node src/server/server.js"]
+run = [
+  "sh",
+  "-c",
+  "NODE_ENV=production npx vite build && node src/server/server.js",
+]
 
 [workflows]
 runButton = "Project"
@@ -104,63 +108,8 @@ localPort = 3000
 externalPort = 80
 
 [[ports]]
-localPort = 3001
-externalPort = 3001
-
-[[ports]]
-localPort = 3002
-externalPort = 3002
-
-[[ports]]
-localPort = 3003
-externalPort = 3003
-
-[[ports]]
 localPort = 5000
 externalPort = 5000
-
-[[ports]]
-localPort = 5001
-
-[[ports]]
-localPort = 5002
-externalPort = 4200
-
-[[ports]]
-localPort = 8043
-externalPort = 8008
-
-[[ports]]
-localPort = 8071
-externalPort = 8099
-
-[[ports]]
-localPort = 8224
-externalPort = 6000
-
-[[ports]]
-localPort = 8295
-externalPort = 8081
-
-[[ports]]
-localPort = 8348
-externalPort = 8000
-
-[[ports]]
-localPort = 8368
-externalPort = 8080
-
-[[ports]]
-localPort = 8385
-externalPort = 6800
-
-[[ports]]
-localPort = 8532
-externalPort = 9000
-
-[[ports]]
-localPort = 8577
-externalPort = 5173
 
 [auth]
 pageEnabled = false

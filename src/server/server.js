@@ -19,7 +19,7 @@ console.log('[Server] Process environment:', {
 
 const express = require('express');
 const path = require('path');
-const { validatePort } = require('./utils/port-check');
+const { validatePort, forceReleasePort } = require('./utils/port-check');
 
 console.log('[Server] Express and utilities imported successfully');
 
@@ -61,8 +61,16 @@ async function startServer() {
 
     console.log(`[Server] Starting ${env} server on port ${port}...`);
 
+    // Force release both ports before starting
+    console.log('[Server] Releasing ports before startup...');
+    await forceReleasePort(3000);
+    await forceReleasePort(5000);
+
     // Validate port availability
-    await validatePort(port, env);
+    const isPortAvailable = await validatePort(port, env);
+    if (!isPortAvailable) {
+      throw new Error(`Port ${port} is not available for ${env} environment`);
+    }
 
     return new Promise((resolve, reject) => {
       console.log(`[Server] Binding to port ${port}...`);
@@ -82,9 +90,18 @@ async function startServer() {
         });
         reject(error);
       });
+
+      // Graceful shutdown handler
+      process.on('SIGTERM', () => {
+        console.log('[Server] Received SIGTERM signal');
+        server.close(() => {
+          console.log('[Server] Server closed');
+          process.exit(0);
+        });
+      });
     });
   } catch (error) {
-    console.error('[Server] Failed to start server:', error);
+    console.error('[Server] Critical startup error:', error);
     throw error;
   }
 }
