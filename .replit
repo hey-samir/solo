@@ -95,8 +95,8 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production node src/server/server.js"
-waitForPort = 3000
+args = "PORT=8673 NODE_ENV=production node src/server/server.js"
+waitForPort = 8673
 
 [[ports]]
 localPort = 80

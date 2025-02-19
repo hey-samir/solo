@@ -46,41 +46,27 @@ async function startServer(preferredPort, env) {
   try {
     console.log(`[Server] Attempting to start ${env} server...`);
 
-    // Explicitly set port based on environment
-    let portToUse;
-    if (env === 'production') {
-      portToUse = 3000;
-    } else if (env === 'staging') {
-      portToUse = 5000;
-    } else {
-      portToUse = preferredPort;
-    }
+    // Use PORT environment variable if available, otherwise use preferredPort
+    const portToUse = process.env.PORT ? parseInt(process.env.PORT, 10) : preferredPort;
 
     console.log(`[Server] Attempting to use port ${portToUse} for ${env} environment`);
 
-    // Find an available port, starting with the portToUse
-    const port = await findAvailablePort([portToUse]);
-
-    if (!port) {
-      throw new Error('No available ports found');
-    }
-
     return new Promise((resolve, reject) => {
-      console.log(`[Server] Binding to port ${port}...`);
+      console.log(`[Server] Binding to port ${portToUse}...`);
 
-      const server = app.listen(port, '0.0.0.0', () => {
+      const server = app.listen(portToUse, '0.0.0.0', () => {
         // Store the actual port used in the app
-        app.set('port', port);
+        app.set('port', portToUse);
 
         // Log in a structured format for workflow configuration
         const portAssignment = {
           type: 'SERVER_PORT_ASSIGNMENT',
-          port: port,
+          port: portToUse,
           env: env,
           timestamp: new Date().toISOString()
         };
         console.log('[Server Status]', JSON.stringify(portAssignment));
-        console.log(`[Server] Successfully started ${env} server on port ${port}`);
+        console.log(`[Server] Successfully started ${env} server on port ${portToUse}`);
         resolve(server);
       });
 
@@ -104,12 +90,13 @@ async function startServer(preferredPort, env) {
 if (require.main === module) {
   // Environment configuration
   const NODE_ENV = process.env.NODE_ENV || 'development';
-  // Use port 3000 for production, 5000 for staging as preferred ports
-  const preferredPort = NODE_ENV === 'production' ? 3000 : 5000;
+  // Default preferred ports if PORT env var is not set
+  const preferredPort = 3000;
 
   console.log('[Server] Starting with configuration:', {
     NODE_ENV,
     preferredPort,
+    PORT: process.env.PORT,
     timestamp: new Date().toISOString()
   });
 
