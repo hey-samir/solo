@@ -36,7 +36,7 @@ const featureFlags = {
 // Initialize feature flags with proper error handling
 router.get('/', (req, res) => {
   try {
-    // Get environment from NODE_ENV instead of port
+    // Get environment from NODE_ENV
     const environment = process.env.NODE_ENV || 'production';
 
     // Log request details for debugging
