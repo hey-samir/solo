@@ -16,7 +16,7 @@
   --text-primary-rgb: 255, 255, 255;
   --text-muted: #CBD5E1;
   --border-color: rgba(255, 255, 255, 0.1);
-  --app-max-width: 420px;
+  --app-max-width: 430px;
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 
   /* Enhanced Mobile-first font sizes */
@@ -38,7 +38,7 @@
   box-sizing: border-box;
   -webkit-tap-highlight-color: rgba(var(--solo-purple-rgb), 0.2);
   touch-action: manipulation;
-  -webkit-overflow-scrolling: touch; /* Enable momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Mobile-optimized body styles */
@@ -50,7 +50,7 @@ body {
   color: var(--text-primary);
   font-size: var(--font-size-base);
   padding-bottom: var(--safe-area-inset-bottom);
-  overscroll-behavior-y: contain; /* Prevent overscroll bounce */
+  overscroll-behavior-y: contain;
 }
 
 /* Enhanced container max-width constraint */
@@ -60,7 +60,7 @@ body {
   margin: 0 auto;
   padding: 0 1rem;
   overflow-x: hidden;
-  overscroll-behavior-x: none; /* Prevent horizontal overscroll */
+  overscroll-behavior-x: none;
 }
 
 @layer components {
@@ -110,7 +110,7 @@ body {
 
 .form-control {
   @apply w-full bg-bg-primary text-text-primary border border-border-default rounded-card px-4 py-3 text-base focus:border-solo-purple focus:ring-2 focus:ring-solo-purple focus:ring-opacity-50 min-h-[var(--touch-target-size)] transition-shadow duration-200;
-  -webkit-appearance: none; /* Remove iOS default styles */
+  -webkit-appearance: none;
   appearance: none;
 }
 
@@ -128,7 +128,6 @@ body {
 
 .session-content {
   @apply overflow-hidden transition-all duration-200 ease-in-out;
-  max-height: 1000px;
 }
 
 .session-content.collapsed {
@@ -202,10 +201,10 @@ body {
 /* Enhanced touch feedback for touch-only devices */
 @media (hover: none) and (pointer: coarse) {
   .btn-google, .btn-solo-purple, .nav-link {
-    @apply active:scale-[0.96] hover:bg-solo-purple; /* Stronger touch feedback, disable hover states */
+    @apply active:scale-[0.96] hover:bg-solo-purple;
   }
 
   .form-control:focus {
-    @apply ring-4; /* Larger focus ring for touch devices */
+    @apply ring-4;
   }
 }

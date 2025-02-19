@@ -85,7 +85,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node scripts/version.js bumpPatch"
+args = "node scripts/version.js bumpMajor"
 
 [[workflows.workflow]]
 name = "Production Server"
