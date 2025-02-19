@@ -331,6 +331,14 @@ h6 {
   }
 }
 
+@media (max-width: 360px) {
+  .container {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: calc(var(--navbar-height) + 0.75rem);
+  }
+}
+
 /* Error Components */
 .error-page {
   @apply flex items-center justify-center min-h-[60vh];
