@@ -1,9 +1,9 @@
 // This is the very first line of code to execute
 console.log('[Server] Script execution starting:', {
-  time: new Date().toISOString(),
-  argv: process.argv,
-  execPath: process.execPath,
-  pid: process.pid
+ time: new Date().toISOString(),
+ argv: process.argv,
+ execPath: process.execPath,
+ pid: process.pid
 });
 
 // Early process debug info
@@ -67,8 +67,8 @@ async function startServer(env) {
 
     console.log(`[Server] Attempting to start ${env} server on port ${port}...`);
 
-    // First attempt to release all ports to ensure clean state
-    const portsToRelease = [3000, 3001, 3002, 5000];
+    // First attempt to release only production and staging ports
+    const portsToRelease = [3000, 5000];
     for (const p of portsToRelease) {
       try {
         console.log(`[Server] Attempting to release port ${p} before binding...`);

@@ -19,13 +19,13 @@
   --app-max-width: 430px;
   --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* Fluid typography scale */
-  --font-size-xs: clamp(0.65rem, 1.5vw, 0.75rem);
-  --font-size-sm: clamp(0.75rem, 1.75vw, 0.875rem);
-  --font-size-base: clamp(0.875rem, 2vw, 1rem);
-  --font-size-lg: clamp(1rem, 2.25vw, 1.125rem);
-  --font-size-xl: clamp(1.125rem, 2.5vw, 1.25rem);
-  --font-size-2xl: clamp(1.25rem, 2.75vw, 1.5rem);
+  /* Improved fluid typography scale for better narrow screen handling */
+  --font-size-xs: clamp(0.65rem, 2.5vw, 0.75rem);
+  --font-size-sm: clamp(0.75rem, 2.75vw, 0.875rem);
+  --font-size-base: clamp(0.875rem, 3vw, 1rem);
+  --font-size-lg: clamp(1rem, 3.25vw, 1.125rem);
+  --font-size-xl: clamp(1.125rem, 3.5vw, 1.25rem);
+  --font-size-2xl: clamp(1.25rem, 3.75vw, 1.5rem);
 
   /* Touch targets */
   --touch-target-size: 44px;
@@ -38,7 +38,7 @@
   box-sizing: border-box;
   -webkit-tap-highlight-color: rgba(var(--solo-purple-rgb), 0.2);
   touch-action: manipulation;
-  -webkit-overflow-scrolling: touch; /* Retained from original */
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -53,6 +53,21 @@ body {
   max-width: 100vw;
 }
 
+/* Navigation containers with max-width enforcement */
+.nav-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: var(--bg-primary);
+}
+
+.nav-content {
+  width: 100%;
+  max-width: var(--app-max-width);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
 /* Layout containers */
 .app-container,
 .container {
@@ -63,17 +78,16 @@ body {
   padding-left: 1rem;
   padding-right: 1rem;
   overflow-x: hidden;
-  overscroll-behavior-x: none; /* Retained from original */
+  overscroll-behavior-x: none;
 }
 
-/* Card components */
+/* Card components with improved stacking layout */
 .card {
   @apply bg-bg-card rounded-lg shadow-lg overflow-hidden;
   width: 100%;
   max-width: var(--app-max-width);
   word-wrap: break-word;
   overflow-wrap: break-word;
-  transition-transform duration-200 active:scale-[0.99] active:shadow-lg; /* Retained from original */
 }
 
 .card-body {
@@ -81,9 +95,18 @@ body {
 }
 
 .kpi-card {
-    @apply bg-bg-kpi-card rounded-card shadow-card overflow-hidden transition-transform duration-200 active:scale-[0.99] active:shadow-lg;
+  @apply bg-bg-kpi-card rounded-card shadow-card overflow-hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1rem;
 }
 
+.kpi-card i {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
 
 /* Table styles */
 .table-container {
@@ -98,7 +121,7 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-sm);
-  table-layout: fixed; /* Retained from original */
+  table-layout: fixed;
 }
 
 .table th,
@@ -108,8 +131,8 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px; /* Adjust based on your needs */
-  min-h-[var(--touch-target-size)] py-2 px-2; /* Retained from original */
+  max-width: 150px;
+  min-height: var(--touch-target-size);
 }
 
 /* Session styles */
@@ -120,13 +143,11 @@ body {
   padding: 1rem;
   display: flex;
   align-items: center;
-  @apply cursor-pointer text-base min-h-[var(--touch-target-size)] flex items-center w-full; /* Retained from original */
 }
 
 .session-content {
   overflow: hidden;
   transition: max-height 0.2s ease-in-out;
-  @apply overflow-hidden transition-all duration-200 ease-in-out; /* Retained from original */
 }
 
 .session-content.collapsed {
@@ -136,7 +157,7 @@ body {
   padding: 0;
 }
 
-/* Mobile optimizations */
+/* Mobile optimizations with improved narrow screen handling */
 @media (max-width: 430px) {
   .card-body {
     padding: 0.75rem;
@@ -151,19 +172,29 @@ body {
   .session-header {
     padding: 0.75rem;
   }
+
+  .kpi-card {
+    padding: 0.75rem;
+  }
+
   .card-title {
     font-size: var(--font-size-lg);
   }
+
   .card-text {
+    font-size: var(--font-size-sm);
+  }
+
+  .nav-link {
     font-size: var(--font-size-sm);
   }
 }
 
-
 /* Safe area insets */
 @supports (padding: max(0px)) {
   .app-container,
-  .container {
+  .container,
+  .nav-content {
     padding-left: max(1rem, env(safe-area-inset-left));
     padding-right: max(1rem, env(safe-area-inset-right));
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
@@ -181,7 +212,7 @@ body {
   input,
   select,
   textarea {
-    font-size: 16px; /* Prevent iOS zoom */
+    font-size: 16px;
   }
 }
 
