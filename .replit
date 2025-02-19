@@ -11,20 +11,6 @@ run = ["sh", "-c", "NODE_ENV=production npx vite build && node src/server/server
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Database Migrations"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=staging tsx src/server/db/migrate.ts"
-
-[[workflows.workflow]]
 name = "Build"
 author = "agent"
 
@@ -78,10 +64,6 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "node scripts/version.js bumpMajor"
 
 [[workflows.workflow]]
 name = "Production Server"
