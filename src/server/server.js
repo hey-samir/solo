@@ -1,9 +1,9 @@
 // This is the very first line of code to execute
 console.log('[Server] Script execution starting:', {
- time: new Date().toISOString(),
- argv: process.argv,
- execPath: process.execPath,
- pid: process.pid
+  time: new Date().toISOString(),
+  argv: process.argv,
+  execPath: process.execPath,
+  pid: process.pid
 });
 
 // Early process debug info
@@ -61,15 +61,19 @@ async function startServer() {
 
     console.log(`[Server] Starting ${env} server on port ${port}...`);
 
-    // Force release both ports before starting
-    console.log('[Server] Releasing ports before startup...');
-    await forceReleasePort(3000);
-    await forceReleasePort(5000);
+    // Release only our specific port before starting
+    console.log(`[Server] Releasing port ${port} before startup...`);
+    await forceReleasePort(port);
+
+    // Add delay to ensure port is fully released
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Validate port availability
-    const isPortAvailable = await validatePort(port, env);
-    if (!isPortAvailable) {
-      throw new Error(`Port ${port} is not available for ${env} environment`);
+    try {
+      await validatePort(port, env);
+    } catch (err) {
+      console.error('[Server] Port validation failed:', err);
+      process.exit(1);
     }
 
     return new Promise((resolve, reject) => {

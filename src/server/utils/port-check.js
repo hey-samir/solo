@@ -53,11 +53,17 @@ async function validatePort(port, env) {
     throw new Error('Staging environment must use port 5000');
   }
 
-  const isAvailable = await checkPort(port);
-  if (!isAvailable) {
-    throw new Error(`Port ${port} is not available for ${env} environment`);
+  // Multiple attempts to check port availability
+  for (let i = 0; i < 3; i++) {
+    const isAvailable = await checkPort(port);
+    if (isAvailable) {
+      return true;
+    }
+    console.log(`[Port Check] Attempt ${i + 1} failed, waiting before retry...`);
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
-  return true;
+
+  throw new Error(`Port ${port} is not available for ${env} environment after multiple attempts`);
 }
 
 async function forceReleasePort(port) {
@@ -73,9 +79,13 @@ async function forceReleasePort(port) {
     };
 
     client.once('error', (err) => {
-      console.log(`[Port Release] Socket reset error:`, err);
+      if (err.code === 'ECONNREFUSED') {
+        console.log(`[Port Release] Port ${port} is already free`);
+      } else {
+        console.log(`[Port Release] Socket reset error:`, err);
+      }
       cleanup();
-      resolve(false);
+      resolve(true);
     });
 
     client.connect({ port, host: '0.0.0.0' }, () => {
@@ -91,7 +101,7 @@ async function forceReleasePort(port) {
     timeoutId = setTimeout(() => {
       console.log(`[Port Release] Socket reset timeout`);
       cleanup();
-      resolve(false);
+      resolve(true);
     }, 2000);
   });
 }
