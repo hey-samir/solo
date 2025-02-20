@@ -26,11 +26,20 @@ console.log('[Server] Express and utilities imported successfully');
 // Create minimal app
 const app = express();
 
+// Configure CORS and other middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  next();
+});
+
 // Configure static file serving with appropriate caching
 const staticOptions = {
   maxAge: process.env.NODE_ENV === 'production' ? '0' : 0, // Disable caching temporarily
   etag: false, // Disable ETags to prevent caching
-  lastModified: false // Disable Last-Modified to prevent caching
+  lastModified: false, // Disable Last-Modified to prevent caching
+  dotfiles: 'ignore',
+  fallthrough: true
 };
 
 // Verify dist directory exists
@@ -50,12 +59,20 @@ if (!require('fs').existsSync(indexPath)) {
 
 // Serve static files with cache busting
 app.use((req, res, next) => {
+  // Log incoming requests for debugging
+  console.log('[Server] Incoming request:', {
+    path: req.path,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
   next();
 });
 
+// Serve static files from the dist directory
 app.use(express.static(distPath, staticOptions));
 
 // Import and use feature flags router
@@ -64,6 +81,7 @@ app.use('/api/feature-flags', featureFlagsRouter);
 
 // Serve index.html for all routes to support client-side routing
 app.get('*', (req, res) => {
+  console.log('[Server] Serving index.html for path:', req.path);
   res.sendFile(indexPath);
 });
 
@@ -72,9 +90,14 @@ async function startServer() {
   try {
     // Strictly enforce environment-specific ports
     const env = process.env.NODE_ENV || 'production';
-    const port = env === 'production' ? 3000 : 5000;
+    const port = env === 'staging' ? 5000 : 3000;
 
-    console.log(`[Server] Starting ${env} server on port ${port}...`);
+    console.log(`[Server] Starting ${env} server on port ${port}...`, {
+      environment: env,
+      port: port,
+      nodeEnv: process.env.NODE_ENV,
+      timestamp: new Date().toISOString()
+    });
 
     // Release only our specific port before starting
     console.log(`[Server] Releasing port ${port} before startup...`);
@@ -99,6 +122,7 @@ async function startServer() {
         console.log(`[Server] Successfully started ${env} server on port ${port}`);
         console.log(`[Server] Server URL: http://0.0.0.0:${port}`);
         console.log(`[Server] Process ID: ${process.pid}`);
+        console.log(`[Server] Static files being served from: ${distPath}`);
         console.log('='.repeat(50));
         resolve(server);
       });

@@ -14,11 +14,11 @@ const envConfigs = {
   },
   staging: {
     port: 5000,
-    apiUrl: 'http://localhost:5000'
+    apiUrl: 'http://0.0.0.0:5000'  // Changed from localhost to 0.0.0.0
   },
   production: {
     port: 3000,
-    apiUrl: 'http://localhost:3000'
+    apiUrl: 'http://0.0.0.0:3000'  // Changed from localhost to 0.0.0.0
   }
 };
 
@@ -26,7 +26,11 @@ export default defineConfig(({ mode }) => {
   const env = mode || 'development';
   const config = envConfigs[env];
 
-  console.log(`Building for ${env} environment:`, config);
+  console.log(`Building for ${env} environment:`, {
+    mode: env,
+    port: config.port,
+    apiUrl: config.apiUrl
+  });
 
   return {
     root: __dirname,
@@ -35,7 +39,10 @@ export default defineConfig(({ mode }) => {
       {
         name: 'html-transform',
         transformIndexHtml(html) {
-          return html.replace('%MODE%', env.charAt(0).toUpperCase() + env.slice(1));
+          return html.replace(
+            '%MODE%', 
+            env.charAt(0).toUpperCase() + env.slice(1)
+          );
         }
       }
     ],
