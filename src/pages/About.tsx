@@ -50,11 +50,11 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
   <div className="bg-bg-card rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
-    <div className="flex items-center mb-4">
-      <i className="material-icons text-3xl text-solo-purple mr-4">{icon}</i>
-      <h3 className="text-xl font-semibold text-text-primary">{title}</h3>
+    <div className="flex flex-col items-center mb-4">
+      <i className="material-icons text-3xl text-solo-purple mb-3">{icon}</i>
+      <h3 className="text-xl font-semibold text-text-primary text-center">{title}</h3>
     </div>
-    <p className="text-text-muted text-base">{description}</p>
+    <p className="text-text-muted text-base text-center">{description}</p>
   </div>
 )
 
