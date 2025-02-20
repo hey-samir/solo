@@ -19,8 +19,8 @@ const About: React.FC = () => {
       <div className="grid grid-cols-2 gap-6 max-w-6xl mx-auto mb-12">
         <FeatureCard
           icon="arrow_upward"
-          title="Log Sends Instantly"
-          description="Track all metrics for routes"
+          title="Log Sends"
+          description="Instantly track metrics for all burns"
         />
         <FeatureCard
           icon="emoji_events"
@@ -30,12 +30,12 @@ const About: React.FC = () => {
         <FeatureCard
           icon="calendar_today"
           title="View Sessions"
-          description="Track your sessions"
+          description="Track Session stats"
         />
         <FeatureCard
           icon="bar_chart"
-          title="Track Progress"
-          description="Analyze your climbing stats"
+          title="Track Stats"
+          description="Measure metrics and analyze trends"
         />
       </div>
     </div>
