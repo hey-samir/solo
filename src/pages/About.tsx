@@ -5,7 +5,7 @@ const About: React.FC = () => {
   const { flags } = useFeatureFlags()
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       {/* Hero Section */}
       <section className="text-center mb-12">
         <h1 className="text-4xl font-bold text-solo-purple mb-4">Quantify your Ascent</h1>
@@ -15,8 +15,8 @@ const About: React.FC = () => {
         </p>
       </section>
 
-      {/* Features Grid - 2x2 layout with improved spacing */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto mb-12">
+      {/* Features Grid - 2x2 layout */}
+      <div className="grid grid-cols-2 gap-6 max-w-6xl mx-auto mb-12">
         <FeatureCard
           icon="arrow_upward"
           title="Log Sends Instantly"
