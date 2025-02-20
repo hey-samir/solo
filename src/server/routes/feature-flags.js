@@ -12,7 +12,7 @@ const featureFlags = {
     enableSquads: true,
     enableSettings: true,
     enableStandings: true,
-    showBottomNav: false, // Ensure this is false in production
+    showBottomNav: false,
     showFAQ: false,
     showEnvironmentBanner: false,
     environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates'
@@ -71,7 +71,7 @@ router.get('/', (req, res) => {
         enableFeedback: flags.enableFeedback,
         showEnvironmentBanner: flags.showEnvironmentBanner,
         environmentBannerText: flags.environmentBannerText,
-        showBottomNav: flags.showBottomNav // Log bottom nav state
+        showBottomNav: flags.showBottomNav
       }
     });
 
