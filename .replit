@@ -96,7 +96,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npx vite build && NODE_ENV=production node src/server/server.js"
+args = "NODE_ENV=production node src/server/server.js"
 waitForPort = 3000
 
 [[ports]]

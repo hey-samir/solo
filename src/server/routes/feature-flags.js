@@ -14,7 +14,7 @@ const featureFlags = {
     enableStandings: true,
     showBottomNav: false,
     showFAQ: false,
-    showEnvironmentBanner: true,
+    showEnvironmentBanner: false,
     environmentBannerText: 'Solo is sending soon. Follow @gosolonyc for updates'
   },
   staging: {
