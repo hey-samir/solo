@@ -12,26 +12,48 @@ const Layout: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-bg-primary text-text-primary">
+      {/* Environment Banner */}
       {flags?.showEnvironmentBanner && (
         <div 
           className="fixed top-0 left-0 right-0 text-white text-center text-xs py-0.5 font-semibold bg-black z-50"
         >
-          {flags.environmentBannerText || 'Solo is sending soon. Follow @gosolonyc for updates'}
+          {flags.environmentBannerText}
         </div>
       )}
-      <Header />
+
+      {/* Header */}
+      <div className="flex justify-center w-full bg-solo-purple">
+        <div className="w-full max-w-[430px]">
+          <Header />
+        </div>
+      </div>
+
+      {/* Main Content */}
       <main 
         className="flex-grow container mx-auto px-4 py-8" 
         style={{ 
-          marginTop: flags?.showEnvironmentBanner ? '80px' : '48px',  
+          marginTop: flags?.showEnvironmentBanner ? '80px' : '48px',
+          marginBottom: flags?.showBottomNav ? '60px' : '0'
         }}
       >
         <Outlet />
       </main>
-      <div style={{ marginBottom: flags?.showBottomNav ? '60px' : '0' }}>
-        <Footer />
+
+      {/* Footer */}
+      <div className="w-full flex justify-center">
+        <div className="w-full max-w-[430px]">
+          <Footer />
+        </div>
       </div>
-      {flags?.showBottomNav && <Navbar />}
+
+      {/* Bottom Navigation */}
+      {flags?.showBottomNav && (
+        <div className="fixed bottom-0 left-0 right-0 flex justify-center bg-bg-primary">
+          <div className="w-full max-w-[430px]">
+            <Navbar />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

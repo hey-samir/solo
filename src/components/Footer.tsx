@@ -13,7 +13,10 @@ const Footer: React.FC = () => {
         >
           Interspace Labs
         </a>
-        {' '}2025. Built at the speed of thought with{' '}
+        {' '}2025
+      </p>
+      <p className="mt-2">
+        Built at the speed of thought with{' '}
         <span role="img" aria-label="heart" className="text-white font-bold">♡</span> by{' '}
         <a 
           href="https://replit.com" 
