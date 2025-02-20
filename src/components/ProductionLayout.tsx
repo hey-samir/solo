@@ -37,6 +37,7 @@ const ProductionLayout: React.FC = () => {
         className="flex-grow container mx-auto px-4 py-8" 
         style={{ 
           marginTop: '80px',
+          marginBottom: '20px', 
         }}
       >
         <Outlet />
@@ -44,11 +45,6 @@ const ProductionLayout: React.FC = () => {
 
       {/* Footer */}
       <Footer />
-
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 h-14 bg-bg-primary border-t border-border-color flex justify-around items-center z-30">
-        {/* Navigation items */}
-      </nav>
     </div>
   )
 }
