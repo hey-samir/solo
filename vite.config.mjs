@@ -14,11 +14,11 @@ const envConfigs = {
   },
   staging: {
     port: 5000,
-    apiUrl: 'http://0.0.0.0:5000'  // Changed from localhost to 0.0.0.0
+    apiUrl: 'http://0.0.0.0:5000'  // Changed back to HTTP since HTTPS isn't needed
   },
   production: {
     port: 3000,
-    apiUrl: 'http://0.0.0.0:3000'  // Changed from localhost to 0.0.0.0
+    apiUrl: 'http://0.0.0.0:3000'
   }
 };
 
@@ -54,7 +54,15 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0'
       },
       cors: true,
-      strictPort: true
+      strictPort: true,
+      proxy: {
+        '/api': {
+          target: config.apiUrl,
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        }
+      }
     },
     build: {
       outDir: path.resolve(__dirname, 'dist'),

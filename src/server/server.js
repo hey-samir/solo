@@ -28,8 +28,18 @@ const app = express();
 
 // Configure CORS and other middleware
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  const host = req.headers.host;
+
+  // Allow .replit.dev domains and local development
+  if (origin?.includes('.replit.dev') || 
+      origin?.includes('0.0.0.0') || 
+      !origin) { // Allow requests with no origin (like mobile apps)
+    res.header('Access-Control-Allow-Origin', origin || '*');
+  }
+
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   next();
 });
 
@@ -59,13 +69,6 @@ if (!require('fs').existsSync(indexPath)) {
 
 // Serve static files with cache busting
 app.use((req, res, next) => {
-  // Log incoming requests for debugging
-  console.log('[Server] Incoming request:', {
-    path: req.path,
-    method: req.method,
-    timestamp: new Date().toISOString()
-  });
-
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
@@ -81,7 +84,6 @@ app.use('/api/feature-flags', featureFlagsRouter);
 
 // Serve index.html for all routes to support client-side routing
 app.get('*', (req, res) => {
-  console.log('[Server] Serving index.html for path:', req.path);
   res.sendFile(indexPath);
 });
 
