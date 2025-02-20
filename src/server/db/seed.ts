@@ -18,43 +18,24 @@ const db = drizzle(client, { schema });
 
 // Demo data for staging environment
 const demoData = {
-  sessions: [
-    {
-      date: new Date('2025-02-01'),
-      duration: 120,
-      routesClimbed: 15,
-      averageGrade: "V4",
-      userId: "demouser"
-    },
-    {
-      date: new Date('2025-02-05'),
-      duration: 90,
-      routesClimbed: 12,
-      averageGrade: "V3",
-      userId: "demouser"
-    },
-    {
-      date: new Date('2025-02-10'),
-      duration: 150,
-      routesClimbed: 20,
-      averageGrade: "V4",
-      userId: "demouser"
-    }
-  ],
   sends: [
     {
-      grade: "V4",
-      attempts: 3,
-      date: new Date('2025-02-01'),
-      userId: "demouser",
-      sessionId: 1
+      user_id: 1,  // Changed from userId to user_id to match schema
+      route_id: 1, // Added required route_id
+      status: true, // Added required status
+      tries: 3,    // Changed from attempts to tries
+      points: 100, // Added required points
+      notes: "Clean send after working the beta",
+      created_at: new Date('2025-02-01')
     },
     {
-      grade: "V3",
-      attempts: 1,
-      date: new Date('2025-02-05'),
-      userId: "demouser",
-      sessionId: 2
+      user_id: 1,
+      route_id: 2,
+      status: false,
+      tries: 1,
+      points: 50,
+      notes: "Project for next session",
+      created_at: new Date('2025-02-05')
     }
   ]
 };
@@ -70,17 +51,43 @@ async function seed() {
       console.log("Seeding demo data for staging environment...");
 
       // Create demo user if it doesn't exist
-      await db.insert(schema.users).values({
-        id: "demouser",
+      const demoUser = await db.insert(schema.users).values({
         username: "demouser",
         email: "demo@example.com",
-        createdAt: new Date()
+        password_hash: "$2a$10$demopasswordhash", // Add required password_hash
+        created_at: new Date(),
+        member_since: new Date(),
+        user_type: "user"
       }).onConflictDoNothing();
 
-      // Insert sessions
-      for (const session of demoData.sessions) {
-        await db.insert(schema.sessions).values(session).onConflictDoNothing();
-      }
+      // Create demo gym
+      const demoGym = await db.insert(schema.gyms).values({
+        name: "Movement Gowanus",
+        location: "Brooklyn, NY",
+        created_at: new Date()
+      }).onConflictDoNothing();
+
+      // Create demo routes
+      await db.insert(schema.routes).values([
+        {
+          gym_id: 1,
+          color: "Blue",
+          grade: "5.11a",
+          wall_sector: "Main Wall",
+          anchor_number: 1,
+          active: true,
+          created_at: new Date()
+        },
+        {
+          gym_id: 1,
+          color: "Red",
+          grade: "5.10c",
+          wall_sector: "Cave",
+          anchor_number: 2,
+          active: true,
+          created_at: new Date()
+        }
+      ]).onConflictDoNothing();
 
       // Insert sends
       for (const send of demoData.sends) {
