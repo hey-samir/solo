@@ -33,6 +33,21 @@ const staticOptions = {
   lastModified: false // Disable Last-Modified to prevent caching
 };
 
+// Verify dist directory exists
+const distPath = path.join(__dirname, '../../dist');
+const indexPath = path.join(distPath, 'index.html');
+
+// Check if build exists
+if (!require('fs').existsSync(distPath)) {
+  console.error('[Server] Error: dist directory not found. Please run build first.');
+  process.exit(1);
+}
+
+if (!require('fs').existsSync(indexPath)) {
+  console.error('[Server] Error: index.html not found in dist directory.');
+  process.exit(1);
+}
+
 // Serve static files with cache busting
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
@@ -41,7 +56,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(path.join(__dirname, '../../dist'), staticOptions));
+app.use(express.static(distPath, staticOptions));
 
 // Import and use feature flags router
 const { router: featureFlagsRouter } = require('./routes/feature-flags');
@@ -49,7 +64,7 @@ app.use('/api/feature-flags', featureFlagsRouter);
 
 // Serve index.html for all routes to support client-side routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../dist/index.html'));
+  res.sendFile(indexPath);
 });
 
 // Function to start server with strict port validation
@@ -80,7 +95,11 @@ async function startServer() {
       console.log(`[Server] Binding to port ${port}...`);
 
       const server = app.listen(port, '0.0.0.0', () => {
+        console.log('='.repeat(50));
         console.log(`[Server] Successfully started ${env} server on port ${port}`);
+        console.log(`[Server] Server URL: http://0.0.0.0:${port}`);
+        console.log(`[Server] Process ID: ${process.pid}`);
+        console.log('='.repeat(50));
         resolve(server);
       });
 

@@ -53,11 +53,11 @@ args = "Version Bump"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Production Server"
+args = "Staging Server"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Staging Server"
+args = "Production Server"
 
 [[workflows.workflow]]
 name = "Version Bump"
@@ -68,21 +68,6 @@ agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
 task = "packager.installForAll"
-
-[[workflows.workflow]]
-name = "Production Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=production node src/server/server.js"
-waitForPort = 3000
 
 [[workflows.workflow]]
 name = "Staging Server"
@@ -98,6 +83,21 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "NODE_ENV=staging node src/server/server.js"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Production Server"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production npx vite build && NODE_ENV=production node src/server/server.js"
+waitForPort = 3000
 
 [[ports]]
 localPort = 80
