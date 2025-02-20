@@ -38,6 +38,10 @@
   -webkit-overflow-scrolling: touch;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
@@ -47,6 +51,13 @@ body {
   font-size: var(--font-size-base);
   overflow-x: hidden;
   max-width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+#root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -68,7 +79,6 @@ body {
 }
 
 /* Layout containers */
-.app-container,
 .container {
   width: 100%;
   max-width: min(var(--app-max-width), 100vw - 2rem);
@@ -78,6 +88,7 @@ body {
   padding-right: 1rem;
   overflow-x: hidden;
   overscroll-behavior-x: none;
+  flex: 1;
 }
 
 /* Card components */
@@ -236,13 +247,22 @@ body {
   }
 }
 
+/* Footer styles */
+footer {
+  width: 100%;
+  padding: 1rem;
+  position: relative;
+  bottom: 0;
+  background: transparent;
+}
+
 @layer components {
   .btn-google {
-    @apply inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-white bg-solo-purple hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] rounded-full transition-all duration-200 ease-in-out shadow-md min-h-[var(--touch-target-size)];
+    @apply inline-flex items-center gap-2 px-4 py-3 text-base font-medium text-white bg-solo-purple hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] rounded-full transition-all duration-200 ease-in-out shadow-md;
   }
 
   .btn-solo-purple {
-    @apply bg-solo-purple text-white hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] transition-all duration-200 min-h-[var(--touch-target-size)];
+    @apply bg-solo-purple text-white hover:bg-solo-purple-light active:bg-solo-purple-light active:scale-[0.98] transition-all duration-200;
   }
 
   .nav-link {
