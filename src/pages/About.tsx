@@ -35,7 +35,7 @@ const About: React.FC = () => {
         <FeatureCard
           icon="bar_chart"
           title="Track Stats"
-          description="Measure metrics and analyze trends"
+          description="Analyze metrics and trends"
         />
       </div>
     </div>
