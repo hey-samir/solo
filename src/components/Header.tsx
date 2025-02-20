@@ -12,13 +12,17 @@ const Header: React.FC = () => {
     navigate('/feedback');
   };
 
+  // Only add top padding if environment banner is shown
+  const headerStyle = {
+    height: '48px',
+    top: flags?.showEnvironmentBanner ? '24px' : '0',
+    paddingTop: flags?.showEnvironmentBanner ? '0' : '0'
+  };
+
   return (
     <header 
       className="fixed left-0 right-0 flex items-center justify-between z-40 bg-solo-purple px-4"
-      style={{ 
-        height: '48px',
-        top: flags?.showEnvironmentBanner ? '24px' : '0' // Adjusted for smaller banner
-      }}
+      style={headerStyle}
     >
       {/* Left section - Solo Pro */}
       <div className="flex items-center">
@@ -43,7 +47,7 @@ const Header: React.FC = () => {
             className="h-12 w-auto"
             style={{ 
               maxHeight: '42px',
-              filter: 'brightness(0) invert(1)' // Makes the logo white
+              filter: 'brightness(0) invert(1)'
             }}
           />
         </Link>

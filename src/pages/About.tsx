@@ -15,8 +15,8 @@ const About: React.FC = () => {
         </p>
       </section>
 
-      {/* Features Grid - 2x2 layout */}
-      <div className="grid grid-cols-2 gap-4 md:gap-8 max-w-4xl mx-auto mb-12 px-4">
+      {/* Features Grid - 2x2 layout with improved spacing */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mx-auto mb-12">
         <FeatureCard
           icon="arrow_upward"
           title="Log Sends Instantly"
@@ -49,12 +49,12 @@ interface FeatureCardProps {
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => (
-  <div className="bg-bg-card rounded-lg p-4 md:p-6 hover:shadow-lg transition-shadow duration-200">
-    <div className="flex flex-col md:flex-row items-center md:items-start mb-3 md:mb-4">
-      <i className="material-icons text-2xl md:text-3xl text-solo-purple mb-2 md:mb-0 md:mr-3">{icon}</i>
-      <h3 className="text-lg md:text-xl font-semibold text-text-primary text-center md:text-left">{title}</h3>
+  <div className="bg-bg-card rounded-lg p-6 hover:shadow-lg transition-shadow duration-200">
+    <div className="flex items-center mb-4">
+      <i className="material-icons text-3xl text-solo-purple mr-4">{icon}</i>
+      <h3 className="text-xl font-semibold text-text-primary">{title}</h3>
     </div>
-    <p className="text-text-muted text-sm md:text-base text-center md:text-left">{description}</p>
+    <p className="text-text-muted text-base">{description}</p>
   </div>
 )
 
