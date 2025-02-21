@@ -1,5 +1,6 @@
 import React from 'react';
-import GoogleSignInButton from '../components/GoogleSignInButton';
+import { SignIn } from '@clerk/clerk-react';
+import { dark } from '@clerk/themes';
 
 const Login: React.FC = () => {
   return (
@@ -14,9 +15,21 @@ const Login: React.FC = () => {
               Track your climbing progress
             </p>
           </div>
-          <div className="flex justify-center">
-            <GoogleSignInButton />
-          </div>
+          <SignIn 
+            appearance={{
+              baseTheme: dark,
+              elements: {
+                rootBox: "mx-auto",
+                card: "bg-bg-secondary rounded-lg shadow-md",
+                socialButtons: {
+                  iconButton: {
+                    height: "44px",
+                    width: "44px",
+                  }
+                }
+              }
+            }}
+          />
         </div>
       </main>
       <footer className="py-4 text-center text-text-secondary text-sm">

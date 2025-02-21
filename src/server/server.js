@@ -1,4 +1,4 @@
-// This is the very first line of code to execute
+// Server startup logging
 console.log('[Server] Script execution starting:', {
   time: new Date().toISOString(),
   argv: process.argv,
@@ -7,35 +7,22 @@ console.log('[Server] Script execution starting:', {
   env: process.env.NODE_ENV
 });
 
-// Early process debug info
-process.on('exit', (code) => {
-  console.log(`[Server] Process exit with code: ${code}`);
-});
-
-// Immediate startup logging
-console.log('[Server] Process environment:', {
-  NODE_ENV: process.env.NODE_ENV,
-  timestamp: new Date().toISOString()
-});
-
 const express = require('express');
 const path = require('path');
-const { validatePort, forceReleasePort, killProcessOnPort } = require('./utils/port-check');
+const { validatePort, forceReleasePort } = require('./utils/port-check');
 
 console.log('[Server] Express and utilities imported successfully');
 
-// Create minimal app
+// Create app
 const app = express();
 
-// Configure CORS and other middleware
+// Configure CORS
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const host = req.headers.host;
 
-  // Allow .replit.dev domains and local development
   if (origin?.includes('.replit.dev') || 
       origin?.includes('0.0.0.0') || 
-      !origin) { // Allow requests with no origin (like mobile apps)
+      !origin) {
     res.header('Access-Control-Allow-Origin', origin || '*');
   }
 
@@ -44,7 +31,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Enhanced request logging middleware
+// Enhanced request logging
 app.use((req, res, next) => {
   console.log('[Server] Incoming request:', {
     method: req.method,
@@ -55,22 +42,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// Configure static file serving with appropriate caching
-const staticOptions = {
-  maxAge: process.env.NODE_ENV === 'production' ? '0' : 0, // Disable caching temporarily
-  etag: false, // Disable ETags to prevent caching
-  lastModified: false, // Disable Last-Modified to prevent caching
-  dotfiles: 'ignore',
-  fallthrough: true
-};
-
 // Verify dist directory exists
 const distPath = path.join(__dirname, '../../dist');
 const env = process.env.NODE_ENV || 'development';
 const mainHtml = env === 'staging' ? 'staging.html' : 'index.html';
 const indexPath = path.join(distPath, mainHtml);
 
-// Check if build exists
+// Check build exists
 if (!require('fs').existsSync(distPath)) {
   console.error('[Server] Error: dist directory not found. Please run build first.');
   process.exit(1);
@@ -81,7 +59,7 @@ if (!require('fs').existsSync(indexPath)) {
   process.exit(1);
 }
 
-// Serve static files with cache busting
+// Disable caching for development
 app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   res.setHeader('Pragma', 'no-cache');
@@ -90,7 +68,13 @@ app.use((req, res, next) => {
 });
 
 // Serve static files from the dist directory
-app.use(express.static(distPath, staticOptions));
+app.use(express.static(distPath, {
+  maxAge: process.env.NODE_ENV === 'production' ? '0' : 0,
+  etag: false,
+  lastModified: false,
+  dotfiles: 'ignore',
+  fallthrough: true
+}));
 
 // Import and use feature flags router
 const { router: featureFlagsRouter } = require('./routes/feature-flags');
@@ -111,28 +95,15 @@ app.get('*', (req, res) => {
   res.sendFile(indexPath);
 });
 
-// Function to start server with strict port validation
+// Function to start server
 async function startServer() {
   try {
-    // Strictly enforce environment-specific ports
     const env = process.env.NODE_ENV || 'development';
     const port = env === 'staging' ? 5000 : 3000;
 
-    console.log(`[Server] Starting ${env} server on port ${port}...`, {
-      environment: env,
-      port: port,
-      nodeEnv: process.env.NODE_ENV,
-      timestamp: new Date().toISOString()
-    });
-
-    // For staging environment, forcefully kill any process on port 5000
-    if (env === 'staging') {
-      console.log(`[Server] Forcefully killing any process on port ${port}...`);
-      await killProcessOnPort(port);
-    }
+    console.log(`[Server] Starting ${env} server on port ${port}...`);
 
     // Release port before starting
-    console.log(`[Server] Releasing port ${port} before startup...`);
     await forceReleasePort(port);
 
     // Add delay to ensure port is fully released
@@ -161,17 +132,11 @@ async function startServer() {
       });
 
       server.on('error', (error) => {
-        console.error('[Server] Server startup error:', {
-          message: error.message,
-          code: error.code,
-          syscall: error.syscall,
-          address: error.address,
-          port: error.port
-        });
+        console.error('[Server] Server startup error:', error);
         reject(error);
       });
 
-      // Graceful shutdown handler
+      // Graceful shutdown
       process.on('SIGTERM', () => {
         console.log('[Server] Received SIGTERM signal');
         server.close(() => {

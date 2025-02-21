@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { GoogleOAuthProvider } from '@react-oauth/google'
+import { ClerkProvider } from '@clerk/clerk-react'
 import ErrorBoundary from './components/ErrorBoundary'
-import { AuthProvider } from './contexts/AuthContext'
 import { FeatureFlagsProvider } from './contexts/FeatureFlagsContext'
 import Router from './Router'
 import LoadingSpinner from './components/LoadingSpinner'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import './styles/global.css'
+
+if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) {
+  throw new Error('Missing Publishable Key')
+}
+
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,15 +26,12 @@ const queryClient = new QueryClient({
 })
 
 const App: React.FC = () => {
-  const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID || ''
   const [isLoading, setIsLoading] = useState(true)
   const [initError, setInitError] = useState<string | null>(null)
 
-  // Remove feature flag initialization from App.tsx since it's now handled by FeatureFlagsContext
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        // App-specific initialization can go here
         setIsLoading(false)
       } catch (error) {
         console.error('Failed to initialize app:', error)
@@ -66,19 +68,34 @@ const App: React.FC = () => {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <GoogleOAuthProvider clientId={clientId}>
+    <ClerkProvider 
+      publishableKey={clerkPubKey}
+      appearance={{
+        layout: {
+          socialButtonsVariant: "iconButton",
+          socialButtonsPlacement: "bottom"
+        },
+        elements: {
+          socialButtons: {
+            displayConfig: {
+              google: true,
+              apple: true,
+              github: true
+            }
+          }
+        }
+      }}
+    >
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
           <FeatureFlagsProvider>
-            <AuthProvider>
-              <ErrorBoundary>
-                <Router />
-              </ErrorBoundary>
-            </AuthProvider>
+            <ErrorBoundary>
+              <Router />
+            </ErrorBoundary>
           </FeatureFlagsProvider>
-        </GoogleOAuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ClerkProvider>
   )
 }
 

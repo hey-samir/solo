@@ -431,15 +431,6 @@ wheels = [
 ]
 
 [[package]]
-name = "oauthlib"
-version = "3.2.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6d/fa/fbf4001037904031639e6bfbfc02badfc7e12f137a8afa254df6c4c8a670/oauthlib-3.2.2.tar.gz", hash = "sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918", size = 177352 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/7e/80/cab10959dc1faead58dc8384a781dfbf93cb4d33d50988f7a69f1b7c9bbe/oauthlib-3.2.2-py3-none-any.whl", hash = "sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca", size = 151688 },
-]
-
-[[package]]
 name = "pillow"
 version = "11.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -650,7 +641,6 @@ name = "repl-nix-climbingtracker"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "oauthlib" },
     { name = "qrcode", extra = ["pil"] },
     { name = "slack-sdk" },
     { name = "trafilatura" },
@@ -659,7 +649,6 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "oauthlib", specifier = ">=3.2.2" },
     { name = "qrcode", extras = ["pil"], specifier = ">=8.0" },
     { name = "slack-sdk", specifier = ">=3.34.0" },
     { name = "trafilatura", specifier = ">=2.0.0" },
