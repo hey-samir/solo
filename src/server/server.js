@@ -3,7 +3,8 @@ console.log('[Server] Script execution starting:', {
   time: new Date().toISOString(),
   argv: process.argv,
   execPath: process.execPath,
-  pid: process.pid
+  pid: process.pid,
+  env: process.env.NODE_ENV
 });
 
 // Early process debug info
@@ -19,7 +20,7 @@ console.log('[Server] Process environment:', {
 
 const express = require('express');
 const path = require('path');
-const { validatePort, forceReleasePort } = require('./utils/port-check');
+const { validatePort, forceReleasePort, killProcessOnPort } = require('./utils/port-check');
 
 console.log('[Server] Express and utilities imported successfully');
 
@@ -43,6 +44,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// Enhanced request logging middleware
+app.use((req, res, next) => {
+  console.log('[Server] Incoming request:', {
+    method: req.method,
+    path: req.path,
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+  next();
+});
+
 // Configure static file serving with appropriate caching
 const staticOptions = {
   maxAge: process.env.NODE_ENV === 'production' ? '0' : 0, // Disable caching temporarily
@@ -54,7 +66,9 @@ const staticOptions = {
 
 // Verify dist directory exists
 const distPath = path.join(__dirname, '../../dist');
-const indexPath = path.join(distPath, 'index.html');
+const env = process.env.NODE_ENV || 'development';
+const mainHtml = env === 'staging' ? 'staging.html' : 'index.html';
+const indexPath = path.join(distPath, mainHtml);
 
 // Check if build exists
 if (!require('fs').existsSync(distPath)) {
@@ -63,7 +77,7 @@ if (!require('fs').existsSync(distPath)) {
 }
 
 if (!require('fs').existsSync(indexPath)) {
-  console.error('[Server] Error: index.html not found in dist directory.');
+  console.error(`[Server] Error: ${mainHtml} not found in dist directory.`);
   process.exit(1);
 }
 
@@ -82,8 +96,18 @@ app.use(express.static(distPath, staticOptions));
 const { router: featureFlagsRouter } = require('./routes/feature-flags');
 app.use('/api/feature-flags', featureFlagsRouter);
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    environment: process.env.NODE_ENV,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Serve index.html for all routes to support client-side routing
 app.get('*', (req, res) => {
+  console.log('[Server] Serving index.html for path:', req.path);
   res.sendFile(indexPath);
 });
 
@@ -91,7 +115,7 @@ app.get('*', (req, res) => {
 async function startServer() {
   try {
     // Strictly enforce environment-specific ports
-    const env = process.env.NODE_ENV || 'production';
+    const env = process.env.NODE_ENV || 'development';
     const port = env === 'staging' ? 5000 : 3000;
 
     console.log(`[Server] Starting ${env} server on port ${port}...`, {
@@ -101,7 +125,13 @@ async function startServer() {
       timestamp: new Date().toISOString()
     });
 
-    // Release only our specific port before starting
+    // For staging environment, forcefully kill any process on port 5000
+    if (env === 'staging') {
+      console.log(`[Server] Forcefully killing any process on port ${port}...`);
+      await killProcessOnPort(port);
+    }
+
+    // Release port before starting
     console.log(`[Server] Releasing port ${port} before startup...`);
     await forceReleasePort(port);
 
@@ -124,6 +154,7 @@ async function startServer() {
         console.log(`[Server] Successfully started ${env} server on port ${port}`);
         console.log(`[Server] Server URL: http://0.0.0.0:${port}`);
         console.log(`[Server] Process ID: ${process.pid}`);
+        console.log(`[Server] Environment: ${env}`);
         console.log(`[Server] Static files being served from: ${distPath}`);
         console.log('='.repeat(50));
         resolve(server);

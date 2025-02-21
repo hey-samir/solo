@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Environment configuration
+// Environment configuration with explicit staging setup
 const envConfigs = {
   development: {
     port: 3000,
@@ -14,7 +14,8 @@ const envConfigs = {
   },
   staging: {
     port: 5000,
-    apiUrl: 'http://0.0.0.0:5000'  // Changed back to HTTP since HTTPS isn't needed
+    apiUrl: 'http://0.0.0.0:5000',
+    hmrHost: '0.0.0.0'
   },
   production: {
     port: 3000,
@@ -26,7 +27,7 @@ export default defineConfig(({ mode }) => {
   const env = mode || 'development';
   const config = envConfigs[env];
 
-  console.log(`Building for ${env} environment:`, {
+  console.log(`[Vite Config] Building for ${env} environment:`, {
     mode: env,
     port: config.port,
     apiUrl: config.apiUrl
@@ -49,10 +50,10 @@ export default defineConfig(({ mode }) => {
     server: {
       port: config.port,
       host: '0.0.0.0',
-      hmr: {
+      hmr: env === 'staging' ? {
         clientPort: 443,
-        host: '0.0.0.0'
-      },
+        host: config.hmrHost
+      } : true,
       cors: true,
       strictPort: true,
       proxy: {
@@ -73,10 +74,7 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, 'index.html')
-        },
-        output: {
-          manualChunks: undefined
+          main: path.resolve(__dirname, env === 'staging' ? 'staging.html' : 'index.html')
         }
       }
     },

@@ -1,4 +1,31 @@
 const net = require('net');
+const { exec } = require('child_process');
+const util = require('util');
+const execAsync = util.promisify(exec);
+
+async function killProcessOnPort(port) {
+  console.log(`[Port Kill] Attempting to kill process on port ${port}`);
+  try {
+    // For Linux/Unix systems
+    const { stdout } = await execAsync(`lsof -i :${port} -t`);
+    if (stdout) {
+      const pids = stdout.trim().split('\n');
+      for (const pid of pids) {
+        console.log(`[Port Kill] Killing process ${pid} on port ${port}`);
+        await execAsync(`kill -9 ${pid}`);
+      }
+      // Wait a bit after killing
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return true;
+    }
+  } catch (error) {
+    // ENOENT means no process found, which is fine
+    if (error.code !== 'ENOENT') {
+      console.error(`[Port Kill] Error killing process:`, error);
+    }
+  }
+  return false;
+}
 
 async function checkPort(port) {
   console.log(`[Port Check] Testing port ${port} availability`);
@@ -53,6 +80,11 @@ async function validatePort(port, env) {
     throw new Error('Staging environment must use port 5000');
   }
 
+  // For staging environment, forcefully kill any process on port 5000
+  if (env === 'staging' && port === 5000) {
+    await killProcessOnPort(port);
+  }
+
   // Multiple attempts to check port availability
   for (let i = 0; i < 3; i++) {
     const isAvailable = await checkPort(port);
@@ -60,7 +92,13 @@ async function validatePort(port, env) {
       return true;
     }
     console.log(`[Port Check] Attempt ${i + 1} failed, waiting before retry...`);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // For staging, try killing the process again
+    if (env === 'staging' && port === 5000) {
+      await killProcessOnPort(port);
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 3000));
   }
 
   throw new Error(`Port ${port} is not available for ${env} environment after multiple attempts`);
@@ -95,15 +133,15 @@ async function forceReleasePort(port) {
         console.log(`[Port Release] Socket reset completed`);
         cleanup();
         resolve(true);
-      }, 1000);
+      }, 2000);
     });
 
     timeoutId = setTimeout(() => {
       console.log(`[Port Release] Socket reset timeout`);
       cleanup();
       resolve(true);
-    }, 2000);
+    }, 3000);
   });
 }
 
-module.exports = { checkPort, validatePort, forceReleasePort };
+module.exports = { checkPort, validatePort, forceReleasePort, killProcessOnPort };

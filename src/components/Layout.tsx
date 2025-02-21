@@ -33,14 +33,14 @@ const Layout: React.FC = () => {
         className="flex-grow container mx-auto px-4 py-8" 
         style={{ 
           marginTop: flags?.showEnvironmentBanner ? '80px' : '48px',
-          marginBottom: flags?.showBottomNav ? '60px' : '0'
+          marginBottom: flags?.showBottomNav ? '80px' : '0' 
         }}
       >
         <Outlet />
       </main>
 
-      {/* Footer */}
-      <div className="w-full flex justify-center">
+      {/* Footer with proper spacing */}
+      <div className="w-full flex justify-center pb-20"> 
         <div className="w-full max-w-[430px]">
           <Footer />
         </div>

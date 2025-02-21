@@ -26,7 +26,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=production npx vite build --mode production"
+args = "NODE_ENV=staging npx vite build --mode staging"
 
 [[workflows.workflow]]
 name = "Project"
@@ -55,6 +55,10 @@ args = "Version Bump"
 task = "workflow.run"
 args = "Staging Server"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Build Staging"
+
 [[workflows.workflow]]
 name = "Version Bump"
 author = "agent"
@@ -79,6 +83,20 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "NODE_ENV=staging node src/server/server.js"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Build Staging"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=staging npx vite build --mode staging"
 
 [[ports]]
 localPort = 80
