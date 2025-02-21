@@ -10,6 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@clerk/clerk-js": "^5.53.0",
+    "@clerk/clerk-react": "^5.23.0",
     "@coreui/coreui": "^5.2.0",
     "@popperjs/core": "^2.11.8",
     "@react-oauth/google": "^0.12.1",
