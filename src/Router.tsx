@@ -47,33 +47,14 @@ const Router: React.FC = () => {
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
         <Route element={isProduction ? <ProductionLayout /> : <Layout />}>
-          {/* Public Routes - No feature flag dependencies */}
+          {/* Public Routes */}
           <Route index element={<Navigate to="/about" replace />} />
           <Route path="about" element={<About />} />
-
-          {/* Feature-flagged routes */}
-          {flags.enablePro && (
-            <Route path="solo-pro" element={<SoloPro />} />
-          )}
-
-          {flags.enableFeedback && (
-            <Route path="feedback" element={<Feedback />} />
-          )}
-
-          {/* Auth Routes */}
-          {flags.enableAuth && (
-            <>
-              <Route path="login" element={<Login />} />
-              <Route path="signup" element={<Register />} />
-            </>
-          )}
-
-          {/* Core Features */}
           <Route path="standings" element={<Standings />} />
 
-          {flags.enableSquads && (
-            <Route path="squads" element={<Squads />} />
-          )}
+          {/* Auth Routes */}
+          <Route path="sign-in/*" element={<Login />} />
+          <Route path="sign-up/*" element={<Register />} />
 
           {/* Protected Routes */}
           <Route
@@ -94,6 +75,18 @@ const Router: React.FC = () => {
             }
           />
 
+          {/* Feature Flag Protected Routes */}
+          {flags.enableSquads && (
+            <Route 
+              path="squads" 
+              element={
+                <ProtectedRoute>
+                  <Squads />
+                </ProtectedRoute>
+              }
+            />
+          )}
+
           {flags.enableSessions && (
             <Route
               path="sessions"
@@ -111,6 +104,28 @@ const Router: React.FC = () => {
               element={
                 <ProtectedRoute>
                   <Stats />
+                </ProtectedRoute>
+              }
+            />
+          )}
+
+          {flags.enablePro && (
+            <Route 
+              path="solo-pro" 
+              element={
+                <ProtectedRoute>
+                  <SoloPro />
+                </ProtectedRoute>
+              }
+            />
+          )}
+
+          {flags.enableFeedback && (
+            <Route 
+              path="feedback" 
+              element={
+                <ProtectedRoute>
+                  <Feedback />
                 </ProtectedRoute>
               }
             />

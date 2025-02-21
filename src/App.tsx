@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ClerkProvider } from '@clerk/clerk-react'
+import { dark } from '@clerk/themes'
 import ErrorBoundary from './components/ErrorBoundary'
 import { FeatureFlagsProvider } from './contexts/FeatureFlagsContext'
 import Router from './Router'
@@ -71,16 +72,18 @@ const App: React.FC = () => {
     <ClerkProvider 
       publishableKey={clerkPubKey}
       appearance={{
+        baseTheme: dark,
         layout: {
+          socialButtonsPlacement: "bottom",
           socialButtonsVariant: "iconButton",
-          socialButtonsPlacement: "bottom"
         },
         elements: {
           socialButtons: {
             displayConfig: {
               google: true,
               apple: true,
-              github: true
+              github: true,
+              replit: false 
             }
           }
         }
