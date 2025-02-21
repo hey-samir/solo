@@ -16,12 +16,12 @@
     "src": "src/assets/images/avatars/white-solo-av.png"
   },
   "staging.html": {
-    "file": "assets/main-DTHiupF7.js",
+    "file": "assets/main-Bm5THwQc.js",
     "name": "main",
     "src": "staging.html",
     "isEntry": true,
     "css": [
-      "assets/main-Colqiq-C.css"
+      "assets/main-BsOLydGS.css"
     ],
     "assets": [
       "assets/white-solo-av-BTzwp-HI.png",

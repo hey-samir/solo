@@ -11,7 +11,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import './styles/global.css'
 
 if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) {
-  throw new Error('Missing Publishable Key')
+  throw new Error('Missing Clerk Publishable Key')
 }
 
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
@@ -33,9 +33,10 @@ const App: React.FC = () => {
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        // Any additional initialization can go here
         setIsLoading(false)
       } catch (error) {
-        console.error('Failed to initialize app:', error)
+        console.error('[App] Failed to initialize:', error)
         setInitError('Failed to initialize application')
         setIsLoading(false)
       }
@@ -46,7 +47,7 @@ const App: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-bg-primary">
         <LoadingSpinner />
       </div>
     )
@@ -54,12 +55,12 @@ const App: React.FC = () => {
 
   if (initError) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-bg-primary">
         <div className="text-center">
-          <h1 className="text-xl font-bold text-red-600">{initError}</h1>
+          <h1 className="text-xl font-bold text-red-600 mb-4">{initError}</h1>
           <button 
             onClick={() => window.location.reload()} 
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+            className="px-6 py-2 bg-solo-purple text-white rounded-lg hover:bg-solo-purple-light transition-colors"
           >
             Retry
           </button>
@@ -76,15 +77,24 @@ const App: React.FC = () => {
         layout: {
           socialButtonsPlacement: "bottom",
           socialButtonsVariant: "iconButton",
+          logoPlacement: "none",
         },
         elements: {
+          formButtonPrimary: "bg-solo-purple hover:bg-solo-purple-light",
+          card: "bg-bg-secondary shadow-xl rounded-xl",
           socialButtons: {
             displayConfig: {
               google: true,
               apple: true,
               github: true,
-              replit: false 
             }
+          },
+          headerTitle: "text-2xl font-bold text-text-primary",
+          headerSubtitle: "text-sm text-text-secondary",
+          rootBox: "w-full max-w-md mx-auto",
+          socialButtonsIconButton: {
+            height: "44px",
+            width: "44px"
           }
         }
       }}

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { useUser } from '@clerk/clerk-react'
 import Layout from './components/Layout'
 import ProductionLayout from './components/ProductionLayout'
 import LoadingSpinner from './components/LoadingSpinner'
@@ -23,15 +24,17 @@ import SoloPro from './pages/Pricing'
 import Feedback from './pages/Feedback'
 
 const Router: React.FC = () => {
-  const { flags, isLoading, error } = useFeatureFlags()
+  const { flags, isLoading: flagsLoading, error } = useFeatureFlags()
+  const { isLoaded: userLoaded, isSignedIn } = useUser()
   const isProduction = config.environment === 'production'
 
   useEffect(() => {
     console.log('[Router] Current environment:', config.environment)
     console.log('[Router] Feature flags:', flags)
-  }, [flags])
+    console.log('[Router] Auth status:', { isLoaded: userLoaded, isSignedIn })
+  }, [flags, userLoaded, isSignedIn])
 
-  if (isLoading) {
+  if (flagsLoading || !userLoaded) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner />
@@ -46,15 +49,21 @@ const Router: React.FC = () => {
   return (
     <React.Suspense fallback={<LoadingSpinner />}>
       <Routes>
+        {/* Public Routes */}
         <Route element={isProduction ? <ProductionLayout /> : <Layout />}>
-          {/* Public Routes */}
-          <Route index element={<Navigate to="/about" replace />} />
+          <Route index element={<Navigate to={isSignedIn ? "/solo" : "/about"} replace />} />
           <Route path="about" element={<About />} />
           <Route path="standings" element={<Standings />} />
 
-          {/* Auth Routes */}
-          <Route path="sign-in/*" element={<Login />} />
-          <Route path="sign-up/*" element={<Register />} />
+          {/* Auth Routes - Redirect to /solo if already signed in */}
+          <Route 
+            path="sign-in/*" 
+            element={isSignedIn ? <Navigate to="/solo" replace /> : <Login />} 
+          />
+          <Route 
+            path="sign-up/*" 
+            element={isSignedIn ? <Navigate to="/solo" replace /> : <Register />} 
+          />
 
           {/* Protected Routes */}
           <Route
