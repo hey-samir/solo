@@ -33,28 +33,41 @@ async function deploy() {
     console.log(`[Deploy] Starting deployment for ${environment} environment`);
     console.log(`[Deploy] Target port: ${PORT}`);
 
-    // Enhanced port release process
-    console.log('[Deploy] Ensuring ports are available...');
-    try {
-      await forceReleasePort(3000);
-      await forceReleasePort(5000);
-      console.log('[Deploy] Ports successfully released');
-    } catch (error) {
-      console.error('[Deploy] Error releasing ports:', error);
-      throw error;
+    // Enhanced port release process with multiple retries
+    console.log('[Deploy] Beginning port release process...');
+
+    const maxRetries = 3;
+    let isPortFree = false;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      console.log(`[Deploy] Attempt ${attempt}/${maxRetries} to free port ${PORT}`);
+
+      // Try to kill any process on the port
+      await killProcessOnPort(PORT);
+      console.log(`[Deploy] Killed any processes on port ${PORT}`);
+
+      // Force release the port
+      await forceReleasePort(PORT);
+      console.log(`[Deploy] Forced release of port ${PORT}`);
+
+      // Wait with exponential backoff
+      const delay = Math.min(1000 * Math.pow(2, attempt), 8000);
+      console.log(`[Deploy] Waiting ${delay}ms before checking port...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+
+      // Check if port is now available
+      isPortFree = await isPortAvailable(PORT);
+      if (isPortFree) {
+        console.log(`[Deploy] Successfully freed port ${PORT} on attempt ${attempt}`);
+        break;
+      }
+
+      console.log(`[Deploy] Port ${PORT} still not available after attempt ${attempt}`);
     }
 
-    // Add extended delay after port release
-    console.log('[Deploy] Waiting for ports to fully release...');
-    await new Promise(resolve => setTimeout(resolve, 5000));
-
-    // Verify port availability
-    console.log(`[Deploy] Verifying port ${PORT} availability...`);
-    const isAvailable = await isPortAvailable(PORT);
-    if (!isAvailable) {
-      throw new Error(`Port ${PORT} is still in use after release attempt`);
+    if (!isPortFree) {
+      throw new Error(`Failed to free port ${PORT} after ${maxRetries} attempts`);
     }
-    console.log(`[Deploy] Port ${PORT} is available`);
 
     // Start server with additional error handling
     console.log('[Deploy] Starting server...');

@@ -59,19 +59,21 @@ if (!require('fs').existsSync(indexPath)) {
   process.exit(1);
 }
 
-// Disable caching for development
+// Disable caching for development and staging
 app.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
+  if (env !== 'production') {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
   next();
 });
 
 // Serve static files from the dist directory
 app.use(express.static(distPath, {
-  maxAge: process.env.NODE_ENV === 'production' ? '0' : 0,
-  etag: false,
-  lastModified: false,
+  maxAge: env === 'production' ? '1d' : 0,
+  etag: env === 'production',
+  lastModified: env === 'production',
   dotfiles: 'ignore',
   fallthrough: true
 }));
@@ -85,7 +87,9 @@ app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     environment: process.env.NODE_ENV,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    distPath: distPath,
+    indexFile: mainHtml
   });
 });
 
