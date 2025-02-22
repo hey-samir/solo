@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input'
 import { useQuery } from '@tanstack/react-query'
 import client from '../api/client'
 
-// Import avatars directly like in Navbar
+// Import avatars
 import graySoloAvatar from '@/assets/images/avatars/gray-solo-av.png'
 import whiteSoloAvatar from '@/assets/images/avatars/white-solo-av.png'
 import blackSoloAvatar from '@/assets/images/avatars/black-solo-av.png'
@@ -29,27 +29,36 @@ interface UserStats {
 }
 
 const Solo: FC = () => {
-  const { user, isSignedIn } = useUser()
+  const { user, isSignedIn, isLoaded } = useUser()
   const { signOut } = useClerk()
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
   const [username, setUsername] = useState(user?.username || '')
-  const [selectedAvatar, setSelectedAvatar] = useState<AvatarColor>('gray')
+  const [selectedAvatar, setSelectedAvatar] = useState<AvatarColor>(
+    (user?.publicMetadata?.profilePhoto as AvatarColor) || 'gray'
+  )
 
-  // Fetch user stats
-  const { data: stats = { burns: 0, avgGrade: '--', totalPoints: 0 } } = useQuery<UserStats>({
+  // Fetch user stats with error handling
+  const { data: stats = { burns: 0, avgGrade: '--', totalPoints: 0 }, error } = useQuery<UserStats>({
     queryKey: ['user-stats'],
     queryFn: async () => {
-      const response = await client.get('/api/user/me/stats')
-      return response.data
+      try {
+        const response = await client.get('/api/user/me/stats')
+        return response.data
+      } catch (err) {
+        console.error('Failed to fetch user stats:', err)
+        throw err
+      }
     },
-    retry: false
+    retry: 1,
+    enabled: !!isSignedIn // Only fetch when user is signed in
   })
 
   const handleLogout = async () => {
     try {
       await signOut()
       navigate('/sign-in')
+      toast.success('Logged out successfully')
     } catch (error) {
       console.error('Logout failed:', error)
       toast.error('Failed to logout')
@@ -58,11 +67,12 @@ const Solo: FC = () => {
 
   const handleUpdateProfile = async () => {
     try {
-      // Update the user's metadata using Clerk
-      await user?.update({
+      if (!user) throw new Error('No user found')
+
+      await user.update({
         username: username,
         publicMetadata: {
-          ...user?.publicMetadata,
+          ...user.publicMetadata,
           profilePhoto: selectedAvatar
         }
       })
@@ -74,13 +84,18 @@ const Solo: FC = () => {
     }
   }
 
+  // Show loading state while checking auth
+  if (!isLoaded) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>
+  }
+
+  // Redirect if not signed in
   if (!isSignedIn) {
     return <Navigate to="/sign-in" replace />
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header */}
       <h1 className="text-3xl font-bold mb-6">Solo</h1>
 
       <div className="max-w-4xl mx-auto">
@@ -163,9 +178,9 @@ const Solo: FC = () => {
         </div>
 
         {/* Button Row */}
-        <div className="profile-buttons">
+        <div className="profile-buttons mt-6 flex gap-4">
           <button 
-            className="btn bg-purple-600 text-white rounded-lg"
+            className="btn bg-purple-600 text-white rounded-lg px-4 py-2"
             onClick={() => {
               if (isEditing) {
                 handleUpdateProfile()
@@ -177,7 +192,7 @@ const Solo: FC = () => {
             {isEditing ? 'Save' : 'Edit'}
           </button>
           <button 
-            className="btn bg-purple-600 text-white rounded-lg"
+            className="btn bg-purple-600 text-white rounded-lg px-4 py-2"
             onClick={() => {
               const profileUrl = `${window.location.origin}/solo/${user?.username}`
               navigator.clipboard.writeText(profileUrl)
@@ -188,25 +203,25 @@ const Solo: FC = () => {
           </button>
           <button 
             onClick={handleLogout}
-            className="btn bg-gray-600 text-white rounded-lg"
+            className="btn bg-gray-600 text-white rounded-lg px-4 py-2"
           >
             Logout
           </button>
         </div>
 
         {/* KPI Cards Row */}
-        <div className="profile-metrics">
-          <div className="metric-card">
-            <div className="metric-value">{stats.burns}</div>
-            <div className="metric-label">Burns</div>
+        <div className="profile-metrics mt-8 grid grid-cols-3 gap-4">
+          <div className="metric-card bg-gray-800 p-4 rounded-lg text-center">
+            <div className="metric-value text-2xl font-bold">{stats.burns}</div>
+            <div className="metric-label text-gray-400">Burns</div>
           </div>
-          <div className="metric-card">
-            <div className="metric-value">{stats.avgGrade}</div>
-            <div className="metric-label">Average Grade</div>
+          <div className="metric-card bg-gray-800 p-4 rounded-lg text-center">
+            <div className="metric-value text-2xl font-bold">{stats.avgGrade}</div>
+            <div className="metric-label text-gray-400">Average Grade</div>
           </div>
-          <div className="metric-card">
-            <div className="metric-value">{stats.totalPoints}</div>
-            <div className="metric-label">Total Points</div>
+          <div className="metric-card bg-gray-800 p-4 rounded-lg text-center">
+            <div className="metric-value text-2xl font-bold">{stats.totalPoints}</div>
+            <div className="metric-label text-gray-400">Total Points</div>
           </div>
         </div>
       </div>
