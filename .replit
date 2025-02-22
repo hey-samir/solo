@@ -82,6 +82,7 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=staging npx vite build --mode staging"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Staging Server"

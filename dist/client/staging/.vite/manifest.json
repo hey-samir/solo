@@ -1,18 +1,14 @@
 {
-  "index.html": {
-    "file": "assets/main-CZqzFuNf.js",
-    "name": "main",
-    "src": "index.html",
-    "isEntry": true,
-    "css": [
-      "assets/main-BqfmAisP.css"
-    ],
-    "assets": [
-      "assets/white-solo-av-BTzwp-HI.png",
-      "assets/gray-solo-av-VA_aDxu2.png",
-      "assets/black-solo-av-D3yTKF6N.png",
-      "assets/purple-solo-av-CqT0lZQI.png"
+  "_ui-CqQ5ygMm.js": {
+    "file": "assets/ui-CqQ5ygMm.js",
+    "name": "ui",
+    "imports": [
+      "_vendor-DbokQQxA.js"
     ]
+  },
+  "_vendor-DbokQQxA.js": {
+    "file": "assets/vendor-DbokQQxA.js",
+    "name": "vendor"
   },
   "src/assets/images/avatars/black-solo-av.png": {
     "file": "assets/black-solo-av-D3yTKF6N.png",
@@ -29,5 +25,24 @@
   "src/assets/images/avatars/white-solo-av.png": {
     "file": "assets/white-solo-av-BTzwp-HI.png",
     "src": "src/assets/images/avatars/white-solo-av.png"
+  },
+  "src/templates/staging.html": {
+    "file": "assets/main-BZ1mkn5M.js",
+    "name": "main",
+    "src": "src/templates/staging.html",
+    "isEntry": true,
+    "imports": [
+      "_vendor-DbokQQxA.js",
+      "_ui-CqQ5ygMm.js"
+    ],
+    "css": [
+      "assets/main-BrGjxmO7.css"
+    ],
+    "assets": [
+      "assets/white-solo-av-BTzwp-HI.png",
+      "assets/gray-solo-av-VA_aDxu2.png",
+      "assets/black-solo-av-D3yTKF6N.png",
+      "assets/purple-solo-av-CqT0lZQI.png"
+    ]
   }
 }

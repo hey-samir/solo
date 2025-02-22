@@ -1,12 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { FeatureFlags, FeatureFlagService, productionDefaults, config } from '../config/environment'
-import * as yup from 'yup';
-
-const FeatureFlagsSchema = yup.object({
-    enablePro: yup.boolean().required(),
-    enableFeedback: yup.boolean().required(),
-    bannerText: yup.string().required()
-}).required();
+import { FeatureFlags, FeatureFlagService, productionDefaults, config, FeatureFlagsSchema } from '../config/environment'
 
 interface FeatureFlagsContextType {
   flags: FeatureFlags | null
@@ -49,12 +42,15 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
       const data = await response.json()
       console.log('[FeatureFlagsContext] Received raw flags from server:', data)
 
+      // Parse and validate the data using zod schema
+      const parsedFlags = FeatureFlagsSchema.parse(data)
+
       // Force specific flags to be boolean and ensure they match production settings
-      const newFlags = {
-        ...data,
-        enablePro: Boolean(data.enablePro),
-        enableFeedback: Boolean(data.enableFeedback),
-        showEnvironmentBanner: Boolean(data.showEnvironmentBanner),
+      const newFlags: FeatureFlags = {
+        ...parsedFlags,
+        enablePro: Boolean(parsedFlags.enablePro),
+        enableFeedback: Boolean(parsedFlags.enableFeedback),
+        showEnvironmentBanner: Boolean(parsedFlags.showEnvironmentBanner),
       }
 
       console.log('[FeatureFlagsContext] Processed flags:', newFlags)
@@ -62,6 +58,7 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
     } catch (err) {
       console.error('[FeatureFlagsContext] Error loading flags:', err)
       setFlags(productionDefaults)
+      setError(err instanceof Error ? err.message : 'Failed to load feature flags')
     } finally {
       setIsLoading(false)
     }
@@ -80,9 +77,9 @@ export const FeatureFlagsProvider: React.FC<{ children: React.ReactNode }> = ({ 
         enableFeedback: flags.enableFeedback,
         showEnvironmentBanner: flags.showEnvironmentBanner,
         environmentBannerText: flags.environmentBannerText
-      });
+      })
     }
-  }, [flags]);
+  }, [flags])
 
   return (
     <FeatureFlagsContext.Provider value={{ flags, isLoading, error, reload: loadFlags }}>

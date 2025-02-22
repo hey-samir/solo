@@ -7,7 +7,6 @@ import ErrorBoundary from './components/ErrorBoundary'
 import { FeatureFlagsProvider } from './contexts/FeatureFlagsContext'
 import Router from './Router'
 import LoadingSpinner from './components/LoadingSpinner'
-import 'bootstrap/dist/css/bootstrap.min.css'
 import './styles/global.css'
 
 if (!import.meta.env.VITE_CLERK_PUBLISHABLE_KEY) {

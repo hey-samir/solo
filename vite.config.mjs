@@ -6,20 +6,29 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Environment configuration with explicit staging setup
+// Standardized port configuration
+const PORT_CONFIG = {
+  client: 3000,
+  server: 5000
+};
+
+// Environment configuration with standardized ports
 const envConfigs = {
   development: {
-    port: 3000,
-    apiUrl: 'http://localhost:3000'
+    port: PORT_CONFIG.client,
+    apiUrl: `http://localhost:${PORT_CONFIG.server}`,
+    template: 'src/templates/index.html'
   },
   staging: {
-    port: 5000,
-    apiUrl: 'http://0.0.0.0:5000',
-    hmrHost: '0.0.0.0'
+    port: PORT_CONFIG.server,
+    apiUrl: `http://0.0.0.0:${PORT_CONFIG.server}`,
+    hmrHost: '0.0.0.0',
+    template: 'src/templates/staging.html'
   },
   production: {
-    port: 3000,
-    apiUrl: 'http://0.0.0.0:3000'
+    port: PORT_CONFIG.client,
+    apiUrl: `http://0.0.0.0:${PORT_CONFIG.server}`,
+    template: 'src/templates/index.html'
   }
 };
 
@@ -30,7 +39,8 @@ export default defineConfig(({ mode }) => {
   console.log(`[Vite Config] Building for ${env} environment:`, {
     mode: env,
     port: config.port,
-    apiUrl: config.apiUrl
+    apiUrl: config.apiUrl,
+    template: config.template
   });
 
   return {
@@ -78,7 +88,13 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, 'index.html')
+          main: path.resolve(__dirname, config.template)
+        },
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'react-router-dom'],
+            ui: ['@clerk/clerk-react', '@tanstack/react-query']
+          }
         }
       }
     },
