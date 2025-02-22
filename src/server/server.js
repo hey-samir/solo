@@ -72,16 +72,27 @@ if (env !== 'production') {
   });
 }
 
-// API Routes
-const authRouter = require('./routes/auth');
-app.use('/api', authRouter);
+// Import API Routes
+let featureFlagsRouter;
+try {
+  const { router } = require('./routes/feature-flags');
+  featureFlagsRouter = router;
+  console.log('[Server] Feature flags router imported successfully');
+} catch (error) {
+  console.error('[Server] Error importing feature flags router:', error);
+  process.exit(1);
+}
 
-// Serve static files from the client directory
-app.use(express.static(clientDir, {
-  maxAge: env === 'production' ? '1d' : 0,
-  etag: env === 'production',
-  lastModified: env === 'production'
-}));
+const authRouter = require('./routes/auth');
+const statsRouter = require('./routes/stats');
+const feedbackRouter = require('./routes/feedback');
+
+// Mount API routes
+app.use('/api/auth', authRouter);
+app.use('/api/stats', statsRouter);
+app.use('/api/feedback', feedbackRouter);
+app.use('/api/feature-flags', featureFlagsRouter);
+app.use('/api/standings', authRouter); // Add direct standings route
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -92,9 +103,26 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Serve static files from the client directory
+app.use(express.static(clientDir, {
+  maxAge: env === 'production' ? '1d' : 0,
+  etag: env === 'production',
+  lastModified: env === 'production'
+}));
+
 // Serve index.html for all routes to support client-side routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(clientDir, 'index.html'));
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('[Server] Error:', err);
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: err.message,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Function to start server

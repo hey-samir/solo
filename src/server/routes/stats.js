@@ -71,8 +71,16 @@ router.get('/', async (req, res) => {
       CROSS JOIN grade_stats gs
     `, [userId]);
 
-    const stats = result.rows[0];
-    console.log('[Stats API] Retrieved stats:', stats);
+    const stats = result.rows[0] || {
+      total_ascents: 0,
+      total_sends: 0,
+      total_points: 0,
+      avg_attempts: 0,
+      total_sessions: 0,
+      total_burns: 0,
+      avg_grade: null,
+      avg_sent_grade: null
+    };
 
     // Helper function to format grade
     const formatGrade = (grade) => {
@@ -87,17 +95,17 @@ router.get('/', async (req, res) => {
     };
 
     const response = {
-      totalAscents: parseInt(stats?.total_ascents) || 0,
-      totalSends: parseInt(stats?.total_sends) || 0,
-      totalPoints: parseInt(stats?.total_points) || 0,
-      burns: parseInt(stats?.total_burns) || 0,
-      avgGrade: formatGrade(stats?.avg_grade),
-      avgSentGrade: formatGrade(stats?.avg_sent_grade),
-      avgPointsPerClimb: Math.round(stats?.total_points / stats?.total_ascents) || 0,
-      successRate: Math.round((stats?.total_sends / stats?.total_ascents) * 100) || 0,
-      successRatePerSession: Math.round((stats?.total_sends / stats?.total_sessions) * 100) || 0,
-      climbsPerSession: Math.round(stats?.total_ascents / stats?.total_sessions) || 0,
-      avgAttemptsPerClimb: Math.round(stats?.avg_attempts * 10) / 10 || 0
+      totalAscents: parseInt(stats.total_ascents) || 0,
+      totalSends: parseInt(stats.total_sends) || 0,
+      totalPoints: parseInt(stats.total_points) || 0,
+      burns: parseInt(stats.total_burns) || 0,
+      avgGrade: formatGrade(stats.avg_grade),
+      avgSentGrade: formatGrade(stats.avg_sent_grade),
+      avgPointsPerClimb: stats.total_ascents ? Math.round(stats.total_points / stats.total_ascents) : 0,
+      successRate: stats.total_ascents ? Math.round((stats.total_sends / stats.total_ascents) * 100) : 0,
+      successRatePerSession: stats.total_sessions ? Math.round((stats.total_sends / stats.total_sessions) * 100) : 0,
+      climbsPerSession: stats.total_sessions ? Math.round(stats.total_ascents / stats.total_sessions) : 0,
+      avgAttemptsPerClimb: stats.avg_attempts ? Math.round(stats.avg_attempts * 10) / 10 : 0
     };
 
     // Add cache headers
