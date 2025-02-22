@@ -1,9 +1,32 @@
 const path = require('path');
+const fs = require('fs');
+
+// Required environment variables by environment
+const REQUIRED_ENV_VARS = {
+  production: [
+    'NODE_ENV',
+    'DATABASE_URL',
+    'CLERK_PUBLISHABLE_KEY',
+    'CLERK_SECRET_KEY',
+    'SESSION_SECRET'
+  ],
+  staging: [
+    'NODE_ENV',
+    'DATABASE_URL',
+    'CLERK_PUBLISHABLE_KEY',
+    'CLERK_SECRET_KEY',
+    'SESSION_SECRET'
+  ],
+  development: [
+    'NODE_ENV',
+    'DATABASE_URL'
+  ]
+};
 
 // Port configuration
 const PORT_CONFIG = {
   production: 3000,
-  staging: [5000, 5001, 5002],  // Added fallback ports for staging
+  staging: [5000, 5001, 5002],
   development: 3000
 };
 
@@ -14,35 +37,94 @@ const ENV_CONFIG = {
     clientDir: path.resolve(process.cwd(), 'dist/production'),
     templateName: 'index.html',
     logLevel: 'info',
-    corsOrigins: ['.replit.dev', '0.0.0.0']
+    corsOrigins: ['.replit.dev', '0.0.0.0'],
+    rateLimitWindow: 900000, // 15 minutes
+    rateLimitMax: 100,
+    apiTimeout: 30000,
+    enableBetaFeatures: false,
+    enableAnalytics: true
   },
   staging: {
     ports: PORT_CONFIG.staging,
     clientDir: path.resolve(process.cwd(), 'dist/staging'),
     templateName: 'staging.html',
     logLevel: 'debug',
-    corsOrigins: ['.replit.dev', '0.0.0.0']
+    corsOrigins: ['.replit.dev', '0.0.0.0'],
+    rateLimitWindow: 900000,
+    rateLimitMax: 200,
+    apiTimeout: 30000,
+    enableBetaFeatures: true,
+    enableAnalytics: false
   },
   development: {
     port: PORT_CONFIG.development,
     clientDir: path.resolve(process.cwd(), 'dist/development'),
     templateName: 'index.html',
     logLevel: 'debug',
-    corsOrigins: ['localhost', '0.0.0.0']
+    corsOrigins: ['localhost', '0.0.0.0'],
+    rateLimitWindow: 0, // No rate limiting in development
+    rateLimitMax: 0,
+    apiTimeout: 60000,
+    enableBetaFeatures: true,
+    enableAnalytics: false
   }
 };
 
-// Environment validation with enhanced logging
+// Validate required environment variables
+function validateRequiredEnvVars(env) {
+  const missing = [];
+  const required = REQUIRED_ENV_VARS[env];
+
+  if (!required) {
+    throw new Error(`Invalid environment: ${env}`);
+  }
+
+  required.forEach(varName => {
+    if (!process.env[varName]) {
+      missing.push(varName);
+    }
+  });
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required environment variables for ${env} environment: ${missing.join(', ')}\n` +
+        'Please check your .env file and environment configuration.'
+    );
+  }
+}
+
+// Validate database URL format
+function validateDatabaseUrl(url) {
+  if (!url) return false;
+  try {
+    const dbUrl = new URL(url);
+    return dbUrl.protocol === 'postgresql:';
+  } catch (e) {
+    return false;
+  }
+}
+
+// Validate environment with enhanced logging
 function validateEnvironment(env) {
   console.log(`[Environment] Validating environment: ${env}`);
 
+  // Basic environment check
   if (!ENV_CONFIG[env]) {
     throw new Error(`Invalid environment: ${env}`);
+  }
+
+  // Validate required environment variables
+  validateRequiredEnvVars(env);
+
+  // Validate Database URL
+  if (!validateDatabaseUrl(process.env.DATABASE_URL)) {
+    throw new Error('Invalid DATABASE_URL format');
   }
 
   const config = ENV_CONFIG[env];
   const clientDir = path.resolve(process.cwd(), config.clientDir);
 
+  // Log configuration for debugging
   console.log('[Environment] Configuration:', {
     environment: env,
     ports: env === 'staging' ? config.ports : config.port,
@@ -53,11 +135,12 @@ function validateEnvironment(env) {
     dirname: __dirname
   });
 
-  if (!require('fs').existsSync(clientDir)) {
+  // Verify client directory exists
+  if (!fs.existsSync(clientDir)) {
     console.warn(`[Environment] Warning: Client directory not found: ${clientDir}`);
     const distDir = path.resolve(process.cwd(), 'dist');
-    if (require('fs').existsSync(distDir)) {
-      console.warn('[Environment] Available directories in dist:', require('fs').readdirSync(distDir));
+    if (fs.existsSync(distDir)) {
+      console.warn('[Environment] Available directories in dist:', fs.readdirSync(distDir));
     } else {
       console.warn('[Environment] dist directory does not exist');
     }
@@ -66,22 +149,50 @@ function validateEnvironment(env) {
   return config;
 }
 
-// Get environment configuration with port selection for staging
+// Get environment configuration with enhanced validation
 function getConfig() {
   const env = process.env.NODE_ENV || 'development';
-  const config = validateEnvironment(env);
 
-  // For staging, try to find an available port
-  if (env === 'staging') {
-    config.port = config.ports[0]; // Default to first port, deploy.js will try others if needed
+  try {
+    const config = validateEnvironment(env);
+
+    // For staging, try to find an available port
+    if (env === 'staging') {
+      console.log('[Environment] Configuring staging ports:', {
+        availablePorts: config.ports,
+        defaultPort: config.ports[0],
+        environment: env
+      });
+      config.port = config.ports[0]; // Default to first port, deploy.js will try others if needed
+    }
+
+    // Add runtime configuration
+    config.buildNumber = process.env.BUILD_NUMBER || 'dev';
+    config.gitCommit = process.env.GIT_COMMIT || 'local';
+
+    // Log final configuration
+    console.log('[Environment] Final configuration:', {
+      environment: env,
+      port: config.port,
+      ports: config.ports,
+      clientDir: config.clientDir,
+      buildNumber: config.buildNumber,
+      logLevel: config.logLevel
+    });
+
+    return config;
+  } catch (error) {
+    console.error('[Environment] Configuration error:', error);
+    throw error;
   }
-
-  return config;
 }
 
 module.exports = {
   getConfig,
   validateEnvironment,
+  validateRequiredEnvVars,
+  validateDatabaseUrl,
   PORT_CONFIG,
-  ENV_CONFIG
+  ENV_CONFIG,
+  REQUIRED_ENV_VARS
 };

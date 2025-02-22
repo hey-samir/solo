@@ -86,24 +86,49 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Improved server startup with enhanced error handling
+// Improved server startup with enhanced error handling and detailed logging
 function startServer() {
   return new Promise((resolve, reject) => {
     let server;
 
     // Create server with error handling
     try {
+      console.log('[Server] Attempting to create HTTP server...');
+      console.log('[Server] Configuration for startup:', {
+        port: config.port,
+        host: '0.0.0.0',
+        environment: process.env.NODE_ENV,
+        clientDir: config.clientDir,
+        templateName: config.templateName
+      });
+
       server = app.listen(config.port, '0.0.0.0', () => {
         console.log('='.repeat(50));
         console.log(`[Server] Successfully started on port ${config.port}`);
         console.log(`[Server] Environment: ${process.env.NODE_ENV}`);
         console.log(`[Server] URL: http://0.0.0.0:${config.port}`);
+        console.log('[Server] Server state:', {
+          port: server.address().port,
+          address: server.address().address,
+          clientDir: {
+            exists: require('fs').existsSync(config.clientDir),
+            contents: require('fs').readdirSync(config.clientDir)
+          }
+        });
         console.log('='.repeat(50));
         resolve(server);
       });
 
       // Enhanced error handling for server
       server.on('error', (error) => {
+        console.error('[Server] Failed to start server:', {
+          error: error.message,
+          code: error.code,
+          syscall: error.syscall,
+          port: config.port,
+          stack: error.stack
+        });
+
         if (error.code === 'EADDRINUSE') {
           reject(new Error(`Port ${config.port} is already in use`));
         } else {
@@ -132,7 +157,15 @@ function startServer() {
       });
 
     } catch (error) {
-      console.error('[Server] Failed to start server:', error);
+      console.error('[Server] Critical error during server creation:', {
+        error: error.message,
+        stack: error.stack,
+        config: {
+          port: config.port,
+          environment: process.env.NODE_ENV,
+          clientDir: config.clientDir
+        }
+      });
       reject(error);
     }
   });
