@@ -1,10 +1,20 @@
 # Archived Files
 
-This directory contains archived files from previous implementations.
+This directory contains archived files from previous implementations that are no longer in use.
+These files are kept only for reference and documentation purposes.
 
-## Archived Items
-- Original Flask implementation
-- Python configuration files
-- Templates and static assets
+## Important Note
+The application has been fully migrated to the current React/Vite/Express stack with:
+- Clerk for authentication
+- Vercel Postgres + Drizzle ORM
+- TypeScript for type safety
+- Tailwind CSS for styling
 
-Note: The application has been migrated to a React/Vite/Express stack. These files are kept for reference only.
+The archived files here are no longer maintained or supported.
+
+## Cleanup Status
+Last cleanup: February 22, 2025
+- Removed legacy Flask implementation
+- Removed outdated Python configuration
+- Removed Bootstrap-related assets
+- Cleaned up redundant database migration files

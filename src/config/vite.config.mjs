@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const PROJECT_ROOT = path.resolve(__dirname, '../..');
 
 // Standardized port configuration
 const PORT_CONFIG = {
@@ -28,7 +29,7 @@ const envConfigs = {
   production: {
     port: PORT_CONFIG.client,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server}`,
-    template: 'src/templates/index.html'
+    template: 'src/templates/production.html'
   }
 };
 
@@ -44,7 +45,7 @@ export default defineConfig(({ mode }) => {
   });
 
   return {
-    root: __dirname,
+    root: PROJECT_ROOT,
     plugins: [
       react(),
       {
@@ -80,7 +81,7 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0'
     },
     build: {
-      outDir: path.resolve(__dirname, `dist/client/${env}`),
+      outDir: path.resolve(PROJECT_ROOT, `dist/client/${env}`),
       emptyOutDir: true,
       sourcemap: true,
       manifest: true,
@@ -88,9 +89,12 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, config.template)
+          main: path.resolve(PROJECT_ROOT, config.template)
         },
         output: {
+          entryFileNames: 'assets/[name]-[hash].js',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          assetFileNames: 'assets/[name]-[hash].[ext]',
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom'],
             ui: ['@clerk/clerk-react', '@tanstack/react-query']
@@ -98,14 +102,13 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
-    define: {
-      'process.env.VITE_API_URL': JSON.stringify(config.apiUrl),
-      'process.env.VITE_USER_NODE_ENV': JSON.stringify(env)
-    },
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, './src')
+        '@': path.resolve(PROJECT_ROOT, 'src'),
+        'assets': path.resolve(PROJECT_ROOT, 'src/assets')
       }
-    }
+    },
+    publicDir: path.resolve(PROJECT_ROOT, 'public'),
+    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.svg', '**/*.gif']
   };
 });

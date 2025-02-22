@@ -1,6 +1,6 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import soloLogo from '@/assets/images/logos/solo-clear.png'
+import soloLogo from '../assets/images/logos/solo-clear.png'
 import Footer from './Footer'
 
 const ProductionLayout: React.FC = () => {
