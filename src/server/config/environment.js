@@ -54,7 +54,8 @@ const ENV_CONFIG = {
     rateLimitMax: 200,
     apiTimeout: 30000,
     enableBetaFeatures: true,
-    enableAnalytics: false
+    enableAnalytics: false,
+    host: '0.0.0.0'  // Ensure proper network binding
   },
   development: {
     port: PORT_CONFIG.development,
@@ -177,7 +178,8 @@ function getConfig() {
       ports: config.ports,
       clientDir: config.clientDir,
       buildNumber: config.buildNumber,
-      logLevel: config.logLevel
+      logLevel: config.logLevel,
+      host: config.host || '0.0.0.0'
     });
 
     return config;

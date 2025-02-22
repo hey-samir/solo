@@ -1,6 +1,7 @@
 const path = require('path');
 const { startServer } = require('../server');
 const { getConfig, ENV_CONFIG } = require('../config/environment');
+const { validateBuildArtifacts } = require('../utils/build-validator');
 const net = require('net');
 const fs = require('fs');
 const crypto = require('crypto');
@@ -26,7 +27,7 @@ async function isPortAvailable(port) {
           resolve(true);
         });
       })
-      .listen(port);
+      .listen(port, '0.0.0.0');
   });
 }
 
@@ -71,8 +72,8 @@ async function verifyBuildDirectory(buildDir) {
         console.error('[Deploy] Build directory access error:', {
           error: err.message,
           buildDir,
-          contents: fs.existsSync(path.dirname(buildDir)) ? 
-            fs.readdirSync(path.dirname(buildDir)) : 
+          contents: fs.existsSync(path.dirname(buildDir)) ?
+            fs.readdirSync(path.dirname(buildDir)) :
             'parent directory not found'
         });
         reject(new Error(`Build directory not accessible: ${buildDir}`));
@@ -90,7 +91,7 @@ async function verifyBuildDirectory(buildDir) {
   });
 }
 
-// Enhanced deployment with better error handling and port management
+// Enhanced deployment with build validation and staging environment handling
 async function deploy() {
   let server = null;
 
@@ -112,7 +113,12 @@ async function deploy() {
     });
     console.log('='.repeat(50));
 
-    // Verify build directory
+    // Validate build artifacts
+    console.log('[Deploy] Starting build validation');
+    const buildValidation = await validateBuildArtifacts(buildDir, process.env.NODE_ENV);
+    console.log('[Deploy] Build validation successful:', buildValidation);
+
+    // Verify build directory structure after validation
     await verifyBuildDirectory(buildDir);
 
     // Generate session secret if not exists
@@ -130,16 +136,57 @@ async function deploy() {
       await isPortAvailable(availablePort);
     }
 
+    // Ensure template file exists for staging
+    if (process.env.NODE_ENV === 'staging') {
+      const srcTemplate = path.join(buildDir, 'src/templates/staging.html');
+      const destTemplate = path.join(buildDir, 'staging.html');
+      if (fs.existsSync(srcTemplate) && !fs.existsSync(destTemplate)) {
+        fs.copyFileSync(srcTemplate, destTemplate);
+        console.log('[Deploy] Copied staging template to root directory');
+      }
+    }
+
     // Start server with enhanced error handling
     console.log(`[Deploy] Starting server on port ${availablePort}...`);
     try {
-      server = await startServer(config);
+      console.log('[Server] Attempting to create HTTP server...');
+      console.log('[Server] Configuration for startup:', {
+        port: availablePort,
+        host: '0.0.0.0',
+        environment: process.env.NODE_ENV,
+        clientDir: buildDir,
+        templateName: config.templateName
+      });
+
+      server = await startServer({
+        ...config,
+        port: availablePort,
+        host: '0.0.0.0',
+        environment: process.env.NODE_ENV,
+        clientDir: buildDir,
+        templateName: config.templateName
+      });
+
+      console.log('='.repeat(50));
+      console.log('[Server] Successfully started on port', availablePort);
+      console.log('[Server] Environment:', process.env.NODE_ENV);
+      console.log('[Server] URL:', `http://0.0.0.0:${availablePort}`);
+      console.log('[Server] Server state:', {
+        port: availablePort,
+        address: '0.0.0.0',
+        clientDir: {
+          exists: fs.existsSync(buildDir),
+          contents: fs.existsSync(buildDir) ? fs.readdirSync(buildDir) : []
+        }
+      });
+      console.log('='.repeat(50));
+
     } catch (error) {
       console.error('[Deploy] Failed to start server:', error);
       throw error;
     }
 
-    // Setup cleanup handlers
+    // Register signal handlers
     const cleanup = async (signal) => {
       console.log(`[Deploy] Received ${signal}, initiating graceful shutdown...`);
       if (server) {
