@@ -9,6 +9,7 @@ import NotFound from './pages/NotFound'
 import ServerError from './pages/ErrorPage'
 import { useFeatureFlags } from './contexts/FeatureFlagsContext'
 import { config } from './config/environment'
+import { UserProfile } from './components/UserProfile/UserProfile'
 
 // Import pages
 import About from './pages/About'
@@ -69,6 +70,15 @@ const Router: React.FC = () => {
           />
 
           {/* Protected Routes */}
+          <Route
+            path="profile"
+            element={
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="solo"
             element={
