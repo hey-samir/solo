@@ -4,7 +4,7 @@ import './styles/global.css'
 
 const ProductionApp: React.FC = () => {
   const isProductionDomain = window.location.hostname === 'gosolo.nyc' || 
-                            window.location.hostname === 'www.gosolo.nyc';
+                           window.location.hostname === 'www.gosolo.nyc';
 
   // Log the current domain for debugging
   console.log('Current domain:', window.location.hostname);

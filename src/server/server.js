@@ -47,7 +47,7 @@ app.use((req, res, next) => {
 
 // Determine correct dist path based on environment
 const env = process.env.NODE_ENV || 'development';
-const clientDir = path.join(__dirname, '../../dist/client', env === 'staging' ? 'staging' : 'production');
+const clientDir = path.join(__dirname, '../../dist', env);
 
 console.log('[Server] Environment configuration:', {
   env,

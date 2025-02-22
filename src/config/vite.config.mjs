@@ -18,18 +18,18 @@ const envConfigs = {
   development: {
     port: PORT_CONFIG.client,
     apiUrl: `http://localhost:${PORT_CONFIG.server}`,
-    template: 'src/templates/index.html'
+    template: path.resolve(PROJECT_ROOT, 'src/templates/index.html')
   },
   staging: {
     port: PORT_CONFIG.server,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server}`,
     hmrHost: '0.0.0.0',
-    template: 'src/templates/staging.html'
+    template: path.resolve(PROJECT_ROOT, 'src/templates/staging.html')
   },
   production: {
     port: PORT_CONFIG.client,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server}`,
-    template: 'src/templates/production.html'
+    template: path.resolve(PROJECT_ROOT, 'src/templates/production.html')
   }
 };
 
@@ -41,11 +41,13 @@ export default defineConfig(({ mode }) => {
     mode: env,
     port: config.port,
     apiUrl: config.apiUrl,
-    template: config.template
+    template: config.template,
+    exists: require('fs').existsSync(config.template)
   });
 
   return {
     root: PROJECT_ROOT,
+    base: '/',
     plugins: [
       react(),
       {
@@ -81,16 +83,14 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0'
     },
     build: {
-      outDir: path.resolve(PROJECT_ROOT, `dist/client/${env}`),
+      outDir: path.resolve(PROJECT_ROOT, 'dist', env),
       emptyOutDir: true,
       sourcemap: true,
       manifest: true,
       copyPublicDir: true,
       assetsDir: 'assets',
       rollupOptions: {
-        input: {
-          main: path.resolve(PROJECT_ROOT, config.template)
-        },
+        input: config.template,
         output: {
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',

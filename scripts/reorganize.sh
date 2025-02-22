@@ -20,10 +20,11 @@ mv version.json src/config/ 2>/dev/null || true
 mv .env.development env/ 2>/dev/null || true
 mv .env.staging env/ 2>/dev/null || true
 
-# Move HTML templates
+# Move HTML templates and clean up duplicates
 mv index.html src/templates/ 2>/dev/null || true
 mv staging.html src/templates/ 2>/dev/null || true
 mv production.html src/templates/ 2>/dev/null || true
+rm -f src/production.html 2>/dev/null || true  # Remove duplicate
 
 # Move error handling
 mv errors.py src/server/utils/ 2>/dev/null || true
@@ -41,6 +42,9 @@ chmod +x scripts/*.sh
 # Update imports in package.json to point to new locations
 sed -i 's/"build": "vite build"/"build": "vite build --config src\/config\/vite.config.mjs"/' package.json
 sed -i 's/"dev": "vite"/"dev": "vite --config src\/config\/vite.config.mjs"/' package.json
+
+# Clean up duplicate files
+rm -f src/production.html 2>/dev/null || true  # Remove duplicate production.html
 
 # Print completion message
 echo "File reorganization completed!"
