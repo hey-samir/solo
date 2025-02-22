@@ -1,6 +1,6 @@
 const path = require('path');
 const { startServer } = require('../server');
-const { getConfig } = require('../config/environment');
+const { getConfig, ENV_CONFIG } = require('../config/environment');
 const net = require('net');
 const fs = require('fs');
 
@@ -47,6 +47,38 @@ async function releasePort(port, maxAttempts = 5) {
   }
 }
 
+// Find available port from the configured options
+async function findAvailablePort(ports) {
+  if (!Array.isArray(ports)) {
+    ports = [ports];
+  }
+
+  for (const port of ports) {
+    try {
+      await releasePort(port);
+      const server = net.createServer();
+
+      const isAvailable = await new Promise(resolve => {
+        server.once('error', () => resolve(false));
+        server.once('listening', () => {
+          server.close();
+          resolve(true);
+        });
+        server.listen(port);
+      });
+
+      if (isAvailable) {
+        console.log(`[Deploy] Found available port: ${port}`);
+        return port;
+      }
+    } catch (error) {
+      console.error(`[Deploy] Error checking port ${port}:`, error);
+    }
+  }
+
+  throw new Error(`No available ports found from options: ${ports.join(', ')}`);
+}
+
 // Verify build directory
 async function verifyBuildDirectory(buildDir) {
   return new Promise((resolve, reject) => {
@@ -55,7 +87,6 @@ async function verifyBuildDirectory(buildDir) {
         console.error('[Deploy] Build directory access error:', {
           error: err.message,
           buildDir,
-          cwd: process.cwd(),
           contents: fs.existsSync(path.dirname(buildDir)) ? 
             fs.readdirSync(path.dirname(buildDir)) : 
             'parent directory not found'
@@ -83,13 +114,13 @@ async function deploy() {
     // Get configuration
     const config = getConfig();
     const buildDir = config.clientDir;
-    const port = config.port;
+    let availablePort;
 
     console.log('='.repeat(50));
     console.log(`[Deploy] Starting deployment for ${process.env.NODE_ENV} environment`);
     console.log('[Deploy] Configuration:', {
       environment: process.env.NODE_ENV,
-      port,
+      ports: config.ports || config.port,
       buildDir,
       template: config.templateName,
       time: new Date().toISOString(),
@@ -100,14 +131,19 @@ async function deploy() {
     // Verify build directory
     await verifyBuildDirectory(buildDir);
 
-    // Attempt to release the port with increased timeout
-    console.log(`[Deploy] Starting port ${port} release process`);
-    await releasePort(port);
+    // Find available port
+    if (process.env.NODE_ENV === 'staging' && Array.isArray(config.ports)) {
+      availablePort = await findAvailablePort(config.ports);
+      config.port = availablePort;
+    } else {
+      availablePort = config.port;
+      await releasePort(availablePort);
+    }
 
     // Start server with enhanced error handling
-    console.log('[Deploy] Starting server...');
+    console.log(`[Deploy] Starting server on port ${availablePort}...`);
     try {
-      server = await startServer();
+      server = await startServer(config);
     } catch (error) {
       console.error('[Deploy] Failed to start server:', error);
       throw error;

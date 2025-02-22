@@ -3,7 +3,7 @@ const path = require('path');
 // Port configuration
 const PORT_CONFIG = {
   production: 3000,
-  staging: 5000,  // Reverted back to port 5000 for staging
+  staging: [5000, 5001, 5002],  // Added fallback ports for staging
   development: 3000
 };
 
@@ -17,7 +17,7 @@ const ENV_CONFIG = {
     corsOrigins: ['.replit.dev', '0.0.0.0']
   },
   staging: {
-    port: PORT_CONFIG.staging,
+    ports: PORT_CONFIG.staging,
     clientDir: path.resolve(process.cwd(), 'dist/staging'),
     templateName: 'staging.html',
     logLevel: 'debug',
@@ -45,7 +45,7 @@ function validateEnvironment(env) {
 
   console.log('[Environment] Configuration:', {
     environment: env,
-    port: config.port,
+    ports: env === 'staging' ? config.ports : config.port,
     clientDir,
     templateName: config.templateName,
     logLevel: config.logLevel,
@@ -55,7 +55,6 @@ function validateEnvironment(env) {
 
   if (!require('fs').existsSync(clientDir)) {
     console.warn(`[Environment] Warning: Client directory not found: ${clientDir}`);
-    // List available directories to help with debugging
     const distDir = path.resolve(process.cwd(), 'dist');
     if (require('fs').existsSync(distDir)) {
       console.warn('[Environment] Available directories in dist:', require('fs').readdirSync(distDir));
@@ -67,10 +66,17 @@ function validateEnvironment(env) {
   return config;
 }
 
-// Get environment configuration
+// Get environment configuration with port selection for staging
 function getConfig() {
   const env = process.env.NODE_ENV || 'development';
-  return validateEnvironment(env);
+  const config = validateEnvironment(env);
+
+  // For staging, try to find an available port
+  if (env === 'staging') {
+    config.port = config.ports[0]; // Default to first port, deploy.js will try others if needed
+  }
+
+  return config;
 }
 
 module.exports = {
