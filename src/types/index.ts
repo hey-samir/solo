@@ -32,13 +32,10 @@ export interface Session {
 export interface Standing {
   userId: number;
   username: string;
-  totalSends: number;
-  avgGrade: string;
-  totalPoints: number;
-  rank?: number;
-  burns: number;
-  grade: string;
-  points: number;
+  burns: number;      
+  grade: string;      
+  points: number;     
+  rank?: number;      
 }
 
 export interface Stats {

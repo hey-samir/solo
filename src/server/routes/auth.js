@@ -21,17 +21,18 @@ router.get('/current-user', (req, res) => {
 });
 
 // Get leaderboard data
-router.get('/leaderboard', async (req, res) => {
+router.get('/standings', async (req, res) => {
   const client = createClient({
     connectionString: process.env.DATABASE_URL
   });
 
   try {
     await client.connect();
-    console.log('[Leaderboard] Connected to database, fetching data...');
+    console.log('[Standings API] Connected to database, fetching standings...');
 
     const result = await client.query(`
       SELECT 
+        u.id as user_id,
         u.username,
         COUNT(s.id) as total_burns,
         AVG(CASE 
@@ -47,27 +48,33 @@ router.get('/leaderboard', async (req, res) => {
       LIMIT 100
     `);
 
-    const leaderboard = result.rows.map((row, index) => ({
-      rank: index + 1,
+    const standings = result.rows.map((row, index) => ({
+      userId: row.user_id,
       username: row.username || 'Anonymous',
       burns: parseInt(row.total_burns) || 0,
       grade: row.avg_grade ? `5.${Math.round(row.avg_grade * 10) / 10}` : 'N/A',
-      points: parseInt(row.total_points) || 0
+      points: parseInt(row.total_points) || 0,
+      rank: index + 1
     }));
 
     // Add cache headers
     res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
     res.set('X-Cache-Timestamp', new Date().toISOString());
+    res.set('X-Data-Source', 'database');
 
-    res.json(leaderboard);
+    res.json(standings);
   } catch (error) {
-    console.error('[Leaderboard] Error:', error);
+    console.error('[Standings API] Error:', error);
     res.status(500).json({ 
-      error: 'Failed to fetch leaderboard data',
+      error: 'Failed to fetch standings data',
       details: error.message
     });
   } finally {
-    await client.end();
+    try {
+      await client.end();
+    } catch (error) {
+      console.error('[Standings API] Error closing database connection:', error);
+    }
   }
 });
 
