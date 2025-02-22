@@ -1,24 +1,22 @@
-// Server startup logging
-console.log('[Server] Script execution starting:', {
-  time: new Date().toISOString(),
-  argv: process.argv,
-  execPath: process.execPath,
-  pid: process.pid,
-  env: process.env.NODE_ENV
-});
-
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const morgan = require('morgan');
+const { getConfig } = require('./config/environment');
 
-console.log('[Server] Express and utilities imported successfully');
+// Initialize environment configuration
+const config = getConfig();
+console.log('[Server] Initializing with configuration:', {
+  environment: process.env.NODE_ENV,
+  port: config.port,
+  templatePath: path.join(config.clientDir, config.templateName)
+});
 
-// Create app
+// Create Express app
 const app = express();
 
-// Logging middleware
-app.use(morgan('dev'));
+// Enhanced logging middleware
+app.use(morgan('[:date[iso]] :method :url :status :response-time ms - :res[content-length]'));
 
 // Parse JSON bodies
 app.use(express.json());
@@ -26,7 +24,7 @@ app.use(express.json());
 // Configure CORS
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || origin.includes('.replit.dev') || origin.includes('0.0.0.0')) {
+    if (!origin || config.corsOrigins.some(domain => origin.includes(domain))) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -35,128 +33,109 @@ app.use(cors({
   credentials: true
 }));
 
-// Enhanced request logging
-app.use((req, res, next) => {
-  console.log('[Server] Incoming request:', {
-    method: req.method,
-    path: req.path,
-    timestamp: new Date().toISOString()
-  });
-  next();
-});
-
-// Determine environment and template
-const env = process.env.NODE_ENV || 'development';
-const templateName = env === 'staging' ? 'staging.html' : 'index.html';
-const clientDir = path.join(__dirname, '../../dist', env);
-
-console.log('[Server] Environment configuration:', {
-  env,
-  clientDir,
-  templateName,
-  exists: require('fs').existsSync(clientDir),
-  pwd: process.cwd(),
-  dirname: __dirname
-});
-
-// Check build exists
-if (!require('fs').existsSync(clientDir)) {
-  const message = `[Server] Error: client directory not found: ${clientDir}`;
-  console.error(message);
-  console.error('[Server] Please run build first');
-  console.error('[Server] Current directory structure:');
-  try {
-    const fs = require('fs');
-    const distDir = path.join(__dirname, '../../dist');
-    if (fs.existsSync(distDir)) {
-      console.error('Available directories in dist:');
-      console.error(fs.readdirSync(distDir));
-    } else {
-      console.error('dist directory does not exist');
-    }
-  } catch (err) {
-    console.error('Error checking directory structure:', err);
-  }
-  process.exit(1);
-}
-
-// Disable caching for development and staging
-if (env !== 'production') {
-  app.use((req, res, next) => {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    next();
-  });
-}
-
-// Import API Routes
-let featureFlagsRouter;
-try {
-  const { router } = require('./routes/feature-flags');
-  featureFlagsRouter = router;
-  console.log('[Server] Feature flags router imported successfully');
-} catch (error) {
-  console.error('[Server] Error importing feature flags router:', error);
-  process.exit(1);
-}
-
-const authRouter = require('./routes/auth');
+// Import routes
+const featureFlagsRouter = require('./routes/feature-flags').router;
 const statsRouter = require('./routes/stats');
 const feedbackRouter = require('./routes/feedback');
 
 // Mount API routes
-app.use('/api/auth', authRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/feedback', feedbackRouter);
 app.use('/api/feature-flags', featureFlagsRouter);
 
-// Health check endpoint
+// Health check endpoint with enhanced diagnostics
 app.get('/health', (req, res) => {
   res.json({
-    status: 'ok',
-    environment: env,
+    status: 'healthy',
+    environment: process.env.NODE_ENV,
+    uptime: process.uptime(),
     timestamp: new Date().toISOString(),
+    memory: process.memoryUsage(),
     clientDir: {
-      path: clientDir,
-      exists: require('fs').existsSync(clientDir),
-      template: path.join(clientDir, templateName)
+      path: config.clientDir,
+      exists: require('fs').existsSync(config.clientDir),
+      template: path.join(config.clientDir, config.templateName)
     }
   });
 });
 
-// Serve static files from the client directory
-app.use(express.static(clientDir, {
-  maxAge: env === 'production' ? '1d' : 0,
-  etag: env === 'production',
-  lastModified: env === 'production'
+// Serve static files
+app.use(express.static(config.clientDir, {
+  maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+  etag: process.env.NODE_ENV === 'production',
+  lastModified: process.env.NODE_ENV === 'production'
 }));
 
-// Serve index.html for all routes to support client-side routing
+// SPA fallback
 app.get('*', (req, res) => {
-  res.sendFile(path.join(clientDir, templateName));
+  res.sendFile(path.join(config.clientDir, config.templateName));
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('[Server] Error:', err);
-  res.status(500).json({
-    error: 'Internal Server Error',
+  console.error('[Server] Error:', {
     message: err.message,
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    timestamp: new Date().toISOString()
+  });
+
+  res.status(err.status || 500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'production' ? 'An unexpected error occurred' : err.message,
     timestamp: new Date().toISOString()
   });
 });
 
-if (require.main === module) {
-  const port = env === 'staging' ? 5000 : 3000;
+// Improved server startup with enhanced error handling
+function startServer() {
+  return new Promise((resolve, reject) => {
+    let server;
 
-  app.listen(port, '0.0.0.0', () => {
-    console.log('='.repeat(50));
-    console.log(`[Server] Successfully started ${env} server on port ${port}`);
-    console.log(`[Server] Server URL: http://0.0.0.0:${port}`);
-    console.log(`[Server] Environment: ${env}`);
-    console.log('='.repeat(50));
+    // Create server with error handling
+    try {
+      server = app.listen(config.port, '0.0.0.0', () => {
+        console.log('='.repeat(50));
+        console.log(`[Server] Successfully started on port ${config.port}`);
+        console.log(`[Server] Environment: ${process.env.NODE_ENV}`);
+        console.log(`[Server] URL: http://0.0.0.0:${config.port}`);
+        console.log('='.repeat(50));
+        resolve(server);
+      });
+
+      // Enhanced error handling for server
+      server.on('error', (error) => {
+        if (error.code === 'EADDRINUSE') {
+          reject(new Error(`Port ${config.port} is already in use`));
+        } else {
+          reject(error);
+        }
+      });
+
+      // Cleanup handler
+      const cleanup = (signal) => {
+        console.log(`[Server] Received ${signal}, initiating graceful shutdown...`);
+        server.close(() => {
+          console.log('[Server] Server closed successfully');
+          process.exit(0);
+        });
+
+        // Force close after timeout
+        setTimeout(() => {
+          console.error('[Server] Could not close connections in time, forcefully shutting down');
+          process.exit(1);
+        }, 10000);
+      };
+
+      // Setup signal handlers
+      ['SIGTERM', 'SIGINT'].forEach(signal => {
+        process.on(signal, () => cleanup(signal));
+      });
+
+    } catch (error) {
+      console.error('[Server] Failed to start server:', error);
+      reject(error);
+    }
   });
 }
 
-module.exports = app;
+module.exports = { app, startServer };

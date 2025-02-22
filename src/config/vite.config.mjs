@@ -10,26 +10,34 @@ const PROJECT_ROOT = path.resolve(__dirname, '../..');
 
 // Standardized port configuration
 const PORT_CONFIG = {
-  client: 3000,
-  server: 5000
+  client: {
+    production: 3000,
+    staging: 5000,
+    development: 3000
+  },
+  server: {
+    production: 3000,
+    staging: 5000,
+    development: 3000
+  }
 };
 
 // Environment configuration with standardized ports
 const envConfigs = {
   development: {
-    port: PORT_CONFIG.client,
-    apiUrl: `http://localhost:${PORT_CONFIG.server}`,
+    port: PORT_CONFIG.client.development,
+    apiUrl: `http://localhost:${PORT_CONFIG.server.development}`,
     template: 'src/templates/index.html'
   },
   staging: {
-    port: PORT_CONFIG.server,
-    apiUrl: `http://0.0.0.0:${PORT_CONFIG.server}`,
+    port: PORT_CONFIG.client.staging,
+    apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.staging}`,
     hmrHost: '0.0.0.0',
     template: 'src/templates/staging.html'
   },
   production: {
-    port: PORT_CONFIG.client,
-    apiUrl: `http://0.0.0.0:${PORT_CONFIG.server}`,
+    port: PORT_CONFIG.client.production,
+    apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.production}`,
     template: 'src/templates/production.html'
   }
 };
