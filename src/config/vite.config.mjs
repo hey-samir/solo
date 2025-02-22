@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,16 +34,27 @@ const envConfigs = {
   }
 };
 
+// Utility function to check if template exists
+function checkTemplate(templatePath) {
+  if (!fs.existsSync(templatePath)) {
+    throw new Error(`Template file not found: ${templatePath}`);
+  }
+  return templatePath;
+}
+
 export default defineConfig(({ mode }) => {
   const env = mode || 'development';
   const config = envConfigs[env];
+
+  // Verify template exists
+  const templatePath = checkTemplate(config.template);
+  const templateName = path.basename(templatePath);
 
   console.log(`[Vite Config] Building for ${env} environment:`, {
     mode: env,
     port: config.port,
     apiUrl: config.apiUrl,
-    template: config.template,
-    exists: require('fs').existsSync(config.template)
+    template: templatePath
   });
 
   return {
@@ -78,10 +90,6 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
-    preview: {
-      port: config.port,
-      host: '0.0.0.0'
-    },
     build: {
       outDir: path.resolve(PROJECT_ROOT, 'dist', env),
       emptyOutDir: true,
@@ -90,7 +98,7 @@ export default defineConfig(({ mode }) => {
       copyPublicDir: true,
       assetsDir: 'assets',
       rollupOptions: {
-        input: config.template,
+        input: templatePath,
         output: {
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',
@@ -108,7 +116,6 @@ export default defineConfig(({ mode }) => {
         'assets': path.resolve(PROJECT_ROOT, 'src/assets')
       }
     },
-    publicDir: path.resolve(PROJECT_ROOT, 'public'),
-    assetsInclude: ['**/*.png', '**/*.jpg', '**/*.svg', '**/*.gif']
+    publicDir: path.resolve(PROJECT_ROOT, 'public')
   };
 });

@@ -45,20 +45,38 @@ app.use((req, res, next) => {
   next();
 });
 
-// Determine correct dist path based on environment
+// Determine environment and template
 const env = process.env.NODE_ENV || 'development';
+const templateName = env === 'staging' ? 'staging.html' : 'index.html';
 const clientDir = path.join(__dirname, '../../dist', env);
 
 console.log('[Server] Environment configuration:', {
   env,
   clientDir,
-  exists: require('fs').existsSync(clientDir)
+  templateName,
+  exists: require('fs').existsSync(clientDir),
+  pwd: process.cwd(),
+  dirname: __dirname
 });
 
 // Check build exists
 if (!require('fs').existsSync(clientDir)) {
-  console.error('[Server] Error: client directory not found:', clientDir);
+  const message = `[Server] Error: client directory not found: ${clientDir}`;
+  console.error(message);
   console.error('[Server] Please run build first');
+  console.error('[Server] Current directory structure:');
+  try {
+    const fs = require('fs');
+    const distDir = path.join(__dirname, '../../dist');
+    if (fs.existsSync(distDir)) {
+      console.error('Available directories in dist:');
+      console.error(fs.readdirSync(distDir));
+    } else {
+      console.error('dist directory does not exist');
+    }
+  } catch (err) {
+    console.error('Error checking directory structure:', err);
+  }
   process.exit(1);
 }
 
@@ -92,14 +110,18 @@ app.use('/api/auth', authRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/feedback', feedbackRouter);
 app.use('/api/feature-flags', featureFlagsRouter);
-app.use('/api/standings', authRouter); // Add direct standings route
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     environment: env,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    clientDir: {
+      path: clientDir,
+      exists: require('fs').existsSync(clientDir),
+      template: path.join(clientDir, templateName)
+    }
   });
 });
 
@@ -112,7 +134,7 @@ app.use(express.static(clientDir, {
 
 // Serve index.html for all routes to support client-side routing
 app.get('*', (req, res) => {
-  res.sendFile(path.join(clientDir, 'index.html'));
+  res.sendFile(path.join(clientDir, templateName));
 });
 
 // Error handling middleware
@@ -125,47 +147,15 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Function to start server
-async function startServer() {
-  try {
-    const port = env === 'staging' ? 5000 : 3000;
-
-    console.log(`[Server] Starting ${env} server on port ${port}...`);
-
-    return new Promise((resolve, reject) => {
-      const server = app.listen(port, '0.0.0.0', () => {
-        console.log('='.repeat(50));
-        console.log(`[Server] Successfully started ${env} server on port ${port}`);
-        console.log(`[Server] Server URL: http://0.0.0.0:${port}`);
-        console.log(`[Server] Environment: ${env}`);
-        console.log('='.repeat(50));
-        resolve(server);
-      });
-
-      server.on('error', (error) => {
-        console.error('[Server] Server startup error:', error);
-        reject(error);
-      });
-
-      // Graceful shutdown
-      process.on('SIGTERM', () => {
-        console.log('[Server] Received SIGTERM signal');
-        server.close(() => {
-          console.log('[Server] Server closed');
-          process.exit(0);
-        });
-      });
-    });
-  } catch (error) {
-    console.error('[Server] Critical startup error:', error);
-    throw error;
-  }
-}
-
 if (require.main === module) {
-  startServer().catch((error) => {
-    console.error('[Server] Failed to start server:', error);
-    process.exit(1);
+  const port = env === 'staging' ? 5000 : 3000;
+
+  app.listen(port, '0.0.0.0', () => {
+    console.log('='.repeat(50));
+    console.log(`[Server] Successfully started ${env} server on port ${port}`);
+    console.log(`[Server] Server URL: http://0.0.0.0:${port}`);
+    console.log(`[Server] Environment: ${env}`);
+    console.log('='.repeat(50));
   });
 }
 
