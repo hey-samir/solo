@@ -51,7 +51,10 @@ const Router: React.FC = () => {
       <Routes>
         {/* Public Routes */}
         <Route element={isProduction ? <ProductionLayout /> : <Layout />}>
-          <Route index element={<Navigate to={isSignedIn ? "/solo" : "/about"} replace />} />
+          <Route 
+            index 
+            element={<Navigate to={isSignedIn ? "/solo" : "/about"} replace />} 
+          />
           <Route path="about" element={<About />} />
           <Route path="standings" element={<Standings />} />
 

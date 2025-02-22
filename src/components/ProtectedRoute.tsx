@@ -1,7 +1,6 @@
 import { useUser } from '@clerk/clerk-react';
 import { Navigate, useLocation } from 'react-router-dom';
 import LoadingSpinner from './LoadingSpinner';
-import Error from './Error';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -9,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children, requireAuth = true }: ProtectedRouteProps) => {
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { isLoaded, isSignedIn } = useUser();
   const location = useLocation();
 
   if (!isLoaded) {

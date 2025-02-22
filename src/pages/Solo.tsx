@@ -1,11 +1,10 @@
 import React, { FC, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
+import { useNavigate, Navigate } from 'react-router-dom'
+import { useUser, useClerk } from '@clerk/clerk-react'
 import { toast } from 'react-hot-toast'
 import { Input } from '../components/ui/input'
 import { useQuery } from '@tanstack/react-query'
 import client from '../api/client'
-import '../styles/profile.css'
 
 // Import avatars directly like in Navbar
 import graySoloAvatar from '@/assets/images/avatars/gray-solo-av.png'
@@ -30,7 +29,8 @@ interface UserStats {
 }
 
 const Solo: FC = () => {
-  const { user, logout, updateUserProfile } = useAuth()
+  const { user, isSignedIn } = useUser()
+  const { signOut } = useClerk()
   const navigate = useNavigate()
   const [isEditing, setIsEditing] = useState(false)
   const [username, setUsername] = useState(user?.username || '')
@@ -48,8 +48,8 @@ const Solo: FC = () => {
 
   const handleLogout = async () => {
     try {
-      await logout()
-      navigate('/login')
+      await signOut()
+      navigate('/sign-in')
     } catch (error) {
       console.error('Logout failed:', error)
       toast.error('Failed to logout')
@@ -58,9 +58,13 @@ const Solo: FC = () => {
 
   const handleUpdateProfile = async () => {
     try {
-      await updateUserProfile({
-        username,
-        profilePhoto: selectedAvatar
+      // Update the user's metadata using Clerk
+      await user?.update({
+        username: username,
+        publicMetadata: {
+          ...user?.publicMetadata,
+          profilePhoto: selectedAvatar
+        }
       })
       setIsEditing(false)
       toast.success('Profile updated successfully')
@@ -68,6 +72,10 @@ const Solo: FC = () => {
       console.error('Failed to update profile:', error)
       toast.error('Failed to update profile')
     }
+  }
+
+  if (!isSignedIn) {
+    return <Navigate to="/sign-in" replace />
   }
 
   return (
@@ -130,7 +138,9 @@ const Solo: FC = () => {
                   <td className="py-2">
                     <div className="profile-field">
                       <span className="profile-field-label">Home Gym</span>
-                      <span className="profile-field-value">{user?.homeGym || 'Movement Gowanus'}</span>
+                      <span className="profile-field-value">
+                        {user?.publicMetadata?.homeGym || 'Movement Gowanus'}
+                      </span>
                     </div>
                   </td>
                 </tr>
@@ -139,7 +149,7 @@ const Solo: FC = () => {
                     <div className="profile-field">
                       <span className="profile-field-label">Joined</span>
                       <span className="profile-field-value">
-                        {new Date(user?.memberSince || Date.now()).toLocaleDateString('en-US', {
+                        {new Date(user?.createdAt || Date.now()).toLocaleDateString('en-US', {
                           month: 'short',
                           year: '2-digit'
                         })}

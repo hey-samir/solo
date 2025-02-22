@@ -65,8 +65,12 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
+    preview: {
+      port: config.port,
+      host: '0.0.0.0'
+    },
     build: {
-      outDir: path.resolve(__dirname, 'dist'),
+      outDir: path.resolve(__dirname, `dist/client/${env}`),
       emptyOutDir: true,
       sourcemap: true,
       manifest: true,
@@ -74,7 +78,7 @@ export default defineConfig(({ mode }) => {
       assetsDir: 'assets',
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, env === 'staging' ? 'staging.html' : 'index.html')
+          main: path.resolve(__dirname, 'index.html')
         }
       }
     },

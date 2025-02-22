@@ -42,20 +42,28 @@ app.use((req, res, next) => {
   next();
 });
 
-// Verify dist directory exists
-const distPath = path.join(__dirname, '../../dist');
+// Determine correct dist path based on environment
 const env = process.env.NODE_ENV || 'development';
-const mainHtml = env === 'staging' ? 'staging.html' : 'index.html';
-const indexPath = path.join(distPath, mainHtml);
+const clientDir = path.join(__dirname, '../../dist/client', env === 'staging' ? 'staging' : 'production');
+const mainHtml = 'index.html';
+const indexPath = path.join(clientDir, mainHtml);
+
+console.log('[Server] Environment configuration:', {
+  env,
+  clientDir,
+  indexPath,
+  exists: require('fs').existsSync(clientDir)
+});
 
 // Check build exists
-if (!require('fs').existsSync(distPath)) {
-  console.error('[Server] Error: dist directory not found. Please run build first.');
+if (!require('fs').existsSync(clientDir)) {
+  console.error('[Server] Error: client directory not found:', clientDir);
+  console.error('[Server] Please run build first');
   process.exit(1);
 }
 
 if (!require('fs').existsSync(indexPath)) {
-  console.error(`[Server] Error: ${mainHtml} not found in dist directory.`);
+  console.error(`[Server] Error: ${mainHtml} not found at path:`, indexPath);
   process.exit(1);
 }
 
@@ -69,8 +77,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve static files from the dist directory
-app.use(express.static(distPath, {
+// Serve static files from the client directory
+app.use(express.static(clientDir, {
   maxAge: env === 'production' ? '1d' : 0,
   etag: env === 'production',
   lastModified: env === 'production',
@@ -82,14 +90,16 @@ app.use(express.static(distPath, {
 const { router: featureFlagsRouter } = require('./routes/feature-flags');
 app.use('/api/feature-flags', featureFlagsRouter);
 
-// Health check endpoint
+// Health check endpoint with enhanced details
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
-    environment: process.env.NODE_ENV,
+    environment: env,
     timestamp: new Date().toISOString(),
-    distPath: distPath,
-    indexFile: mainHtml
+    clientDir,
+    indexFile: mainHtml,
+    buildExists: require('fs').existsSync(clientDir),
+    indexExists: require('fs').existsSync(indexPath)
   });
 });
 
@@ -130,7 +140,7 @@ async function startServer() {
         console.log(`[Server] Server URL: http://0.0.0.0:${port}`);
         console.log(`[Server] Process ID: ${process.pid}`);
         console.log(`[Server] Environment: ${env}`);
-        console.log(`[Server] Static files being served from: ${distPath}`);
+        console.log(`[Server] Static files being served from: ${clientDir}`);
         console.log('='.repeat(50));
         resolve(server);
       });
