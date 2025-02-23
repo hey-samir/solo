@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import whiteSoloAvatar from '@/assets/images/avatars/white-solo-av.png'
+import whiteSoloAvatar from '../assets/images/avatars/white-solo-av.png'
 
 export default function Navbar(): React.ReactElement {
   const location = useLocation()

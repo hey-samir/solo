@@ -1,5 +1,5 @@
 import React from 'react'
-import { version } from '../../version.json'
+import { version } from '../config/version.json'
 
 const Footer: React.FC = () => {
   return (

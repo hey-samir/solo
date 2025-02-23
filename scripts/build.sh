@@ -13,23 +13,15 @@ rm -rf dist
 rm -rf .vite
 mkdir -p dist/staging dist/production
 
-# Copy template files to root for Vite to find them
-echo "Preparing templates..."
-cp src/templates/staging.html staging.html
-cp src/templates/index.html index.html
-
 # Build staging environment
 echo "Building staging..."
-NODE_ENV=staging npx vite build --mode staging
+NODE_ENV=staging npx vite build --mode staging --config src/config/vite.config.mjs
 echo "Staging build complete. Contents of dist/staging:"
 ls -la dist/staging/
 
-# Clean up temporary template files
-rm staging.html index.html
-
 # Verify build output
-if [ ! -f "dist/staging/staging.html" ]; then
-  echo "Error: Build failed - missing staging.html"
+if [ ! -f "dist/staging/staging.html" ] && [ ! -f "dist/staging/index.html" ]; then
+  echo "Error: Build failed - missing HTML template"
   exit 1
 fi
 

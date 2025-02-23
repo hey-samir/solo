@@ -95,7 +95,7 @@ const Profile: FC = () => {
           {/* Column 1: Avatar */}
           <div className="w-32">
             <img 
-              src={`/avatars/${user.profilePhoto || 'gray-solo-av.png'}`}
+              src={`/assets/images/avatars/${user.profilePhoto || 'gray-solo-av.png'}`}
               alt={`${user.username}'s profile`}
               className="w-32 h-32 rounded-full object-cover border-4 border-purple-600"
             />

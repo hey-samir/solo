@@ -68,21 +68,6 @@ task = "packager.installForAll"
 task = "shell.exec"
 args = "NODE_ENV=staging npx vite build --config src/config/vite.config.mjs --mode staging"
 
-[[workflows.workflow]]
-name = "Staging Server"
-author = "agent"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=staging node src/server/deployment/deploy.js"
-waitForPort = 5000
-
 [[ports]]
 localPort = 80
 externalPort = 3000

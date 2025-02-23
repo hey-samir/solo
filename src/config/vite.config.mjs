@@ -27,18 +27,18 @@ const envConfigs = {
   development: {
     port: PORT_CONFIG.client.development,
     apiUrl: `http://localhost:${PORT_CONFIG.server.development}`,
-    template: 'index.html'
+    template: 'src/templates/index.html'
   },
   staging: {
     port: PORT_CONFIG.client.staging,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.staging}`,
     hmrHost: '0.0.0.0',
-    template: 'staging.html'
+    template: 'src/templates/staging.html'
   },
   production: {
     port: PORT_CONFIG.client.production,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.production}`,
-    template: 'index.html'
+    template: 'src/templates/index.html'
   }
 };
 
@@ -61,19 +61,19 @@ export default defineConfig(({ mode }) => {
       {
         name: 'generate-manifest',
         generateBundle(options, bundle) {
-          if (env === 'staging') {
-            const manifest = {
-              timestamp: new Date().toISOString(),
-              files: Object.keys(bundle),
-              mode: env,
-              port: config.port
-            };
-            this.emitFile({
-              type: 'asset',
-              fileName: 'manifest.json',
-              source: JSON.stringify(manifest, null, 2)
-            });
-          }
+          // Always generate manifest for both staging and production
+          const manifest = {
+            timestamp: new Date().toISOString(),
+            files: Object.keys(bundle),
+            mode: env,
+            port: config.port,
+            version: JSON.parse(fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/config/version.json'), 'utf-8')).version
+          };
+          this.emitFile({
+            type: 'asset',
+            fileName: 'manifest.json',
+            source: JSON.stringify(manifest, null, 2)
+          });
         }
       }
     ],

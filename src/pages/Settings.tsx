@@ -57,7 +57,7 @@ const Settings: React.FC = () => {
                   disabled={isUpdating}
                 >
                   <img
-                    src={`/avatars/${color}-solo-av.png`}
+                    src={`/assets/images/avatars/${color}-solo-av.png`}
                     alt={`${color} avatar`}
                     className="w-24 h-24 object-cover"
                   />
