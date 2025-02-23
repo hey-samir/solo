@@ -17,7 +17,7 @@ const PORT_CONFIG = {
   },
   server: {
     production: 3000,
-    staging: 5000,
+    staging: 5001,
     development: 3000
   }
 };
@@ -27,32 +27,43 @@ const envConfigs = {
   development: {
     port: PORT_CONFIG.client.development,
     apiUrl: `http://localhost:${PORT_CONFIG.server.development}`,
-    template: 'src/templates/index.html'
+    template: 'index.html'
   },
   staging: {
     port: PORT_CONFIG.client.staging,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.staging}`,
     hmrHost: '0.0.0.0',
-    template: 'src/templates/staging.html',
-    outputHtml: 'index.html' // Specify output HTML name
+    template: 'index.html'
   },
   production: {
     port: PORT_CONFIG.client.production,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.production}`,
-    template: 'src/templates/production.html'
+    template: 'index.html'
   }
 };
+
+// Read version from version.json
+function getVersion() {
+  const versionPath = path.resolve(PROJECT_ROOT, 'src/config/version.json');
+  try {
+    const versionData = JSON.parse(fs.readFileSync(versionPath, 'utf8'));
+    return versionData.version;
+  } catch (error) {
+    console.error('Error reading version.json:', error);
+    return 'unknown';
+  }
+}
 
 export default defineConfig(({ mode }) => {
   const env = mode || 'development';
   const config = envConfigs[env];
+  const version = getVersion();
 
   console.log(`[Vite Config] Building for ${env} environment:`, {
     mode: env,
     port: config.port,
     apiUrl: config.apiUrl,
-    template: config.template,
-    outputHtml: config.outputHtml
+    version
   });
 
   return {
@@ -63,29 +74,19 @@ export default defineConfig(({ mode }) => {
       {
         name: 'generate-manifest',
         generateBundle(options, bundle) {
-          // Always generate manifest for both staging and production
           const manifest = {
             timestamp: new Date().toISOString(),
             files: Object.keys(bundle),
             mode: env,
             port: config.port,
-            version: JSON.parse(fs.readFileSync(path.resolve(PROJECT_ROOT, 'src/config/version.json'), 'utf-8')).version
+            version
           };
+
           this.emitFile({
             type: 'asset',
             fileName: 'manifest.json',
             source: JSON.stringify(manifest, null, 2)
           });
-
-          // Copy HTML template for staging
-          if (env === 'staging') {
-            const templateContent = fs.readFileSync(path.resolve(PROJECT_ROOT, config.template), 'utf-8');
-            this.emitFile({
-              type: 'asset',
-              fileName: config.outputHtml || 'index.html',
-              source: templateContent
-            });
-          }
         }
       }
     ],
@@ -94,14 +95,20 @@ export default defineConfig(({ mode }) => {
       host: '0.0.0.0',
       hmr: env === 'staging' ? {
         clientPort: 443,
-        host: config.hmrHost
-      } : true
+        host: '0.0.0.0'
+      } : true,
+      proxy: {
+        '/api': {
+          target: config.apiUrl,
+          changeOrigin: true,
+          secure: false
+        }
+      }
     },
     build: {
       outDir: path.resolve(PROJECT_ROOT, `dist/${env}`),
       emptyOutDir: true,
       sourcemap: true,
-      assetsDir: 'assets',
       rollupOptions: {
         input: {
           main: path.resolve(PROJECT_ROOT, config.template)
@@ -120,13 +127,16 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(PROJECT_ROOT, 'src'),
-        'assets': path.resolve(PROJECT_ROOT, 'src/assets'),
+        '@assets': path.resolve(PROJECT_ROOT, 'src/assets'),
+        '@images': path.resolve(PROJECT_ROOT, 'src/assets/images'),
+        '@components': path.resolve(PROJECT_ROOT, 'src/components'),
+        '@pages': path.resolve(PROJECT_ROOT, 'src/pages'),
+        '@api': path.resolve(PROJECT_ROOT, 'src/api'),
         '~': path.resolve(PROJECT_ROOT)
       }
     },
-    publicDir: path.resolve(PROJECT_ROOT, 'public'),
-    optimizeDeps: {
-      include: ['react', 'react-dom', 'react-router-dom']
+    define: {
+      __APP_VERSION__: JSON.stringify(version)
     }
   };
 });
