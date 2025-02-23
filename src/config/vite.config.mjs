@@ -33,12 +33,13 @@ const envConfigs = {
     port: PORT_CONFIG.client.staging,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.staging}`,
     hmrHost: '0.0.0.0',
-    template: 'src/templates/staging.html'
+    template: 'src/templates/staging.html',
+    outputHtml: 'index.html' // Specify output HTML name
   },
   production: {
     port: PORT_CONFIG.client.production,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.production}`,
-    template: 'src/templates/index.html'
+    template: 'src/templates/production.html'
   }
 };
 
@@ -50,7 +51,8 @@ export default defineConfig(({ mode }) => {
     mode: env,
     port: config.port,
     apiUrl: config.apiUrl,
-    template: config.template
+    template: config.template,
+    outputHtml: config.outputHtml
   });
 
   return {
@@ -74,6 +76,16 @@ export default defineConfig(({ mode }) => {
             fileName: 'manifest.json',
             source: JSON.stringify(manifest, null, 2)
           });
+
+          // Copy HTML template for staging
+          if (env === 'staging') {
+            const templateContent = fs.readFileSync(path.resolve(PROJECT_ROOT, config.template), 'utf-8');
+            this.emitFile({
+              type: 'asset',
+              fileName: config.outputHtml || 'index.html',
+              source: templateContent
+            });
+          }
         }
       }
     ],
