@@ -118,8 +118,8 @@ export default defineConfig(({ mode }) => {
           chunkFileNames: 'assets/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash].[ext]',
           manualChunks: {
-            vendor: ['react', 'react-dom', 'react-router-dom'],
-            ui: ['@clerk/clerk-react', '@tanstack/react-query']
+            vendor: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'],
+            ui: ['@clerk/clerk-react']
           }
         }
       }

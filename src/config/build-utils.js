@@ -13,7 +13,7 @@ function generateManifest(mode) {
     timestamp: new Date().toISOString(),
     version: version.version,
     mode,
-    port: 5000,
+    port: mode === 'staging' ? 5000 : 3000,
     files: [], // This will be populated by Vite during build
   };
 }
