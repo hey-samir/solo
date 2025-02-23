@@ -11,34 +11,9 @@ const PROJECT_ROOT = path.resolve(__dirname, '../..');
 // Standardized port configuration
 const PORT_CONFIG = {
   client: {
-    production: 3000,
     staging: 5000,
-    development: 3000
-  },
-  server: {
-    production: 3000,
-    staging: 5001,
-    development: 3000
-  }
-};
-
-// Environment configuration with standardized ports
-const envConfigs = {
-  development: {
-    port: PORT_CONFIG.client.development,
-    apiUrl: `http://localhost:${PORT_CONFIG.server.development}`,
-    template: 'index.html'
-  },
-  staging: {
-    port: PORT_CONFIG.client.staging,
-    apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.staging}`,
-    hmrHost: '0.0.0.0',
-    template: 'index.html'
-  },
-  production: {
-    port: PORT_CONFIG.client.production,
-    apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.production}`,
-    template: 'index.html'
+    development: 3000,
+    production: 3000
   }
 };
 
@@ -56,13 +31,12 @@ function getVersion() {
 
 export default defineConfig(({ mode }) => {
   const env = mode || 'development';
-  const config = envConfigs[env];
   const version = getVersion();
+  const port = PORT_CONFIG.client[env];
 
   console.log(`[Vite Config] Building for ${env} environment:`, {
     mode: env,
-    port: config.port,
-    apiUrl: config.apiUrl,
+    port,
     version
   });
 
@@ -78,7 +52,7 @@ export default defineConfig(({ mode }) => {
             timestamp: new Date().toISOString(),
             files: Object.keys(bundle),
             mode: env,
-            port: config.port,
+            port,
             version
           };
 
@@ -91,32 +65,26 @@ export default defineConfig(({ mode }) => {
       }
     ],
     server: {
-      port: config.port,
+      port,
       host: '0.0.0.0',
       hmr: env === 'staging' ? {
         clientPort: 443,
         host: '0.0.0.0'
-      } : true,
-      proxy: {
-        '/api': {
-          target: config.apiUrl,
-          changeOrigin: true,
-          secure: false
-        }
-      }
+      } : true
     },
     build: {
       outDir: path.resolve(PROJECT_ROOT, `dist/${env}`),
       emptyOutDir: true,
       sourcemap: true,
+      assetsDir: 'assets',
       rollupOptions: {
         input: {
-          main: path.resolve(PROJECT_ROOT, config.template)
+          main: path.resolve(PROJECT_ROOT, 'index.html')
         },
         output: {
-          entryFileNames: 'assets/[name]-[hash].js',
-          chunkFileNames: 'assets/[name]-[hash].js',
-          assetFileNames: 'assets/[name]-[hash].[ext]',
+          entryFileNames: 'assets/[name].[hash].js',
+          chunkFileNames: 'assets/[name].[hash].js',
+          assetFileNames: 'assets/[name].[hash].[ext]',
           manualChunks: {
             vendor: ['react', 'react-dom', 'react-router-dom', '@tanstack/react-query'],
             ui: ['@clerk/clerk-react']
@@ -131,8 +99,7 @@ export default defineConfig(({ mode }) => {
         '@images': path.resolve(PROJECT_ROOT, 'src/assets/images'),
         '@components': path.resolve(PROJECT_ROOT, 'src/components'),
         '@pages': path.resolve(PROJECT_ROOT, 'src/pages'),
-        '@api': path.resolve(PROJECT_ROOT, 'src/api'),
-        '~': path.resolve(PROJECT_ROOT)
+        '@api': path.resolve(PROJECT_ROOT, 'src/api')
       }
     },
     define: {

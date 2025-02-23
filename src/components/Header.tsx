@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import soloLogo from '@/assets/images/logos/solo-clear.png'
+import soloLogo from '../assets/images/logos/solo-clear.png'
 import { useFeatureFlags } from '../contexts/FeatureFlagsContext'
 
 const Header: React.FC = () => {
