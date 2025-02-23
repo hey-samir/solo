@@ -19,25 +19,6 @@ mode = "parallel"
 agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Project"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=staging concurrently \"npm run build:staging\" \"node src/server/deployment/deploy.js\""
-
-[[workflows.workflow]]
-name = "Project"
-author = "agent"
-mode = "parallel"
-
-[workflows.workflow.metadata]
-agentRequireRestartOnSave = false
-
-[[workflows.workflow.tasks]]
-task = "packager.installForAll"
-
-[[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=staging concurrently \"npm run build:staging\" \"node src/server/deployment/deploy.js\""
 waitForPort = 5000
