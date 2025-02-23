@@ -3,7 +3,7 @@ const path = require('path');
 
 // Utility to read version.json
 function getVersion() {
-  const versionPath = path.join(process.cwd(), 'version.json');
+  const versionPath = path.join(process.cwd(), 'src/config/version.json');
   const version = JSON.parse(fs.readFileSync(versionPath, 'utf8'));
   console.log('Current version:', version);
   return version;
@@ -11,7 +11,7 @@ function getVersion() {
 
 // Utility to write version.json
 function saveVersion(versionData) {
-  const versionPath = path.join(process.cwd(), 'version.json');
+  const versionPath = path.join(process.cwd(), 'src/config/version.json');
   fs.writeFileSync(versionPath, JSON.stringify(versionData, null, 2));
   console.log('Saved new version:', versionData);
 }
