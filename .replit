@@ -5,28 +5,26 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "cloudrun"
-run = [
-  "sh",
-  "-c",
-  "NODE_ENV=production npx vite build && node src/server/server.js",
-]
+run = ["sh", "-c", "NODE_ENV=staging concurrently \"npm run build:staging\" \"node src/server/deployment/deploy.js\""]
 
 [workflows]
 runButton = "Project"
 
 [[workflows.workflow]]
-name = "Build"
+name = "Project"
 author = "agent"
+mode = "parallel"
 
 [workflows.workflow.metadata]
 agentRequireRestartOnSave = false
 
 [[workflows.workflow.tasks]]
-task = "packager.installForAll"
+task = "workflow.run"
+args = "Project"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = NODE_ENV=staging concurrently "npm run build:staging" "node src/server/deployment/deploy.js"
+args = "NODE_ENV=staging concurrently \"npm run build:staging\" \"node src/server/deployment/deploy.js\""
 
 [[workflows.workflow]]
 name = "Project"
