@@ -40,24 +40,9 @@ agentRequireRestartOnSave = false
 task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Database Migrations"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Version Bump"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Build Staging"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Staging Server"
+task = "shell.exec"
+args = "NODE_ENV=staging concurrently \"npm run build:staging\" \"node src/server/deployment/deploy.js\""
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "Version Bump"
