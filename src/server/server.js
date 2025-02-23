@@ -1,3 +1,4 @@
+// Previous imports remain unchanged
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -65,16 +66,35 @@ app.get('/health', (req, res) => {
   res.json(healthStatus);
 });
 
-// Serve static files with enhanced caching
+// Serve static files with enhanced caching and logging
 app.use(express.static(config.clientDir, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
   etag: process.env.NODE_ENV === 'production',
-  lastModified: process.env.NODE_ENV === 'production'
+  lastModified: process.env.NODE_ENV === 'production',
+  setHeaders: (res, path) => {
+    // Set proper content type for CSS files
+    if (path.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+    // Log static file requests in debug mode
+    if (config.logLevel === 'debug') {
+      console.log('[Static] Serving:', {
+        path,
+        type: path.split('.').pop(),
+        directory: config.clientDir
+      });
+    }
+  }
 }));
 
 // SPA fallback with detailed logging
 app.get('*', (req, res) => {
   console.log('[SPA] Serving template for path:', req.path);
+  console.log('[SPA] Template details:', {
+    template: config.templateName,
+    directory: config.clientDir,
+    fullPath: path.join(config.clientDir, config.templateName)
+  });
   res.sendFile(path.join(config.clientDir, config.templateName));
 });
 
@@ -106,6 +126,20 @@ function startServer(options = {}) {
         environment: process.env.NODE_ENV,
         port: config.port,
         host: '0.0.0.0'
+      });
+
+      // Add process-level error handlers
+      process.on('uncaughtException', (error) => {
+        console.error('[Server] Uncaught Exception:', error);
+        if (server) {
+          server.close(() => process.exit(1));
+        } else {
+          process.exit(1);
+        }
+      });
+
+      process.on('unhandledRejection', (reason, promise) => {
+        console.error('[Server] Unhandled Rejection at:', promise, 'reason:', reason);
       });
 
       server = app.listen(config.port, '0.0.0.0', () => {

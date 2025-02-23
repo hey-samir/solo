@@ -26,7 +26,7 @@ const REQUIRED_ENV_VARS = {
 // Port configuration
 const PORT_CONFIG = {
   production: process.env.PORT || 3000,
-  staging: process.env.PORT || 5000,
+  staging: 5000, // Staging must always use port 5000
   development: process.env.PORT || 3000
 };
 
@@ -156,6 +156,12 @@ function getConfig() {
 
   try {
     const config = validateEnvironment(env);
+
+    // Enforce port 5000 for staging environment
+    if (env === 'staging' && config.port !== 5000) {
+      console.warn('[Environment] Overriding port to 5000 for staging environment');
+      config.port = 5000;
+    }
 
     // Add runtime configuration
     config.buildNumber = process.env.BUILD_NUMBER || 'dev';

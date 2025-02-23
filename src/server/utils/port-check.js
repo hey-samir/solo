@@ -62,6 +62,7 @@ async function checkPort(port) {
     }, 5000);
 
     try {
+      // Bind to 0.0.0.0 to ensure proper network accessibility
       server.listen(port, '0.0.0.0');
     } catch (err) {
       console.error(`[Port Check] Unexpected error during port check:`, err);
@@ -72,82 +73,41 @@ async function checkPort(port) {
 }
 
 async function validatePort(port, env) {
-  // Validate port assignment based on environment
-  if (env === 'production' && port !== 3000) {
-    throw new Error('Production environment must use port 3000');
-  }
-  if (env === 'staging' && port !== 5000) {
-    throw new Error('Staging environment must use port 5000');
-  }
+  console.log(`[Port Validation] Starting port validation for ${env} environment on port ${port}`);
 
-  // For staging environment, forcefully kill any process on port 5000
-  if (env === 'staging' && port === 5000) {
-    console.log('[Port Validation] Enforcing port 5000 for staging environment');
-    await killProcessOnPort(port);
-    // Try multiple times to ensure the port is truly free
-    for (let i = 0; i < 3; i++) {
-      await killProcessOnPort(port);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-  }
-
-  // Multiple attempts to check port availability
-  for (let i = 0; i < 3; i++) {
-    const isAvailable = await checkPort(port);
-    if (isAvailable) {
-      return true;
-    }
-    console.log(`[Port Check] Attempt ${i + 1} failed, waiting before retry...`);
-
-    // For staging, try killing the process again
-    if (env === 'staging' && port === 5000) {
-      await killProcessOnPort(port);
+  // For staging environment, ensure port 5000
+  if (env === 'staging') {
+    console.log('[Port Validation] Enforcing staging environment port requirements');
+    if (port !== 5000) {
+      throw new Error('Staging environment must use port 5000');
     }
 
-    await new Promise(resolve => setTimeout(resolve, 3000));
-  }
+    // Attempt to free up port 5000
+    console.log('[Port Validation] Attempting to free port 5000');
+    await killProcessOnPort(5000);
 
-  throw new Error(`Port ${port} is not available for ${env} environment after multiple attempts`);
-}
-
-async function forceReleasePort(port) {
-  console.log(`[Port Release] Attempting to release port ${port}`);
-
-  return new Promise((resolve) => {
-    const client = new net.Socket();
-    let timeoutId;
-
-    const cleanup = () => {
-      clearTimeout(timeoutId);
-      client.destroy();
-    };
-
-    client.once('error', (err) => {
-      if (err.code === 'ECONNREFUSED') {
-        console.log(`[Port Release] Port ${port} is already free`);
-      } else {
-        console.log(`[Port Release] Socket reset error:`, err);
+    // Multiple attempts to ensure port is free
+    for (let attempt = 0; attempt < 3; attempt++) {
+      console.log(`[Port Validation] Port check attempt ${attempt + 1}/3`);
+      const isAvailable = await checkPort(5000);
+      if (isAvailable) {
+        console.log('[Port Validation] Successfully secured port 5000');
+        return true;
       }
-      cleanup();
-      resolve(true);
-    });
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await killProcessOnPort(5000);
+    }
 
-    client.connect({ port, host: '0.0.0.0' }, () => {
-      console.log(`[Port Release] Connected to port ${port}, sending FIN`);
-      client.end();
-      setTimeout(() => {
-        console.log(`[Port Release] Socket reset completed`);
-        cleanup();
-        resolve(true);
-      }, 2000);
-    });
+    throw new Error('Could not secure port 5000 for staging environment after multiple attempts');
+  }
 
-    timeoutId = setTimeout(() => {
-      console.log(`[Port Release] Socket reset timeout`);
-      cleanup();
-      resolve(true);
-    }, 3000);
-  });
+  // For other environments, validate the provided port
+  const isAvailable = await checkPort(port);
+  if (!isAvailable) {
+    throw new Error(`Port ${port} is not available for ${env} environment`);
+  }
+
+  return true;
 }
 
-module.exports = { checkPort, validatePort, forceReleasePort, killProcessOnPort };
+module.exports = { checkPort, validatePort, killProcessOnPort };

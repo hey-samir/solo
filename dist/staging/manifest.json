@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-02-23T00:03:01.203Z",
+  "timestamp": "2025-02-23T00:08:13.696Z",
   "files": {
     "assets/black-solo-av-D3yTKF6N.png": {
       "size": 19710,
@@ -83,7 +83,7 @@
     },
     "manifest.json": {
       "size": 4819,
-      "mtime": "2025-02-23T00:02:17.590Z"
+      "mtime": "2025-02-23T00:07:09.735Z"
     },
     "src/templates/staging.html": {
       "size": 1824,
@@ -91,7 +91,7 @@
     },
     "staging.html": {
       "size": 1824,
-      "mtime": "2025-02-23T00:02:17.590Z"
+      "mtime": "2025-02-23T00:07:09.735Z"
     }
   },
   "checksums": {
@@ -115,7 +115,7 @@
     "avatars/white-solo-av.png": "4742415f0b90c8a3b44a98c6abed958f241de1ac75af7175f7ce343ad10d4939",
     "avatars/white-solo.png": "34b94de10b77acd645b444aa4d5ed0c5b8bd441b57cadd84bdefba25c3e506f4",
     "images/solo-clear.png": "4c1a472f1c3cba3637df198df03b0863f9c12fe3af2c0645b27f2cc4292a237d",
-    "manifest.json": "290a00ab03076c13a98e159e94b6891abcdd3413d29750b2c642b513bbc2355a",
+    "manifest.json": "2314bed8255f5974f3d2dd5fda5970921f6b8aab485adb23cd0ac5cc38ee9918",
     "src/templates/staging.html": "27a9a251362349fd24ba577f6b6580830ef0686bed6febb7ed4994e7238559d6",
     "staging.html": "27a9a251362349fd24ba577f6b6580830ef0686bed6febb7ed4994e7238559d6"
   }

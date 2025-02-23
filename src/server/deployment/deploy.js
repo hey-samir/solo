@@ -1,6 +1,6 @@
 const path = require('path');
 const { startServer } = require('../server');
-const { getConfig, ENV_CONFIG } = require('../config/environment');
+const { getConfig } = require('../config/environment');
 const { validateBuildArtifacts } = require('../utils/build-validator');
 const net = require('net');
 const fs = require('fs');
@@ -29,37 +29,6 @@ async function isPortAvailable(port) {
       })
       .listen(port, '0.0.0.0');
   });
-}
-
-// Find first available port from list with detailed logging
-async function findAvailablePort(ports) {
-  // For staging, always try port 5000 first
-  if (process.env.NODE_ENV === 'staging') {
-    console.log('[Deploy] Staging environment detected, prioritizing port 5000');
-    if (await isPortAvailable(5000)) {
-      console.log('[Deploy] Successfully secured port 5000 for staging');
-      return 5000;
-    }
-  }
-
-  if (!Array.isArray(ports)) {
-    ports = [ports];
-  }
-
-  console.log(`[Deploy] Starting port availability check for ports: ${ports.join(', ')}`);
-
-  for (const port of ports) {
-    console.log(`[Deploy] Attempting to use port ${port}`);
-    if (await isPortAvailable(port)) {
-      console.log(`[Deploy] Successfully found available port: ${port}`);
-      return port;
-    }
-    console.log(`[Deploy] Port ${port} is not available, trying next port`);
-    // Add delay between checks
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-
-  throw new Error(`No available ports found from options: ${ports.join(', ')}`);
 }
 
 // Verify build directory with improved error handling and logging
@@ -105,7 +74,7 @@ async function deploy() {
     console.log(`[Deploy] Starting deployment for ${process.env.NODE_ENV} environment`);
     console.log('[Deploy] Configuration:', {
       environment: process.env.NODE_ENV,
-      ports: config.ports || config.port,
+      port: config.port,
       buildDir,
       template: config.templateName,
       time: new Date().toISOString(),
@@ -121,29 +90,15 @@ async function deploy() {
     // Verify build directory structure after validation
     await verifyBuildDirectory(buildDir);
 
-    // Generate session secret if not exists
-    if (!process.env.SESSION_SECRET) {
-      process.env.SESSION_SECRET = generateSessionSecret();
-      console.log('[Deploy] Generated new session secret');
-    }
-
-    // Find available port
-    if (process.env.NODE_ENV === 'staging' && Array.isArray(config.ports)) {
-      availablePort = await findAvailablePort(config.ports);
-      config.port = availablePort;
+    // Find available port - for staging, enforce port 5000
+    if (process.env.NODE_ENV === 'staging') {
+      if (!await isPortAvailable(5000)) {
+        throw new Error('Cannot start staging server: Port 5000 is not available');
+      }
+      availablePort = 5000;
     } else {
       availablePort = config.port;
       await isPortAvailable(availablePort);
-    }
-
-    // Ensure template file exists for staging
-    if (process.env.NODE_ENV === 'staging') {
-      const srcTemplate = path.join(buildDir, 'src/templates/staging.html');
-      const destTemplate = path.join(buildDir, 'staging.html');
-      if (fs.existsSync(srcTemplate) && !fs.existsSync(destTemplate)) {
-        fs.copyFileSync(srcTemplate, destTemplate);
-        console.log('[Deploy] Copied staging template to root directory');
-      }
     }
 
     // Start server with enhanced error handling
@@ -186,7 +141,7 @@ async function deploy() {
       throw error;
     }
 
-    // Register signal handlers
+    // Register cleanup handlers
     const cleanup = async (signal) => {
       console.log(`[Deploy] Received ${signal}, initiating graceful shutdown...`);
       if (server) {
@@ -205,12 +160,12 @@ async function deploy() {
       }
     };
 
-    // Register signal handlers
-    ['SIGTERM', 'SIGINT', 'UNCAUGHT_EXCEPTION', 'UNHANDLED_REJECTION'].forEach(signal => {
+    ['SIGTERM', 'SIGINT'].forEach(signal => {
       process.on(signal, () => cleanup(signal));
     });
 
     return server;
+
   } catch (error) {
     console.error('[Deploy] Critical deployment error:', {
       message: error.message,
