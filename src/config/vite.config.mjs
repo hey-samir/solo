@@ -27,18 +27,18 @@ const envConfigs = {
   development: {
     port: PORT_CONFIG.client.development,
     apiUrl: `http://localhost:${PORT_CONFIG.server.development}`,
-    template: 'src/templates/index.html'
+    template: 'index.html'
   },
   staging: {
     port: PORT_CONFIG.client.staging,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.staging}`,
     hmrHost: '0.0.0.0',
-    template: 'src/templates/staging.html'
+    template: 'staging.html'
   },
   production: {
     port: PORT_CONFIG.client.production,
     apiUrl: `http://0.0.0.0:${PORT_CONFIG.server.production}`,
-    template: 'src/templates/production.html'
+    template: 'index.html'
   }
 };
 
@@ -46,24 +46,37 @@ export default defineConfig(({ mode }) => {
   const env = mode || 'development';
   const config = envConfigs[env];
 
-  // Resolve template path relative to project root
-  const templatePath = path.resolve(PROJECT_ROOT, config.template);
-
-  if (!fs.existsSync(templatePath)) {
-    throw new Error(`Template file not found: ${templatePath}`);
-  }
-
   console.log(`[Vite Config] Building for ${env} environment:`, {
     mode: env,
     port: config.port,
     apiUrl: config.apiUrl,
-    template: templatePath
+    template: config.template
   });
 
   return {
     root: PROJECT_ROOT,
     base: '/',
-    plugins: [react()],
+    plugins: [
+      react(),
+      {
+        name: 'generate-manifest',
+        generateBundle(options, bundle) {
+          if (env === 'staging') {
+            const manifest = {
+              timestamp: new Date().toISOString(),
+              files: Object.keys(bundle),
+              mode: env,
+              port: config.port
+            };
+            this.emitFile({
+              type: 'asset',
+              fileName: 'manifest.json',
+              source: JSON.stringify(manifest, null, 2)
+            });
+          }
+        }
+      }
+    ],
     server: {
       port: config.port,
       host: '0.0.0.0',
@@ -73,11 +86,14 @@ export default defineConfig(({ mode }) => {
       } : true
     },
     build: {
-      outDir: path.resolve(PROJECT_ROOT, 'dist', env),
+      outDir: path.resolve(PROJECT_ROOT, `dist/${env}`),
       emptyOutDir: true,
       sourcemap: true,
+      assetsDir: 'assets',
       rollupOptions: {
-        input: templatePath,
+        input: {
+          main: path.resolve(PROJECT_ROOT, config.template)
+        },
         output: {
           entryFileNames: 'assets/[name]-[hash].js',
           chunkFileNames: 'assets/[name]-[hash].js',
@@ -92,8 +108,13 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(PROJECT_ROOT, 'src'),
-        'assets': path.resolve(PROJECT_ROOT, 'src/assets')
+        'assets': path.resolve(PROJECT_ROOT, 'src/assets'),
+        '~': path.resolve(PROJECT_ROOT)
       }
+    },
+    publicDir: path.resolve(PROJECT_ROOT, 'public'),
+    optimizeDeps: {
+      include: ['react', 'react-dom', 'react-router-dom']
     }
   };
 });

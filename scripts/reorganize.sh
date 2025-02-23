@@ -7,7 +7,7 @@ mkdir -p scripts
 mkdir -p src/docs
 mkdir -p src/templates
 mkdir -p src/server/utils
-mkdir -p src/assets/images
+mkdir -p src/assets/images/avatars
 
 # Move configuration files
 mv src/config/postcss.config.mjs src/config/ 2>/dev/null || true
@@ -25,6 +25,12 @@ mv index.html src/templates/ 2>/dev/null || true
 mv staging.html src/templates/ 2>/dev/null || true
 mv production.html src/templates/ 2>/dev/null || true
 rm -f src/production.html 2>/dev/null || true  # Remove duplicate
+
+# Move avatar images to assets directory
+cp static/images/gray-solo-av.png src/assets/images/avatars/ 2>/dev/null || true
+cp static/images/white-solo-av.png src/assets/images/avatars/ 2>/dev/null || true
+cp static/images/black-solo-av.png src/assets/images/avatars/ 2>/dev/null || true
+cp static/images/purple-solo-av.png src/assets/images/avatars/ 2>/dev/null || true
 
 # Move error handling
 mv errors.py src/server/utils/ 2>/dev/null || true

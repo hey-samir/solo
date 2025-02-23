@@ -5,8 +5,17 @@ const crypto = require('crypto');
 // Required files for each environment
 const REQUIRED_BUILD_FILES = {
   production: ['index.html', 'assets'],
-  staging: ['src/templates/staging.html', 'assets'],
+  staging: ['staging.html', 'assets', 'manifest.json'],
   development: ['index.html', 'assets']
+};
+
+// Required asset types that must be present
+const REQUIRED_ASSET_TYPES = {
+  staging: {
+    js: true,
+    css: true,
+    map: true
+  }
 };
 
 // Validate build artifact structure
@@ -15,7 +24,9 @@ async function validateBuildStructure(buildDir, env) {
 
   const requiredFiles = REQUIRED_BUILD_FILES[env];
   const missing = [];
+  const assetTypes = new Set();
 
+  // Check required files exist
   for (const file of requiredFiles) {
     const filePath = path.join(buildDir, file);
     if (!fs.existsSync(filePath)) {
@@ -24,10 +35,33 @@ async function validateBuildStructure(buildDir, env) {
     }
   }
 
+  // Check assets directory content
+  const assetsPath = path.join(buildDir, 'assets');
+  if (fs.existsSync(assetsPath)) {
+    const assets = fs.readdirSync(assetsPath);
+    console.log('[Build Validator] Found assets:', assets);
+
+    assets.forEach(asset => {
+      const ext = path.extname(asset).toLowerCase();
+      if (ext) assetTypes.add(ext.substring(1));
+    });
+
+    // Verify required asset types for environment
+    if (REQUIRED_ASSET_TYPES[env]) {
+      for (const [type, required] of Object.entries(REQUIRED_ASSET_TYPES[env])) {
+        if (required && !assetTypes.has(type)) {
+          console.error(`[Build Validator] Missing required asset type: ${type}`);
+          missing.push(`assets/*.${type}`);
+        }
+      }
+    }
+  }
+
   if (missing.length > 0) {
     throw new Error(`Invalid build structure. Missing files: ${missing.join(', ')}`);
   }
 
+  console.log('[Build Validator] Asset types found:', Array.from(assetTypes));
   return true;
 }
 
@@ -38,7 +72,8 @@ async function generateBuildManifest(buildDir) {
   const manifest = {
     timestamp: new Date().toISOString(),
     files: {},
-    checksums: {}
+    checksums: {},
+    assetTypes: new Set()
   };
 
   function processDirectory(dir, base = '') {
@@ -54,10 +89,14 @@ async function generateBuildManifest(buildDir) {
         const stats = fs.statSync(fullPath);
         const fileBuffer = fs.readFileSync(fullPath);
         const checksum = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+        const ext = path.extname(entry.name).toLowerCase();
+
+        if (ext) manifest.assetTypes.add(ext.substring(1));
 
         manifest.files[relativePath] = {
           size: stats.size,
-          mtime: stats.mtime
+          mtime: stats.mtime,
+          type: ext ? ext.substring(1) : 'unknown'
         };
         manifest.checksums[relativePath] = checksum;
       }
@@ -65,6 +104,7 @@ async function generateBuildManifest(buildDir) {
   }
 
   processDirectory(buildDir);
+  manifest.assetTypes = Array.from(manifest.assetTypes);
   return manifest;
 }
 
@@ -83,15 +123,16 @@ async function validateBuildArtifacts(buildDir, env) {
 
     // 3. Post-process for staging environment
     if (env === 'staging') {
-      const srcTemplatePath = path.join(buildDir, 'src/templates/staging.html');
-      const destPath = path.join(buildDir, 'staging.html');
+      // Ensure staging.html exists
+      const templatePath = path.join(buildDir, 'staging.html');
+      if (!fs.existsSync(templatePath)) {
+        throw new Error('Missing staging.html template');
+      }
 
-      if (fs.existsSync(srcTemplatePath)) {
-        const templateDir = path.dirname(destPath);
-        if (!fs.existsSync(templateDir)) {
-          fs.mkdirSync(templateDir, { recursive: true });
-        }
-        fs.copyFileSync(srcTemplatePath, destPath);
+      // Verify CSS is bundled
+      const hasCSS = manifest.assetTypes.includes('css');
+      if (!hasCSS) {
+        throw new Error('Missing CSS bundle in staging build');
       }
     }
 

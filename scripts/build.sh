@@ -9,30 +9,35 @@ echo "Node environment: $NODE_ENV"
 
 # Clean build directories and node_modules cache
 echo "Cleaning build directories and cache..."
-rm -rf dist/client
+rm -rf dist
 rm -rf .vite
-mkdir -p dist/client/staging dist/client/production
-echo "Created directory structure:"
-ls -la dist/client/
+mkdir -p dist/staging dist/production
+
+# Copy template files to root for Vite to find them
+echo "Preparing templates..."
+cp src/templates/staging.html staging.html
+cp src/templates/index.html index.html
 
 # Build staging environment
 echo "Building staging..."
 NODE_ENV=staging npx vite build --mode staging
-echo "Staging build complete. Contents of dist/client/staging:"
-ls -la dist/client/staging/
+echo "Staging build complete. Contents of dist/staging:"
+ls -la dist/staging/
 
-# Build production environment
-echo "Building production..."
-NODE_ENV=production npx vite build --mode production
-echo "Production build complete. Contents of dist/client/production:"
-ls -la dist/client/production/
+# Clean up temporary template files
+rm staging.html index.html
 
 # Verify build output
-if [ ! -f "dist/client/staging/index.html" ] || [ ! -f "dist/client/production/index.html" ]; then
-  echo "Error: Build failed - missing index.html files"
+if [ ! -f "dist/staging/staging.html" ]; then
+  echo "Error: Build failed - missing staging.html"
+  exit 1
+fi
+
+if [ ! -f "dist/staging/manifest.json" ]; then
+  echo "Error: Build failed - missing manifest.json"
   exit 1
 fi
 
 echo "Build completed successfully"
 echo "Final directory structure:"
-find dist/client -type f
+find dist/staging -type f

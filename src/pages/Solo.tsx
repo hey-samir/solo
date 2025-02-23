@@ -6,11 +6,11 @@ import { Input } from '../components/ui/input'
 import { useQuery } from '@tanstack/react-query'
 import client from '../api/client'
 
-// Import avatars
-import graySoloAvatar from '@/assets/images/avatars/gray-solo-av.png'
-import whiteSoloAvatar from '@/assets/images/avatars/white-solo-av.png'
-import blackSoloAvatar from '@/assets/images/avatars/black-solo-av.png'
-import purpleSoloAvatar from '@/assets/images/avatars/purple-solo-av.png'
+// Import avatars using relative paths
+import graySoloAvatar from '../assets/images/avatars/gray-solo-av.png'
+import whiteSoloAvatar from '../assets/images/avatars/white-solo-av.png'
+import blackSoloAvatar from '../assets/images/avatars/black-solo-av.png'
+import purpleSoloAvatar from '../assets/images/avatars/purple-solo-av.png'
 
 // Avatar mapping with imported assets
 const avatarMap = {
