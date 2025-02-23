@@ -82,7 +82,13 @@ async function validatePort(port, env) {
 
   // For staging environment, forcefully kill any process on port 5000
   if (env === 'staging' && port === 5000) {
+    console.log('[Port Validation] Enforcing port 5000 for staging environment');
     await killProcessOnPort(port);
+    // Try multiple times to ensure the port is truly free
+    for (let i = 0; i < 3; i++) {
+      await killProcessOnPort(port);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
   }
 
   // Multiple attempts to check port availability

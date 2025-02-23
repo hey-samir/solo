@@ -21,12 +21,14 @@ app.use(morgan('[:date[iso]] :method :url :status :response-time ms - :res[conte
 // Parse JSON bodies
 app.use(express.json());
 
-// Configure CORS
+// Configure CORS with detailed logging
 app.use(cors({
   origin: (origin, callback) => {
+    console.log('[CORS] Request from origin:', origin);
     if (!origin || config.corsOrigins.some(domain => origin.includes(domain))) {
       callback(null, true);
     } else {
+      console.warn('[CORS] Rejected request from origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -45,37 +47,44 @@ app.use('/api/feature-flags', featureFlagsRouter);
 
 // Health check endpoint with enhanced diagnostics
 app.get('/health', (req, res) => {
-  res.json({
+  const healthStatus = {
     status: 'healthy',
     environment: process.env.NODE_ENV,
     uptime: process.uptime(),
     timestamp: new Date().toISOString(),
     memory: process.memoryUsage(),
+    port: config.port,
+    host: '0.0.0.0',
     clientDir: {
       path: config.clientDir,
       exists: require('fs').existsSync(config.clientDir),
       template: path.join(config.clientDir, config.templateName)
     }
-  });
+  };
+  console.log('[Health Check] Status:', healthStatus);
+  res.json(healthStatus);
 });
 
-// Serve static files
+// Serve static files with enhanced caching
 app.use(express.static(config.clientDir, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
   etag: process.env.NODE_ENV === 'production',
   lastModified: process.env.NODE_ENV === 'production'
 }));
 
-// SPA fallback
+// SPA fallback with detailed logging
 app.get('*', (req, res) => {
+  console.log('[SPA] Serving template for path:', req.path);
   res.sendFile(path.join(config.clientDir, config.templateName));
 });
 
-// Error handling middleware
+// Error handling middleware with detailed logging
 app.use((err, req, res, next) => {
   console.error('[Server] Error:', {
     message: err.message,
     stack: process.env.NODE_ENV === 'development' ? err.stack : undefined,
+    path: req.path,
+    method: req.method,
     timestamp: new Date().toISOString()
   });
 
@@ -87,34 +96,27 @@ app.use((err, req, res, next) => {
 });
 
 // Improved server startup with enhanced error handling and detailed logging
-function startServer() {
+function startServer(options = {}) {
   return new Promise((resolve, reject) => {
     let server;
 
-    // Create server with error handling
     try {
-      console.log('[Server] Attempting to create HTTP server...');
-      console.log('[Server] Configuration for startup:', {
-        port: config.port,
-        host: '0.0.0.0',
+      console.log('[Server] Starting with options:', {
+        ...options,
         environment: process.env.NODE_ENV,
-        clientDir: config.clientDir,
-        templateName: config.templateName
+        port: config.port,
+        host: '0.0.0.0'
       });
 
       server = app.listen(config.port, '0.0.0.0', () => {
+        const address = server.address();
         console.log('='.repeat(50));
-        console.log(`[Server] Successfully started on port ${config.port}`);
+        console.log(`[Server] Successfully started on port ${address.port}`);
+        console.log(`[Server] Host: ${address.address}`);
         console.log(`[Server] Environment: ${process.env.NODE_ENV}`);
-        console.log(`[Server] URL: http://0.0.0.0:${config.port}`);
-        console.log('[Server] Server state:', {
-          port: server.address().port,
-          address: server.address().address,
-          clientDir: {
-            exists: require('fs').existsSync(config.clientDir),
-            contents: require('fs').readdirSync(config.clientDir)
-          }
-        });
+        console.log(`[Server] URL: http://0.0.0.0:${address.port}`);
+        console.log(`[Server] Template: ${config.templateName}`);
+        console.log(`[Server] Client Directory: ${config.clientDir}`);
         console.log('='.repeat(50));
         resolve(server);
       });

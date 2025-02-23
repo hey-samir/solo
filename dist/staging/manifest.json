@@ -1,89 +1,97 @@
 {
-  "timestamp": "2025-02-22T19:18:10.699Z",
+  "timestamp": "2025-02-23T00:03:01.203Z",
   "files": {
     "assets/black-solo-av-D3yTKF6N.png": {
       "size": 19710,
-      "mtime": "2025-02-22T19:17:12.610Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "assets/gray-solo-av-VA_aDxu2.png": {
       "size": 27594,
-      "mtime": "2025-02-22T19:17:12.599Z"
+      "mtime": "2025-02-22T19:18:14.740Z"
     },
     "assets/purple-solo-av-CqT0lZQI.png": {
       "size": 30322,
-      "mtime": "2025-02-22T19:17:12.611Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "assets/staging-D3VdOYzu.css": {
       "size": 10392,
-      "mtime": "2025-02-22T19:17:12.610Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "assets/staging-e_UVf66H.js": {
       "size": 744185,
-      "mtime": "2025-02-22T19:17:12.611Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "assets/staging-e_UVf66H.js.map": {
       "size": 2930901,
-      "mtime": "2025-02-22T19:17:12.612Z"
+      "mtime": "2025-02-22T19:18:14.742Z"
     },
     "assets/ui-CqQ5ygMm.js": {
       "size": 117804,
-      "mtime": "2025-02-22T19:17:12.610Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "assets/ui-CqQ5ygMm.js.map": {
       "size": 515571,
-      "mtime": "2025-02-22T19:17:12.610Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "assets/vendor-DbokQQxA.js": {
       "size": 68065,
-      "mtime": "2025-02-22T19:17:12.610Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "assets/vendor-DbokQQxA.js.map": {
       "size": 492683,
-      "mtime": "2025-02-22T19:17:12.610Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "assets/white-solo-av-BTzwp-HI.png": {
       "size": 32016,
-      "mtime": "2025-02-22T19:17:12.610Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
     },
     "avatars/black-solo-av.png": {
       "size": 1377,
-      "mtime": "2025-02-22T19:17:11.387Z"
+      "mtime": "2025-02-22T19:18:13.568Z"
     },
     "avatars/black-solo.png": {
       "size": 21540,
-      "mtime": "2025-02-22T19:17:11.388Z"
+      "mtime": "2025-02-22T19:18:13.569Z"
     },
     "avatars/gray-solo-av.png": {
       "size": 1400,
-      "mtime": "2025-02-22T19:17:11.388Z"
+      "mtime": "2025-02-22T19:18:13.569Z"
     },
     "avatars/gray-solo.png": {
       "size": 28408,
-      "mtime": "2025-02-22T19:17:11.388Z"
+      "mtime": "2025-02-22T19:18:13.569Z"
     },
     "avatars/purple-solo-av.png": {
       "size": 1400,
-      "mtime": "2025-02-22T19:17:11.388Z"
+      "mtime": "2025-02-22T19:18:13.569Z"
     },
     "avatars/purple-solo.png": {
       "size": 30322,
-      "mtime": "2025-02-22T19:17:11.388Z"
+      "mtime": "2025-02-22T19:18:13.569Z"
     },
     "avatars/white-solo-av.png": {
       "size": 1386,
-      "mtime": "2025-02-22T19:17:11.388Z"
+      "mtime": "2025-02-22T19:18:13.569Z"
     },
     "avatars/white-solo.png": {
       "size": 31863,
-      "mtime": "2025-02-22T19:17:11.388Z"
+      "mtime": "2025-02-22T19:18:13.569Z"
     },
     "images/solo-clear.png": {
       "size": 3769,
-      "mtime": "2025-02-22T19:17:11.388Z"
+      "mtime": "2025-02-22T19:18:13.569Z"
+    },
+    "manifest.json": {
+      "size": 4819,
+      "mtime": "2025-02-23T00:02:17.590Z"
     },
     "src/templates/staging.html": {
       "size": 1824,
-      "mtime": "2025-02-22T19:17:12.611Z"
+      "mtime": "2025-02-22T19:18:14.741Z"
+    },
+    "staging.html": {
+      "size": 1824,
+      "mtime": "2025-02-23T00:02:17.590Z"
     }
   },
   "checksums": {
@@ -107,6 +115,8 @@
     "avatars/white-solo-av.png": "4742415f0b90c8a3b44a98c6abed958f241de1ac75af7175f7ce343ad10d4939",
     "avatars/white-solo.png": "34b94de10b77acd645b444aa4d5ed0c5b8bd441b57cadd84bdefba25c3e506f4",
     "images/solo-clear.png": "4c1a472f1c3cba3637df198df03b0863f9c12fe3af2c0645b27f2cc4292a237d",
-    "src/templates/staging.html": "27a9a251362349fd24ba577f6b6580830ef0686bed6febb7ed4994e7238559d6"
+    "manifest.json": "290a00ab03076c13a98e159e94b6891abcdd3413d29750b2c642b513bbc2355a",
+    "src/templates/staging.html": "27a9a251362349fd24ba577f6b6580830ef0686bed6febb7ed4994e7238559d6",
+    "staging.html": "27a9a251362349fd24ba577f6b6580830ef0686bed6febb7ed4994e7238559d6"
   }
 }

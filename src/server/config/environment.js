@@ -25,9 +25,9 @@ const REQUIRED_ENV_VARS = {
 
 // Port configuration
 const PORT_CONFIG = {
-  production: 3000,
-  staging: [5000, 5001, 5002],
-  development: 3000
+  production: process.env.PORT || 3000,
+  staging: process.env.PORT || 5000,
+  development: process.env.PORT || 3000
 };
 
 // Environment-specific configurations
@@ -45,7 +45,7 @@ const ENV_CONFIG = {
     enableAnalytics: true
   },
   staging: {
-    ports: PORT_CONFIG.staging,
+    port: PORT_CONFIG.staging,
     clientDir: path.resolve(process.cwd(), 'dist/staging'),
     templateName: 'staging.html',
     logLevel: 'debug',
@@ -157,16 +157,6 @@ function getConfig() {
   try {
     const config = validateEnvironment(env);
 
-    // For staging, try to find an available port
-    if (env === 'staging') {
-      console.log('[Environment] Configuring staging ports:', {
-        availablePorts: config.ports,
-        defaultPort: config.ports[0],
-        environment: env
-      });
-      config.port = config.ports[0]; // Default to first port, deploy.js will try others if needed
-    }
-
     // Add runtime configuration
     config.buildNumber = process.env.BUILD_NUMBER || 'dev';
     config.gitCommit = process.env.GIT_COMMIT || 'local';
@@ -175,7 +165,6 @@ function getConfig() {
     console.log('[Environment] Final configuration:', {
       environment: env,
       port: config.port,
-      ports: config.ports,
       clientDir: config.clientDir,
       buildNumber: config.buildNumber,
       logLevel: config.logLevel,
