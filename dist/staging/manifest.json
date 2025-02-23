@@ -1,5 +1,5 @@
 {
-  "timestamp": "2025-02-23T11:33:58.859Z",
+  "timestamp": "2025-02-23T12:11:38.987Z",
   "files": [
     "assets/gray-solo-av-VA_aDxu2.png",
     "assets/white-solo-av-BTzwp-HI.png",
@@ -8,12 +8,12 @@
     "assets/main-D3VdOYzu.css",
     "assets/vendor-DbokQQxA.js",
     "assets/ui-CqQ5ygMm.js",
-    "assets/main-EuFydRi1.js",
+    "assets/main-DWsHGXw8.js",
     "assets/vendor-DbokQQxA.js.map",
     "assets/ui-CqQ5ygMm.js.map",
-    "assets/main-EuFydRi1.js.map"
+    "assets/main-DWsHGXw8.js.map"
   ],
   "mode": "staging",
   "port": 5000,
-  "version": "2.2.0"
+  "version": "2.2.1"
 }
