@@ -26,7 +26,7 @@ task = "packager.installForAll"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=staging npx vite build --config src/config/vite.config.mjs --mode staging --outDir dist/staging"
+args = NODE_ENV=staging concurrently "npm run build:staging" "node src/server/deployment/deploy.js"
 
 [[workflows.workflow]]
 name = "Project"
