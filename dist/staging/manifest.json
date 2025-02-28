@@ -1,153 +1,19 @@
 {
-  "timestamp": "2025-02-28T13:08:41.202Z",
-  "files": {
-    "assets/black-solo-av.D3yTKF6N.png": {
-      "size": 19710,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "png"
-    },
-    "assets/favicon.CACe9yhE.png": {
-      "size": 1012,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "png"
-    },
-    "assets/gray-solo-av.VA_aDxu2.png": {
-      "size": 27594,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "png"
-    },
-    "assets/main.B48lKuWY.js": {
-      "size": 744182,
-      "mtime": "2025-02-28T10:08:49.882Z",
-      "type": "js"
-    },
-    "assets/main.B48lKuWY.js.map": {
-      "size": 2930929,
-      "mtime": "2025-02-28T10:08:49.883Z",
-      "type": "map"
-    },
-    "assets/purple-solo-av.CqT0lZQI.png": {
-      "size": 30322,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "png"
-    },
-    "assets/style.CHbaE8dV.css": {
-      "size": 30343,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "css"
-    },
-    "assets/ui.Dt9tjL3_.js": {
-      "size": 67520,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "js"
-    },
-    "assets/ui.Dt9tjL3_.js.map": {
-      "size": 333081,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "map"
-    },
-    "assets/vendor.CX7oM-mS.js": {
-      "size": 118324,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "js"
-    },
-    "assets/vendor.CX7oM-mS.js.map": {
-      "size": 673195,
-      "mtime": "2025-02-28T10:08:49.882Z",
-      "type": "map"
-    },
-    "assets/white-solo-av.BTzwp-HI.png": {
-      "size": 32016,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "png"
-    },
-    "avatars/black-solo-av.png": {
-      "size": 1377,
-      "mtime": "2025-02-28T10:08:48.737Z",
-      "type": "png"
-    },
-    "avatars/black-solo.png": {
-      "size": 21540,
-      "mtime": "2025-02-28T10:08:48.737Z",
-      "type": "png"
-    },
-    "avatars/gray-solo-av.png": {
-      "size": 1400,
-      "mtime": "2025-02-28T10:08:48.737Z",
-      "type": "png"
-    },
-    "avatars/gray-solo.png": {
-      "size": 28408,
-      "mtime": "2025-02-28T10:08:48.737Z",
-      "type": "png"
-    },
-    "avatars/purple-solo-av.png": {
-      "size": 1400,
-      "mtime": "2025-02-28T10:08:48.737Z",
-      "type": "png"
-    },
-    "avatars/purple-solo.png": {
-      "size": 30322,
-      "mtime": "2025-02-28T10:08:48.737Z",
-      "type": "png"
-    },
-    "avatars/white-solo-av.png": {
-      "size": 1386,
-      "mtime": "2025-02-28T10:08:48.738Z",
-      "type": "png"
-    },
-    "avatars/white-solo.png": {
-      "size": 31863,
-      "mtime": "2025-02-28T10:08:48.738Z",
-      "type": "png"
-    },
-    "images/solo-clear.png": {
-      "size": 3769,
-      "mtime": "2025-02-28T10:08:48.738Z",
-      "type": "png"
-    },
-    "manifest.json": {
-      "size": 518,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "json"
-    },
-    "staging.html": {
-      "size": 1835,
-      "mtime": "2025-02-28T10:08:49.881Z",
-      "type": "html"
-    }
-  },
-  "checksums": {
-    "assets/black-solo-av.D3yTKF6N.png": "22b21246434588bc4aaab4c6b69ce65ed0221a507d625bf7a944c964b7873415",
-    "assets/favicon.CACe9yhE.png": "46fc378371e0dda3b77342b4ff7b72f567f07a013e2cefd9edf1dfae52d95054",
-    "assets/gray-solo-av.VA_aDxu2.png": "60f6a4884d60590a8b74746ac333ed1944a5b7d26a6d89cd01c4060047a86610",
-    "assets/main.B48lKuWY.js": "ec4631e7d7d73d717e16e4e54dd1af5b6546bf8ebaedc5c74ee262ca1e81ec3d",
-    "assets/main.B48lKuWY.js.map": "270e65f6ee5d05680c93e74f377b8b7247866762963046d4b07f0df12f9e7342",
-    "assets/purple-solo-av.CqT0lZQI.png": "c590e695090f0b6953e8fcd0e9b6f4ce26d129c04556f7b5d4fcab5eeef7eb97",
-    "assets/style.CHbaE8dV.css": "c871feac35178b8f81d03f69345813d479e3b8c3cc42a4cf1de04d0d1c8232ec",
-    "assets/ui.Dt9tjL3_.js": "abbb80b519207a60678bf5a4dbf15e9a45b8198c050cc38364b79cc95ff81f48",
-    "assets/ui.Dt9tjL3_.js.map": "efedbd3894afa0d9ef0cb9994a5fe2d6a71ec0bee0ce9fdca6a29bb3862f3f3a",
-    "assets/vendor.CX7oM-mS.js": "41ed4aa2c8280b2d0dc3ed6ecb0e893310809ccc0acd877d20f8a61c64d73337",
-    "assets/vendor.CX7oM-mS.js.map": "298a25d221f55235ad43b92050895981ad57d11550cd8aee3b38ed9558756752",
-    "assets/white-solo-av.BTzwp-HI.png": "ef95d46909b7f12b351a060a79e8e56da9aa560ad7ab58b21e5da64baf7aa941",
-    "avatars/black-solo-av.png": "34e243ea3c0f5e1e5bff68e3b71660cffd42cd0786e16e0bf082bcc644bfe37f",
-    "avatars/black-solo.png": "4a7aa1d83f3bca14106fd69585f7e5b374ba1e9e38e959e8118e6da0ff1a756f",
-    "avatars/gray-solo-av.png": "9a273999408c1c33f95a9253dd1c0977ea4ab76054af4a333afceab0d861d133",
-    "avatars/gray-solo.png": "f7e1aa576af6ab9d2caffa893fa318166b17468c21756b34fe102f1ade08af33",
-    "avatars/purple-solo-av.png": "8d0550e6235bf03867d4926bc5558e01275c85abc36acd89fe5d0ff2769e4023",
-    "avatars/purple-solo.png": "c590e695090f0b6953e8fcd0e9b6f4ce26d129c04556f7b5d4fcab5eeef7eb97",
-    "avatars/white-solo-av.png": "4742415f0b90c8a3b44a98c6abed958f241de1ac75af7175f7ce343ad10d4939",
-    "avatars/white-solo.png": "34b94de10b77acd645b444aa4d5ed0c5b8bd441b57cadd84bdefba25c3e506f4",
-    "images/solo-clear.png": "4c1a472f1c3cba3637df198df03b0863f9c12fe3af2c0645b27f2cc4292a237d",
-    "manifest.json": "9dc6f203be03329a3112acba7cabc6de861590a364fbd8bd2b443f5497e7bd38",
-    "staging.html": "59446d5fd1eb5d3cdcdd63725bf711c3e27f31ea7f29722c39a182b842e06da1"
-  },
-  "assetTypes": [
-    "png",
-    "js",
-    "map",
-    "css",
-    "json",
-    "html"
-  ]
+  "timestamp": "2025-02-28T13:12:21.185Z",
+  "files": [
+    "assets/favicon.CACe9yhE.png",
+    "assets/gray-solo-av.VA_aDxu2.png",
+    "assets/white-solo-av.BTzwp-HI.png",
+    "assets/black-solo-av.D3yTKF6N.png",
+    "assets/purple-solo-av.CqT0lZQI.png",
+    "assets/vendor.CX7oM-mS.js",
+    "assets/ui.Dt9tjL3_.js",
+    "assets/main.B48lKuWY.js",
+    "assets/ui.Dt9tjL3_.js.map",
+    "assets/vendor.CX7oM-mS.js.map",
+    "assets/main.B48lKuWY.js.map"
+  ],
+  "mode": "staging",
+  "port": 5000,
+  "version": "2.2.2"
 }
