@@ -15,7 +15,7 @@ pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
 start = "typescript-language-server --stdio"
 
 [env]
-NODE_ENV = "staging"                   
+NODE_ENV = "staging"
 
 [workflows]
 runButton = "Project"
@@ -72,10 +72,6 @@ externalPort = 5000
 [auth]
 pageEnabled = false
 buttonEnabled = false
-
-[deployment]
-run = ["sh", "-c", "./start-workflow.sh"]
-deploymentTarget = "cloudrun"
 
 [[ports]]
 localPort = 5000

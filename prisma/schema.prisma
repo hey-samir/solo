@@ -1,0 +1,106 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  email        String    @unique
+  displayName  String?
+  profilePhoto String?
+  memberSince  DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  points       Int       @default(0)
+  gymId        Int?
+  gym          Gym?      @relation(fields: [gymId], references: [id])
+  sends        Send[]
+  sessions     Session[]
+  feedbacks    Feedback[]
+
+  @@map("users")
+}
+
+model Gym {
+  id        Int      @id @default(autoincrement())
+  name      String
+  location  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+  routes    Route[]
+
+  @@map("gyms")
+}
+
+model Route {
+  id           Int      @id @default(autoincrement())
+  color        String
+  grade        String
+  wallSector   String   @map("wall_sector")
+  anchorNumber Int      @map("anchor_number")
+  points       Int      @default(0)
+  triedPoints  Int      @default(0) @map("tried_points")
+  active       Boolean  @default(true)
+  gymId        Int      @map("gym_id")
+  gym          Gym      @relation(fields: [gymId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  sends        Send[]
+
+  @@map("routes")
+}
+
+model Send {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  routeId   Int?     @map("route_id")
+  route     Route?   @relation(fields: [routeId], references: [id])
+  grade     String
+  attempts  Int      @default(1)
+  sent      Boolean  @default(true)
+  points    Int      @default(0)
+  notes     String?
+  sessionId Int?     @map("session_id")
+  session   Session? @relation(fields: [sessionId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sends")
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  duration  Int?
+  location  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sends     Send[]
+
+  @@map("sessions")
+}
+
+model Feedback {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  user         User     @relation(fields: [userId], references: [id])
+  title        String
+  description  String
+  category     String
+  screenshotUrl String?  @map("screenshot_url")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("feedback")
+}
