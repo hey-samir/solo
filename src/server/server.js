@@ -66,24 +66,66 @@ app.get('/health', (req, res) => {
   res.json(healthStatus);
 });
 
+// Debug route for static assets
+app.get('/debug-assets', (req, res) => {
+  try {
+    const assetsDirPath = path.join(config.clientDir, 'assets');
+    const assetsExist = require('fs').existsSync(assetsDirPath);
+    const assetsList = assetsExist ? require('fs').readdirSync(assetsDirPath) : [];
+    
+    res.json({
+      clientDir: config.clientDir,
+      assetsPath: assetsDirPath,
+      assetsExist,
+      assetsList,
+      cssFiles: assetsList.filter(file => file.endsWith('.css'))
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Serve assets directory with higher priority and explicit content types
+app.use('/assets', (req, res, next) => {
+  console.log('[Assets Route] Requested:', req.path);
+  
+  // Log what we're looking for
+  const targetPath = path.join(config.clientDir, 'assets', req.path);
+  console.log('[Assets Route] Looking for file at:', targetPath);
+  
+  // Check if file exists
+  if (require('fs').existsSync(targetPath)) {
+    console.log('[Assets Route] File found, serving:', targetPath);
+    
+    // Set content type for CSS files
+    if (targetPath.endsWith('.css')) {
+      res.setHeader('Content-Type', 'text/css');
+    }
+    
+    res.sendFile(targetPath);
+  } else {
+    console.log('[Assets Route] File not found:', targetPath);
+    next();
+  }
+});
+
 // Serve static files with enhanced caching and logging
 app.use(express.static(config.clientDir, {
   maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
   etag: process.env.NODE_ENV === 'production',
   lastModified: process.env.NODE_ENV === 'production',
-  setHeaders: (res, path) => {
+  setHeaders: (res, filePath) => {
     // Set proper content type for CSS files
-    if (path.endsWith('.css')) {
+    if (filePath.endsWith('.css')) {
+      console.log('[Static] Serving CSS file:', filePath);
       res.setHeader('Content-Type', 'text/css');
     }
-    // Log static file requests in debug mode
-    if (config.logLevel === 'debug') {
-      console.log('[Static] Serving:', {
-        path,
-        type: path.split('.').pop(),
-        directory: config.clientDir
-      });
-    }
+    // Log static file requests for debugging
+    console.log('[Static] Serving:', {
+      path: filePath,
+      type: filePath.split('.').pop(),
+      directory: config.clientDir
+    });
   }
 }));
 

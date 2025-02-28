@@ -9,7 +9,7 @@ def generate_pwa_icons():
     try:
         # Get absolute paths
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        source_path = os.path.join(current_dir, '..', 'attached_assets', 'solo-favicon bright.png')
+        source_path = os.path.join(current_dir, '..', 'attached_assets', 'Solo Logo 2025 Square.png')
         static_dir = os.path.join(current_dir, '..', 'static', 'images')
 
         logger.info(f"Generating PWA icons from source: {source_path}")
@@ -103,7 +103,7 @@ def generate_avatar_set():
     try:
         # Get absolute paths
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        source_path = os.path.join(current_dir, '..', 'attached_assets', 'solo-favicon bright.png')
+        source_path = os.path.join(current_dir, '..', 'attached_assets', 'Solo Logo 2025 Square.png')
         output_dir = os.path.join(current_dir, '..', 'public', 'avatars')
 
         # Create output directory

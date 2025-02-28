@@ -77,9 +77,10 @@ export default defineConfig(({ mode }) => {
       emptyOutDir: true,
       sourcemap: true,
       assetsDir: 'assets',
+      cssCodeSplit: false, // Force all CSS into a single file for better loading
       rollupOptions: {
         input: {
-          main: path.resolve(PROJECT_ROOT, 'index.html')
+          main: path.resolve(PROJECT_ROOT, env === 'staging' ? 'staging.html' : 'index.html')
         },
         output: {
           entryFileNames: 'assets/[name].[hash].js',
