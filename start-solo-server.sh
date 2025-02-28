@@ -1,3 +1,13 @@
+#!/bin/bash
+
+# Start the Solo server using Node.js
+
+echo "Starting Solo server on port 5000..."
+
+# Create server file if it doesn't exist
+if [ ! -f simple-server.js ]; then
+  echo "Creating server file..."
+  cat > simple-server.js << 'EOF'
 /**
  * Simple Express Server for Solo App
  */
@@ -87,3 +97,8 @@ if (fs.existsSync(STATIC_DIR) && fs.existsSync(path.join(STATIC_DIR, 'staging.ht
   console.error(`Error: Build not found at ${STATIC_DIR}`);
   process.exit(1);
 }
+EOF
+fi
+
+# Run the server
+node simple-server.js
